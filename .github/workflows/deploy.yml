@@ -48,6 +48,7 @@ jobs:
           only: |
             release.zip
             extract.php
+            index.php
             fix_perms.php
             .htaccess
 
