@@ -43,43 +43,6 @@ if (isset($env)) {
             }
         } else {
             echo "❌ Tabla 'users' NO encontrada. ¡Faltan las migraciones!<br>";
-            echo "<h1>🚀 Ejecutando Migraciones...</h1>";
-            echo "<pre>";
-
-            // Forzar errores visibles
-            ini_set('display_errors', 1);
-            error_reporting(E_ALL);
-            // config(['app.debug' => true]); // This line requires Laravel's config() helper, which is not available in a standalone PHP script.
-
-            try {
-                echo "Iniciando comando...\n";
-                // Intentamos migrar sin borrar (por si ya hay tablas)
-                // Artisan::call() requires Laravel's Artisan facade, which is not available in a standalone PHP script.
-                // This section would need to be run within a Laravel context.
-                echo "⚠️ Esta sección requiere el entorno de Laravel para ejecutar Artisan::call().\n";
-                echo "Si estás en un entorno Laravel, asegúrate de que este script se ejecute dentro de él.\n";
-
-                // Example of what would happen if Artisan was available:
-                // $exitCode = Artisan::call('migrate', [
-                //     '--force' => true
-                // ]);
-                // echo "📌 Migración básica: " . ($exitCode == 0 ? "OK" : "Error $exitCode") . "\n";
-                // echo Artisan::output() . "\n";
-
-                // echo "Intentando Seeders...\n";
-                // $exitCodeSeed = Artisan::call('db:seed', [
-                //     '--force' => true
-                // ]);
-                // echo "📌 Seeders: " . ($exitCodeSeed == 0 ? "OK" : "Error $exitCodeSeed") . "\n";
-                // echo Artisan::output() . "\n";
-
-                echo "\n✨ Proceso finalizado (simulado si no hay Laravel).";
-            } catch (Exception $e) {
-                echo "❌ ERROR FATAL:\n" . $e->getMessage() . "\n";
-                echo "En archivo: " . $e->getFile() . " (Línea " . $e->getLine() . ")\n";
-                echo "\nTrace:\n" . substr($e->getTraceAsString(), 0, 500) . "...";
-            }
-            echo "</pre>";
         }
     } catch (Exception $e) {
         echo "❌ Error de conexión: " . $e->getMessage() . "<br>";
