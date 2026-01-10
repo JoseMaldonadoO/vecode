@@ -3,7 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-    base: '/vecode/',
+    base: '/VECODE/',
     plugins: [
         laravel({
             input: 'resources/js/app.tsx',

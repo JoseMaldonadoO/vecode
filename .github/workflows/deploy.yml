@@ -42,7 +42,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: vecode/
+          server-dir: VECODE/
           local-dir: ./
           # Solo subimos lo mínimo necesario
           only: |
@@ -52,5 +52,5 @@ jobs:
 
       - name: 🚀 Extract files on server
         run: |
-          curl -s https://ceetpower.com/vecode/extract.php
+          curl -s https://ceetpower.com/VECODE/extract.php
           echo "Despliegue optimizado completado."

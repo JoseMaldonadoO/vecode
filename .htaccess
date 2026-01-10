@@ -2,6 +2,6 @@
     RewriteEngine On
 
     # Reenviar todas las peticiones a la carpeta /public
-    RewriteCond %{REQUEST_URI} !^/vecode/public/
+    RewriteCond %{REQUEST_URI} !^/VECODE/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
