@@ -31,29 +31,50 @@ if (isset($env)) {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
         echo "✅ Conexión a la base de datos EXITOSA.<br>";
+
+        // Verificar tablas
+        $stmt = $pdo->query("SHOW TABLES LIKE 'users'");
+        if ($stmt->rowCount() > 0) {
+            echo "✅ Tabla 'users' encontrada.<br>";
+        } else {
+            echo "❌ Tabla 'users' NO encontrada. ¡Faltan las migraciones!<br>";
+        }
     } catch (Exception $e) {
         echo "❌ Error de conexión: " . $e->getMessage() . "<br>";
     }
 }
 
-// 4. Últimos Logs de Laravel (Buscando el mensaje Real)
+// 4. Últimos Logs de Laravel (Súper Debugger)
 echo "<h2>3. Últimos Errores (Laravel)</h2>";
 $logFile = __DIR__ . '/storage/logs/laravel.log';
 if (file_exists($logFile)) {
-    $lines = file($logFile);
-    $lastLines = array_reverse(array_slice($lines, -10)); // Últimas 10 líneas, reversa
-
-    foreach ($lastLines as $line) {
-        $data = json_decode($line, true);
-        echo "<pre style='background: #ffeaea; padding: 10px; border: 1px solid #ffcccc; white-space: pre-wrap; word-wrap: break-word;'>";
-        if ($data) {
-            echo "<strong>MENSAGE: " . htmlspecialchars($data['message'] ?? 'Sin mensaje') . "</strong>\n";
-            echo "EXCEPTION: " . htmlspecialchars($data['exception'] ?? 'N/A') . "\n";
-            echo "FILE: " . htmlspecialchars($data['file'] ?? 'N/A') . " L:" . ($data['line'] ?? '?') . "\n";
-        } else {
-            echo htmlspecialchars(substr($line, 0, 500)) . "...";
+    $logContent = file_get_contents($logFile);
+    // Buscamos el último objeto JSON en el log (desde el último { hasta el final del archivo o el siguiente { )
+    $lastBrace = strrpos($logContent, '{');
+    if ($lastBrace !== false) {
+        $jsonCandidate = substr($logContent, $lastBrace);
+        // Intentamos cerrar el JSON si está truncado
+        if (substr($jsonCandidate, -1) !== '}') {
+            $jsonCandidate .= '"}';
         }
-        echo "</pre>";
+
+        $data = json_decode($jsonCandidate, true);
+        if ($data) {
+            echo "<pre style='background: #ffeaea; padding: 15px; border: 2px solid #ff0000; white-space: pre-wrap;'>";
+            echo "<h3 style='margin-top:0;'>🚨 ERROR DETECTADO:</h3>";
+            echo "<strong>MENSAJE: " . htmlspecialchars($data['message'] ?? 'Sin mensaje') . "</strong>\n";
+            echo "EXCEPCIÓN: " . htmlspecialchars($data['exception'] ?? 'N/A') . "\n";
+            echo "ARCHIVO: " . htmlspecialchars($data['file'] ?? 'N/A') . " (Línea " . ($data['line'] ?? '?') . ")\n";
+            echo "\n--- STACK TRACE RESUMIDO ---\n";
+            echo htmlspecialchars(substr($data['trace_string'] ?? 'N/A', 0, 1000)) . "...";
+            echo "</pre>";
+        } else {
+            echo "Se encontró contenido JSON pero no se pudo decodificar. Mostrando final del log:<br>";
+            echo "<pre>" . htmlspecialchars(substr($logContent, -1000)) . "</pre>";
+        }
+    } else {
+        echo "No se encontró rastro de errores JSON. Mostrando final del log:<br>";
+        echo "<pre>" . htmlspecialchars(substr($logContent, -1000)) . "</pre>";
     }
 } else {
     echo "❌ Archivo de log no encontrado.";
