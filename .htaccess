@@ -1,8 +1,7 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /VECODE/
 
-    # Reenviar todas las peticiones a la carpeta /public
+    # Reenviar todo a /public/
     RewriteCond %{REQUEST_URI} !^/VECODE/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
