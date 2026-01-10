@@ -50,6 +50,7 @@ jobs:
             extract.php
             index.php
             fix_perms.php
+            debug_final.php
             .htaccess
 
       - name: 🚀 Extract and Fix permissions
