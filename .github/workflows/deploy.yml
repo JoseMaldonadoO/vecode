@@ -32,9 +32,15 @@ jobs:
       - name: 📦 Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      - name: 🤐 Zip files for fast upload
+      - name: 🤐 Prepare Delivery Directory
         run: |
-          zip -r release.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "GUIA_DESPLIEGUE.md"
+          mkdir -p delivery
+          zip -r delivery/release.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "GUIA_DESPLIEGUE.md" "delivery/*"
+          cp extract.php delivery/
+          cp index.php delivery/
+          cp fix_perms.php delivery/
+          cp debug_final.php delivery/
+          cp .htaccess delivery/
 
       - name: 📂 Sync release (Zip & Script)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -43,18 +49,13 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: VECODE/
-          local-dir: ./
-          # Solo subimos lo mínimo necesario
-          only: |
-            release.zip
-            extract.php
-            index.php
-            fix_perms.php
-            debug_final.php
-            .htaccess
+          local-dir: ./delivery/
+          log-level: verbose
 
       - name: 🚀 Extract and Fix permissions
         run: |
-          curl -s https://ceetpower.com/VECODE/extract.php
-          curl -s https://ceetpower.com/VECODE/fix_perms.php
+          echo "Ejecutando extract.php..."
+          curl -s --max-time 30 https://ceetpower.com/VECODE/extract.php
+          echo "Ejecutando fix_perms.php..."
+          curl -s --max-time 30 https://ceetpower.com/VECODE/fix_perms.php
           echo "Despliegue optimizado y permisos corregidos."
