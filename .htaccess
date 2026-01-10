@@ -1,0 +1,17 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirect /vecode to /vecode/
+    RewriteCond %{REQUEST_URI} ^/vecode$
+    RewriteRule ^(.*)$ /vecode/ [L,R=301]
+
+    # Handle /vecode/ requests by passing them to public/
+    RewriteCond %{REQUEST_URI} ^/vecode/
+    RewriteCond %{REQUEST_URI} !^/vecode/public/
+    RewriteRule ^vecode/(.*)$ vecode/public/$1 [L]
+
+    # Standard Laravel rewrite rules for the public folder
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ vecode/public/index.php [L]
+</IfModule>
