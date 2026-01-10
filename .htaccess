@@ -1,5 +1,12 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^$ public/index.php [L]
-    RewriteRule ^((?!public/).*)$ public/$1 [L]
+    RewriteBase /VECODE/
+
+    # Redirigir todo a la carpeta public
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Redirigir la raíz a public
+    RewriteRule ^$ public/ [L]
 </IfModule>
