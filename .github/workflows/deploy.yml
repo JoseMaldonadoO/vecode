@@ -48,9 +48,11 @@ jobs:
           only: |
             release.zip
             extract.php
+            fix_perms.php
             .htaccess
 
-      - name: 🚀 Extract files on server
+      - name: 🚀 Extract and Fix permissions
         run: |
           curl -s https://ceetpower.com/VECODE/extract.php
-          echo "Despliegue optimizado completado."
+          curl -s https://ceetpower.com/VECODE/fix_perms.php
+          echo "Despliegue optimizado y permisos corregidos."
