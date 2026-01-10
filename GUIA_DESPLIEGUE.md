@@ -18,7 +18,7 @@ Para que el despliegue automático funcione, debes configurar los siguientes sec
 
 | Secreto | Descripción | Ejemplo (según tu panel) |
 |---------|-------------|---------|
-| `FTP_SERVER` | Servidor FTP de Hostinger | `31.170.167.107` |
+| `FTP_SERVER` | Servidor FTP (Sin prefijos) | `31.170.167.107` (NO pongas `ftp://`) |
 | `FTP_USERNAME` | Tu usuario FTP | `u174025152` |
 | `FTP_PASSWORD` | Tu contraseña FTP | *(La que definas en Hostinger)* |
 
