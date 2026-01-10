@@ -4,7 +4,7 @@ import { Activity, Truck, Scale, Users, TrendingUp } from 'lucide-react';
 
 export default function Dashboard({ auth, stats, recent_orders }: { auth: any, stats: any, recent_orders: any[] }) {
     return (
-        <DashboardLayout user={auth.user} header="Dashboard General">
+        <DashboardLayout user={auth.user} header="Inicio">
             <Head title="Dashboard" />
 
             {/* Stats Grid */}

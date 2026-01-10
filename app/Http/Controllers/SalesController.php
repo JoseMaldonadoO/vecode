@@ -15,15 +15,48 @@ class SalesController extends Controller
             ->get();
 
         return Inertia::render('Sales/Index', [
-            'orders' => $orders
+            'orders' => $orders,
+            'clients' => \App\Models\Client::all()
         ]);
     }
 
     public function create()
     {
+        // Get all existing folios
+        $folios = ShipmentOrder::pluck('folio')->toArray();
+        $suggestedFolios = [];
+        $patterns = [];
+
+        foreach ($folios as $folio) {
+            // Match pattern: ends with -NUMBER (e.g., OV-AMO-25-1)
+            // Use - separator specifically based on user request "OV-AMO-25-2"
+            if (preg_match('/^(.*)-(\d+)$/', $folio, $matches)) {
+                $prefix = $matches[1];
+                $number = intval($matches[2]);
+
+                if (!isset($patterns[$prefix]) || $number > $patterns[$prefix]) {
+                    $patterns[$prefix] = $number;
+                }
+            }
+        }
+
+        foreach ($patterns as $prefix => $maxNumber) {
+            $suggestedFolios[] = $prefix . '-' . ($maxNumber + 1);
+        }
+
+        // Default if empty
+        if (empty($suggestedFolios)) {
+            $suggestedFolios[] = 'OV-' . date('Y') . '-1';
+        }
+
+        // Sort descending
+        rsort($suggestedFolios);
+
         return Inertia::render('Sales/Create', [
             'clients' => \App\Models\Client::all(),
-            'products' => \App\Models\Product::all()
+            'products' => \App\Models\Product::all(),
+            'suggested_folios' => array_values($suggestedFolios),
+            'default_folio' => ''
         ]);
     }
 
@@ -32,29 +65,37 @@ class SalesController extends Controller
         $validated = $request->validate([
             'folio' => 'required|string',
             'sale_order' => 'required|string',
+            'sale_conditions' => 'nullable|string',
+            'delivery_conditions' => 'nullable|string',
             'client_id' => 'required|exists:clients,id',
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric|min:0.1',
             'destination' => 'nullable|string',
         ]);
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+        $order = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
             $order = ShipmentOrder::create([
                 'folio' => $validated['folio'],
                 'sale_order' => $validated['sale_order'],
+                'sale_conditions' => $validated['sale_conditions'] ?? null,
+                'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                 'client_id' => $validated['client_id'],
                 'status' => 'created',
+                'destination' => $validated['destination'] ?? null,
             ]);
 
             $order->items()->create([
                 'product_id' => $validated['product_id'],
                 'requested_quantity' => $validated['quantity'],
-                 // Assuming 'packaging' default or passed from form if added later
-                'packaging_type' => 'Granel' 
+                // Assuming 'packaging' default or passed from form if added later
+                'packaging_type' => 'Granel'
             ]);
+
+            return $order;
         });
 
-        return redirect()->route('sales.index');
+        // Redirect to print view
+        return redirect()->route('sales.print', $order->id);
     }
 
     public function show(string $id)
@@ -66,12 +107,23 @@ class SalesController extends Controller
             'order' => $order
         ]);
     }
+
+    public function print(string $id)
+    {
+        $order = ShipmentOrder::with(['client', 'items.product'])
+            ->findOrFail($id);
+
+        return Inertia::render('Sales/Print', [
+            'order' => $order
+        ]);
+    }
+
     public function edit(string $id)
     {
         $order = ShipmentOrder::with(['items', 'client'])->findOrFail($id);
 
         if ($order->status !== 'created') {
-             return redirect()->route('sales.index')->withErrors(['message' => 'Solo se pueden editar órdenes en estatus CREADO.']);
+            return redirect()->route('sales.index')->withErrors(['message' => 'Solo se pueden editar órdenes en estatus CREADO.']);
         }
 
         return Inertia::render('Sales/Edit', [
@@ -86,12 +138,14 @@ class SalesController extends Controller
         $order = ShipmentOrder::findOrFail($id);
 
         if ($order->status !== 'created') {
-             return redirect()->back()->withErrors(['message' => 'No se puede editar una orden en proceso.']);
+            return redirect()->back()->withErrors(['message' => 'No se puede editar una orden en proceso.']);
         }
 
         $validated = $request->validate([
             'folio' => 'required|string',
             'sale_order' => 'required|string',
+            'sale_conditions' => 'nullable|string',
+            'delivery_conditions' => 'nullable|string',
             'client_id' => 'required|exists:clients,id',
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric|min:0.1',
@@ -101,7 +155,10 @@ class SalesController extends Controller
             $order->update([
                 'folio' => $validated['folio'],
                 'sale_order' => $validated['sale_order'],
+                'sale_conditions' => $validated['sale_conditions'] ?? null,
+                'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                 'client_id' => $validated['client_id'],
+                'destination' => $validated['destination'] ?? null,
             ]);
 
             // Assuming single item per order for this MVP
@@ -119,11 +176,29 @@ class SalesController extends Controller
         $order = ShipmentOrder::findOrFail($id);
 
         if ($order->status !== 'created') {
-             return redirect()->back()->withErrors(['message' => 'Solo se pueden cancelar órdenes en estatus CREADO.']);
+            return redirect()->back()->withErrors(['message' => 'Solo se pueden cancelar órdenes en estatus CREADO.']);
         }
 
-        $order->update(['status' => 'cancelled']);
+        $order->items()->delete();
+        $order->delete();
 
-        return redirect()->back()->with('success', 'Orden cancelada correctamente.');
+        return redirect()->route('sales.index')->with('success', 'Orden eliminada (cancelada) correctamente.');
+    }
+
+    public function toggleStatus(string $id)
+    {
+        $order = ShipmentOrder::findOrFail($id);
+
+        if ($order->status === 'created') {
+            $order->update(['status' => 'closed']);
+            $message = 'Orden CERRADA correctamente.';
+        } elseif ($order->status === 'closed') {
+            $order->update(['status' => 'created']);
+            $message = 'Orden ABIERTA correctamente.';
+        } else {
+            return redirect()->back()->withErrors(['message' => 'No se puede cambiar el estatus de esta orden.']);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }

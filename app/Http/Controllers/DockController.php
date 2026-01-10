@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ShipmentOrder;
 use App\Models\Vessel;
+use App\Models\VesselOperator; // Import new model
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,9 @@ class DockController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Dock/Index');
+        return Inertia::render('Dock/Index', [
+            'operators' => VesselOperator::orderBy('operator_name')->get()
+        ]);
     }
 
     public function createVessel()
@@ -29,49 +32,34 @@ class DockController extends Controller
             'name' => 'required|string|max:255',
             'product_id' => 'required|exists:products,id',
             'client_id' => 'required|exists:clients,id',
-            'service_type' => 'required|string',
+            'docking_date' => 'required|date',
+            'docking_time' => 'required',
+            'origin' => 'required|string',
+            'sub_origin' => 'nullable|string',
+            'destination' => 'required|string',
+            'agency' => 'required|string',
+            'programmed_tonnage' => 'required|numeric|min:0',
+            // 'service_type' => 'nullable|string', // Keeping optional or removing if input removed
         ]);
 
+        $validated['service_type'] = 'Importación';
         Vessel::create($validated);
 
-        return redirect()->route('dock.index'); // Return to menu
+        return redirect()->route('dock.index');
+    }
+    public function qrPrint()
+    {
+        return Inertia::render('Dock/QrPrint');
     }
 
-    public function scanQr()
+    public function searchOperators(Request $request)
     {
-        return Inertia::render('Dock/ScanQr');
-    }
+        $query = $request->input('q');
+        $operators = VesselOperator::where('operator_name', 'like', "%{$query}%")
+            ->orderBy('operator_name')
+            ->limit(20)
+            ->get();
 
-    public function processQr(Request $request)
-    {
-        $validated = $request->validate([
-            'folio' => 'required|string|exists:shipment_orders,folio',
-        ]);
-
-        $order = ShipmentOrder::where('folio', $validated['folio'])->firstOrFail();
-
-        // Logic: Truck MUST be in 'loading' status (Checked in by Guard -> Weighed In by Scale)
-        if ($order->status === 'authorized') {
-             return back()->withErrors(['folio' => "La orden {$order->folio} está autorizada pero NO ha realizado el primer pesaje (Tara). Envié a Báscula."]);
-        }
-        
-        if ($order->status !== 'loading') {
-            return back()->withErrors(['folio' => "La orden no está lista. Estatus: {$order->status} (Req: loading)"]);
-        }
-
-        // Logic: Assign to Active Vessel (Simplified: Pick first active or require input?)
-        // For this MVP, let's assume we are operating on the "Current Active Vessel".
-        // Or we could ask the user to select the vessel in the Scan QR screen.
-        // Let's keep it simple: Just mark as loaded/unloaded so they can go to Scale Out.
-        // And optionally link a vessel if sent.
-        
-        // If we want to link a vessel, we should probably have it selected in session or passed.
-        // For now, let's just authorize the "Exit Weigh" by changing status.
-        
-        $order->update([
-            'status' => 'weighing_out', // Now ready for Second Weigh
-        ]);
-
-        return back()->with('success', "Orden {$order->folio} procesada. Autorizada para pesaje de salida.");
+        return response()->json($operators);
     }
 }

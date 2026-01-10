@@ -23,20 +23,32 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/dock/scan', [\App\Http\Controllers\DockController::class, 'scanQr'])->name('dock.scan');
-    Route::post('/dock/scan', [\App\Http\Controllers\DockController::class, 'processQr'])->name('dock.process');
+
+    // QR Printing
+    Route::get('/dock/qr', [\App\Http\Controllers\DockController::class, 'qrPrint'])->name('dock.qr');
+    Route::get('/dock/operators/search', [\App\Http\Controllers\DockController::class, 'searchOperators'])->name('dock.operators.search');
+
     Route::get('/dock/vessel', [\App\Http\Controllers\DockController::class, 'createVessel'])->name('dock.vessel.create');
     Route::post('/dock/vessel', [\App\Http\Controllers\DockController::class, 'storeVessel'])->name('dock.vessel.store');
+
+    // Operator Registration
+    Route::get('/dock/operator', [\App\Http\Controllers\VesselOperatorController::class, 'create'])->name('dock.operator.create');
+    Route::post('/dock/operator', [\App\Http\Controllers\VesselOperatorController::class, 'store'])->name('dock.operator.store');
+
     Route::resource('dock', \App\Http\Controllers\DockController::class)->only(['index']);
 
     // Documents / Printing
     Route::get('/documents/ticket/{id}', [\App\Http\Controllers\DocumentsController::class, 'printTicket'])->name('documents.ticket');
     Route::get('/documents/cp/{id}', [\App\Http\Controllers\DocumentsController::class, 'printBillOfLading'])->name('documents.cp');
 
+    Route::get('/sales/{id}/print', [\App\Http\Controllers\SalesController::class, 'print'])->name('sales.print');
+    Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
     Route::resource('sales', \App\Http\Controllers\SalesController::class);
+    Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
+    Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
