@@ -48,8 +48,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: VECODE/
+          server-dir: /domains/ceetpower.com/public_html/VECODE/
           local-dir: ./delivery/
+          state-name: .ftp-deploy-zip-state.json
           log-level: verbose
 
       - name: 🚀 Extract and Fix permissions
