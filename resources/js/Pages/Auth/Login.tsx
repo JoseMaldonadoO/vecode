@@ -107,12 +107,8 @@ export default function Login({
                     </form>
                 </div>
 
-                <div className="bg-gray-50 p-4 text-center border-t border-gray-100">
-                    <Link href="/" className="text-xs text-brand-600 hover:text-brand-800 font-medium transition-colors">
-                        Volver al inicio
-                    </Link>
-                </div>
             </div>
         </div>
+        </div >
     );
 }
