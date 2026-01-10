@@ -32,26 +32,25 @@ jobs:
       - name: 📦 Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
 
-      - name: 📂 Sync files
+      - name: 🤐 Zip files for fast upload
+        run: |
+          zip -r release.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "GUIA_DESPLIEGUE.md"
+
+      - name: 📂 Sync release (Zip & Script)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: vecode/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/tests/**
-            storage/**
-            .env
-            phpunit.xml
-            package.json
-            package-lock.json
-            vite.config.js
-            tsconfig.json
-            tailwind.config.js
-            postcss.config.js
-            README.md
-            GUIA_DESPLIEGUE.md
+          local-dir: ./
+          # Solo subimos lo mínimo necesario
+          only: |
+            release.zip
+            extract.php
+            .htaccess
+
+      - name: 🚀 Extract files on server
+        run: |
+          curl -s https://ceetpower.com/vecode/extract.php
+          echo "Despliegue optimizado completado."
