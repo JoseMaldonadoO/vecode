@@ -16,11 +16,11 @@ Esta guía detalla los pasos necesarios para desplegar la aplicación en Hosting
 
 Para que el despliegue automático funcione, debes configurar los siguientes secretos en tu repositorio de GitHub (**Settings > Secrets and variables > Actions > New repository secret**):
 
-| Secreto | Descripción | Ejemplo |
+| Secreto | Descripción | Ejemplo (según tu panel) |
 |---------|-------------|---------|
-| `FTP_SERVER` | Servidor FTP de Hostinger | `ftp.ceetpower.com` |
-| `FTP_USERNAME` | Tu usuario FTP | `u174025152@ceetpower.com` |
-| `FTP_PASSWORD` | Tu contraseña FTP | `**********` |
+| `FTP_SERVER` | Servidor FTP de Hostinger | `31.170.167.107` |
+| `FTP_USERNAME` | Tu usuario FTP | `u174025152` |
+| `FTP_PASSWORD` | Tu contraseña FTP | *(La que definas en Hostinger)* |
 
 ## 3. Variables de Entorno (.env)
 
