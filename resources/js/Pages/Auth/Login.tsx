@@ -27,19 +27,19 @@ export default function Login({
     };
 
     return (
-        <div className="flex items-center justify-center p-4 min-h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('Fondo.jpg')" }}>
+        <div className="flex items-center justify-center p-4 min-h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/VECODE/Fondo.jpg')" }}>
             <Head title="Log in" />
 
             <div className="w-full max-w-md glass-panel rounded-2xl shadow-2xl overflow-hidden transform transition-all hover:scale-[1.01]" style={{ background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(10px)' }}>
 
                 {/* Header / Logo */}
                 <div className="bg-white p-6 flex justify-center border-b border-gray-100">
-                    <img src="images/Logo_vde.png" alt="Logo" className="h-16 object-contain" />
+                    <img src="/VECODE/images/Logo_vde.png" alt="Logo" className="h-16 object-contain" />
                 </div>
 
                 <div className="p-8">
                     <div className="text-center mb-8">
-                        <img src="images/Proagro2.png" alt="Proagro" className="h-20 mx-auto mb-4 object-contain" />
+                        <img src="/VECODE/images/Proagro2.png" alt="Proagro" className="h-20 mx-auto mb-4 object-contain" />
                         <h2 className="text-2xl font-bold text-gray-800">Bienvenido</h2>
                         <p className="text-gray-500 text-sm">Ingrese sus credenciales para continuar</p>
                     </div>
