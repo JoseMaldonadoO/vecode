@@ -7,9 +7,9 @@ Esta guía detalla los pasos necesarios para desplegar la aplicación en Hosting
 1. Accede a tu **hPanel** de Hostinger.
 2. Ve a **Bases de Datos** -> **Bases de Datos MySQL**.
 3. Crea una nueva base de datos y un usuario:
-   - **Nombre de BD:** `u174025152_vecode` (o el que prefieras).
-   - **Usuario:** `u174025152_admin`.
-   - **Contraseña:** Genera una segura.
+   - **Nombre de BD:** `u174025152_vecode_v2` (o el que prefieras).
+   - **Usuario:** `u174025152_admin_v2`.
+   - **Contraseña:** la de hostinger.
 4. Asegúrate de usar la **Collation:** `utf8mb4_unicode_ci` para compatibilidad total con Laravel.
 
 ## 2. Secretos de GitHub (CI/CD)
