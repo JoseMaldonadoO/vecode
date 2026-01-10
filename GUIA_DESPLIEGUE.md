@@ -66,4 +66,4 @@ Como Hostinger compartido a veces no permite SSH, puedes crear el enlace simból
 ## 5. Consideraciones Finales
 
 - Los archivos `.htaccess` ya están configurados para que la aplicación funcione desde `/vecode`.
-- Cada vez que hagas `push` a la rama `main`, GitHub Actions compilará los assets de Vite y subirá los cambios automáticamente.
+- Cada vez que hagas `push` a la rama `main`, GitHub Actions compilará los assets de Vite y subirá los cambios automáticamente. 
