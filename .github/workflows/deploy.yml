@@ -40,6 +40,7 @@ jobs:
           cp index.php delivery/
           cp fix_perms.php delivery/
           cp debug_final.php delivery/
+          cp migrate.php delivery/
           cp .htaccess delivery/
 
       - name: 📂 Sync release (Zip & Script)
