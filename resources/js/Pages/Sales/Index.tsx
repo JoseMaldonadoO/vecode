@@ -14,6 +14,7 @@ interface Client {
     business_name: string;
     rfc: string;
     contact_info: string;
+    address?: string; // Added optional fields for TS compliance
 }
 
 interface Order {
@@ -30,6 +31,39 @@ interface Order {
 export default function Index({ auth, orders, clients }: { auth: any, orders: Order[], clients: Client[] }) {
     const [isClientModalOpen, setIsClientModalOpen] = useState(false);
     const [isClientListModalOpen, setIsClientListModalOpen] = useState(false);
+
+    // Inline Edit State
+    const [editingClient, setEditingClient] = useState<number | null>(null);
+    const [editForm, setEditForm] = useState({
+        business_name: '',
+        rfc: '',
+        contact_info: '',
+        address: ''
+    });
+
+    const startEdit = (client: Client) => {
+        setEditingClient(client.id);
+        setEditForm({
+            business_name: client.business_name,
+            rfc: client.rfc,
+            contact_info: client.contact_info,
+            address: client.address || ''
+        });
+    };
+
+    const cancelEdit = () => {
+        setEditingClient(null);
+        setEditForm({ business_name: '', rfc: '', contact_info: '', address: '' });
+    };
+
+    const saveEdit = (id: number) => {
+        router.put(route('clients.update', id), editForm, {
+            onSuccess: () => {
+                setEditingClient(null);
+            },
+            preserveScroll: true
+        });
+    };
 
     const { data, setData, post, processing, errors, reset } = useForm({
         business_name: '',
@@ -116,21 +150,75 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre / Razón Social</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFC</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {clients.length === 0 ? (
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
                                             No hay clientes registrados.
                                         </td>
                                     </tr>
                                 ) : (
                                     clients.map((client) => (
                                         <tr key={client.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{client.business_name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.rfc}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.contact_info || '-'}</td>
+                                            {editingClient === client.id ? (
+                                                <>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                        <input
+                                                            type="text"
+                                                            value={editForm.business_name}
+                                                            onChange={(e) => setEditForm({ ...editForm, business_name: e.target.value })}
+                                                            className="w-full rounded border-gray-300 text-sm"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        <input
+                                                            type="text"
+                                                            value={editForm.rfc}
+                                                            onChange={(e) => setEditForm({ ...editForm, rfc: e.target.value })}
+                                                            className="w-full rounded border-gray-300 text-sm"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        <input
+                                                            type="text"
+                                                            value={editForm.contact_info}
+                                                            onChange={(e) => setEditForm({ ...editForm, contact_info: e.target.value })}
+                                                            className="w-full rounded border-gray-300 text-sm"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                        <button
+                                                            onClick={() => saveEdit(client.id)}
+                                                            className="text-green-600 hover:text-green-900 font-bold"
+                                                        >
+                                                            Guardar
+                                                        </button>
+                                                        <button
+                                                            onClick={cancelEdit}
+                                                            className="text-gray-600 hover:text-gray-900"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{client.business_name}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.rfc}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{client.contact_info || '-'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <button
+                                                            onClick={() => startEdit(client)}
+                                                            className="text-indigo-600 hover:text-indigo-900"
+                                                        >
+                                                            Editar
+                                                        </button>
+                                                    </td>
+                                                </>
+                                            )}
                                         </tr>
                                     ))
                                 )}

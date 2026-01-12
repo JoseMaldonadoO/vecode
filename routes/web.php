@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
     Route::resource('sales', \App\Http\Controllers\SalesController::class);
     Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
+    Route::put('/clients/{client}', [\App\Http\Controllers\ClientController::class, 'update'])->name('clients.update');
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
     // User Registration in Traffic
     Route::get('/traffic/users/create', [\App\Http\Controllers\TrafficController::class, 'createUser'])->name('traffic.users.create');
