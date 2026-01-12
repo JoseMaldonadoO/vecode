@@ -83,8 +83,25 @@ if (file_exists($logFile)) {
     echo "❌ Archivo de log no encontrado.";
 }
 
-// 5. Permisos de carpetas críticas
-echo "<h2>4. Permisos</h2>";
+// 5. Listar archivos en build (Depuración de Assets)
+echo "<h2>5. Explorador de Assets (public/build)</h2>";
+$buildPath = __DIR__ . '/public/build/assets';
+if (is_dir($buildPath)) {
+    $files = scandir($buildPath);
+    echo "Archivos encontrados en public/build/assets:<br>";
+    echo "<ul style='font-family: monospace; font-size: 12px; height: 150px; overflow-y: scroll; background: #f9f9f9; padding: 10px; border: 1px solid #ccc;'>";
+    foreach ($files as $file) {
+        if ($file != "." && $file != "..") {
+            echo "<li>$file</li>";
+        }
+    }
+    echo "</ul>";
+} else {
+    echo "❌ La carpeta public/build/assets NO existe.";
+}
+
+// 6. Permisos de carpetas críticas
+echo "<h2>6. Permisos</h2>";
 $folders = ['storage', 'bootstrap/cache', 'public/build'];
 foreach ($folders as $f) {
     if (is_dir(__DIR__ . '/' . $f)) {
