@@ -41,6 +41,10 @@ export default function Index({ auth }: { auth: any }) {
                                 </Link>
                             </div>
                         </div>
-                    </DashboardLayout>
-                    );
+                    </div>
+                </div>
+            </div>
+        </div>
+        </DashboardLayout >
+    );
 }

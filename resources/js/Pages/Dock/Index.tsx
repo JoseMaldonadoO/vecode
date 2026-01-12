@@ -23,9 +23,8 @@ export default function Index({ auth, operators = [] }: { auth: any, operators?:
                     </p>
                 </Link>
 
-            </Link>
-        </div>
-            </div >
+                </Link>
+            </div>
 
         <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100">
