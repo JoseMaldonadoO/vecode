@@ -22,7 +22,7 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/dock/operator', {
+        post(route('dock.operator.store'), {
             onSuccess: () => reset('operator_name', 'economic_number', 'tractor_plate', 'trailer_plate', 'transporter_line')
         });
     };
@@ -33,7 +33,7 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
 
             <div className="max-w-3xl mx-auto">
                 <div className="mb-6">
-                    <Link href="/dock" className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
+                    <Link href={route('dock.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Volver al menú
                     </Link>

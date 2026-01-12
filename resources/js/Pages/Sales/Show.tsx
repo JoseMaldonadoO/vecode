@@ -9,12 +9,12 @@ export default function Show({ auth, order }: { auth: any, order: any }) {
 
             <div className="max-w-7xl mx-auto">
                 <div className="mb-6 flex justify-between items-center">
-                    <Link href="/sales" className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                    <Link href={route('sales.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Volver al listado
                     </Link>
                     <a
-                        href={`/documents/cp/${order.id}`}
+                        href={route('documents.cp', order.id)}
                         target="_blank"
                         className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
@@ -127,7 +127,7 @@ export default function Show({ auth, order }: { auth: any, order: any }) {
                             ) : (
                                 <div className="text-center py-8 text-zinc-500">
                                     <p className="mb-2">Sin asignar</p>
-                                    <Link href="/traffic" className="text-indigo-400 hover:text-indigo-300 text-sm underline">Ir a Tráfico</Link>
+                                    <Link href={route('traffic.index')} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Ir a Tráfico</Link>
                                 </div>
                             )}
                         </div>

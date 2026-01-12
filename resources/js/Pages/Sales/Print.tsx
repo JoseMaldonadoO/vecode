@@ -175,7 +175,7 @@ export default function Print({ order }: { order: Order }) {
                     </button>
 
                     <Link
-                        href="/sales"
+                        href={route('sales.index')}
                         className="bg-gray-500 text-white px-6 py-2 rounded shadow hover:bg-gray-600 font-medium"
                     >
                         Volver

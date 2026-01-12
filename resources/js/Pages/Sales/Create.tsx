@@ -41,7 +41,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post('/sales');
+        post(route('sales.store'));
     };
 
     return (
@@ -50,7 +50,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
 
             <div className="max-w-2xl mx-auto">
                 <div className="mb-6">
-                    <Link href="/sales" className="text-gray-500 hover:text-gray-700 flex items-center text-sm">
+                    <Link href={route('sales.index')} className="text-gray-500 hover:text-gray-700 flex items-center text-sm">
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Volver al listado
                     </Link>
