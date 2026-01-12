@@ -43,7 +43,7 @@ export default function Print({ order }: { order: Order }) {
                 <div className="flex justify-between items-start mb-8">
                     <div className="w-1/2">
                         <div className="mb-4">
-                            <img src="/images/Proagro2.png" alt="Logo Proagroindustria" className="h-16 object-contain" />
+                            <img src="/VECODE/images/Proagro2.png" alt="Logo Proagroindustria" className="h-16 object-contain" />
                         </div>
                         <div className="text-sm text-gray-800">
                             <p className="font-bold">Proagroindustria S.A. de C.V.</p>
@@ -158,7 +158,7 @@ export default function Print({ order }: { order: Order }) {
                         <div className="flex flex-col items-end">
                             {/* Small Logo Repeat */}
                             <div className="mb-2">
-                                <img src="/images/Proagro2.png" alt="Logo Proagroindustria" className="h-8 object-contain" />
+                                <img src="/VECODE/images/Proagro2.png" alt="Logo Proagroindustria" className="h-8 object-contain" />
                             </div>
                             <div className="mt-2 text-right">DCM-FO-001</div>
                         </div>
