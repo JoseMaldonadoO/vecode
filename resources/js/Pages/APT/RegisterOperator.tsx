@@ -22,20 +22,22 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('dock.operator.store'), {
+        // Route updated to apt.operator.store
+        post(route('apt.operator.store'), {
             onSuccess: () => reset('operator_name', 'economic_number', 'tractor_plate', 'trailer_plate', 'transporter_line')
         });
     };
 
     return (
-        <DashboardLayout user={auth.user} header="Registro de Operadores">
-            <Head title="Alta Operador" />
+        <DashboardLayout user={auth.user} header="Registro de Operadores (APT)">
+            <Head title="Alta Operador - APT" />
 
             <div className="max-w-3xl mx-auto">
                 <div className="mb-6">
-                    <Link href={route('dock.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
+                    {/* Link updated to apt.index */}
+                    <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
                         <ArrowLeft className="w-4 h-4 mr-1" />
-                        Volver al menú
+                        Volver al menú APT
                     </Link>
                 </div>
 
