@@ -1,5 +1,4 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, Link } from '@inertiajs/react';
 import { ShieldCheck, Truck, Clock, ArrowRight, User } from 'lucide-react';
 import { useState } from 'react';
 

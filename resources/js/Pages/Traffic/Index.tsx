@@ -1,5 +1,5 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Users, UserPlus, QrCode, Box, ShieldCheck, FileText } from 'lucide-react';
 
 export default function Index({ auth }: { auth: any }) {
