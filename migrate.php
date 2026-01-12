@@ -17,7 +17,11 @@ use Illuminate\Support\Facades\DB;
 $app->make(Kernel::class)->bootstrap();
 
 echo "<h1>🛠️ VECODE: Configuración de Servidor</h1>";
-echo "<p><a href='?step=migrate'>[Paso 1: Ejecutar Migraciones]</a> | <a href='?step=seed'>[Paso 2: Insertar Datos / Admin]</a></p>";
+echo "<p>
+    <a href='?step=migrate'>[Paso 1: Ejecutar Migraciones]</a> | 
+    <a href='?step=seed'>[Paso 2: Insertar Todo (Seeders)]</a> | 
+    <a href='?step=seed_admin'>[Paso 3: Solo Crear Admin (Manual)]</a>
+</p>";
 echo "<hr><pre>";
 
 $step = $_GET['step'] ?? null;
@@ -33,15 +37,33 @@ try {
         $exit = Artisan::call('db:seed', ['--force' => true]);
         echo Artisan::output();
         echo "\n" . ($exit === 0 ? "✅ Datos insertados correctamente." : "❌ Error en seeders ($exit)");
-
-        // Verificar admin
-        $adminCount = DB::table('users')->where('email', 'admin@vecode.com')->count();
-        echo "\n\n🔍 Verificación: " . ($adminCount > 0 ? "✅ Usuario admin@vecode.com LISTO." : "⚠️ El usuario admin no se creó.");
+    } elseif ($step === 'seed_admin') {
+        echo "⏳ Creando usuario administrador manualmente...\n";
+        $exists = DB::table('users')->where('email', 'admin@vecode.com')->exists();
+        if ($exists) {
+            echo "⚠️ El usuario admin@vecode.com ya existe.\n";
+        } else {
+            DB::table('users')->insert([
+                'name' => 'Admin VECODE',
+                'email' => 'admin@vecode.com',
+                'password' => password_hash('password', PASSWORD_BCRYPT),
+                'role_id' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            echo "✅ Usuario admin@vecode.com CREADO EXITOSAMENTE.\n";
+        }
     } else {
         echo "Selecciona un paso para comenzar.";
     }
+
+    // Verificación final
+    $adminCount = DB::table('users')->where('email', 'admin@vecode.com')->count();
+    echo "\n\n🔍 Estado Final: " . ($adminCount > 0 ? "✅ Usuario admin@vecode.com LISTO." : "⚠️ No hay usuario administrador.");
+
 } catch (Exception $e) {
     echo "\n❌ ERROR CRÍTICO:\n" . $e->getMessage();
+    echo "\nLínea: " . $e->getLine() . " en " . $e->getFile();
 }
 
 echo "</pre>";
