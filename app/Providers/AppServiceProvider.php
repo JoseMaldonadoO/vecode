@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        if (config('app.url')) {
+            URL::forceRootUrl(config('app.url'));
+        }
+
         Vite::prefetch(concurrency: 3);
     }
 }
