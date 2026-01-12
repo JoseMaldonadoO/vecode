@@ -65,6 +65,17 @@ try {
             ]);
             echo "✅ Usuario admin@vecode.com CREADO EXITOSAMENTE.\n";
         }
+    } elseif ($step === 'check_products') {
+        echo "🔍 Listando productos en la base de datos:\n";
+        $products = DB::table('products')->get();
+        if ($products->isEmpty()) {
+            echo "❌ No hay productos en la tabla.\n";
+        } else {
+            foreach ($products as $p) {
+                echo "📦 [{$p->code}] {$p->name} (PK: {$p->default_packaging})\n";
+            }
+            echo "✅ Total: " . $products->count() . " productos.\n";
+        }
     } else {
         echo "Selecciona un paso para comenzar.";
     }
