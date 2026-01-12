@@ -28,10 +28,10 @@ export default function Index({ auth }: { auth: any }) {
                             <h3 className="text-xl font-bold text-gray-900 mb-2">Impresión de QR</h3>
                             <p className="text-gray-500">Buscar operador e imprimir tarjeta con código QR.</p>
                         </Link>
-
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </div>
+        </DashboardLayout >
     );
 }

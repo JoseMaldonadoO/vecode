@@ -47,19 +47,4 @@ class DockController extends Controller
 
         return redirect()->route('dock.index');
     }
-    public function qrPrint()
-    {
-        return Inertia::render('Dock/QrPrint');
-    }
-
-    public function searchOperators(Request $request)
-    {
-        $query = $request->input('q');
-        $operators = VesselOperator::where('operator_name', 'like', "%{$query}%")
-            ->orderBy('operator_name')
-            ->limit(20)
-            ->get();
-
-        return response()->json($operators);
-    }
 }

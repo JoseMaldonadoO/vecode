@@ -15,19 +15,22 @@ export default function QrPrint({ auth }: { auth: any }) {
         const search = async () => {
             if (query.length > 2) {
                 try {
-                    const response = await axios.get(route('apt.operators.search') + `?q=${query}`);
-                    setResults(response.data);
-                } catch (error) {
-                    console.error("Error searching operators:", error);
-                }
-            } else {
-                setResults([]);
-            }
-        };
+                    const search = async () => {
+                        if (query.length > 2) {
+                            try {
+                                const response = await axios.get(route('apt.operators.search') + `?q=${query}`);
+                                setResults(response.data);
+                            } catch (error) {
+                                console.error("Error searching operators:", error);
+                            }
+                        } else {
+                            setResults([]);
+                        }
+                    };
 
-        const timeoutId = setTimeout(() => search(), 300);
-        return () => clearTimeout(timeoutId);
-    }, [query]);
+                    const timeoutId = setTimeout(() => search(), 300);
+                    return () => clearTimeout(timeoutId);
+                }, [query]);
 
     useEffect(() => {
         if (selectedOperator) {
@@ -44,8 +47,8 @@ export default function QrPrint({ auth }: { auth: any }) {
     };
 
     return (
-        <DashboardLayout user={auth.user} header="Impresión de QR">
-            <Head title="Imprimir QR" />
+        <DashboardLayout user={auth.user} header="Impresión de QR (APT)">
+            <Head title="Imprimir QR - APT" />
 
             {/* Non-printable search area */}
             <div className="max-w-4xl mx-auto print:hidden">
