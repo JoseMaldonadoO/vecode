@@ -41,6 +41,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('sales', \App\Http\Controllers\SalesController::class);
     Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
+    // User Registration in Traffic
+    Route::get('/traffic/users/create', [\App\Http\Controllers\TrafficController::class, 'createUser'])->name('traffic.users.create');
+    Route::post('/traffic/users', [\App\Http\Controllers\TrafficController::class, 'storeUser'])->name('traffic.users.store');
+
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
     Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);

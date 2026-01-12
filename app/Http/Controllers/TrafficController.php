@@ -8,6 +8,9 @@ use App\Models\Driver;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
 
 class TrafficController extends Controller
 {
@@ -50,5 +53,32 @@ class TrafficController extends Controller
         ]);
 
         return redirect()->back();
+    }
+
+    public function createUser()
+    {
+        return Inertia::render('Traffic/CreateUser');
+    }
+
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:' . User::class,
+            'position' => 'nullable|string|max:255',
+            'level' => 'nullable|string|max:255',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'position' => $validated['position'],
+            'level' => $validated['level'],
+            'password' => Hash::make($validated['password']),
+            'role_id' => 2, // Default to user or determine by level later
+        ]);
+
+        return redirect()->route('traffic.index')->with('success', 'Usuario registrado correctamente.');
     }
 }

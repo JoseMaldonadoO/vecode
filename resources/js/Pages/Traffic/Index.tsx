@@ -5,7 +5,7 @@ import { Users, UserPlus, QrCode, Box, ShieldCheck, FileText } from 'lucide-reac
 export default function Index({ auth }: { auth: any }) {
 
     const menuItems = [
-        { name: 'Alta usuarios', icon: UserPlus, href: route('profile.edit') }, // Placeholder for user edit
+        { name: 'Alta usuarios', icon: UserPlus, href: route('traffic.users.create') },
         { name: 'Lista de usuarios', icon: Users, href: route('dashboard') }, // Placeholder
         { name: 'Alta operador manual', icon: FileText, href: route('dock.operator.create') },
         { name: 'Qr de operador', icon: QrCode, href: route('dock.qr') },
