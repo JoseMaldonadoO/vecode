@@ -22,47 +22,46 @@ export default function Index({ auth, operators = [] }: { auth: any, operators?:
                         Dar de alta nueva operación, asignar cliente y producto.
                     </p>
                 </Link>
-                </Link>
             </div>
 
-        <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center">
-                    <Users className="w-5 h-5 mr-2 text-indigo-600" />
-                    Operadores Registrados en Muelle
-                </h3>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-600">
-                    <thead className="bg-gray-50 text-gray-900 font-semibold">
-                        <tr>
-                            <th className="px-6 py-4">Nombre del Operador</th>
-                            <th className="px-6 py-4">Unidad</th>
-                            <th className="px-6 py-4">No. Económico</th>
-                            <th className="px-6 py-4">Línea Transportista</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {operators && operators.length > 0 ? (
-                            operators.map((op: any) => (
-                                <tr key={op.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-gray-900">{op.operator_name}</td>
-                                    <td className="px-6 py-4">{op.unit_type}</td>
-                                    <td className="px-6 py-4">{op.economic_number}</td>
-                                    <td className="px-6 py-4">{op.transporter_line}</td>
-                                </tr>
-                            ))
-                        ) : (
+            <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                        <Users className="w-5 h-5 mr-2 text-indigo-600" />
+                        Operadores Registrados en Muelle
+                    </h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-600">
+                        <thead className="bg-gray-50 text-gray-900 font-semibold">
                             <tr>
-                                <td colSpan={4} className="px-6 py-8 text-center text-gray-400 italic">
-                                    No hay operadores registrados recientemente.
-                                </td>
+                                <th className="px-6 py-4">Nombre del Operador</th>
+                                <th className="px-6 py-4">Unidad</th>
+                                <th className="px-6 py-4">No. Económico</th>
+                                <th className="px-6 py-4">Línea Transportista</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {operators && operators.length > 0 ? (
+                                operators.map((op: any) => (
+                                    <tr key={op.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-gray-900">{op.operator_name}</td>
+                                        <td className="px-6 py-4">{op.unit_type}</td>
+                                        <td className="px-6 py-4">{op.economic_number}</td>
+                                        <td className="px-6 py-4">{op.transporter_line}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400 italic">
+                                        No hay operadores registrados recientemente.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
         </DashboardLayout >
     );
 }

@@ -15,22 +15,19 @@ export default function QrPrint({ auth }: { auth: any }) {
         const search = async () => {
             if (query.length > 2) {
                 try {
-                    const search = async () => {
-                        if (query.length > 2) {
-                            try {
-                                const response = await axios.get(route('apt.operators.search') + `?q=${query}`);
-                                setResults(response.data);
-                            } catch (error) {
-                                console.error("Error searching operators:", error);
-                            }
-                        } else {
-                            setResults([]);
-                        }
-                    };
+                    const response = await axios.get(route('apt.operators.search') + `?q=${query}`);
+                    setResults(response.data);
+                } catch (error) {
+                    console.error("Error searching operators:", error);
+                }
+            } else {
+                setResults([]);
+            }
+        };
 
-                    const timeoutId = setTimeout(() => search(), 300);
-                    return () => clearTimeout(timeoutId);
-                }, [query]);
+        const timeoutId = setTimeout(() => search(), 300);
+        return () => clearTimeout(timeoutId);
+    }, [query]);
 
     useEffect(() => {
         if (selectedOperator) {
