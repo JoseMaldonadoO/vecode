@@ -75,7 +75,7 @@ export default function Dashboard({ auth, stats, recent_orders }: { auth: any, s
                 <div className="col-span-3 rounded-xl border bg-white p-6 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-lg text-gray-800">Últimas Salidas</h3>
-                        <Link href="/sales" className="text-sm text-indigo-600 hover:underline">Ver todas</Link>
+                        <Link href={route('sales.index')} className="text-sm text-indigo-600 hover:underline">Ver todas</Link>
                     </div>
                     <div className="space-y-4">
                         {recent_orders.length === 0 ? (

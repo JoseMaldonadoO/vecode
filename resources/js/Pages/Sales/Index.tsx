@@ -86,7 +86,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                         Agregar Cliente
                     </button>
                     <Link
-                        href="/sales/create"
+                        href={route('sales.create')}
                         style={{ backgroundColor: '#000000', color: '#ffffff' }}
                         className="inline-flex items-center justify-center rounded-md !bg-black px-4 py-2 text-sm font-medium text-white shadow hover:!bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                     >
@@ -262,12 +262,12 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                         {new Date(order.created_at).toLocaleDateString()}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <Link href={`/sales/${order.id}`} className="text-indigo-600 hover:text-indigo-900 border border-indigo-200 px-3 py-1 rounded hover:bg-indigo-50">Ver</Link>
+                                        <Link href={route('sales.show', order.id)} className="text-indigo-600 hover:text-indigo-900 border border-indigo-200 px-3 py-1 rounded hover:bg-indigo-50">Ver</Link>
 
                                         {order.status === 'created' && (
                                             <>
                                                 <Link
-                                                    href={`/sales/${order.id}/edit`}
+                                                    href={route('sales.edit', order.id)}
                                                     className="text-amber-600 hover:text-amber-900 border border-amber-200 px-3 py-1 rounded hover:bg-amber-50"
                                                 >
                                                     Editar

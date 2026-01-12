@@ -5,13 +5,12 @@ import { Users, UserPlus, QrCode, Box, ShieldCheck, FileText } from 'lucide-reac
 export default function Index({ auth }: { auth: any }) {
 
     const menuItems = [
-        { name: 'Alta usuarios', icon: UserPlus, href: '#' },
-        { name: 'Lista de usuarios', icon: Users, href: '#' },
-        // { name: 'Alta operador y equipo', icon: Truck, href: '#' }, // Excluded as requested
-        { name: 'Alta operador manual', icon: FileText, href: '#' },
-        { name: 'Qr de operador', icon: QrCode, href: '#' },
-        { name: 'Alta producto', icon: Box, href: '#' },
-        { name: 'Estatus QR', icon: ShieldCheck, href: '#' },
+        { name: 'Alta usuarios', icon: UserPlus, href: route('profile.edit') }, // Placeholder for user edit
+        { name: 'Lista de usuarios', icon: Users, href: route('dashboard') }, // Placeholder
+        { name: 'Alta operador manual', icon: FileText, href: route('dock.operator.create') },
+        { name: 'Qr de operador', icon: QrCode, href: route('dock.qr') },
+        { name: 'Alta producto', icon: Box, href: route('dock.index') }, // Placeholder
+        { name: 'Estatus QR', icon: ShieldCheck, href: route('dock.index') }, // Placeholder
     ];
 
     return (
@@ -24,7 +23,7 @@ export default function Index({ auth }: { auth: any }) {
                         <button
                             key={index}
                             className="bg-white overflow-hidden shadow-sm rounded-lg hover:shadow-md transition-shadow p-6 flex flex-col items-center justify-center text-center group border border-gray-100 hover:border-brand-500"
-                            onClick={() => console.log('Button clicked:', item.name)}
+                            onClick={() => item.href !== '#' && router.get(item.href)}
                         >
                             <div className="p-3 rounded-full bg-brand-50 text-brand-600 mb-4 group-hover:bg-brand-600 group-hover:text-white transition-colors">
                                 <item.icon className="h-8 w-8" />

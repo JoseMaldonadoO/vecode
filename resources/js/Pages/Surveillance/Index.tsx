@@ -19,7 +19,7 @@ export default function Index({ auth, expected, in_plant }: { auth: any, expecte
 
     const authorizeEntry = (id: string) => {
         setProcessing(id);
-        router.post('/surveillance', {
+        router.post(route('surveillance.store'), {
             shipment_order_id: id
         }, {
             onFinish: () => setProcessing(null)
@@ -47,7 +47,7 @@ export default function Index({ auth, expected, in_plant }: { auth: any, expecte
                         {expected.length === 0 && (
                             <div className="p-8 text-center text-gray-400">
                                 <p>No hay unidades programadas.</p>
-                                <p className="text-xs mt-2">¿Ya asignó choferes en el módulo de <a href="/traffic" className="text-indigo-500 underline">Tráfico</a>?</p>
+                                <p className="text-xs mt-2">¿Ya asignó choferes en el módulo de <Link href={route('traffic.index')} className="text-indigo-500 underline">Tráfico</Link>?</p>
                             </div>
                         )}
                         {expected.map(order => (

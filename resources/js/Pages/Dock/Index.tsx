@@ -11,7 +11,7 @@ export default function Index({ auth, operators = [] }: { auth: any, operators?:
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8">
                 {/* 1. Registro de Barco */}
                 <Link
-                    href="/dock/vessel"
+                    href={route('dock.vessel.create')}
                     className="group bg-white rounded-xl shadow-lg border border-transparent p-8 flex flex-col items-center justify-center text-center hover:border-indigo-500 hover:shadow-indigo-100 transition-all duration-300"
                 >
                     <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors">
@@ -25,7 +25,7 @@ export default function Index({ auth, operators = [] }: { auth: any, operators?:
 
                 {/* 2. Registro de Operadores */}
                 <Link
-                    href="/dock/operator"
+                    href={route('dock.operator.create')}
                     className="group bg-white rounded-xl shadow-lg border border-transparent p-8 flex flex-col items-center justify-center text-center hover:border-indigo-500 hover:shadow-indigo-100 transition-all duration-300"
                 >
                     <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors">
@@ -39,7 +39,7 @@ export default function Index({ auth, operators = [] }: { auth: any, operators?:
 
                 {/* 3. Impresión de QR */}
                 <Link
-                    href="/dock/qr"
+                    href={route('dock.qr')}
                     className="group bg-white rounded-xl shadow-lg border border-transparent p-8 flex flex-col items-center justify-center text-center hover:border-indigo-500 hover:shadow-indigo-100 transition-all duration-300 md:col-span-2 lg:col-span-1"
                 >
                     <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors">
