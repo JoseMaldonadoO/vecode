@@ -20,14 +20,26 @@ echo "<h1>🛠️ VECODE: Configuración de Servidor</h1>";
 echo "<p>
     <a href='?step=migrate'>[Paso 1: Ejecutar Migraciones]</a> | 
     <a href='?step=seed'>[Paso 2: Insertar Todo (Seeders)]</a> | 
-    <a href='?step=seed_admin'>[Paso 3: Solo Crear Admin (Manual)]</a>
+    <a href='?step=seed_admin'>[Paso 3: Solo Crear Admin (Manual)]</a> |
+    <a href='?step=debug_seeders'>[Debug: Seeders Uno por Uno]</a>
 </p>";
 echo "<hr><pre>";
 
 $step = $_GET['step'] ?? null;
 
 try {
-    if ($step === 'migrate') {
+    if ($step === 'debug_seeders') {
+        echo "🧩 Probando Seeders uno por uno para hallar el error...\n";
+        $seeders = [
+            'Database\Seeders\DatabaseSeeder',
+        ];
+        foreach ($seeders as $s) {
+            echo "⏳ Probando: $s... ";
+            $exit = Artisan::call('db:seed', ['--class' => $s, '--force' => true]);
+            echo ($exit === 0 ? "✅ OK" : "❌ FALLÓ (Error $exit)") . "\n";
+            echo Artisan::output() . "\n";
+        }
+    } elseif ($step === 'migrate') {
         echo "⏳ Ejecutando: php artisan migrate:fresh --force\n";
         $exit = Artisan::call('migrate:fresh', ['--force' => true]);
         echo Artisan::output();

@@ -70,16 +70,14 @@ if (file_exists($logFile)) {
             echo "<strong>MENSAJE: " . htmlspecialchars($data['message'] ?? 'Sin mensaje') . "</strong>\n";
             echo "EXCEPCIÓN: " . htmlspecialchars($data['exception'] ?? 'N/A') . "\n";
             echo "ARCHIVO: " . htmlspecialchars($data['file'] ?? 'N/A') . " (Línea " . ($data['line'] ?? '?') . ")\n";
-            echo "\n--- STACK TRACE RESUMIDO ---\n";
-            echo htmlspecialchars(substr($data['trace_string'] ?? 'N/A', 0, 1000)) . "...";
             echo "</pre>";
         } else {
-            echo "Se encontró contenido JSON pero no se pudo decodificar. Mostrando final del log:<br>";
-            echo "<pre>" . htmlspecialchars(substr($logContent, -1000)) . "</pre>";
+            echo "⚠️ No se pudo decodificar el error como JSON. Mostrando final del archivo CRUDO:<br>";
+            echo "<pre style='background: #333; color: #fff; padding: 10px;'>" . htmlspecialchars(substr($logContent, -2000)) . "</pre>";
         }
     } else {
         echo "No se encontró rastro de errores JSON. Mostrando final del log:<br>";
-        echo "<pre>" . htmlspecialchars(substr($logContent, -1000)) . "</pre>";
+        echo "<pre style='background: #333; color: #fff; padding: 10px;'>" . htmlspecialchars(substr($logContent, -1000)) . "</pre>";
     }
 } else {
     echo "❌ Archivo de log no encontrado.";
