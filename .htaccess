@@ -1,6 +1,16 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Rewrite everything to the public directory
+    RewriteBase /VECODE/
+
+    # 1. Rewrite requests for missing assets to the /public folder
     RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} !^/VECODE/public/
+    RewriteCond %{DOCUMENT_ROOT}/VECODE/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/domains/ceetpower.com/public_html/VECODE/public/$1 -f
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # 2. Rewrite all other missing paths to the root index.php
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
 </IfModule>
