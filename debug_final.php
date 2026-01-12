@@ -18,6 +18,10 @@ if (file_exists(__DIR__ . '/.env')) {
     $env = parse_ini_file(__DIR__ . '/.env');
     echo "APP_URL: " . ($env['APP_URL'] ?? 'No definida') . "<br>";
     echo "DB_DATABASE: " . ($env['DB_DATABASE'] ?? 'No definida') . "<br>";
+    echo "<h3>Variables de Servidor:</h3>";
+    echo "REQUEST_URI: " . $_SERVER['REQUEST_URI'] . "<br>";
+    echo "SCRIPT_NAME: " . $_SERVER['SCRIPT_NAME'] . "<br>";
+    echo "PHP_SELF: " . $_SERVER['PHP_SELF'] . "<br>";
 } else {
     echo "❌ Archivo .env NO encontrado en " . __DIR__ . "<br>";
 }
