@@ -5,23 +5,24 @@ import { cn } from '@/lib/utils';
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
 export function Sidebar({ className }: SidebarProps) {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const baseUrl = (props.base_url as string) || '';
 
     const links = [
-        { name: 'Inicio', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Comercialización', href: '/sales', icon: ClipboardList },
-        { name: 'Tráfico', href: '/traffic', icon: Truck },
-        { name: 'Vigilancia Física', href: '/surveillance', icon: Users },
-        { name: 'Báscula', href: '/scale', icon: Scale },
-        { name: 'Muelle', href: '/dock', icon: Settings },
-        { name: 'APT', href: '/apt', icon: Box },
+        { name: 'Inicio', href: `${baseUrl}/dashboard`, icon: LayoutDashboard },
+        { name: 'Comercialización', href: `${baseUrl}/sales`, icon: ClipboardList },
+        { name: 'Tráfico', href: `${baseUrl}/traffic`, icon: Truck },
+        { name: 'Vigilancia Física', href: `${baseUrl}/surveillance`, icon: Users },
+        { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale },
+        { name: 'Muelle', href: `${baseUrl}/dock`, icon: Settings },
+        { name: 'APT', href: `${baseUrl}/apt`, icon: Box },
     ];
 
     return (
         <div className={cn("pb-12 min-h-screen border-r bg-brand-950 text-white", className)}>
             <div className="space-y-4 py-4">
                 <div className="px-4 py-2">
-                    <Link href="/dashboard" className="mb-2 px-2 flex items-center gap-2">
+                    <Link href={`${baseUrl} / dashboard`} className="mb-2 px-2 flex items-center gap-2">
                         <Truck className="h-6 w-6 text-brand-500" />
                         <span className="text-xl font-bold tracking-tight text-white">VECODE</span>
                     </Link>

@@ -34,6 +34,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'ziggy' => array_merge((new \Spatie\LaravelIgnition\Solutions\SuggestUsingVariableSolution('base_url', '/VECODE'))->toArray(), [
+                'location' => $request->url(),
+            ]),
+            'base_url' => '/VECODE',
         ];
     }
 }
