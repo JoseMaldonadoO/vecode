@@ -31,7 +31,6 @@ export default function Index({ auth }: { auth: any }) {
                     </div>
                 </div>
             </div>
-        </div>
         </DashboardLayout >
     );
 }
