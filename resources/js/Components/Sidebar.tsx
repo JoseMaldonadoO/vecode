@@ -22,7 +22,7 @@ export function Sidebar({ className }: SidebarProps) {
         <div className={cn("pb-12 min-h-screen border-r bg-brand-950 text-white", className)}>
             <div className="space-y-4 py-4">
                 <div className="px-4 py-2">
-                    <Link href={`${baseUrl} / dashboard`} className="mb-2 px-2 flex items-center gap-2">
+                    <Link href={`${baseUrl}/dashboard`} className="mb-2 px-2 flex items-center gap-2">
                         <Truck className="h-6 w-6 text-brand-500" />
                         <span className="text-xl font-bold tracking-tight text-white">VECODE</span>
                     </Link>
