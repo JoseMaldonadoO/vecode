@@ -1,7 +1,7 @@
 import { Head, router, Link } from '@inertiajs/react';
 import { ShieldCheck, Truck, Clock, ArrowRight, User } from 'lucide-react';
 import { useState } from 'react';
-
+import DashboardLayout from '@/Layouts/DashboardLayout';
 interface Order {
     id: string;
     folio: string;
