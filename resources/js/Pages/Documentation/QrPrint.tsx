@@ -50,9 +50,9 @@ export default function QrPrint({ auth }: { auth: any }) {
             {/* Non-printable search area */}
             <div className="max-w-4xl mx-auto print:hidden">
                 <div className="mb-6 flex items-center justify-between">
-                    <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
+                    <Link href={route('documentation.dock')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
                         <ArrowLeft className="w-4 h-4 mr-1" />
-                        Volver a APT
+                        Volver a Documentación (Muelle)
                     </Link>
                 </div>
 

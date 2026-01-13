@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
 
     // Documentation Module
     Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
+    Route::get('/documentation/dock', [\App\Http\Controllers\DocumentationController::class, 'dock'])->name('documentation.dock');
     Route::get('/documentation/qr/print', [\App\Http\Controllers\DocumentationController::class, 'qrPrint'])->name('documentation.qr');
     Route::get('/documentation/operators/create', [\App\Http\Controllers\DocumentationController::class, 'createOperator'])->name('documentation.operators.create');
     Route::post('/documentation/operators', [\App\Http\Controllers\DocumentationController::class, 'storeOperator'])->name('documentation.operators.store');

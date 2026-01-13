@@ -1,18 +1,26 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Printer, UserPlus, Search, Ship, Anchor, Scan } from 'lucide-react';
+import { Printer, UserPlus, ArrowLeft } from 'lucide-react';
 
-export default function Index({ auth }: { auth: any }) {
+export default function Dock({ auth }: { auth: any }) {
     const menuItems = [
-        { name: 'Escanear Entrada', icon: Scan, href: route('apt.scanner.index'), description: 'Escanear código QR para registrar entrada/salida.', color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500' },
+        { name: 'Imprimir QR', icon: Printer, href: route('documentation.qr'), description: 'Buscar operador e imprimir tarjeta con código QR.', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500' },
+        { name: 'Alta Operador', icon: UserPlus, href: route('documentation.operators.create'), description: 'Registrar nuevo operador en el sistema.', color: 'bg-green-50 text-green-600', hover: 'hover:border-green-500' },
     ];
 
     return (
-        <DashboardLayout user={auth.user} header="Administración Portuaria">
-            <Head title="APT" />
+        <DashboardLayout user={auth.user} header="Documentación - Muelle">
+            <Head title="Documentación - Muelle" />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="mb-6">
+                        <Link href={route('documentation.index')} className="text-gray-500 hover:text-gray-700 flex items-center text-sm font-medium">
+                            <ArrowLeft className="w-4 h-4 mr-1" />
+                            Volver a Documentación
+                        </Link>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {menuItems.map((item, index) => (
                             <Link
@@ -30,6 +38,6 @@ export default function Index({ auth }: { auth: any }) {
                     </div>
                 </div>
             </div>
-        </DashboardLayout >
+        </DashboardLayout>
     );
 }

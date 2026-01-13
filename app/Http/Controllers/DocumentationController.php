@@ -96,6 +96,12 @@ class DocumentationController extends Controller
         return Inertia::render('Documentation/QrPrint');
     }
 
+    // Dock Submenu
+    public function dock()
+    {
+        return Inertia::render('Documentation/Dock');
+    }
+
     // Operator Registration (Alta Operador)
     public function createOperator()
     {
