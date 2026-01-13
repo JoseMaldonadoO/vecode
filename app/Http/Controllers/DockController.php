@@ -29,22 +29,23 @@ class DockController extends Controller
     public function storeVessel(Request $request)
     {
         $validated = $request->validate([
+            'vessel_type' => 'required|string',
             'name' => 'required|string|max:255',
-            'product_id' => 'required|exists:products,id',
-            'client_id' => 'required|exists:clients,id',
+            'eta' => 'required|date',
             'docking_date' => 'required|date',
             'docking_time' => 'required',
-            'origin' => 'required|string',
-            'sub_origin' => 'nullable|string',
-            'destination' => 'required|string',
-            'agency' => 'required|string',
-            'programmed_tonnage' => 'required|numeric|min:0',
-            // 'service_type' => 'nullable|string', // Keeping optional or removing if input removed
+            'operation_type' => 'required|string',
+            'stay_days' => 'required|integer',
+            'etc' => 'required|date',
+            'departure_date' => 'nullable|date',
+            'observations' => 'nullable|string',
+            // Conditional
+            'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
+            'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
         ]);
 
-        $validated['service_type'] = 'Importación';
         Vessel::create($validated);
 
-        return redirect()->route('dock.index');
+        return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
     }
 }
