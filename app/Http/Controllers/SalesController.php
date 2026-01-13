@@ -62,40 +62,44 @@ class SalesController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'folio' => 'required|string',
-            'sale_order' => 'required|string',
-            'sale_conditions' => 'nullable|string',
-            'delivery_conditions' => 'nullable|string',
-            'client_id' => 'required|exists:clients,id',
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric|min:0.1',
-            'destination' => 'nullable|string',
-        ]);
-
-        $order = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
-            $order = ShipmentOrder::create([
-                'folio' => $validated['folio'],
-                'sale_order' => $validated['sale_order'],
-                'sale_conditions' => $validated['sale_conditions'] ?? null,
-                'delivery_conditions' => $validated['delivery_conditions'] ?? null,
-                'client_id' => $validated['client_id'],
-                'status' => 'created',
-                'destination' => $validated['destination'] ?? null,
+        try {
+            $validated = $request->validate([
+                'folio' => 'required|string',
+                'sale_order' => 'required|string',
+                'sale_conditions' => 'nullable|string',
+                'delivery_conditions' => 'nullable|string',
+                'client_id' => 'required|exists:clients,id',
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|numeric|min:0.1',
+                'destination' => 'nullable|string',
             ]);
 
-            $order->items()->create([
-                'product_id' => $validated['product_id'],
-                'requested_quantity' => $validated['quantity'],
-                // Assuming 'packaging' default or passed from form if added later
-                'packaging_type' => 'Granel'
-            ]);
+            $order = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
+                $order = ShipmentOrder::create([
+                    'folio' => $validated['folio'],
+                    'sale_order' => $validated['sale_order'],
+                    'sale_conditions' => $validated['sale_conditions'] ?? null,
+                    'delivery_conditions' => $validated['delivery_conditions'] ?? null,
+                    'client_id' => $validated['client_id'],
+                    'status' => 'created',
+                    'destination' => $validated['destination'] ?? null,
+                ]);
 
-            return $order;
-        });
+                $order->items()->create([
+                    'product_id' => $validated['product_id'],
+                    'requested_quantity' => $validated['quantity'],
+                    'packaging_type' => 'Granel'
+                ]);
 
-        // Redirect to print view
-        return redirect()->route('sales.print', $order->id);
+                return $order;
+            });
+
+            // Redirect to print view
+            return redirect()->route('sales.print', $order->id);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Sales Store Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al guardar la orden: ' . $e->getMessage()]);
+        }
     }
 
     public function show(string $id)
