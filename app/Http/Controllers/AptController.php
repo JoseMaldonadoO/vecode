@@ -66,4 +66,35 @@ class AptController extends Controller
 
         return response()->json($operators);
     }
+
+    // Scanner
+    public function scanner()
+    {
+        $recentScans = \App\Models\AptScan::with('operator')
+            ->whereDate('created_at', today())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return Inertia::render('APT/Scanner', [
+            'recentScans' => $recentScans
+        ]);
+    }
+
+    public function storeScan(Request $request)
+    {
+        $validated = $request->validate([
+            'operator_id' => 'required|exists:vessel_operators,id',
+            'warehouse' => 'required|string',
+            'cubicle' => 'required|string',
+        ]);
+
+        \App\Models\AptScan::create([
+            'operator_id' => $validated['operator_id'],
+            'warehouse' => $validated['warehouse'],
+            'cubicle' => $validated['cubicle'],
+            'user_id' => auth()->id(),
+        ]);
+
+        return redirect()->back()->with('success', 'Entrada registrada correctamente.');
+    }
 }
