@@ -146,6 +146,7 @@ export default function Create({ auth, clients, products, default_folio }: { aut
                                                         ))}
                                                     </Combobox.Options>
                                                 </div>
+                                            </Combobox>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-12 gap-2 items-center">
