@@ -17,14 +17,19 @@ export default function Index({ auth }: { auth: any }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* QR Printing */}
-                        <Link href={route('apt.qr')} className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col items-center justify-center text-center h-64">
-                            <div className="bg-green-100 p-4 rounded-full mb-4">
-                                <QrCode className="h-8 w-8 text-green-600" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Impresión de QR</h3>
-                            <p className="text-gray-500">Buscar operador e imprimir tarjeta con código QR.</p>
-                        </Link>
+                        {menuItems.map((item, index) => (
+                            <Link
+                                key={index}
+                                href={item.href}
+                                className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col items-center justify-center text-center h-64 group border border-gray-100 hover:border-indigo-100"
+                            >
+                                <div className={`p-4 rounded-full mb-4 ${item.color.split(' ')[0]}`}>
+                                    <item.icon className={`h-8 w-8 ${item.color.split(' ')[1]}`} />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
+                                <p className="text-gray-500">{item.description}</p>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </div>
