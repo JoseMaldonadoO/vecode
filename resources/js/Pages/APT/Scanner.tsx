@@ -1,13 +1,15 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
-import { QrCode, ArrowLeft, Save, Search, Scan } from 'lucide-react';
+import { QrCode, ArrowLeft, Save, Search, Scan, Camera, X } from 'lucide-react';
 import axios from 'axios';
+import { QrReader } from 'react-qr-reader';
 
 export default function Scanner({ auth, recentScans }: { auth: any, recentScans: any[] }) {
     const [scanInput, setScanInput] = useState('');
     const [isScanning, setIsScanning] = useState(true);
     const [scannedOperator, setScannedOperator] = useState<any>(null);
+    const [showCamera, setShowCamera] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const { data, setData, post, processing, reset, errors } = useForm({
@@ -16,51 +18,50 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
         cubicle: '',
     });
 
-    // Keep focus on input for continuous scanning
+    // Keep focus on input for continuous scanning (if not using camera)
     useEffect(() => {
-        if (isScanning && inputRef.current) {
+        if (isScanning && !showCamera && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [isScanning, scannedOperator]);
+    }, [isScanning, scannedOperator, showCamera]);
 
-    const handleScan = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleCodeFound = async (code: string) => {
+        if (!code) return;
 
-        // Parse input: Expecting "OP:{id}|{name}" or just "{id}" if manual
-        // Regex to extract ID from "OP:123|Juan" -> 123
-        const match = scanInput.match(/OP:(\d+)/i) || scanInput.match(/^(\d+)$/);
+        // Same logic as manual handleScan
+        const match = code.match(/OP:(\d+)/i) || code.match(/^(\d+)$/);
 
         if (match) {
             const id = match[1];
             try {
-                // Fetch operator details to confirm and show info
-                // We'll use the search endpoint with exact ID match or similar logic
-                // Or better, assume we can search by ID. Let's try searching by Name part if ID fails
-                // But we have ID. Let's assume the search endpoint supports ID or we add a specific one.
-                // For now, let's fetch by searching ID as query string, assuming search handles numeric.
-                const response = await axios.get(route('apt.operators.search') + `?q=${id}`); // Assuming API filters
-
-                // In a real scenario, search might return multiple. We need exact match.
-                // Or we fetch /apt/operators/{id} if we created that route. 
-                // Let's filter client side for now or assume first result if unique ID.
+                const response = await axios.get(route('apt.operators.search') + `?q=${id}`);
                 const operator = response.data.find((op: any) => op.id.toString() === id);
 
                 if (operator) {
                     setScannedOperator(operator);
                     setData('operator_id', operator.id);
-                    setIsScanning(false); // Stop scanning to fill form
+                    setIsScanning(false);
+                    setShowCamera(false); // Close camera on success
+                    setScanInput(code); // Show what was scanned
                 } else {
                     alert('Operador no encontrado con ID: ' + id);
-                    setScanInput(''); // Reset
+                    if (!showCamera) setScanInput('');
                 }
             } catch (error) {
                 console.error("Error fetching operator:", error);
                 alert('Error al buscar operador.');
             }
         } else {
-            alert('Formato de QR no válido. Intente escanear nuevamente.');
-            setScanInput('');
+            if (!showCamera) {
+                alert('Formato de QR no válido.');
+                setScanInput('');
+            }
         }
+    };
+
+    const handleScan = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleCodeFound(scanInput);
     };
 
     const submitForm = (e: React.FormEvent) => {
@@ -70,7 +71,7 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                 reset();
                 setScannedOperator(null);
                 setScanInput('');
-                setIsScanning(true); // Ready for next scan
+                setIsScanning(true);
             }
         });
     };
@@ -79,6 +80,7 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
         setScannedOperator(null);
         setScanInput('');
         setIsScanning(true);
+        setShowCamera(false);
         reset();
     };
 
@@ -96,26 +98,59 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                 <Scan className="w-12 h-12 text-indigo-600" />
                             </div>
                             <h2 className="text-2xl font-bold text-gray-900">Listo para Escanear</h2>
-                            <p className="text-gray-500 mt-2">Apunte el lector al código QR del operador o ingrese el ID manualmente.</p>
+                            <p className="text-gray-500 mt-2">Apunte el lector al código QR del operador o use la cámara.</p>
                         </div>
 
-                        <form onSubmit={handleScan} className="max-w-md mx-auto">
-                            <div className="relative">
-                                <input
-                                    ref={inputRef}
-                                    type="text"
-                                    value={scanInput}
-                                    onChange={e => setScanInput(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-indigo-300 focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 text-lg transition-all"
-                                    placeholder="Esperando lectura de QR..."
-                                    autoComplete="off"
+                        {showCamera ? (
+                            <div className="max-w-sm mx-auto mb-6 relative bg-black rounded-lg overflow-hidden">
+                                <button
+                                    onClick={() => setShowCamera(false)}
+                                    className="absolute top-2 right-2 z-10 bg-white/80 p-1 rounded-full text-gray-800 hover:bg-white"
+                                >
+                                    <X className="w-6 h-6" />
+                                </button>
+                                <QrReader
+                                    onResult={(result, error) => {
+                                        if (!!result) {
+                                            handleCodeFound(result?.text);
+                                        }
+                                    }}
+                                    constraints={{ facingMode: 'environment' }}
+                                    style={{ width: '100%' }}
                                 />
-                                <QrCode className="w-6 h-6 text-gray-400 absolute left-3 top-3.5" />
+                                <p className="text-white text-center py-2 text-sm">Apunte cámara al QR</p>
                             </div>
-                            <div className="mt-4 text-xs text-gray-400">
-                                Presione Enter si ingresa el ID manualmente
+                        ) : (
+                            <div className="flex justify-center mb-6">
+                                <button
+                                    onClick={() => setShowCamera(true)}
+                                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+                                >
+                                    <Camera className="w-5 h-5" />
+                                    Activar Cámara
+                                </button>
                             </div>
-                        </form>
+                        )}
+
+                        {!showCamera && (
+                            <form onSubmit={handleScan} className="max-w-md mx-auto">
+                                <div className="relative">
+                                    <input
+                                        ref={inputRef}
+                                        type="text"
+                                        value={scanInput}
+                                        onChange={e => setScanInput(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-indigo-300 focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 text-lg transition-all"
+                                        placeholder="Esperando lectura de QR..."
+                                        autoComplete="off"
+                                    />
+                                    <QrCode className="w-6 h-6 text-gray-400 absolute left-3 top-3.5" />
+                                </div>
+                                <div className="mt-4 text-xs text-gray-400">
+                                    Presione Enter si ingresa el ID manualmente
+                                </div>
+                            </form>
+                        )}
                     </div>
                 ) : (
                     /* Form Area - After Scan */
