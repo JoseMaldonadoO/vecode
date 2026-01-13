@@ -60,6 +60,7 @@ class AptController extends Controller
     {
         $query = $request->input('q');
         $operators = VesselOperator::where('operator_name', 'like', "%{$query}%")
+            ->orWhere('id', $query)
             ->orderBy('operator_name')
             ->limit(20)
             ->get();
