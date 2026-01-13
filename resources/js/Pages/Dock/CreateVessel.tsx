@@ -179,6 +179,7 @@ export default function CreateVessel({ auth, products }: { auth: any, products: 
                                     onChange={e => setData('etc', e.target.value)}
                                     className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                 {errors.etc && <p className="text-red-500 text-xs mt-1">{errors.etc}</p>}
                             </div>
                             <div>
