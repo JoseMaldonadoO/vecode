@@ -110,13 +110,16 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                     <X className="w-6 h-6" />
                                 </button>
                                 <QrReader
-                                    onResult={(result, error) => {
+                                    onResult={(result: any, error) => {
                                         if (!!result) {
-                                            handleCodeFound(result?.text);
+                                            // Handle both zxing Result object (getText) and simple objects (text)
+                                            const text = typeof result.getText === 'function' ? result.getText() : result.text;
+                                            handleCodeFound(text);
                                         }
                                     }}
                                     constraints={{ facingMode: 'environment' }}
-                                    style={{ width: '100%' }}
+                                    videoStyle={{ width: '100%' }}
+                                    className="w-full"
                                 />
                                 <p className="text-white text-center py-2 text-sm">Apunte cámara al QR</p>
                             </div>
