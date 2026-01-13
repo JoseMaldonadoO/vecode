@@ -11,8 +11,9 @@ export function Sidebar({ className }: SidebarProps) {
     const links = [
         { name: 'Inicio', href: `${baseUrl}/dashboard`, icon: LayoutDashboard },
         { name: 'Comercialización', href: `${baseUrl}/sales`, icon: ClipboardList },
-        { name: 'Tráfico', href: `${baseUrl}/traffic`, icon: Truck },
-        { name: 'Vigilancia Física', href: `${baseUrl}/surveillance`, icon: Users },
+        { name: 'Documentación', icon: FileText, href: `${baseUrl}/documentation` },
+        { name: 'Muelle (APT)', icon: Anchor, href: `${baseUrl}/apt` },
+        { name: 'Vigilancia', icon: Search, href: `${baseUrl}/surveillance` },
         { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale },
         { name: 'Muelle', href: `${baseUrl}/dock`, icon: Settings },
         { name: 'APT', href: `${baseUrl}/apt`, icon: Box },

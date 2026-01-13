@@ -49,7 +49,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
 
-    // APT Module Routes
+    // Documentation Module
+    Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
+    Route::get('/documentation/qr/print', [\App\Http\Controllers\DocumentationController::class, 'qrPrint'])->name('documentation.qr');
+    Route::get('/documentation/operators/create', [\App\Http\Controllers\DocumentationController::class, 'createOperator'])->name('documentation.operators.create');
+    Route::post('/documentation/operators', [\App\Http\Controllers\DocumentationController::class, 'storeOperator'])->name('documentation.operators.store');
+
+    // APT Module
     Route::get('/apt/qr', [\App\Http\Controllers\AptController::class, 'qrPrint'])->name('apt.qr');
     Route::get('/apt/scanner', [\App\Http\Controllers\AptController::class, 'scanner'])->name('apt.scanner.index');
     Route::post('/apt/scanner', [\App\Http\Controllers\AptController::class, 'storeScan'])->name('apt.scanner.store');
