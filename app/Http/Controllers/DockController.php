@@ -14,7 +14,8 @@ class DockController extends Controller
     public function index()
     {
         return Inertia::render('Dock/Index', [
-            'operators' => VesselOperator::orderBy('operator_name')->get()
+            'operators' => VesselOperator::orderBy('operator_name')->get(),
+            'vessels' => Vessel::orderBy('created_at', 'desc')->get()
         ]);
     }
 
@@ -36,7 +37,7 @@ class DockController extends Controller
             'docking_time' => 'required',
             'operation_type' => 'required|string',
             'stay_days' => 'required|integer',
-            'etc' => 'required|date',
+            'etc' => 'nullable|date',
             'departure_date' => 'nullable|date',
             'observations' => 'nullable|string',
             // Conditional
@@ -47,5 +48,40 @@ class DockController extends Controller
         Vessel::create($validated);
 
         return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
+    }
+
+    public function editVessel($id)
+    {
+        $vessel = Vessel::findOrFail($id);
+        return Inertia::render('Dock/EditVessel', [
+            'vessel' => $vessel,
+            'products' => \App\Models\Product::all(),
+            'clients' => \App\Models\Client::all(),
+        ]);
+    }
+
+    public function updateVessel(Request $request, $id)
+    {
+        $vessel = Vessel::findOrFail($id);
+
+        $validated = $request->validate([
+            'vessel_type' => 'required|string',
+            'name' => 'required|string|max:255',
+            'eta' => 'required|date',
+            'docking_date' => 'required|date',
+            'docking_time' => 'required',
+            'operation_type' => 'required|string',
+            'stay_days' => 'required|integer',
+            'etc' => 'nullable|date',
+            'departure_date' => 'nullable|date',
+            'observations' => 'nullable|string',
+            // Conditional
+            'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
+            'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
+        ]);
+
+        $vessel->update($validated);
+
+        return redirect()->route('dock.index')->with('success', 'Barco actualizado correctamente.');
     }
 }

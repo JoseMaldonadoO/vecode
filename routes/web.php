@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dock/vessel', [\App\Http\Controllers\DockController::class, 'createVessel'])->name('dock.vessel.create');
     Route::post('/dock/vessel', [\App\Http\Controllers\DockController::class, 'storeVessel'])->name('dock.vessel.store');
+    Route::get('/dock/vessel/{id}/edit', [\App\Http\Controllers\DockController::class, 'editVessel'])->name('dock.vessel.edit');
+    Route::put('/dock/vessel/{id}', [\App\Http\Controllers\DockController::class, 'updateVessel'])->name('dock.vessel.update');
 
     // Operator Registration (Moved to APT)
     // Route::get('/dock/operator', [\App\Http\Controllers\VesselOperatorController::class, 'create'])->name('dock.operator.create');

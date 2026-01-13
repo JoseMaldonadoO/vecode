@@ -2,7 +2,7 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
 import { Users, Ship } from 'lucide-react';
 
-export default function Index({ auth, operators = [] }: { auth: any, operators?: any[] }) {
+export default function Index({ auth, operators = [], vessels = [] }: { auth: any, operators?: any[], vessels?: any[] }) {
 
     return (
         <DashboardLayout user={auth.user} header="Muelle (Operaciones Marítimas)">
@@ -22,6 +22,54 @@ export default function Index({ auth, operators = [] }: { auth: any, operators?:
                         Dar de alta nueva operación, asignar cliente y producto.
                     </p>
                 </Link>
+            </div>
+
+            <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center">
+                        <Ship className="w-5 h-5 mr-2 text-indigo-600" />
+                        Barcos Activos
+                    </h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-600">
+                        <thead className="bg-gray-50 text-gray-900 font-semibold">
+                            <tr>
+                                <th className="px-6 py-4">Buque</th>
+                                <th className="px-6 py-4">ETA</th>
+                                <th className="px-6 py-4">ETB</th>
+                                <th className="px-6 py-4">Operación</th>
+                                <th className="px-6 py-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {vessels && vessels.length > 0 ? (
+                                vessels.map((v: any) => (
+                                    <tr key={v.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-gray-900">{v.name} ({v.vessel_type})</td>
+                                        <td className="px-6 py-4">{v.eta}</td>
+                                        <td className="px-6 py-4">{v.docking_date}</td>
+                                        <td className="px-6 py-4">{v.operation_type}</td>
+                                        <td className="px-6 py-4 text-center">
+                                            <Link
+                                                href={route('dock.vessel.edit', v.id)}
+                                                className="text-indigo-600 hover:text-indigo-900 font-bold"
+                                            >
+                                                Editar
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">
+                                        No hay barcos registrados.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
