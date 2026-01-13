@@ -58,7 +58,8 @@ export default function Create({ auth, clients, products, default_folio }: { aut
                     .includes(query.toLowerCase().replace(/\s+/g, ''))
             );
 
-    const handleClientSelect = (client: Client) => {
+    const handleClientSelect = (client: Client | null) => {
+        if (!client) return;
         setData(data => ({
             ...data,
             client_id: client.id.toString(),
