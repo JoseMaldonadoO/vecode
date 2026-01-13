@@ -13,6 +13,7 @@ interface Order {
         business_name: string;
         rfc: string;
         address: string;
+        contact_info: string;
     };
     items: Array<{
         product: {
@@ -89,14 +90,34 @@ export default function Print({ order }: { order: Order }) {
                     <div className="bg-gray-600 text-white font-bold px-2 py-1 text-center mb-1">
                         Datos del cliente
                     </div>
-                    <div className="border border-black">
-                        <div className="flex border-b border-gray-300">
-                            <div className="w-1/3 p-1 bg-gray-50 border-r border-gray-300 text-right pr-4 text-sm font-medium">Condiciones de venta:</div>
-                            <div className="p-1 flex-1 text-sm uppercase pl-2">{order.sale_conditions}</div>
+                    <div className="border border-black text-sm">
+                        <div className="flex border-b border-black">
+                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">Nombre:</div>
+                            <div className="flex-1 p-1 uppercase whitespace-nowrap overflow-hidden text-ellipsis">{order.client.business_name}</div>
                         </div>
+                        <div className="flex border-b border-black">
+                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">RFC:</div>
+                            <div className="flex-1 p-1 uppercase">{order.client.rfc}</div>
+                        </div>
+                        <div className="flex border-b border-black">
+                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">Dirección:</div>
+                            <div className="flex-1 p-1 uppercase">{order.client.address}</div>
+                        </div>
+                        <div className="flex border-b border-black">
+                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">Contacto:</div>
+                            <div className="flex-1 p-1 uppercase">{order.client.contact_info}</div>
+                        </div>
+
+                        {/* Split Row for Conditions */}
                         <div className="flex">
-                            <div className="w-1/3 p-1 bg-gray-50 border-r border-gray-300 text-right pr-4 text-sm font-medium">Condiciones de entrega:</div>
-                            <div className="p-1 flex-1 text-sm uppercase pl-2">{order.delivery_conditions}</div>
+                            <div className="w-1/2 flex border-r border-black">
+                                <div className="w-1/2 bg-gray-50 p-1 border-r border-gray-300 text-right pr-2 font-medium">Condiciones de venta:</div>
+                                <div className="w-1/2 p-1 uppercase pl-2">{order.sale_conditions}</div>
+                            </div>
+                            <div className="w-1/2 flex">
+                                <div className="w-1/2 bg-gray-50 p-1 border-r border-gray-300 text-right pr-2 font-medium">Condiciones de entrega:</div>
+                                <div className="w-1/2 p-1 uppercase pl-2">{order.delivery_conditions}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
