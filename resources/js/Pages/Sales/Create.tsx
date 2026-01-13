@@ -57,7 +57,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm border p-6">
-                    {errors.error && (
+                    {(errors as any).error && (
                         <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
                             <div className="flex">
                                 <div className="flex-shrink-0">
@@ -67,7 +67,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                                 </div>
                                 <div className="ml-3">
                                     <p className="text-sm text-red-700">
-                                        {errors.error}
+                                        {(errors as any).error}
                                     </p>
                                 </div>
                             </div>
