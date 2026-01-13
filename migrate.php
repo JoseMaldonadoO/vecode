@@ -18,7 +18,8 @@ $app->make(Kernel::class)->bootstrap();
 
 echo "<h1>🛠️ VECODE: Configuración de Servidor</h1>";
 echo "<p>
-    <a href='?step=migrate'>[Paso 1: Ejecutar Migraciones]</a> | 
+    <a href='?step=migrate'>[⚠️ BORRAR Y REINICIAR (Fresh)]</a> | 
+    <a href='?step=update'>[✅ Actualizar Estructura (Sin borrar)]</a> | 
     <a href='?step=seed'>[Paso 2: Insertar Todo (Seeders)]</a> | 
     <a href='?step=seed_admin'>[Paso 3: Solo Crear Admin (Manual)]</a> |
     <a href='?step=debug_seeders'>[Debug: Seeders Uno por Uno]</a>
@@ -44,6 +45,11 @@ try {
         $exit = Artisan::call('migrate:fresh', ['--force' => true]);
         echo Artisan::output();
         echo "\n" . ($exit === 0 ? "✅ Migración completada." : "❌ Error en migración ($exit)");
+    } elseif ($step === 'update') {
+        echo "⏳ Ejecutando: php artisan migrate --force (Actualizando cambios pendientes)...\n";
+        $exit = Artisan::call('migrate', ['--force' => true]);
+        echo Artisan::output();
+        echo "\n" . ($exit === 0 ? "✅ Base de datos actualizada correctamente." : "❌ Error al actualizar ($exit)");
     } elseif ($step === 'seed') {
         echo "⏳ Ejecutando: php artisan db:seed --force\n";
         $exit = Artisan::call('db:seed', ['--force' => true]);
