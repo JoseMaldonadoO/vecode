@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::table('shipment_orders', function (Blueprint $table) {
             // Document Fields
-            $table->string('request_id')->nullable()->after('sale_order'); // Pedido
+            $table->string('request_id')->nullable()->after('folio'); // Pedido
 
             // Client Snapshot Fields (in case they differ from master or for history)
             $table->string('client_name')->nullable()->after('client_id');
