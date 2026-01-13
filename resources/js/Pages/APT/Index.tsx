@@ -4,8 +4,6 @@ import { Printer, UserPlus, Search, Ship, Anchor, Scan } from 'lucide-react';
 
 export default function Index({ auth }: { auth: any }) {
     const menuItems = [
-        { name: 'Imprimir QR', icon: Printer, href: route('apt.qr'), description: 'Buscar operador e imprimir tarjeta con código QR.', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500' },
-        { name: 'Alta Operador', icon: UserPlus, href: route('apt.operators.create'), description: 'Alta de operadores para el barco activo.', color: 'bg-green-50 text-green-600', hover: 'hover:border-green-500' },
         { name: 'Escanear Entrada', icon: Scan, href: route('apt.scanner.index'), description: 'Escanear código QR para registrar entrada/salida.', color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500' },
         { name: 'Buscar Operador', icon: Search, href: '#', description: 'Buscar información de un operador registrado.', color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500' },
     ];

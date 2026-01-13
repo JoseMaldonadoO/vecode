@@ -12,7 +12,6 @@ export function Sidebar({ className }: SidebarProps) {
         { name: 'Inicio', href: `${baseUrl}/dashboard`, icon: LayoutDashboard },
         { name: 'Comercialización', href: `${baseUrl}/sales`, icon: ClipboardList },
         { name: 'Documentación', icon: FileText, href: `${baseUrl}/documentation` },
-        { name: 'Muelle (APT)', icon: Anchor, href: `${baseUrl}/apt` },
         { name: 'Vigilancia', icon: Search, href: `${baseUrl}/surveillance` },
         { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale },
         { name: 'Muelle', href: `${baseUrl}/dock`, icon: Settings },
