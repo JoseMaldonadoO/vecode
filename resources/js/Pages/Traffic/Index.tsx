@@ -7,8 +7,8 @@ export default function Index({ auth }: { auth: any }) {
     const menuItems = [
         { name: 'Alta usuarios', icon: UserPlus, href: route('traffic.users.create') },
         { name: 'Lista de usuarios', icon: Users, href: route('dashboard') }, // Placeholder
-        { name: 'Alta operador manual', icon: FileText, href: route('dock.operator.create') },
-        { name: 'Qr de operador', icon: QrCode, href: route('dock.qr') },
+        { name: 'Alta operador manual', icon: FileText, href: route('apt.operators.create') },
+        { name: 'Qr de operador', icon: QrCode, href: route('apt.qr') },
         { name: 'Alta producto', icon: Box, href: route('dock.index') }, // Placeholder
         { name: 'Estatus QR', icon: ShieldCheck, href: route('dock.index') }, // Placeholder
     ];
