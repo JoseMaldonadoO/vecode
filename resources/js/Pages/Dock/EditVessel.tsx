@@ -3,16 +3,35 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { Anchor, Save, ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
 
-export default function EditVessel({ auth, products, vessel }: { auth: any, products: any[], vessel: any }) {
+export default function EditVessel({ auth, products, vessel, clients }: { auth: any, products: any[], vessel: any, clients: any[] }) {
     const { data, setData, put, processing, errors } = useForm({
         vessel_type: vessel.vessel_type || 'M/V',
         name: vessel.name || '',
+        nationality: vessel.nationality || '',
+        imo_number: vessel.imo_number || '',
+        registration_number: vessel.registration_number || '',
+        client_id: vessel.client_id || '',
+
         eta: vessel.eta || '',
         docking_date: vessel.docking_date || '',
         docking_time: vessel.docking_time || '',
+
+        length: vessel.length || '',
+        beam: vessel.beam || '',
+        draft: vessel.draft || '',
+
         operation_type: vessel.operation_type || 'Resguardo',
+        destination_port: vessel.destination_port || '',
+        origin_port: vessel.origin_port || '',
+        loading_port: vessel.loading_port || '',
+
         product_id: vessel.product_id || '',
         programmed_tonnage: vessel.programmed_tonnage || '',
+
+        importer: vessel.importer || '',
+        consignee_agency: vessel.consignee_agency || '',
+        customs_agency: vessel.customs_agency || '',
+
         stay_days: vessel.stay_days || '',
         etc: vessel.etc || '',
         departure_date: vessel.departure_date || '',
@@ -64,115 +83,249 @@ export default function EditVessel({ auth, products, vessel }: { auth: any, prod
 
                     <form onSubmit={submit} className="p-8 space-y-6">
 
-                        {/* Row 1: Tipo y Nombre */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Buque</label>
-                                <select
-                                    value={data.vessel_type}
-                                    onChange={e => setData('vessel_type', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                >
-                                    <option value="M/V">M/V</option>
-                                    <option value="B/T">B/T</option>
-                                </select>
-                                {errors.vessel_type && <p className="text-red-500 text-xs mt-1">{errors.vessel_type}</p>}
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Buque</label>
-                                <input
-                                    type="text"
-                                    value={data.name}
-                                    onChange={e => setData('name', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    placeholder="Ej. MSC ALEXANDRA"
-                                />
-                                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                        {/* Section 1: Vessel Identification */}
+                        <div className="border-b pb-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">1</span>
+                                Identificación del Buque
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Buque</label>
+                                    <select
+                                        value={data.vessel_type}
+                                        onChange={e => setData('vessel_type', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    >
+                                        <option value="M/V">M/V</option>
+                                        <option value="B/T">B/T</option>
+                                    </select>
+                                    {errors.vessel_type && <p className="text-red-500 text-xs mt-1">{errors.vessel_type}</p>}
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Nombre del Buque</label>
+                                    <input
+                                        type="text"
+                                        value={data.name}
+                                        onChange={e => setData('name', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        placeholder="Ej. MSC ALEXANDRA"
+                                    />
+                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Nacionalidad</label>
+                                    <input
+                                        type="text"
+                                        value={data.nationality}
+                                        onChange={e => setData('nationality', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.nationality && <p className="text-red-500 text-xs mt-1">{errors.nationality}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">N# IMO</label>
+                                    <input
+                                        type="text"
+                                        value={data.imo_number}
+                                        onChange={e => setData('imo_number', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.imo_number && <p className="text-red-500 text-xs mt-1">{errors.imo_number}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Matrícula</label>
+                                    <input
+                                        type="text"
+                                        value={data.registration_number}
+                                        onChange={e => setData('registration_number', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.registration_number && <p className="text-red-500 text-xs mt-1">{errors.registration_number}</p>}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Row 2: ETA, Buque Atraco (ETB), Hora */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">ETA (Estimado de Arribo)</label>
-                                <input
-                                    type="date"
-                                    value={data.eta}
-                                    onChange={e => setData('eta', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                />
-                                {errors.eta && <p className="text-red-500 text-xs mt-1">{errors.eta}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Buque Atraco (ETB)</label>
-                                <input
-                                    type="date"
-                                    value={data.docking_date}
-                                    onChange={e => setData('docking_date', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                />
-                                {errors.docking_date && <p className="text-red-500 text-xs mt-1">{errors.docking_date}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Hora</label>
-                                <input
-                                    type="time"
-                                    value={data.docking_time}
-                                    onChange={e => setData('docking_time', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                />
-                                {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
+                        {/* Section 2: Technical Specs */}
+                        <div className="border-b pb-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">2</span>
+                                Especificaciones Técnicas
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Eslora (m)</label>
+                                    <input
+                                        type="number" step="0.01"
+                                        value={data.length}
+                                        onChange={e => setData('length', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        placeholder="0.00"
+                                    />
+                                    {errors.length && <p className="text-red-500 text-xs mt-1">{errors.length}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Manga (m)</label>
+                                    <input
+                                        type="number" step="0.01"
+                                        value={data.beam}
+                                        onChange={e => setData('beam', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        placeholder="0.00"
+                                    />
+                                    {errors.beam && <p className="text-red-500 text-xs mt-1">{errors.beam}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Calado (m)</label>
+                                    <input
+                                        type="number" step="0.01"
+                                        value={data.draft}
+                                        onChange={e => setData('draft', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        placeholder="0.00"
+                                    />
+                                    {errors.draft && <p className="text-red-500 text-xs mt-1">{errors.draft}</p>}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Row 3: Tipo Operacion and Conditionals */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Operación</label>
-                                <select
-                                    value={data.operation_type}
-                                    onChange={e => setData('operation_type', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                >
-                                    <option value="Resguardo">Resguardo</option>
-                                    <option value="Descarga">Descarga</option>
-                                </select>
-                                {errors.operation_type && <p className="text-red-500 text-xs mt-1">{errors.operation_type}</p>}
+                        {/* Section 3: Arrival Info */}
+                        <div className="border-b pb-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">3</span>
+                                Datos de Arribo
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">ETA (Estimado Arribo)</label>
+                                    <input
+                                        type="date"
+                                        value={data.eta}
+                                        onChange={e => setData('eta', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.eta && <p className="text-red-500 text-xs mt-1">{errors.eta}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Fecha Atraco (ETB)</label>
+                                    <input
+                                        type="date"
+                                        value={data.docking_date}
+                                        onChange={e => setData('docking_date', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.docking_date && <p className="text-red-500 text-xs mt-1">{errors.docking_date}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Hora Atraco</label>
+                                    <input
+                                        type="time"
+                                        value={data.docking_time}
+                                        onChange={e => setData('docking_time', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 4: Operation & Clients */}
+                        <div className="border-b pb-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">4</span>
+                                Detalles de la Operación
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Cliente</label>
+                                    <select
+                                        value={data.client_id}
+                                        onChange={e => setData('client_id', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    >
+                                        <option value="">Seleccione Cliente...</option>
+                                        {(clients || []).map((c: any) => (
+                                            <option key={c.id} value={c.id}>{c.business_name}</option>
+                                        ))}
+                                    </select>
+                                    {errors.client_id && <p className="text-red-500 text-xs mt-1">{errors.client_id}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de Operación</label>
+                                    <select
+                                        value={data.operation_type}
+                                        onChange={e => setData('operation_type', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    >
+                                        <option value="Resguardo">Resguardo</option>
+                                        <option value="Descarga">Descarga</option>
+                                        <option value="Carga">Carga</option>
+                                    </select>
+                                    {errors.operation_type && <p className="text-red-500 text-xs mt-1">{errors.operation_type}</p>}
+                                </div>
                             </div>
 
+                            {/* Conditional Fields based on Operation Type */}
                             {data.operation_type === 'Descarga' && (
-                                <>
+                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Puerto de Origen</label>
+                                        <input type="text" value={data.origin_port} onChange={e => setData('origin_port', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                        {errors.origin_port && <p className="text-red-500 text-xs mt-1">{errors.origin_port}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Puerto de Carga</label>
+                                        <input type="text" value={data.loading_port} onChange={e => setData('loading_port', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                        {errors.loading_port && <p className="text-red-500 text-xs mt-1">{errors.loading_port}</p>}
+                                    </div>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Producto</label>
-                                        <select
-                                            value={data.product_id}
-                                            onChange={e => setData('product_id', e.target.value)}
-                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                        >
+                                        <select value={data.product_id} onChange={e => setData('product_id', e.target.value)} className="w-full rounded-md border-gray-300 py-2">
                                             <option value="">Seleccione...</option>
-                                            {products.map((p: any) => (
-                                                <option key={p.id} value={p.id}>{p.name}</option>
-                                            ))}
+                                            {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
                                         </select>
                                         {errors.product_id && <p className="text-red-500 text-xs mt-1">{errors.product_id}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Toneladas</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={data.programmed_tonnage}
-                                            onChange={e => setData('programmed_tonnage', e.target.value)}
-                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                            placeholder="0.00"
-                                        />
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Toneladas Programadas</label>
+                                        <input type="number" step="0.01" value={data.programmed_tonnage} onChange={e => setData('programmed_tonnage', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
                                         {errors.programmed_tonnage && <p className="text-red-500 text-xs mt-1">{errors.programmed_tonnage}</p>}
                                     </div>
-                                </>
+                                </div>
+                            )}
+
+                            {data.operation_type === 'Carga' && (
+                                <div className="bg-orange-50 p-4 rounded-lg border border-orange-100 mb-6">
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Puerto de Destino</label>
+                                    <input type="text" value={data.destination_port} onChange={e => setData('destination_port', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                    {errors.destination_port && <p className="text-red-500 text-xs mt-1">{errors.destination_port}</p>}
+                                </div>
                             )}
                         </div>
 
-                        {/* Row 4: Dias Estadia, ETC, Fecha Salida */}
+                        {/* Section 5: Agencies & Logistics */}
+                        <div className="border-b pb-6">
+                            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">5</span>
+                                Agencias y Logística
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Importador</label>
+                                    <input type="text" value={data.importer} onChange={e => setData('importer', e.target.value)} className="w-full rounded-md border-gray-300 py-2.5" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Agencia Consignataria</label>
+                                    <input type="text" value={data.consignee_agency} onChange={e => setData('consignee_agency', e.target.value)} className="w-full rounded-md border-gray-300 py-2.5" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Agencia Aduanal</label>
+                                    <input type="text" value={data.customs_agency} onChange={e => setData('customs_agency', e.target.value)} className="w-full rounded-md border-gray-300 py-2.5" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 6: Planning & Departure */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Días de Estadía</label>
