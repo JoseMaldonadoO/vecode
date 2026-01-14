@@ -87,6 +87,9 @@ class DockController extends Controller
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
         ]);
 
+        // Fix for legacy service_type column if migration didn't run
+        $validated['service_type'] = $validated['operation_type'];
+
         try {
             $vessel->update($validated);
             return redirect()->route('dock.index')->with('success', 'Barco actualizado correctamente.');
