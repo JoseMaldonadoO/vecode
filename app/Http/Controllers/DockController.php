@@ -15,7 +15,7 @@ class DockController extends Controller
     {
         return Inertia::render('Dock/Index', [
             'operators' => VesselOperator::orderBy('operator_name')->get(),
-            'vessels' => Vessel::orderBy('created_at', 'desc')->get()
+            'vessels' => Vessel::with('product')->orderBy('created_at', 'desc')->get()
         ]);
     }
 

@@ -49,7 +49,18 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                                         <td className="px-6 py-4 font-medium text-gray-900">{v.name} ({v.vessel_type})</td>
                                         <td className="px-6 py-4">{v.eta}</td>
                                         <td className="px-6 py-4">{v.docking_date}</td>
-                                        <td className="px-6 py-4">{v.operation_type}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className={`font-semibold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
+                                                    {v.operation_type}
+                                                </span>
+                                                {v.operation_type === 'Descarga' && v.product && (
+                                                    <span className="text-xs text-gray-500 mt-1">
+                                                        {v.product.name} ({v.programmed_tonnage} Ton)
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-4 text-center">
                                             <Link
                                                 href={route('dock.vessel.edit', v.id)}
