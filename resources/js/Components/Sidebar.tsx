@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard, Truck, Scale, Users, Settings, Package, ClipboardList, LogOut, Box, FileText, Anchor, Search } from 'lucide-react';
+import { LayoutDashboard, Truck, Scale, Users, Settings, Package, ClipboardList, LogOut, Box, FileText, Anchor, Search, Ship } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
@@ -19,7 +19,7 @@ export function Sidebar({ className }: SidebarProps) {
         { name: 'Documentación', icon: FileText, href: `${baseUrl}/documentation`, permission: 'view documentation' },
         { name: 'Vigilancia', icon: Search, href: `${baseUrl}/surveillance`, permission: 'view surveillance' },
         { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale, permission: 'view scale' },
-        { name: 'Muelle', href: `${baseUrl}/dock`, icon: Settings, permission: 'view dock' },
+        { name: 'Muelle', href: `${baseUrl}/dock`, icon: Ship, permission: 'view dock' },
         { name: 'APT', href: `${baseUrl}/apt`, icon: Box, permission: 'view apt' },
         { name: 'Administración', href: `${baseUrl}/admin/users`, icon: Users, role: 'Admin' },
     ];
@@ -58,10 +58,11 @@ export function Sidebar({ className }: SidebarProps) {
             <div className="space-y-4 py-4">
                 <div className="px-4 py-2">
                     <Link href={`${baseUrl}/dashboard`} className="mb-2 px-2 flex items-center gap-2">
-                        <Truck className="h-6 w-6 text-brand-500" />
-                        <span className="text-xl font-bold tracking-tight text-white">VECODE</span>
+                        {/* <Truck className="h-6 w-6 text-brand-500" /> */}
+                        <img src={`${baseUrl}/img/Proagro2.png`} alt="Proagro" className="h-10 w-auto object-contain" />
+                        {/* <span className="text-xl font-bold tracking-tight text-white">VECODE</span> */}
                     </Link>
-                    <p className="px-2 text-xs text-zinc-400">Enterprise Logistics ERP</p>
+                    <p className="px-2 text-xs text-zinc-400">Logistica Pro-agroindustria</p>
                 </div>
                 <div className="px-3">
                     <div className="space-y-1">
