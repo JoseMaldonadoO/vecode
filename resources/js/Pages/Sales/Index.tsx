@@ -271,7 +271,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
             </div>
 
             {/* Client List Modal */}
-            <Modal show={isClientListModalOpen} onClose={() => setIsClientListModalOpen(false)} maxWidth="2xl">
+            <Modal show={isClientListModalOpen} onClose={() => setIsClientListModalOpen(false)} maxWidth="6xl">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-medium text-gray-900">Directorio de Clientes</h2>
