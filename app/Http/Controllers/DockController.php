@@ -40,9 +40,27 @@ class DockController extends Controller
             'etc' => 'nullable|date',
             'departure_date' => 'nullable|date',
             'observations' => 'nullable|string',
+
+            // New Fields
+            'length' => 'nullable|numeric|min:0',
+            'beam' => 'nullable|numeric|min:0',
+            'draft' => 'nullable|numeric|min:0',
+            'nationality' => 'nullable|string|max:255',
+            'imo_number' => 'nullable|string|max:255',
+            'registration_number' => 'nullable|string|max:255',
+            'importer' => 'nullable|string|max:255',
+            'consignee_agency' => 'nullable|string|max:255',
+            'customs_agency' => 'nullable|string|max:255',
+            'client_id' => 'required|exists:clients,id',
+
             // Conditional
             'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
+            // Carga
+            'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
+            // Descarga
+            'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
         ]);
 
         // Fix for legacy service_type column if migration didn't run
@@ -82,9 +100,27 @@ class DockController extends Controller
             'etc' => 'nullable|date',
             'departure_date' => 'nullable|date',
             'observations' => 'nullable|string',
+
+            // New Fields
+            'length' => 'nullable|numeric|min:0',
+            'beam' => 'nullable|numeric|min:0',
+            'draft' => 'nullable|numeric|min:0',
+            'nationality' => 'nullable|string|max:255',
+            'imo_number' => 'nullable|string|max:255',
+            'registration_number' => 'nullable|string|max:255',
+            'importer' => 'nullable|string|max:255',
+            'consignee_agency' => 'nullable|string|max:255',
+            'customs_agency' => 'nullable|string|max:255',
+            'client_id' => 'required|exists:clients,id',
+
             // Conditional
             'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
+            // Carga
+            'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
+            // Descarga
+            'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
         ]);
 
         // Fix for legacy service_type column if migration didn't run
