@@ -51,14 +51,26 @@ git push
 
 ---
 
-## Integrar Cambios (Merge)
 
-Cuando termines una funcionalidad completa:
+## Integración Automática (El Rol de Jose)
 
-1. Asegúrate de tener lo último: `git pull origin main`
-2. Ve a GitHub y crea un **Pull Request (PR)** de tu rama hacia `main`.
-3. Avisa al equipo para que revisen.
-4. Si todo está bien, se aprueba y se hace **Merge** en GitHub.
+Para simplificar, usaremos un flujo de **Integrador**:
+
+1.  **Jona:** Solo se preocupa por trabajar en su rama `Jona` y hacer `git push`.
+2.  **Jose (y su Antigravity):** Son los encargados de llevar todo a producción (`main`).
+
+### Instrucciones para el Antigravity de Jona:
+> "Solo asegúrate de subir mis cambios a mi rama `origin/Jona`. No toques Main."
+
+### Instrucciones para el Antigravity de Jose (Al finalizar una tarea):
+> "Antigravity, integra los cambios de Jona y los míos en Main."
+
+El agente de Jose ejecutará automáticamente:
+1.  Bajar cambios de Jona (`git fetch origin Jona`).
+2.  Mezclarlos en Main.
+3.  Mezclar cambios de Jose en Main.
+4.  Subir Main actualizado.
+
 
 ---
 
