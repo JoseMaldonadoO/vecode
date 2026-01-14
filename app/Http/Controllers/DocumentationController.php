@@ -121,6 +121,11 @@ class DocumentationController extends Controller
             'tractor_plate' => 'required|string',
             'trailer_plate' => 'nullable|required_unless:unit_type,Volteo|string',
             'transporter_line' => 'required|string',
+            'real_transporter_line' => 'nullable|string',
+            'brand_model' => 'nullable|string',
+            'license' => 'nullable|string',
+            'policy' => 'nullable|string',
+            'validity' => 'nullable|date',
         ]);
 
         $exists = VesselOperator::where('vessel_id', $validated['vessel_id'])
