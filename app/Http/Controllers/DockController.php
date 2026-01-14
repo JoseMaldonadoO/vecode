@@ -45,9 +45,13 @@ class DockController extends Controller
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
         ]);
 
-        Vessel::create($validated);
-
-        return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
+        try {
+            Vessel::create($validated);
+            return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Vessel Create Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al guardar barco: ' . $e->getMessage()]);
+        }
     }
 
     public function editVessel($id)
@@ -80,8 +84,12 @@ class DockController extends Controller
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
         ]);
 
-        $vessel->update($validated);
-
-        return redirect()->route('dock.index')->with('success', 'Barco actualizado correctamente.');
+        try {
+            $vessel->update($validated);
+            return redirect()->route('dock.index')->with('success', 'Barco actualizado correctamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Vessel Update Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al actualizar barco: ' . $e->getMessage()]);
+        }
     }
 }
