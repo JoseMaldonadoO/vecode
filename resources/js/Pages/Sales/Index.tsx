@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { Plus, Search, FileText, UserPlus, Users } from 'lucide-react';
+import { Plus, Search, FileText, UserPlus, Users, ArrowLeft } from 'lucide-react';
 import Modal from '@/Components/Modal';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -14,7 +14,7 @@ interface Client {
     business_name: string;
     rfc: string;
     contact_info: string;
-    address?: string; // Added optional fields for TS compliance
+    address?: string;
 }
 
 interface Order {
@@ -29,6 +29,7 @@ interface Order {
 }
 
 export default function Index({ auth, orders, clients }: { auth: any, orders: Order[], clients: Client[] }) {
+    const [viewMode, setViewMode] = useState<'menu' | 'report'>('menu');
     const [isClientModalOpen, setIsClientModalOpen] = useState(false);
     const [isClientListModalOpen, setIsClientListModalOpen] = useState(false);
 
@@ -91,42 +92,181 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
         });
     };
 
+    const menuItems = [
+        {
+            name: 'Generar OV',
+            icon: Plus,
+            action: () => router.visit(route('sales.create')),
+            description: 'Crear nueva orden de venta.',
+            color: 'bg-indigo-50 text-indigo-600',
+            bg: 'bg-white',
+            borderColor: 'border-gray-100 hover:border-indigo-100'
+        },
+        {
+            name: 'Agregar Cliente',
+            icon: UserPlus,
+            action: () => setIsClientModalOpen(true),
+            description: 'Registrar nuevo cliente.',
+            color: 'bg-blue-50 text-blue-600',
+            bg: 'bg-white',
+            borderColor: 'border-gray-100 hover:border-blue-100'
+        },
+        {
+            name: 'Lista de Clientes',
+            icon: Users,
+            action: () => setIsClientListModalOpen(true),
+            description: 'Ver directorio de clientes.',
+            color: 'bg-purple-50 text-purple-600',
+            bg: 'bg-white',
+            borderColor: 'border-gray-100 hover:border-purple-100'
+        },
+        {
+            name: 'Reportes OV',
+            icon: FileText,
+            action: () => setViewMode('report'),
+            description: 'Ver historial de órdenes de venta.',
+            color: 'bg-emerald-50 text-emerald-600',
+            bg: 'bg-white',
+            borderColor: 'border-gray-100 hover:border-emerald-100'
+        },
+    ];
+
     return (
         <DashboardLayout user={auth.user} header="Comercialización / Órdenes">
             <Head title="Ventas" />
 
-            <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-                <div className="relative w-full md:w-72">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                    <input
-                        type="text"
-                        placeholder="Buscar por folio, cliente..."
-                        className="w-full rounded-md border border-gray-300 pl-8 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                    />
-                </div>
-                <div className="flex flex-wrap justify-center md:justify-end gap-2 w-full md:w-auto">
-                    <button
-                        onClick={() => setIsClientListModalOpen(true)}
-                        className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        <Users className="mr-2 h-4 w-4" />
-                        Lista de Clientes
-                    </button>
-                    <button
-                        onClick={() => setIsClientModalOpen(true)}
-                        className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        <UserPlus className="mr-2 h-4 w-4" />
-                        Agregar Cliente
-                    </button>
-                    <Link
-                        href={route('sales.create')}
-                        style={{ backgroundColor: '#000000', color: '#ffffff' }}
-                        className="inline-flex items-center justify-center rounded-md !bg-black px-4 py-2 text-sm font-medium text-white shadow hover:!bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                    >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Generar OV
-                    </Link>
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {viewMode === 'menu' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                            {menuItems.map((item, index) => (
+                                <button
+                                    key={index}
+                                    onClick={item.action}
+                                    className={`bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col items-center justify-center text-center h-64 group border ${item.borderColor}`}
+                                >
+                                    <div className={`p-4 rounded-full mb-4 ${item.color.split(' ')[0]}`}>
+                                        <item.icon className={`h-8 w-8 ${item.color.split(' ')[1]}`} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
+                                    <p className="text-gray-500">{item.description}</p>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div>
+                            <div className="mb-6 flex items-center justify-between">
+                                <button
+                                    onClick={() => setViewMode('menu')}
+                                    className="flex items-center text-gray-600 hover:text-indigo-600 font-medium transition-colors"
+                                >
+                                    <ArrowLeft className="w-5 h-5 mr-2" />
+                                    Volver al Menú
+                                </button>
+                                <div className="relative w-full md:w-72">
+                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar por folio, cliente..."
+                                        className="w-full rounded-md border border-gray-300 pl-8 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                                    <h3 className="font-bold text-gray-700 flex items-center">
+                                        <FileText className="w-5 h-5 mr-2 text-indigo-500" />
+                                        Reporte de Órdenes de Venta (OV)
+                                    </h3>
+                                    <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded-full">
+                                        {orders.length} Registros
+                                    </span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Folio</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden Venta (OV)</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                                <th className="relative px-6 py-3"><span className="sr-only">Acciones</span></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {orders.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                                        <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                                                        <p className="text-lg font-medium">No hay órdenes registradas</p>
+                                                        <p className="text-sm">Comienza creando una nueva orden de venta.</p>
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                orders.map((order) => (
+                                                    <tr key={order.id} className="hover:bg-gray-50">
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
+                                                            {order.folio}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            {order.sale_order || '-'}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                            {order.client?.business_name}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                                            ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
+                                                            ${order.status === 'closed' ? 'bg-red-100 text-red-800' : ''}
+                                                            ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
+                                                        `}>
+                                                                {order.status === 'created' ? 'ABIERTA' :
+                                                                    order.status === 'closed' ? 'CERRADO' :
+                                                                        order.status.toUpperCase()}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            {new Date(order.created_at).toLocaleDateString()}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                            <Link href={route('sales.show', order.id)} className="text-indigo-600 hover:text-indigo-900 border border-indigo-200 px-3 py-1 rounded hover:bg-indigo-50">Ver</Link>
+
+                                                            {order.status === 'created' && (
+                                                                <>
+                                                                    <Link
+                                                                        href={route('sales.edit', order.id)}
+                                                                        className="text-amber-600 hover:text-amber-900 border border-amber-200 px-3 py-1 rounded hover:bg-amber-50"
+                                                                    >
+                                                                        Editar
+                                                                    </Link>
+                                                                    <button
+                                                                        onClick={() => toggleStatus(order.id)}
+                                                                        className="text-red-600 hover:text-red-900 border border-red-200 px-3 py-1 rounded hover:bg-red-50"
+                                                                    >
+                                                                        Cerrar
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                            {order.status === 'closed' && (
+                                                                <button
+                                                                    onClick={() => toggleStatus(order.id)}
+                                                                    className="text-green-600 hover:text-green-900 border border-green-200 px-3 py-1 rounded hover:bg-green-50"
+                                                                >
+                                                                    Abrir
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -301,88 +441,6 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                     </form>
                 </div>
             </Modal>
-
-            <div className="rounded-md border bg-white shadow-sm overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Folio</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden Venta (OV)</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                            <th className="relative px-6 py-3"><span className="sr-only">Acciones</span></th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {orders.length === 0 ? (
-                            <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                                    <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                    <p className="text-lg font-medium">No hay órdenes registradas</p>
-                                    <p className="text-sm">Comienza creando una nueva orden de venta.</p>
-                                </td>
-                            </tr>
-                        ) : (
-                            orders.map((order) => (
-                                <tr key={order.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
-                                        {order.folio}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {order.sale_order || '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                        {order.client?.business_name}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                                            ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
-                                            ${order.status === 'closed' ? 'bg-red-100 text-red-800' : ''}
-                                            ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
-                                        `}>
-                                            {order.status === 'created' ? 'ABIERTA' :
-                                                order.status === 'closed' ? 'CERRADO' :
-                                                    order.status.toUpperCase()}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {new Date(order.created_at).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                        <Link href={route('sales.show', order.id)} className="text-indigo-600 hover:text-indigo-900 border border-indigo-200 px-3 py-1 rounded hover:bg-indigo-50">Ver</Link>
-
-                                        {order.status === 'created' && (
-                                            <>
-                                                <Link
-                                                    href={route('sales.edit', order.id)}
-                                                    className="text-amber-600 hover:text-amber-900 border border-amber-200 px-3 py-1 rounded hover:bg-amber-50"
-                                                >
-                                                    Editar
-                                                </Link>
-                                                <button
-                                                    onClick={() => toggleStatus(order.id)}
-                                                    className="text-red-600 hover:text-red-900 border border-red-200 px-3 py-1 rounded hover:bg-red-50"
-                                                >
-                                                    Cerrar
-                                                </button>
-                                            </>
-                                        )}
-                                        {order.status === 'closed' && (
-                                            <button
-                                                onClick={() => toggleStatus(order.id)}
-                                                className="text-green-600 hover:text-green-900 border border-green-200 px-3 py-1 rounded hover:bg-green-50"
-                                            >
-                                                Abrir
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
         </DashboardLayout>
     );
 }
