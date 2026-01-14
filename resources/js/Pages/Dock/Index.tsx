@@ -38,6 +38,8 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                                 <th className="px-6 py-4">Buque</th>
                                 <th className="px-6 py-4">ETA</th>
                                 <th className="px-6 py-4">ETB</th>
+                                <th className="px-6 py-4">ETC</th>
+                                <th className="px-6 py-4">F. Salida</th>
                                 <th className="px-6 py-4">Operación</th>
                                 <th className="px-6 py-4 text-center">Acciones</th>
                             </tr>
@@ -49,6 +51,8 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                                         <td className="px-6 py-4 font-medium text-gray-900">{v.name} ({v.vessel_type})</td>
                                         <td className="px-6 py-4">{v.eta}</td>
                                         <td className="px-6 py-4">{v.docking_date}</td>
+                                        <td className="px-6 py-4">{v.etc || '--'}</td>
+                                        <td className="px-6 py-4">{v.departure_date || '--'}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
                                                 <span className={`font-semibold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
@@ -73,7 +77,7 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-8 text-center text-gray-400 italic">
+                                    <td colSpan={7} className="px-6 py-8 text-center text-gray-400 italic">
                                         No hay barcos registrados.
                                     </td>
                                 </tr>
