@@ -192,16 +192,7 @@ export default function CreateVessel({ auth, products }: { auth: any, products: 
                                     onChange={e => setData('etc', e.target.value)}
                                     className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                 />
-                                <div className="flex justify-between items-center mt-1">
-                                    <p className="text-xs text-gray-500">Opcional</p>
-                                    <button
-                                        type="button"
-                                        onClick={() => setData('etc', new Date().toISOString().split('T')[0])}
-                                        className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold"
-                                    >
-                                        Hoy
-                                    </button>
-                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                 {errors.etc && <p className="text-red-500 text-xs mt-1">{errors.etc}</p>}
                             </div>
                             <div>
@@ -212,16 +203,7 @@ export default function CreateVessel({ auth, products }: { auth: any, products: 
                                     onChange={e => setData('departure_date', e.target.value)}
                                     className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 bg-gray-50"
                                 />
-                                <div className="flex justify-between items-center mt-1">
-                                    <p className="text-xs text-gray-500">Opcional. Llenar al zarpe.</p>
-                                    <button
-                                        type="button"
-                                        onClick={() => setData('departure_date', new Date().toISOString().split('T')[0])}
-                                        className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold"
-                                    >
-                                        Hoy
-                                    </button>
-                                </div>
+                                <p className="text-xs text-gray-500 mt-1">Opcional. Llenar al zarpe.</p>
                                 {errors.departure_date && <p className="text-red-500 text-xs mt-1">{errors.departure_date}</p>}
                             </div>
                         </div>
