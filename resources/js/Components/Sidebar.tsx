@@ -15,7 +15,7 @@ export function Sidebar({ className }: SidebarProps) {
     const allLinks = [
         { name: 'Inicio', href: `${baseUrl}/dashboard`, icon: LayoutDashboard, show: true }, // Always show dashboard
         { name: 'Comercialización', href: `${baseUrl}/sales`, icon: ClipboardList, permission: 'view commercialization' },
-        { name: 'Tráfico', href: `${baseUrl}/traffic`, icon: Truck, permission: 'view traffic' }, // Assuming permission name
+        { name: 'Tráfico', href: `${baseUrl}/traffic`, icon: Truck, permission: 'view traffic', role: 'Admin' }, // Assuming permission name
         { name: 'Documentación', icon: FileText, href: `${baseUrl}/documentation`, permission: 'view documentation' },
         { name: 'Vigilancia', icon: Search, href: `${baseUrl}/surveillance`, permission: 'view surveillance' },
         { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale, permission: 'view scale' },

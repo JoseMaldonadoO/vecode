@@ -31,6 +31,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view surveillance',
             'view surveillance operators',
             'view scale',
+            'view traffic',
             'access admin panel'
         ];
 
