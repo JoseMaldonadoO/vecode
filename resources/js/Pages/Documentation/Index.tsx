@@ -5,7 +5,7 @@ import { FileText, Anchor } from 'lucide-react';
 export default function Index({ auth }: { auth: any }) {
     const menuItems = [
         { name: 'Nueva Orden de Embarque', icon: FileText, href: route('documentation.create'), description: 'Crear una nueva orden de embarque.', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500' },
-        { name: 'Muelle', icon: Anchor, href: route('documentation.dock'), description: 'Gestión de operadores y códigos QR.', color: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-500' },
+        { name: 'Descarga de Barco', icon: Anchor, href: route('documentation.dock'), description: 'Gestión de operadores y códigos QR.', color: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-500' },
     ];
 
     return (
