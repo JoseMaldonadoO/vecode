@@ -65,6 +65,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/apt/operators/search', [\App\Http\Controllers\AptController::class, 'searchOperators'])->name('apt.operators.search');
     Route::get('/apt/operator', [\App\Http\Controllers\AptController::class, 'createOperator'])->name('apt.operators.create');
     Route::post('/apt/operator', [\App\Http\Controllers\AptController::class, 'storeOperator'])->name('apt.operators.store');
+    // Admin Module
+    Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', \App\Http\Controllers\Admin\AdminController::class);
+        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+    });
+
     Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);
 });
 
