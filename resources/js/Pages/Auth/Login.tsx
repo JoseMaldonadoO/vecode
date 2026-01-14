@@ -11,7 +11,7 @@ export default function Login({
     canResetPassword: boolean;
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
+        username: '',
         password: '',
         remember: false,
     });
@@ -48,24 +48,24 @@ export default function Login({
 
                         {/* Usuario */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i className="fas fa-user text-gray-400"></i>
                                 </div>
                                 <TextInput
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    value={data.email}
+                                    id="username"
+                                    type="text"
+                                    name="username"
+                                    value={data.username}
                                     className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-gray-50 bg-opacity-50 placeholder-gray-400 text-gray-900"
                                     placeholder="Ingrese su usuario"
                                     autoComplete="username"
                                     isFocused={true}
-                                    onChange={(e) => setData('email', e.target.value)}
+                                    onChange={(e) => setData('username', e.target.value)}
                                 />
                             </div>
-                            <InputError message={errors.email} className="mt-2" />
+                            <InputError message={errors.username} className="mt-2" />
                         </div>
 
                         {/* Contraseña */}
