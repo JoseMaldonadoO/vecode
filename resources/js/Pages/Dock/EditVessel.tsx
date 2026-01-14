@@ -49,6 +49,19 @@ export default function EditVessel({ auth, products, vessel }: { auth: any, prod
                         <h3 className="text-white font-bold">Editar datos del barco</h3>
                     </div>
 
+                    {/* Global Error Banner */}
+                    {(errors as any).error && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 mx-6 mt-6">
+                            <div className="flex">
+                                <div className="ml-3">
+                                    <p className="text-sm text-red-700">
+                                        {(errors as any).error}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <form onSubmit={submit} className="p-8 space-y-6">
 
                         {/* Row 1: Tipo y Nombre */}
