@@ -95,8 +95,8 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
         <DashboardLayout user={auth.user} header="Comercialización / Órdenes">
             <Head title="Ventas" />
 
-            <div className="flex items-center justify-between mb-6">
-                <div className="relative w-72">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+                <div className="relative w-full md:w-72">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
                     <input
                         type="text"
@@ -104,7 +104,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                         className="w-full rounded-md border border-gray-300 pl-8 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                     />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap justify-center md:justify-end gap-2 w-full md:w-auto">
                     <button
                         onClick={() => setIsClientListModalOpen(true)}
                         className="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -302,7 +302,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                 </div>
             </Modal>
 
-            <div className="rounded-md border bg-white shadow-sm">
+            <div className="rounded-md border bg-white shadow-sm overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>

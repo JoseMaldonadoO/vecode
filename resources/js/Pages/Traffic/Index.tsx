@@ -5,8 +5,7 @@ import { Users, UserPlus, QrCode, Box, ShieldCheck, FileText } from 'lucide-reac
 export default function Index({ auth }: { auth: any }) {
 
     const menuItems = [
-        { name: 'Alta usuarios', icon: UserPlus, href: route('traffic.users.create'), description: 'Registrar nuevos usuarios de tráfico.', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500' },
-        { name: 'Lista de usuarios', icon: Users, href: route('dashboard'), description: 'Ver lista de usuarios registrados.', color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500' },
+
         { name: 'Alta operador manual', icon: FileText, href: route('documentation.operators.create'), description: 'Registro manual de operadores.', color: 'bg-green-50 text-green-600', hover: 'hover:border-green-500' },
         { name: 'QR de operador', icon: QrCode, href: route('documentation.qr'), description: 'Generar códigos QR para operadores.', color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500' },
         { name: 'Alta producto', icon: Box, href: '#', description: 'Registrar nuevos productos en el sistema.', color: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-500' },

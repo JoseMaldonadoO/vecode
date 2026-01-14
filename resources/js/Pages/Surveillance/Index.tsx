@@ -1,126 +1,69 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, router, Link } from '@inertiajs/react';
-import { ShieldCheck, Truck, Clock, ArrowRight, User } from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { FileText, ClipboardCheck, UserX, LogOut, BarChart, AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
-interface Order {
-    id: string;
-    folio: string;
-    client: { business_name: string };
-    transporter: { name: string };
-    driver: { name: string };
-    vehicle: { plate_number: string };
-    status: string;
-    entry_at?: string;
-}
+import Modal from '@/Components/Modal';
 
-export default function Index({ auth, expected, in_plant }: { auth: any, expected: Order[], in_plant: Order[] }) {
-    const [processing, setProcessing] = useState<string | null>(null);
+export default function Index({ auth }: { auth: any }) {
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [alertAction, setAlertAction] = useState('');
 
-    const authorizeEntry = (id: string) => {
-        setProcessing(id);
-        router.post(route('surveillance.store'), {
-            shipment_order_id: id
-        }, {
-            onFinish: () => setProcessing(null)
-        });
+    const menuItems = [
+        { name: 'Registro', icon: FileText, color: 'bg-indigo-50 text-indigo-600', description: 'Registro de entrada y control.' },
+        { name: 'Estatus de checklist', icon: ClipboardCheck, color: 'bg-blue-50 text-blue-600', description: 'Verificar estado de revisiones.' },
+        { name: 'Vetar operador', icon: UserX, color: 'bg-red-50 text-red-600', description: 'Restringir acceso a operadores.' },
+        { name: 'Salida de unidades', icon: LogOut, color: 'bg-orange-50 text-orange-600', description: 'Registrar salida de planta.' },
+        { name: 'Reporte de salidas', icon: BarChart, color: 'bg-emerald-50 text-emerald-600', description: 'Historial de movimientos.' },
+    ];
+
+    const handleItemClick = (name: string) => {
+        setAlertAction(name);
+        setIsAlertOpen(true);
     };
 
     return (
-        <DashboardLayout user={auth.user} header="Vigilancia Física (Control de Acceso)">
+        <DashboardLayout user={auth.user} header="Vigilancia">
             <Head title="Vigilancia" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Column 1: Expected (Pre-registered by Traffic) */}
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                    <div className="bg-indigo-50 px-6 py-4 border-b flex justify-between items-center">
-                        <h3 className="font-bold text-indigo-900 flex items-center">
-                            <Clock className="w-5 h-5 mr-2 text-indigo-500" />
-                            Esperando Arribo
-                        </h3>
-                        <span className="bg-indigo-200 text-indigo-800 text-xs font-bold px-2 py-1 rounded-full">
-                            {expected.length}
-                        </span>
-                    </div>
-
-                    <div className="divide-y divide-gray-100">
-                        {expected.length === 0 && (
-                            <div className="p-8 text-center text-gray-400">
-                                <p>No hay unidades programadas.</p>
-                                <p className="text-xs mt-2">¿Ya asignó choferes en el módulo de <Link href={route('traffic.index')} className="text-indigo-500 underline">Tráfico</Link>?</p>
-                            </div>
-                        )}
-                        {expected.map(order => (
-                            <div key={order.id} className="p-6 hover:bg-gray-50 transition-colors">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h4 className="font-bold text-lg text-gray-900 font-mono">{order.vehicle.plate_number}</h4>
-                                        <p className="text-sm text-gray-500">{order.transporter.name}</p>
-                                    </div>
-                                    <span className="text-xs font-mono text-gray-400">{order.folio}</span>
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {menuItems.map((item, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleItemClick(item.name)}
+                                className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col items-center justify-center text-center h-64 group border border-gray-100 hover:border-indigo-100 w-full"
+                            >
+                                <div className={`p-4 rounded-full mb-4 ${item.color.split(' ')[0]}`}>
+                                    <item.icon className={`h-8 w-8 ${item.color.split(' ')[1]}`} />
                                 </div>
-
-                                <div className="flex items-center text-sm text-gray-600 mb-4 bg-gray-50 p-2 rounded">
-                                    <User className="w-4 h-4 mr-2" />
-                                    {order.driver.name}
-                                </div>
-
-                                <button
-                                    onClick={() => authorizeEntry(order.id)}
-                                    disabled={processing === order.id}
-                                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
-                                    className="w-full !bg-black text-white font-bold py-3 rounded-lg hover:!bg-gray-800 shadow-lg flex items-center justify-center transition-all"
-                                >
-                                    {processing === order.id ? 'Procesando...' : (
-                                        <>
-                                            <ShieldCheck className="w-5 h-5 mr-2" />
-                                            AUTORIZAR INGRESO
-                                        </>
-                                    )}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Column 2: In Plant (Authorized) */}
-                <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                    <div className="bg-emerald-50 px-6 py-4 border-b flex justify-between items-center">
-                        <h3 className="font-bold text-emerald-900 flex items-center">
-                            <Truck className="w-5 h-5 mr-2 text-emerald-500" />
-                            Unidades en Planta
-                        </h3>
-                        <span className="bg-emerald-200 text-emerald-800 text-xs font-bold px-2 py-1 rounded-full">
-                            {in_plant.length}
-                        </span>
-                    </div>
-
-                    <div className="divide-y divide-gray-100">
-                        {in_plant.length === 0 && (
-                            <div className="p-8 text-center text-gray-400">
-                                La planta está vacía.
-                            </div>
-                        )}
-                        {in_plant.map(order => (
-                            <div key={order.id} className="p-6 border-l-4 border-emerald-500">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h4 className="font-bold text-lg text-gray-900 font-mono">{order.vehicle?.plate_number}</h4>
-                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase
-                                        ${order.status === 'authorized' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}
-                                     `}>
-                                        {order.status === 'authorized' ? 'EN PATIO' : order.status}
-                                    </span>
-                                </div>
-                                <p className="text-sm text-gray-500 mb-1">{order.transporter?.name}</p>
-                                {order.entry_at && (
-                                    <p className="text-xs text-gray-400 mt-2">
-                                        Entrada: {new Date(order.entry_at).toLocaleTimeString()}
-                                    </p>
-                                )}
-                            </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
+                                <p className="text-gray-500">{item.description}</p>
+                            </button>
                         ))}
                     </div>
                 </div>
             </div>
+
+            <Modal show={isAlertOpen} onClose={() => setIsAlertOpen(false)}>
+                <div className="p-6 text-center">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 mb-4">
+                        <AlertTriangle className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900">Módulo en Construcción</h3>
+                    <p className="mt-2 text-sm text-gray-500">
+                        La funcionalidad <strong>{alertAction}</strong> estará disponible próximamente.
+                    </p>
+                    <div className="mt-6">
+                        <button
+                            onClick={() => setIsAlertOpen(false)}
+                            className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </DashboardLayout>
     );
 }

@@ -31,7 +31,7 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
         <DashboardLayout user={auth.user} header="Registro de Operadores (APT)">
             <Head title="Alta Operador - APT" />
 
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-6">
                     <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
                         <ArrowLeft className="w-4 h-4 mr-1" />

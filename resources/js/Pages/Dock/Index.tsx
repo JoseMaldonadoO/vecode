@@ -8,7 +8,7 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
         <DashboardLayout user={auth.user} header="Muelle (Operaciones Marítimas)">
             <Head title="Muelle" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-8 px-4">
                 {/* 1. Registro de Barco */}
                 <Link
                     href={route('dock.vessel.create')}
@@ -24,7 +24,7 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                 </Link>
             </div>
 
-            <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+            <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8 mx-4 xl:mx-auto">
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 className="text-lg font-bold text-gray-900 flex items-center">
                         <Ship className="w-5 h-5 mr-2 text-indigo-600" />
@@ -87,7 +87,7 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="max-w-6xl mx-auto mt-12 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mx-4 xl:mx-auto">
                 <div className="p-6 border-b border-gray-100">
                     <h3 className="text-lg font-bold text-gray-900 flex items-center">
                         <Users className="w-5 h-5 mr-2 text-indigo-600" />
