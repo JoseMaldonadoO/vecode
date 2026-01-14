@@ -19,7 +19,7 @@ export function Sidebar({ className }: SidebarProps) {
         { name: 'Documentación', icon: FileText, href: `${baseUrl}/documentation`, permission: 'view documentation' },
         { name: 'Vigilancia', icon: Search, href: `${baseUrl}/surveillance`, permission: 'view surveillance' },
         { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale, permission: 'view scale' },
-        { name: 'Descarga de Barco', href: `${baseUrl}/dock`, icon: Settings, permission: 'view dock' },
+        { name: 'Muelle', href: `${baseUrl}/dock`, icon: Settings, permission: 'view dock' },
         { name: 'APT', href: `${baseUrl}/apt`, icon: Box, permission: 'view apt' },
         { name: 'Administración', href: `${baseUrl}/admin/users`, icon: Users, role: 'Admin' },
     ];
