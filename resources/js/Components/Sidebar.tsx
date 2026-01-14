@@ -59,12 +59,12 @@ export function Sidebar({ className }: SidebarProps) {
                 <div className="px-4 py-2">
                     <Link href={`${baseUrl}/dashboard`} className="mb-2 px-2 flex items-center gap-2">
                         {/* <Truck className="h-6 w-6 text-brand-500" /> */}
-                        <div className="bg-white p-1 rounded-md">
-                            <img src={`${baseUrl}/img/Proagro2.png`} alt="Proagro" className="h-8 w-auto object-contain" />
+                        <div className="bg-white p-2 rounded-md" style={{ backgroundColor: 'white' }}>
+                            <img src={`${baseUrl}/img/Proagro2.png?v=2`} alt="Proagro" className="h-10 w-auto object-contain" />
                         </div>
                         {/* <span className="text-xl font-bold tracking-tight text-white">VECODE</span> */}
                     </Link>
-                    <p className="px-2 text-xs text-zinc-400">Logistica Pro-agroindustria</p>
+                    <p className="px-2 text-xs text-zinc-400">Logística Pro-Agroindustria</p>
                 </div>
                 <div className="px-3">
                     <div className="space-y-1">
