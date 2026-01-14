@@ -12,13 +12,13 @@ export default function Index({ auth, operators = [], vessels = [] }: { auth: an
                 {/* 1. Registro de Barco */}
                 <Link
                     href={route('dock.vessel.create')}
-                    className="group bg-white rounded-xl shadow-lg border border-transparent p-8 flex flex-col items-center justify-center text-center hover:border-indigo-500 hover:shadow-indigo-100 transition-all duration-300"
+                    className="group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl hover:border-indigo-500"
                 >
-                    <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors">
-                        <Ship className="w-10 h-10 text-indigo-600 group-hover:text-white transition-colors" />
+                    <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 text-indigo-600">
+                        <Ship className="w-10 h-10" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Registro de Barco</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="text-xl font-bold text-gray-800 break-words w-full">Registro de Barco</h3>
+                    <p className="text-gray-500 mt-2 text-sm">
                         Dar de alta nueva operación, asignar cliente y producto.
                     </p>
                 </Link>

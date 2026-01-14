@@ -32,13 +32,13 @@ export default function Index({ auth }: { auth: any }) {
                             <button
                                 key={index}
                                 onClick={() => handleItemClick(item.name)}
-                                className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 hover:shadow-md transition-shadow flex flex-col items-center justify-center text-center h-64 group border border-gray-100 hover:border-indigo-100 w-full"
+                                className={`group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl ${item.color.includes('indigo') ? 'hover:border-indigo-500' : item.color.includes('blue') ? 'hover:border-blue-500' : item.color.includes('red') ? 'hover:border-red-500' : item.color.includes('orange') ? 'hover:border-orange-500' : 'hover:border-emerald-500'}`}
                             >
-                                <div className={`p-4 rounded-full mb-4 ${item.color.split(' ')[0]}`}>
-                                    <item.icon className={`h-8 w-8 ${item.color.split(' ')[1]}`} />
+                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 ${item.color}`}>
+                                    <item.icon className="w-10 h-10" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.name}</h3>
-                                <p className="text-gray-500">{item.description}</p>
+                                <h3 className="text-xl font-bold text-gray-800 break-words w-full">{item.name}</h3>
+                                <p className="text-gray-500 mt-2 text-sm">{item.description}</p>
                             </button>
                         ))}
                     </div>
