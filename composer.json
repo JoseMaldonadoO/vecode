@@ -13,7 +13,11 @@
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
+        "laravel/scout": "*",
         "laravel/tinker": "^2.10.1",
+        "maatwebsite/excel": "*",
+        "sentry/sentry-laravel": "*",
+        "spatie/laravel-backup": "*",
         "spatie/laravel-permission": "^6.24",
         "tightenco/ziggy": "^2.0"
     },
