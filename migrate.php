@@ -20,8 +20,12 @@ try {
     // Also run seeders if needed (roles)
     // Warning: Running seeders multiple times might duplicate data if not idempotent. 
     // Spatie roles are idempotent (firstOrCreate).
-    echo "\nRunning Seeder...\n";
+    echo "\nRunning Seeder (Roles)...\n";
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
+    echo nl2br(\Illuminate\Support\Facades\Artisan::output());
+
+    echo "\nRunning Seeder (Dock Status)...\n";
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DockStatusSeeder', '--force' => true]);
     echo nl2br(\Illuminate\Support\Facades\Artisan::output());
 
 } catch (\Exception $e) {
