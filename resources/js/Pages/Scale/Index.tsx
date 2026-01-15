@@ -5,7 +5,7 @@ import { Truck, Package, Scale, Activity, Printer, Database, Lock } from 'lucide
 export default function Index({ auth }: { auth: any }) {
     const buttons = [
         { name: 'Entrada', icon: Truck, color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500', href: '#' },
-        { name: 'Entrada MI / MP', icon: Package, color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500', href: '/scale/entry-mp' },
+        { name: 'Entrada MI / MP', icon: Package, color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500', href: route('scale.entry-mp') },
         { name: 'Segundo Ticket', icon: Scale, color: 'bg-green-50 text-green-600', hover: 'hover:border-green-500', href: '#' },
         { name: 'Estatus de unidades', icon: Activity, color: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-500', href: '#' },
         { name: 'Edita / Reimprime Ticket', icon: Printer, color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500', href: '#' },
