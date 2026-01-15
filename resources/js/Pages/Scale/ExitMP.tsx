@@ -1,20 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { Scale, Truck, Save, Link as LinkIcon, AlertCircle, Warehouse, Box, ArrowRight } from 'lucide-react';
+import { Head, useForm, router } from '@inertiajs/react';
+import { Scale, Truck, Save, Link as LinkIcon, AlertCircle, Warehouse, Box, ArrowRight, Search, Camera, X } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputLabel from '@/Components/InputLabel';
+import TextInput from '@/Components/TextInput';
+import { QrReader } from 'react-qr-reader';
+import axios from 'axios';
 
-export default function ExitMP({ auth, order }: { auth: any, order: any }) {
+export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any, order?: any, active_scale_id?: number }) {
+    // State for Search
+    const [qrValue, setQrValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [showCamera, setShowCamera] = useState(false);
+
+    // State for Weighing
     const [weight, setWeight] = useState<number>(0);
     const [isConnected, setIsConnected] = useState(false);
     const portRef = useRef<any>(null);
     const readerRef = useRef<any>(null);
 
     const { data, setData, post, processing } = useForm({
-        shipment_order_id: order.id,
+        shipment_order_id: order?.id || '',
         weight: '', // Second Weight
-        scale_id: 1, // Exit Scale default
+        scale_id: active_scale_id, // Exit Scale
     });
 
     useEffect(() => {
@@ -59,6 +68,93 @@ export default function ExitMP({ auth, order }: { auth: any, order: any }) {
         if (weight <= 0) { alert("Peso debe ser mayor a 0."); return; }
         post(route('scale.exit.store'));
     };
+
+    const searchOrder = async (codeOverride?: string) => {
+        const query = codeOverride || qrValue;
+        if (!query) return;
+
+        setIsLoading(true);
+        if (codeOverride) setQrValue(codeOverride);
+
+        try {
+            // Use same generic search
+            const response = await axios.get(route('scale.search-qr'), { params: { qr: query } });
+            const res = response.data;
+
+            if (res && res.type === 'shipment_order') {
+                // Navigate to Exit with ID
+                // We could just set state, but full page reload is safer for state reset
+                router.visit(route('scale.exit', res.id) + `?scale_id=${active_scale_id}`);
+            } else {
+                alert("Código no válido para Salida (debe ser una Orden activa).");
+            }
+        } catch (error) {
+            console.error("Search error:", error);
+            alert("Orden no encontrada.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // If no order, show Search Screen
+    if (!order) {
+        return (
+            <DashboardLayout user={auth.user} header="Báscula - Salida / Destare">
+                <Head title="Buscar Salida" />
+                <div className="max-w-xl mx-auto py-12 px-4">
+                    <div className="bg-white p-8 rounded-2xl shadow-lg text-center">
+                        <div className="bg-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Search className="w-10 h-10 text-indigo-600" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">Escanear para Salida</h2>
+                        <p className="text-gray-500 mb-6">Escanee el QR del chofer o ingrese el folio de la orden para registrar el peso de salida.</p>
+
+                        {showCamera && (
+                            <div className="w-full max-w-sm mx-auto mb-6 bg-black rounded-lg overflow-hidden relative shadow-2xl animate-fade-in-down">
+                                <QrReader
+                                    onResult={(result: any, error) => {
+                                        if (!!result) {
+                                            const text = typeof result.getText === 'function' ? result.getText() : result.text;
+                                            if (text) {
+                                                setQrValue(text);
+                                                setShowCamera(false);
+                                                searchOrder(text);
+                                            }
+                                        }
+                                    }}
+                                    constraints={{ facingMode: 'environment' }}
+                                    videoStyle={{ width: '100%' }}
+                                    className="w-full"
+                                />
+                                <p className="text-white text-center py-2 text-sm">Apunte al código QR...</p>
+                            </div>
+                        )}
+
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowCamera(!showCamera)}
+                                className={`p-3 rounded-lg border transition-colors ${showCamera ? 'bg-red-100 border-red-200 text-red-600' : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'}`}
+                            >
+                                {showCamera ? <X className="w-6 h-6" /> : <Camera className="w-6 h-6" />}
+                            </button>
+                            <TextInput
+                                value={qrValue}
+                                onChange={(e) => setQrValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && searchOrder()}
+                                className="w-full text-lg border-indigo-200 focus:border-indigo-500"
+                                placeholder="QR / Folio..."
+                                autoFocus={!showCamera}
+                            />
+                            <PrimaryButton onClick={() => searchOrder()} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
+                                {isLoading ? '...' : 'Buscar'}
+                            </PrimaryButton>
+                        </div>
+                    </div>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     // Net Weight Calculation (Preview)
     // Always Positive logic: abs(Current - Entry)

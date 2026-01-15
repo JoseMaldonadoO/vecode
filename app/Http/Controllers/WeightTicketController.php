@@ -76,13 +76,23 @@ class WeightTicketController extends Controller
         ]);
     }
 
-    public function createExit($id)
+    public function createEntrySale(Request $request)
     {
-        $order = ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket'])
-            ->findOrFail($id);
+        $scaleId = $request->query('scale_id', 1);
+        return Inertia::render('Scale/EntrySale', [
+            'active_scale_id' => (int) $scaleId
+        ]);
+    }
 
-        return Inertia::render('Scale/ExitMP', [
-            'order' => [
+    public function createExit(Request $request, $id = null)
+    {
+        $orderData = null;
+
+        if ($id) {
+            $order = ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket'])
+                ->findOrFail($id);
+
+            $orderData = [
                 'id' => $order->id,
                 'folio' => $order->folio,
                 'provider' => $order->client->name ?? 'N/A',
@@ -91,13 +101,17 @@ class WeightTicketController extends Controller
                 'vehicle_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
                 'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
                 'transport_line' => $order->transport_company ?? $order->transporter->name ?? 'N/A',
-                'entry_weight' => $order->weight_ticket->tare_weight ?? 0,
+                'entry_weight' => $order->weight_ticket->tare_weight ?? 0, // Actually Gross Weight in "Full -> Empty" flow, but stored as tare_weight for now
                 'warehouse' => $order->warehouse ?? 'N/A',
                 'cubicle' => $order->cubicle ?? 'N/A',
-                // Add reference/consignee if needed
                 'reference' => $order->reference ?? '',
                 'consignee' => $order->consignee ?? '',
-            ]
+            ];
+        }
+
+        return Inertia::render('Scale/ExitMP', [
+            'order' => $orderData,
+            'active_scale_id' => (int) $request->input('scale_id', 1)
         ]);
     }
 

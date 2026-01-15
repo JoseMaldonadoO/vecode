@@ -53,7 +53,8 @@ Route::middleware('auth')->group(function () {
 
     // Scale Module
     Route::get('/scale/entry-mp', [\App\Http\Controllers\WeightTicketController::class, 'createEntry'])->name('scale.entry-mp');
-    Route::get('/scale/exit/{id}', [\App\Http\Controllers\WeightTicketController::class, 'createExit'])->name('scale.exit');
+    Route::get('/scale/entry-sale', [\App\Http\Controllers\WeightTicketController::class, 'createEntrySale'])->name('scale.entry-sale');
+    Route::get('/scale/exit/{id?}', [\App\Http\Controllers\WeightTicketController::class, 'createExit'])->name('scale.exit');
     Route::get('/scale/search-qr', [\App\Http\Controllers\WeightTicketController::class, 'searchQr'])->name('scale.search-qr');
     Route::post('/scale/entry', [\App\Http\Controllers\WeightTicketController::class, 'storeEntry'])->name('scale.entry.store');
     Route::post('/scale/exit', [\App\Http\Controllers\WeightTicketController::class, 'storeExit'])->name('scale.exit.store');

@@ -147,7 +147,8 @@ class AptController extends Controller
                 ->exists();
 
             if ($occupied) {
-                return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' en ' . $validated['warehouse'] . ' ya está ocupado. Seleccione otro.']);
+                // Return Error with a clear message and disable action
+                return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' en ' . $validated['warehouse'] . ' ya está ocupado por otra orden activa.']);
             }
         }
 

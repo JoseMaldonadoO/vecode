@@ -23,7 +23,7 @@ export default function Index({ auth, pending_exit = [] }: { auth: any, pending_
     };
 
     const buttons = [
-        { name: 'Entrada', icon: Truck, color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500', href: '#' },
+        { name: 'Salida', icon: Truck, color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500', href: route('scale.exit') + `?scale_id=${scaleId}` },
         // Append scale_id to the entry route
         { name: 'Entrada MI / MP', icon: Package, color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500', href: route('scale.entry-mp') + `?scale_id=${scaleId}` },
         { name: 'Edita / Reimprime Ticket', icon: Printer, color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500', href: '#' },
