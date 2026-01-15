@@ -60,9 +60,9 @@ export function Sidebar({ className }: SidebarProps) {
                     <Link href={`${baseUrl}/dashboard`} className="mb-2 px-2 flex items-center gap-2">
                         {/* <Truck className="h-6 w-6 text-brand-500" /> */}
                         <img
-                            src={`${baseUrl}/images/Logo_vde.png`}
+                            src={`${baseUrl}/images/logovecode.png`}
                             alt="Proagro"
-                            className="h-12 w-auto object-contain brightness-0 invert"
+                            className="h-12 w-auto object-contain"
                         />
                         {/* <span className="text-xl font-bold tracking-tight text-white">VECODE</span> */}
                     </Link>
