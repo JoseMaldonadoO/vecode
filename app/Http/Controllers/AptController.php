@@ -139,21 +139,15 @@ class AptController extends Controller
             if (empty($validated['cubicle'])) {
                 return back()->withErrors(['cubicle' => 'El cubículo es obligatorio para el Almacén seleccionado.']);
             }
-            // Check occupancy? (Future enhancement or simple check if cubicle isn't full)
-            // User said: "Inhabilitar cubículo si ya está ocupado".
-            // We can check if any *active* order has this cubicle assigned.
+            // Strict Occupancy Check
+            // Checks if any active order (status 'loading' or 'authorized') is already assigned to this cubicle.
             $occupied = \App\Models\ShipmentOrder::where('warehouse', $validated['warehouse'])
                 ->where('cubicle', $validated['cubicle'])
-                ->whereIn('status', ['loading', 'authorized']) // Meaning currently in process using that cubicle?
-                // Actually, "Occupied" means it has stuff in it. This needs Inventory logic.
-                // For now, checks if another Truck is *currently* discharging there?
-                // "Inhabilitar... si ya está ocupado".
-                // Let's assume validation is enough for now or simple "Is there another truck discharging there right now?".
+                ->whereIn('status', ['loading', 'authorized'])
                 ->exists();
 
             if ($occupied) {
-                // return back()->withErrors(['cubicle' => 'El cubículo está ocupado por otra unidad.']);
-                // Warning only? Or block. "Inhabilitar" implies Block.
+                return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' en ' . $validated['warehouse'] . ' ya está ocupado. Seleccione otro.']);
             }
         }
 

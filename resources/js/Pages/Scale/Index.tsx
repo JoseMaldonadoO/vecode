@@ -1,13 +1,31 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Truck, Package, Scale, Activity, Printer, Database, Lock, ArrowRight, Warehouse } from 'lucide-react';
+import { Truck, Package, Scale, Activity, Printer, Database, Lock, ArrowRight, Warehouse, Settings, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import Modal from '@/Components/Modal';
+import SecondaryButton from '@/Components/SecondaryButton';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Index({ auth, pending_exit = [] }: { auth: any, pending_exit: any[] }) {
+    // Persistent scale ID logic
+    const [scaleId, setScaleId] = useState<number>(1);
+    const [showScaleModal, setShowScaleModal] = useState(false);
+
+    useEffect(() => {
+        const saved = localStorage.getItem('selected_scale_id');
+        if (saved) setScaleId(parseInt(saved));
+    }, []);
+
+    const handleScaleSelect = (id: number) => {
+        setScaleId(id);
+        localStorage.setItem('selected_scale_id', id.toString());
+        setShowScaleModal(false);
+    };
+
     const buttons = [
         { name: 'Entrada', icon: Truck, color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500', href: '#' },
-        { name: 'Entrada MI / MP', icon: Package, color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500', href: route('scale.entry-mp') },
-        // { name: 'Segundo Ticket', icon: Scale, color: 'bg-green-50 text-green-600', hover: 'hover:border-green-500', href: '#' }, // Replaced by List
-        // { name: 'Estatus de unidades', icon: Activity, color: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-500', href: '#' },
+        // Append scale_id to the entry route
+        { name: 'Entrada MI / MP', icon: Package, color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500', href: route('scale.entry-mp') + `?scale_id=${scaleId}` },
         { name: 'Edita / Reimprime Ticket', icon: Printer, color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500', href: '#' },
         { name: 'Alta lote / almacen', icon: Database, color: 'bg-teal-50 text-teal-600', hover: 'hover:border-teal-500', href: '#' },
         { name: 'Cierre de Lote', icon: Lock, color: 'bg-red-50 text-red-600', hover: 'hover:border-red-500', href: '#' },
@@ -18,6 +36,17 @@ export default function Index({ auth, pending_exit = [] }: { auth: any, pending_
             <Head title="Báscula" />
 
             <div className="max-w-7xl mx-auto py-8 px-4 space-y-8">
+
+                {/* Scale Selector Banner */}
+                <div className="flex justify-end">
+                    <button
+                        onClick={() => setShowScaleModal(true)}
+                        className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors text-sm font-bold text-gray-700"
+                    >
+                        <Settings className="w-4 h-4" />
+                        Báscula Activa: <span className="text-indigo-600">#{scaleId}</span>
+                    </button>
+                </div>
 
                 {/* Actions Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -97,7 +126,7 @@ export default function Index({ auth, pending_exit = [] }: { auth: any, pending_
                                         </td>
                                         <td className="p-4 text-center">
                                             <Link
-                                                href={route('scale.exit', order.id)}
+                                                href={route('scale.exit', order.id) + `?scale_id=${scaleId}`}
                                                 className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition"
                                             >
                                                 Destarar <ArrowRight className="w-4 h-4 ml-2" />
@@ -115,6 +144,34 @@ export default function Index({ auth, pending_exit = [] }: { auth: any, pending_
                         </table>
                     </div>
                 </div>
+
+                {/* Scale Selection Modal */}
+                <Modal show={showScaleModal} onClose={() => setShowScaleModal(false)}>
+                    <div className="p-6">
+                        <h2 className="text-lg font-medium text-gray-900 mb-4">
+                            Seleccionar Báscula de Operación
+                        </h2>
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                            {[1, 2, 3].map(id => (
+                                <button
+                                    key={id}
+                                    onClick={() => handleScaleSelect(id)}
+                                    className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 hover:border-indigo-200'
+                                        }`}
+                                >
+                                    <Scale className={`w-8 h-8 ${scaleId === id ? 'text-indigo-600' : 'text-gray-400'}`} />
+                                    <span className="font-bold text-lg">Báscula {id}</span>
+                                    {scaleId === id && <Check className="w-4 h-4 text-indigo-600" />}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-end">
+                            <SecondaryButton onClick={() => setShowScaleModal(false)}>
+                                Cerrar
+                            </SecondaryButton>
+                        </div>
+                    </div>
+                </Modal>
 
             </div>
         </DashboardLayout>

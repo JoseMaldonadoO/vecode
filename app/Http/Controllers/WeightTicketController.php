@@ -68,9 +68,12 @@ class WeightTicketController extends Controller
 
     // --- New Methods for Entry MI / MP ---
 
-    public function createEntry()
+    public function createEntry(Request $request)
     {
-        return Inertia::render('Scale/EntryMP');
+        $scaleId = $request->query('scale_id', 1); // Default to 1 if not provided
+        return Inertia::render('Scale/EntryMP', [
+            'active_scale_id' => (int) $scaleId
+        ]);
     }
 
     public function createExit($id)

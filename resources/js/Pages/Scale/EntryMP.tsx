@@ -7,7 +7,7 @@ import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import axios from 'axios';
 
-export default function EntryMP({ auth }: { auth: any }) {
+export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, active_scale_id?: number }) {
     const [weight, setWeight] = useState<number>(0);
     const [isConnected, setIsConnected] = useState(false);
     const [qrValue, setQrValue] = useState('');
@@ -21,7 +21,7 @@ export default function EntryMP({ auth }: { auth: any }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         shipment_order_id: '', // Nullable/Empty if new logic
         vessel_id: '',
-        scale_id: 1, // Default Scale 1
+        scale_id: active_scale_id, // Use prop
 
         // Manual / Derived
         client_id: '', // provider ID
@@ -48,6 +48,23 @@ export default function EntryMP({ auth }: { auth: any }) {
         tare_weight: '',
         observations: '',
     });
+
+    useEffect(() => {
+        setData('scale_id', active_scale_id);
+    }, [active_scale_id]);
+
+    // ... existing Serial/Search logic ... 
+
+    // Inside Render, remove Selector and show static Badge
+    // ...
+    //   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center items-center">
+    //      <div className="flex items-center gap-2 mb-2 text-gray-500 uppercase text-xs font-bold tracking-wider">
+    //          <Settings className="w-4 h-4" /> Báscula Activa
+    //      </div>
+    //      <div className="text-3xl font-bold text-indigo-600">
+    //          #{active_scale_id}
+    //      </div>
+    //   </div>
 
     useEffect(() => {
         setData('tare_weight', weight.toString());
@@ -198,21 +215,14 @@ export default function EntryMP({ auth }: { auth: any }) {
                         </div>
                     </div>
 
-                    {/* Scale Selector */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center">
-                        <div className="flex items-center gap-2 mb-2">
-                            <Settings className="w-5 h-5 text-gray-400" />
-                            <label className="font-bold text-gray-700">Báscula Activa</label>
+                    {/* Scale Badge (Read Only) */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center items-center">
+                        <div className="flex items-center gap-2 mb-2 text-gray-500 uppercase text-xs font-bold tracking-wider">
+                            <Settings className="w-4 h-4" /> Báscula Activa
                         </div>
-                        <select
-                            value={data.scale_id}
-                            onChange={(e) => setData('scale_id', parseInt(e.target.value))}
-                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm font-bold text-lg"
-                        >
-                            <option value={1}>Báscula 1</option>
-                            <option value={2}>Báscula 2</option>
-                            <option value={3}>Báscula 3</option>
-                        </select>
+                        <div className="text-3xl font-bold text-indigo-600">
+                            #{active_scale_id}
+                        </div>
                     </div>
                 </div>
 
