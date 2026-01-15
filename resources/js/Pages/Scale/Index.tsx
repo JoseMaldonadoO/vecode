@@ -19,18 +19,33 @@ export default function Index({ auth }: { auth: any }) {
 
             <div className="max-w-7xl mx-auto py-12 px-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {buttons.map((btn, index) => (
-                        <button
-                            key={index}
-                            className={`group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl ${btn.hover}`}
-                            onClick={() => alert(`Funcionalidad '${btn.name}' en desarrollo`)}
-                        >
-                            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 ${btn.color}`}>
-                                <btn.icon className="w-10 h-10" />
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-800 break-words w-full">{btn.name}</h3>
-                        </button>
-                    ))}
+                    {buttons.map((btn, index) => {
+                        const isLink = btn.href && btn.href !== '#';
+                        const CardContent = () => (
+                            <>
+                                <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 ${btn.color}`}>
+                                    <btn.icon className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800 break-words w-full">{btn.name}</h3>
+                            </>
+                        );
+
+                        const className = `group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl ${btn.hover} w-full`;
+
+                        return isLink ? (
+                            <a key={index} href={btn.href} className={className}>
+                                <CardContent />
+                            </a>
+                        ) : (
+                            <button
+                                key={index}
+                                className={className}
+                                onClick={() => alert(`Funcionalidad '${btn.name}' en desarrollo`)}
+                            >
+                                <CardContent />
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
         </DashboardLayout>
