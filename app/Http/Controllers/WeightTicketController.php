@@ -7,6 +7,8 @@ use App\Models\WeightTicket;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use App\Models\Vessel; // Assuming we need this for origin/destination if related
+use App\Models\VesselOperator; // Legacy fallback?
 
 class WeightTicketController extends Controller
 {
@@ -24,7 +26,7 @@ class WeightTicketController extends Controller
 
         // 2. Orders ready for SECOND WEIGH (Ticket started but not finished)
         $pending_exit = ShipmentOrder::with(['client', 'driver', 'vehicle', 'product', 'weight_ticket'])
-            ->whereHas('weight_ticket', function($q) {
+            ->whereHas('weight_ticket', function ($q) {
                 $q->where('status', 'in_progress');
             })
             ->get();
@@ -72,7 +74,7 @@ class WeightTicketController extends Controller
 
         DB::transaction(function () use ($validated, $id) {
             $ticket = WeightTicket::findOrFail($id);
-            
+
             $gross = $validated['weight'];
             $tare = $ticket->tare_weight;
             $net = $gross - $tare;
@@ -84,7 +86,7 @@ class WeightTicketController extends Controller
                 // We should probably have 'weighing_status' column in migration? 
                 // Migration had 'status' enum: pending, in_progress, completed.
             ]);
-            
+
             // Validate migration column name. I recall 'status' in tickets table.
             // Let's check schemas if needed. Assuming 'status'.
 
@@ -93,5 +95,90 @@ class WeightTicketController extends Controller
         });
 
         return redirect()->back();
+    }
+
+    // --- New Methods for Entry MI / MP ---
+
+    public function createEntry()
+    {
+        return Inertia::render('Scale/EntryMP');
+    }
+
+    public function searchQr(Request $request)
+    {
+        $qr = $request->input('qr');
+
+        // Search logic: Try to find a ShipmentOrder by id (if QR is UUID) or some other identifier.
+        // Legacy system used "Op" code. We might need a field for that or just search ID.
+        // For now, assuming QR contains the UUID of the ShipmentOrder.
+
+        $order = ShipmentOrder::with(['client', 'transporter', 'driver', 'vehicle', 'product', 'vessel'])
+            ->where('id', $qr) // Or where('legacy_qr_code', $qr)
+            ->first();
+
+        if (!$order) {
+            return response()->json(['error' => 'Orden no encontrada'], 404);
+        }
+
+        // Map to legacy format if needed by frontend, or just send clean object
+        return response()->json([
+            'id' => $order->id,
+            'provider' => $order->client->name ?? 'N/A',
+            'transporter' => $order->transporter->name ?? 'N/A',
+            'driver' => $order->driver->name ?? 'N/A',
+            'vehicle' => $order->vehicle->name ?? 'N/A', // Description or plate?
+            'vehicle_plate' => $order->vehicle->plate ?? '',
+            'trailer_plate' => $order->vehicle->trailer_plate ?? 'N/A', // Assuming vehicle has this
+            'vehicle_type' => $order->vehicle->type ?? 'N/A',
+            'origin' => $order->origin_address ?? 'N/A', // Check model fields
+            'destination' => $order->destination_address ?? 'N/A',
+            'product' => $order->product->name ?? 'N/A',
+            'presentation' => $order->product->presentation ?? 'Granel', // Default
+            'programmed_weight' => $order->programmed_amount ?? 0,
+            'status' => $order->status,
+            // Add derived fields for UI
+            'transport_line' => $order->transporter->name ?? '',
+            'carta_porte' => $order->bill_of_lading ?? '', // Assuming this field exists
+        ]);
+    }
+
+    public function storeEntry(Request $request)
+    {
+        $validated = $request->validate([
+            'shipment_order_id' => 'required|exists:shipment_orders,id',
+            'tare_weight' => 'required|numeric|min:1',
+            'seal' => 'required|string',
+            'lot' => 'required|string', // N/A is valid
+            'container_type' => 'required|string',
+            'container_id' => 'nullable|string', // Almacen if Lot is N/A
+            'observations' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($validated) {
+
+            // Create Ticket
+            $ticket = WeightTicket::create([
+                'shipment_order_id' => $validated['shipment_order_id'],
+                'user_id' => auth()->id(),
+                'ticket_number' => 'TK-' . time(), // Generator
+                'tare_weight' => $validated['tare_weight'],
+                'gross_weight' => 0,
+                'net_weight' => 0,
+                'weighing_status' => 'in_progress', // Wait for exit weigh
+                'weigh_in_at' => now(),
+                'lot' => $validated['lot'],
+                'seal' => $validated['seal'],
+                'container_type' => $validated['container_type'],
+            ]);
+
+            // Update Order
+            $order = ShipmentOrder::find($validated['shipment_order_id']);
+            $order->update([
+                'status' => 'loading', // Set to loading as they are entering
+                // Save legacy "Almacen" if needed, maybe in observations?
+            ]);
+        });
+
+        return redirect()->route('scale.index')->with('success', 'Peso de entrada registrado correctamente.');
     }
 }

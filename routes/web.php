@@ -49,6 +49,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/traffic/users', [\App\Http\Controllers\TrafficController::class, 'storeUser'])->name('traffic.users.store');
 
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);
+
+    // Scale Module
+    Route::get('/scale/entry-mp', [\App\Http\Controllers\WeightTicketController::class, 'createEntry'])->name('scale.entry-mp');
+    Route::get('/scale/search-qr', [\App\Http\Controllers\WeightTicketController::class, 'searchQr'])->name('scale.search-qr');
+    Route::post('/scale/entry', [\App\Http\Controllers\WeightTicketController::class, 'storeEntry'])->name('scale.entry.store');
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
 
     // Documentation Module
