@@ -155,21 +155,21 @@ class DockController extends Controller
             ->first();
 
         // Arrivals (No atracados aún, o fondeados)
-        $arrivals = Vessel::whereNull('berthal_datetime')
-            ->whereNull('departure_date') // Ensure not closed
+        $arrivals = Vessel::with('product') // Eager load
+            ->whereNull('berthal_datetime')
+            ->whereNull('departure_date')
             ->orderBy('eta', 'asc')
             ->get()
             ->map(function ($vessel) {
-                // Map fields to match Frontend expectations if needed
                 return [
                     'name' => $vessel->name,
                     'type' => $vessel->vessel_type ?? 'M/V',
-                    'eta' => $vessel->is_anchored ? 'Fondeado' : ($vessel->eta ? $vessel->eta->format('d/m/Y') : 'Pendiente'),
-                    'etb' => $vessel->etb ? $vessel->etb->format('d/m/Y') : '-',
+                    'eta' => $vessel->is_anchored ? 'Fondeado' : ($vessel->eta ? (is_string($vessel->eta) ? date('d/m/Y', strtotime($vessel->eta)) : $vessel->eta->format('d/m/Y')) : 'Pendiente'),
+                    'etb' => $vessel->etb ? (is_string($vessel->etb) ? date('d/m/Y', strtotime($vessel->etb)) : $vessel->etb->format('d/m/Y')) : '-',
                     'operation_type' => $vessel->operation_type,
                     'dock' => $vessel->dock ?? 'Por Asignar',
                     'est_stay' => $vessel->stay_days,
-                    'product' => $vessel->product->name ?? null,
+                    'product' => $vessel->product?->name, // Nullsafe
                     'is_anchored' => (bool) $vessel->is_anchored
                 ];
             });
