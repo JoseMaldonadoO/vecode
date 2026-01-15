@@ -69,8 +69,10 @@ Route::middleware('auth')->group(function () {
 
     // APT Module
     Route::get('/apt/qr', [\App\Http\Controllers\AptController::class, 'qrPrint'])->name('apt.qr');
-    Route::get('/apt/scanner', [\App\Http\Controllers\AptController::class, 'scanner'])->name('apt.scanner.index');
+    Route::get('/apt/scanner', [\App\Http\Controllers\AptController::class, 'scanner'])->name('apt.scanner');
     Route::post('/apt/scanner', [\App\Http\Controllers\AptController::class, 'storeScan'])->name('apt.scanner.store');
+    Route::put('/apt/scanner/{id}', [\App\Http\Controllers\AptController::class, 'updateScan'])->name('apt.scanner.update');
+    Route::delete('/apt/scanner/{id}', [\App\Http\Controllers\AptController::class, 'destroyScan'])->name('apt.scanner.destroy');
     Route::get('/apt/operators/search', [\App\Http\Controllers\AptController::class, 'searchOperators'])->name('apt.operators.search');
     Route::get('/apt/operator', [\App\Http\Controllers\AptController::class, 'createOperator'])->name('apt.operators.create');
     Route::post('/apt/operator', [\App\Http\Controllers\AptController::class, 'storeOperator'])->name('apt.operators.store');

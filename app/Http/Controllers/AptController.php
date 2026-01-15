@@ -171,4 +171,66 @@ class AptController extends Controller
 
         return redirect()->back()->with('success', 'Asignación de Almacén registrada correctamente.');
     }
+
+    public function updateScan(Request $request, $id)
+    {
+        $scan = \App\Models\AptScan::findOrFail($id);
+
+        $validated = $request->validate([
+            'warehouse' => 'required|string',
+            'cubicle' => 'nullable|string',
+        ]);
+
+        // Same Validation Logic as Store
+        if (in_array($validated['warehouse'], ['4', '5', 'Almacén 4', 'Almacén 5'])) {
+            if (empty($validated['cubicle'])) {
+                return back()->withErrors(['cubicle' => 'El cubículo es obligatorio para el Almacén seleccionado.']);
+            }
+
+            // Allow same cubicle if it's the same order being edited? 
+            // We need to check if occupied by DIFFERENT order.
+            // But wait, $scan->shipment_order_id is the current one.
+
+            $occupied = \App\Models\ShipmentOrder::where('warehouse', $validated['warehouse'])
+                ->where('cubicle', $validated['cubicle'])
+                ->whereIn('status', ['loading', 'authorized'])
+                ->where('id', '!=', $scan->shipment_order_id) // Exclude current order
+                ->exists();
+
+            if ($occupied) {
+                return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' ya está ocupado.']);
+            }
+        }
+
+        // Update Scan Record
+        $scan->update([
+            'warehouse' => $validated['warehouse'],
+            'cubicle' => $validated['cubicle'],
+        ]);
+
+        // Update Linked Shipment Order
+        if ($scan->shipment_order_id) {
+            \App\Models\ShipmentOrder::where('id', $scan->shipment_order_id)->update([
+                'warehouse' => $validated['warehouse'],
+                'cubicle' => $validated['cubicle'],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Registro actualizado correctamente.');
+    }
+
+    public function destroyScan($id)
+    {
+        $scan = \App\Models\AptScan::findOrFail($id);
+
+        // Optional: Reset Order? 
+        // For now, let's just delete the log as requested. 
+        // If we wanted to "Unassign", we would handle that separately or assume user wants to just remove the history.
+        // Actually, if it was the last action, maybe we should clear the order.
+        // Let's stick to safe deletion of the log only, to avoid side effects on the Order flow.
+
+        $scan->delete();
+
+        return redirect()->back()->with('success', 'Registro eliminado.');
+    }
 }
