@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     // Route::get('/dock/qr', [\App\Http\Controllers\DockController::class, 'qrPrint'])->name('dock.qr');
     // Route::get('/dock/operators/search', [\App\Http\Controllers\DockController::class, 'searchOperators'])->name('dock.operators.search');
 
+    Route::get('/dock/status', [\App\Http\Controllers\DockController::class, 'status'])->name('dock.status');
     Route::get('/dock/vessel', [\App\Http\Controllers\DockController::class, 'createVessel'])->name('dock.vessel.create');
     Route::post('/dock/vessel', [\App\Http\Controllers\DockController::class, 'storeVessel'])->name('dock.vessel.store');
     Route::get('/dock/vessel/{id}/edit', [\App\Http\Controllers\DockController::class, 'editVessel'])->name('dock.vessel.edit');

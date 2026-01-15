@@ -141,4 +141,58 @@ class DockController extends Controller
             return back()->withErrors(['error' => 'Error al actualizar barco: ' . $e->getMessage()]);
         }
     }
+    public function status()
+    {
+        // Active Vessels (Atracados y sin zarpar)
+        $eco = Vessel::where('dock', 'ECO')
+            ->whereNotNull('berthal_datetime')
+            ->whereNull('departure_date')
+            ->first();
+
+        $whisky = Vessel::where('dock', 'WHISKY')
+            ->whereNotNull('berthal_datetime')
+            ->whereNull('departure_date')
+            ->first();
+
+        // Arrivals (No atracados aún, o fondeados)
+        $arrivals = Vessel::whereNull('berthal_datetime')
+            ->whereNull('departure_date') // Ensure not closed
+            ->orderBy('eta', 'asc')
+            ->get()
+            ->map(function ($vessel) {
+                // Map fields to match Frontend expectations if needed
+                return [
+                    'name' => $vessel->name,
+                    'type' => $vessel->vessel_type ?? 'M/V',
+                    'eta' => $vessel->is_anchored ? 'Fondeado' : ($vessel->eta ? $vessel->eta->format('d/m/Y') : 'Pendiente'),
+                    'etb' => $vessel->etb ? $vessel->etb->format('d/m/Y') : '-',
+                    'operation_type' => $vessel->operation_type,
+                    'dock' => $vessel->dock ?? 'Por Asignar',
+                    'est_stay' => $vessel->stay_days,
+                    'product' => $vessel->product->name ?? null,
+                    'is_anchored' => (bool) $vessel->is_anchored
+                ];
+            });
+
+        // Format Active Vessels
+        $formatVessel = function ($v) {
+            if (!$v)
+                return ['name' => '-'];
+            return [
+                'name' => $v->name,
+                'type' => $v->vessel_type ?? 'B/T',
+                'operation_type' => $v->operation_type,
+                'stay_days' => $v->stay_days,
+                'etb' => $v->berthal_datetime ? $v->berthal_datetime->format('d/m/Y H:i') : '-',
+            ];
+        };
+
+        return Inertia::render('Dock/Status', [
+            'active_vessels' => [
+                'eco' => $formatVessel($eco),
+                'whisky' => $formatVessel($whisky),
+            ],
+            'arrivals' => $arrivals
+        ]);
+    }
 }

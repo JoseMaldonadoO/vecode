@@ -45,6 +45,20 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                 Dar de alta nueva operación, asignar cliente y producto.
                             </p>
                         </Link>
+
+                        <Link
+                            href={route('dock.status')}
+                            className="group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl hover:border-blue-500"
+                        >
+                            <div className="relative w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 text-blue-600">
+                                <Ship className="w-10 h-10" />
+                                <div className="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full animate-pulse border-2 border-white"></div>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 break-words w-full">Status Muelle</h3>
+                            <p className="text-gray-500 mt-2 text-sm">
+                                Dashboard en vivo de operación marítima (ECO/WHISKY).
+                            </p>
+                        </Link>
                     </div>
 
                     {/* Filters & Active Vessels Table */}
