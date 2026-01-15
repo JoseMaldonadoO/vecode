@@ -11,24 +11,47 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('weight_tickets', function (Blueprint $table) {
-            $table->integer('scale_id')->nullable()->after('user_id'); // 1, 2, 3
-            // Make lot and seal nullable (change() requires doctrine/dbal, if not available, catch error or ignore)
-            // Since we just created them, we can try modifying or just rely on validation ignoring them.
-            // But strict SQL mode might complain if we insert NULL.
-            // Let's assume Laravel recent versions support mod without dbal for basic types, or we added them as non-nullable.
-            // We'll drop them and re-add them as nullable to be safe and avoiding dbal dependency issues if possible.
-            $table->dropColumn(['lot', 'seal']);
+            if (!Schema::hasColumn('weight_tickets', 'scale_id')) {
+                // Fix: 'user_id' does not exist, use 'weighmaster_id' or 'id'
+                if (Schema::hasColumn('weight_tickets', 'weighmaster_id')) {
+                    $table->integer('scale_id')->nullable()->after('weighmaster_id');
+                } else {
+                    $table->integer('scale_id')->nullable();
+                }
+            }
+
+            // Handle lot/seal modification safely
+            if (Schema::hasColumn('weight_tickets', 'lot')) {
+                // If exists but we want to re-add it as nullable or move it...
+                // Ideally change() but without dbal it is tricky.
+                // Dropping and re-adding is risky if data exists.
+                // Assuming this is dev/staging, dropping is okay as per original script logic.
+                $table->dropColumn('lot');
+            }
+            if (Schema::hasColumn('weight_tickets', 'seal')) {
+                $table->dropColumn('seal');
+            }
         });
 
         Schema::table('weight_tickets', function (Blueprint $table) {
-            $table->string('lot')->nullable()->after('weigh_in_at');
-            $table->string('seal')->nullable()->after('lot');
+            if (!Schema::hasColumn('weight_tickets', 'lot')) {
+                $table->string('lot')->nullable()->after('weigh_in_at');
+            }
+            if (!Schema::hasColumn('weight_tickets', 'seal')) {
+                $table->string('seal')->nullable()->after('lot');
+            }
         });
 
         Schema::table('shipment_orders', function (Blueprint $table) {
-            $table->string('warehouse')->nullable()->after('destination');
-            $table->string('cubicle')->nullable()->after('warehouse');
-            $table->enum('operation_type', ['scale', 'burreo'])->default('scale')->after('status');
+            if (!Schema::hasColumn('shipment_orders', 'warehouse')) {
+                $table->string('warehouse')->nullable()->after('destination');
+            }
+            if (!Schema::hasColumn('shipment_orders', 'cubicle')) {
+                $table->string('cubicle')->nullable()->after('warehouse');
+            }
+            if (!Schema::hasColumn('shipment_orders', 'operation_type')) {
+                $table->enum('operation_type', ['scale', 'burreo'])->default('scale')->after('status');
+            }
         });
     }
 
