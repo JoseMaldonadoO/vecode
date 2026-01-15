@@ -13,8 +13,8 @@ class DockStatusSeeder extends Seeder
     public function run()
     {
         // Ensure Clients
-        $pemex = Client::firstOrCreate(['name' => 'PEMEX'], ['business_name' => 'Petróleos Mexicanos', 'rfc' => 'PEMEX000000']);
-        $generic = Client::firstOrCreate(['name' => 'Generico'], ['business_name' => 'Cliente Generico', 'rfc' => 'GEN000000']);
+        $pemex = Client::firstOrCreate(['business_name' => 'PEMEX'], ['rfc' => 'PEMEX000000']);
+        $generic = Client::firstOrCreate(['business_name' => 'Generico'], ['rfc' => 'GEN000000']);
 
         // Ensure Products
         $urea = Product::firstOrCreate(['name' => 'UREA'], ['code' => 'UREA']);
