@@ -11,7 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('username')->unique()->after('name')->nullable();
+            if (!Schema::hasColumn('users', 'username')) {
+                $table->string('username')->unique()->after('name')->nullable();
+            }
             $table->string('email')->nullable()->change(); // Make email nullable
         });
 
