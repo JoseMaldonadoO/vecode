@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText } from 'lucide-react';
+import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText, Settings } from 'lucide-react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -13,7 +13,6 @@ export default function EntryMP({ auth }: { auth: any }) {
     const [qrValue, setQrValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [orderDetails, setOrderDetails] = useState<any>(null); // For display only
-    const [lotes, setLotes] = useState<string[]>(['LOTE-001', 'LOTE-A23', 'LOTE-B99']); // Mock - fetch real later
 
     // Serial Port Refs
     const portRef = useRef<any>(null);
@@ -22,6 +21,7 @@ export default function EntryMP({ auth }: { auth: any }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         shipment_order_id: '', // Nullable/Empty if new logic
         vessel_id: '',
+        scale_id: 1, // Default Scale 1
 
         // Manual / Derived
         client_id: '', // provider ID
@@ -46,10 +46,6 @@ export default function EntryMP({ auth }: { auth: any }) {
 
         // Scale
         tare_weight: '',
-        seal: '',
-        lot: '',
-        container_type: 'N/A', // PROAGRO, FERTINAL, N/A
-        container_id: '',
         observations: '',
     });
 
@@ -156,7 +152,8 @@ export default function EntryMP({ auth }: { auth: any }) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Validation handled by backend mainly, but basic check
+        // Validation: Weigh > 0? User might want to save manual wait if serial fails, but generally > 0.
+        // if (weight <= 0) { alert("Peso debe ser mayor a 0."); return; }
         if (!data.driver) { alert("Faltan datos de conductor."); return; }
         post(route('scale.entry.store'), {
             onSuccess: () => {
@@ -173,29 +170,49 @@ export default function EntryMP({ auth }: { auth: any }) {
 
             <div className="py-6 max-w-7xl mx-auto px-4 space-y-6">
 
-                {/* Search Bar */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div className="flex items-center gap-4 w-full md:w-auto">
-                        <div className="bg-indigo-100 p-3 rounded-full">
-                            <Search className="w-6 h-6 text-indigo-600" />
+                {/* Top Bar: Search & Scale Selector */}
+                <div className="flex flex-col md:flex-row gap-4 justify-between">
+                    {/* Search */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="bg-indigo-100 p-3 rounded-full">
+                                <Search className="w-6 h-6 text-indigo-600" />
+                            </div>
+                            <div>
+                                <h2 className="font-bold text-gray-800 text-lg">Búsqueda</h2>
+                                <p className="text-sm text-gray-500">Escanea QR de Operador (Barco) o Folio</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="font-bold text-gray-800 text-lg">Búsqueda</h2>
-                            <p className="text-sm text-gray-500">Escanea QR de Operador (Barco) o Folio</p>
+                        <div className="flex gap-2 w-full md:w-auto">
+                            <TextInput
+                                value={qrValue}
+                                onChange={(e) => setQrValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && searchOrder()}
+                                className="w-full md:w-64 text-lg border-indigo-200 focus:border-indigo-500"
+                                placeholder="QR / ID..."
+                                autoFocus
+                            />
+                            <PrimaryButton onClick={searchOrder} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
+                                {isLoading ? '...' : 'Buscar'}
+                            </PrimaryButton>
                         </div>
                     </div>
-                    <div className="flex gap-2 w-full md:w-auto">
-                        <TextInput
-                            value={qrValue}
-                            onChange={(e) => setQrValue(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && searchOrder()}
-                            className="w-full md:w-64 text-lg border-indigo-200 focus:border-indigo-500"
-                            placeholder="QR / ID..."
-                            autoFocus
-                        />
-                        <PrimaryButton onClick={searchOrder} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
-                            {isLoading ? '...' : 'Buscar'}
-                        </PrimaryButton>
+
+                    {/* Scale Selector */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Settings className="w-5 h-5 text-gray-400" />
+                            <label className="font-bold text-gray-700">Báscula Activa</label>
+                        </div>
+                        <select
+                            value={data.scale_id}
+                            onChange={(e) => setData('scale_id', parseInt(e.target.value))}
+                            className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm font-bold text-lg"
+                        >
+                            <option value={1}>Báscula 1</option>
+                            <option value={2}>Báscula 2</option>
+                            <option value={3}>Báscula 3</option>
+                        </select>
                     </div>
                 </div>
 
@@ -205,7 +222,7 @@ export default function EntryMP({ auth }: { auth: any }) {
                     <div className="lg:col-span-4 space-y-6">
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
                             <div className="bg-gray-900 p-6 text-center">
-                                <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Indicador de Peso</h2>
+                                <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Peso Bruto (Entrada)</h2>
                                 <div className="text-6xl font-mono font-bold text-[#39ff33] tracking-tighter">
                                     {weight > 0 ? weight : '0.00'} <span className="text-2xl text-gray-500">kg</span>
                                 </div>
@@ -360,55 +377,23 @@ export default function EntryMP({ auth }: { auth: any }) {
                             </div>
                         </div>
 
-                        {/* 4. Báscula */}
+                        {/* 4. Báscula (Simplified) */}
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
                             <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4 pb-2 border-b border-gray-100">
                                 <Scale className="w-5 h-5 mr-2 text-green-600" />
                                 Datos de Pesaje
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Removed Lot/Seal/Container Type as per request */}
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                 <div>
-                                    <InputLabel value="Envase" />
-                                    <select
-                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm"
-                                        value={data.container_type}
-                                        onChange={(e) => setData('container_type', e.target.value)}
-                                    >
-                                        <option value="N/A">N/A</option>
-                                        <option value="PROAGRO">PROAGRO</option>
-                                        <option value="FERTINAL">FERTINAL</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <InputLabel value="Lote" />
-                                    <select
-                                        className="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm"
-                                        value={data.lot}
-                                        onChange={(e) => setData('lot', e.target.value)}
-                                    >
-                                        <option value="">-- Seleccionar --</option>
-                                        {lotes.map((l, i) => <option key={i} value={l}>{l}</option>)}
-                                        <option value="N/A">N/A</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <InputLabel value="Sello *" />
+                                    <InputLabel value="Observaciones" />
                                     <TextInput
-                                        value={data.seal}
-                                        onChange={e => setData('seal', e.target.value)}
+                                        value={data.observations}
+                                        onChange={e => setData('observations', e.target.value)}
                                         className="w-full"
-                                        required
+                                        placeholder="Comentarios adicionales..."
                                     />
-                                    {errors.seal && <p className="text-red-500 text-xs">{errors.seal}</p>}
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <InputLabel value="Observaciones" />
-                                <TextInput
-                                    value={data.observations}
-                                    onChange={e => setData('observations', e.target.value)}
-                                    className="w-full"
-                                />
                             </div>
                         </div>
 

@@ -9,7 +9,13 @@ class AptScan extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'shipment_order_id',
+        'operator_id',
+        'warehouse',
+        'cubicle',
+        'user_id',
+    ];
 
     public function operator()
     {

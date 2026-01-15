@@ -14,22 +14,41 @@ class WeightTicketController extends Controller
 {
     public function index()
     {
-        // 1. Orders ready for FIRST WEIGH (Assigned but no ticket yet)
-        // We assume orders with driver/vehicle assigned are ready.
-        // 1. Orders ready for FIRST WEIGH (Assigned but no ticket yet)
-        // STRICT: Must be 'authorized' by Surveillance first.
+        // 1. Pending Entry (Authorized but no Ticket)
         $pending_entry = ShipmentOrder::with(['client', 'driver', 'vehicle', 'product'])
-            ->where('status', 'authorized') // Only trucks allowed by gate
-            ->whereDoesntHave('weight_ticket') // No ticket yet
+            ->where('status', 'authorized')
+            ->whereDoesntHave('weight_ticket')
             ->orderBy('entry_at', 'asc')
             ->get();
 
-        // 2. Orders ready for SECOND WEIGH (Ticket started but not finished)
+        // 2. Pending Exit (Ticket In Progress OR Status Loading)
+        // User said: "Después regresa a báscula al destare aquí necesitamos un status de las que están pendientes de destarar"
+        // Valid for Exit: Has Ticket AND Ticket Status is 'in_progress'
+        // And maybe Order Status 'loading' (which is set on Entry).
+        // Also include Warehouse/Cubicle info if available.
         $pending_exit = ShipmentOrder::with(['client', 'driver', 'vehicle', 'product', 'weight_ticket'])
             ->whereHas('weight_ticket', function ($q) {
-                $q->where('status', 'in_progress');
+                $q->where('weighing_status', 'in_progress');
             })
-            ->get();
+            // Filter by operation type if needed (scale vs burreo)?
+            // Assuming Burreo doesn't have a weight ticket in progress in the same way, or handled differently.
+            ->orderBy('entry_at', 'asc')
+            ->get()
+            ->map(function ($order) {
+                // Flatten for easier frontend consumption
+                return [
+                    'id' => $order->id,
+                    'folio' => $order->folio,
+                    'provider' => $order->client->name ?? 'N/A',
+                    'product' => $order->product->name ?? 'N/A',
+                    'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
+                    'plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
+                    'tare_weight' => $order->weight_ticket->tare_weight ?? 0,
+                    'warehouse' => $order->warehouse ?? 'N/A',
+                    'cubicle' => $order->cubicle ?? 'N/A',
+                    'entry_at' => $order->entry_at,
+                ];
+            });
 
         return Inertia::render('Scale/Index', [
             'pending_entry' => $pending_entry,
@@ -37,71 +56,46 @@ class WeightTicketController extends Controller
         ]);
     }
 
+    // ... (keep store and update methods for legacy or refactor later) ...
     public function store(Request $request)
     {
-        // FIRST WEIGH (Tare - Empty Truck entering)
-        $validated = $request->validate([
-            'shipment_order_id' => 'required|exists:shipment_orders,id',
-            'weight' => 'required|numeric|min:1',
-            'type' => 'required|in:entry,exit' // To distinguish just in case
-        ]);
-
-        DB::transaction(function () use ($validated) {
-            $ticket = WeightTicket::create([
-                'shipment_order_id' => $validated['shipment_order_id'],
-                'user_id' => auth()->id(), // Weighmaster
-                'ticket_number' => 'TK-' . time(), // Simple generator
-                'tare_weight' => $validated['weight'], // Assuming Sales flow: First weigh is TARE
-                'gross_weight' => 0,
-                'net_weight' => 0,
-                'weighing_status' => 'in_progress',
-                'measured_at' => now(),
-            ]);
-
-            // Update Order Status
-            ShipmentOrder::find($validated['shipment_order_id'])->update(['status' => 'loading']);
-        });
-
         return redirect()->back();
-    }
-
+    } // Stub legacy
     public function update(Request $request, $id)
     {
-        // SECOND WEIGH (Gross - Full Truck exiting)
-        $validated = $request->validate([
-            'weight' => 'required|numeric|min:1',
-        ]);
-
-        DB::transaction(function () use ($validated, $id) {
-            $ticket = WeightTicket::findOrFail($id);
-
-            $gross = $validated['weight'];
-            $tare = $ticket->tare_weight;
-            $net = $gross - $tare;
-
-            $ticket->update([
-                'gross_weight' => $gross,
-                'net_weight' => $net,
-                'weighing_status' => 'completed',
-                // We should probably have 'weighing_status' column in migration? 
-                // Migration had 'status' enum: pending, in_progress, completed.
-            ]);
-
-            // Validate migration column name. I recall 'status' in tickets table.
-            // Let's check schemas if needed. Assuming 'status'.
-
-            // Update Order Status
-            $ticket->shipment_order->update(['status' => 'completed']);
-        });
-
         return redirect()->back();
-    }
+    } // Stub legacy
 
     // --- New Methods for Entry MI / MP ---
 
     public function createEntry()
     {
         return Inertia::render('Scale/EntryMP');
+    }
+
+    public function createExit($id)
+    {
+        $order = ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket'])
+            ->findOrFail($id);
+
+        return Inertia::render('Scale/ExitMP', [
+            'order' => [
+                'id' => $order->id,
+                'folio' => $order->folio,
+                'provider' => $order->client->name ?? 'N/A',
+                'product' => $order->product->name ?? 'N/A',
+                'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
+                'vehicle_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
+                'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
+                'transport_line' => $order->transport_company ?? $order->transporter->name ?? 'N/A',
+                'entry_weight' => $order->weight_ticket->tare_weight ?? 0,
+                'warehouse' => $order->warehouse ?? 'N/A',
+                'cubicle' => $order->cubicle ?? 'N/A',
+                // Add reference/consignee if needed
+                'reference' => $order->reference ?? '',
+                'consignee' => $order->consignee ?? '',
+            ]
+        ]);
     }
 
     public function searchQr(Request $request)
@@ -179,9 +173,9 @@ class WeightTicketController extends Controller
             'programmed_weight' => $order->programmed_amount ?? 0,
             'status' => $order->status,
             // Mapped for UI consistency
-            'transport_line' => $order->transporter->name ?? '',
+            'transport_line' => $order->transporter->name ?? ($order->transport_company ?? ''),
             'withdrawal_letter' => $order->withdrawal_letter ?? '',
-            'reference' => $order->sale_order ?? '', // Use OV as reference? Or new field
+            'reference' => $order->sale_order ?? '',
             'consignee' => $order->consignee ?? '',
         ]);
     }
@@ -216,11 +210,10 @@ class WeightTicketController extends Controller
 
             // Scale info
             'tare_weight' => 'required|numeric|min:1',
-            'seal' => 'required|string',
-            'lot' => 'required|string',
-            'container_type' => 'required|string',
+            'container_type' => 'nullable|string', // Optional now
             'container_id' => 'nullable|string',
             'observations' => 'nullable|string',
+            'scale_id' => 'nullable|integer', // 1, 2, 3
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -286,12 +279,56 @@ class WeightTicketController extends Controller
                 'net_weight' => 0,
                 'weighing_status' => 'in_progress',
                 'weigh_in_at' => now(),
-                'lot' => $validated['lot'],
-                'seal' => $validated['seal'],
-                'container_type' => $validated['container_type'],
+                'container_type' => $validated['container_type'] ?? 'N/A',
+                'scale_id' => $validated['scale_id'] ?? null,
             ]);
         });
 
-        return redirect()->route('scale.index')->with('success', 'Peso de entrada registrado correctamente.');
+        return redirect()->route('scale.index')->with('success', 'Entrada registrada correctamente.');
+    }
+
+    public function storeExit(Request $request)
+    {
+        $validated = $request->validate([
+            'shipment_order_id' => 'required|exists:shipment_orders,id',
+            'weight' => 'required|numeric|min:0', // Exit weight (Gross or Second weight)
+        ]);
+
+        DB::transaction(function () use ($validated) {
+            $order = ShipmentOrder::with('weight_ticket')->findOrFail($validated['shipment_order_id']);
+            $ticket = $order->weight_ticket;
+
+            if (!$ticket) {
+                throw new \Exception("Esta orden no tiene ticket de entrada.");
+            }
+
+            // Calculate Net Weight (Always Positive)
+            // Typically: Net = Gross - Tare. 
+            // Here: Input 'weight' is the *current* weight.
+            // If truck came in Empty (Tare) and leaves Full (Gross): Net = Current - Tare.
+            // If truck came in Full (Gross) and leaves Empty (Tare): Net = Gross - Current.
+            // We use ABS to handle both logic without complex flags, assuming Process is valid.
+            // "El sistema debe dar siempre el peso neto en positivo".
+
+            $firstWeight = $ticket->tare_weight; // Named 'tare_weight' in DB but represents First Weight
+            $secondWeight = $validated['weight'];
+            $net = abs($secondWeight - $firstWeight);
+
+            // Update Ticket
+            $ticket->update([
+                'gross_weight' => $secondWeight, // Store second weight here
+                'net_weight' => $net,
+                'weighing_status' => 'completed',
+                'weigh_out_at' => now(),
+            ]);
+
+            // Update Order
+            $order->update([
+                'status' => 'completed',
+                'destare_status' => 'completed', // Explicitly marked as destared
+            ]);
+        });
+
+        return redirect()->route('scale.index')->with('success', 'Salida registrada correctamente.');
     }
 }
