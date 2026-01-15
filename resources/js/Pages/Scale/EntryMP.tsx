@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm } from '@inertiajs/react';
-import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText, Settings } from 'lucide-react';
+import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText, Settings, Camera, X } from 'lucide-react';
+import { QrReader } from 'react-qr-reader';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -12,6 +13,7 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
     const [isConnected, setIsConnected] = useState(false);
     const [qrValue, setQrValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showCamera, setShowCamera] = useState(false); // Camera State
     const [orderDetails, setOrderDetails] = useState<any>(null); // For display only
 
     // Serial Port Refs
@@ -103,11 +105,15 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
         }
     };
 
-    const searchOrder = async () => {
-        if (!qrValue) return;
+    const searchOrder = async (codeOverride?: string) => {
+        const query = codeOverride || qrValue;
+        if (!query) return;
+
         setIsLoading(true);
+        if (codeOverride) setQrValue(codeOverride); // Sync UI
+
         try {
-            const response = await axios.get(route('scale.search-qr'), { params: { qr: qrValue } });
+            const response = await axios.get(route('scale.search-qr'), { params: { qr: query } });
             const res = response.data;
             setOrderDetails(res);
 
@@ -200,20 +206,57 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                 <p className="text-sm text-gray-500">Escanea QR de Operador (Barco) o Folio</p>
                             </div>
                         </div>
-                        <div className="flex gap-2 w-full md:w-auto">
+                        <div className="flex gap-2 w-full md:w-auto items-center">
+                            {/* Camera Toggle */}
+                            <button
+                                type="button"
+                                onClick={() => setShowCamera(!showCamera)}
+                                className={`p-3 rounded-lg border transition-colors ${showCamera ? 'bg-red-100 border-red-200 text-red-600' : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'}`}
+                                title={showCamera ? "Cerrar Cámara" : "Abrir Cámara"}
+                            >
+                                {showCamera ? <X className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
+                            </button>
+
                             <TextInput
                                 value={qrValue}
                                 onChange={(e) => setQrValue(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && searchOrder()}
                                 className="w-full md:w-64 text-lg border-indigo-200 focus:border-indigo-500"
                                 placeholder="QR / ID..."
-                                autoFocus
+                                autoFocus={!showCamera}
                             />
-                            <PrimaryButton onClick={searchOrder} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
+                            <PrimaryButton onClick={() => searchOrder()} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700">
                                 {isLoading ? '...' : 'Buscar'}
                             </PrimaryButton>
                         </div>
                     </div>
+
+                    {/* Camera View */}
+                    {showCamera && (
+                        <div className="w-full max-w-sm mx-auto mb-6 bg-black rounded-lg overflow-hidden relative shadow-2xl animate-fade-in-down">
+                            <QrReader
+                                onResult={(result: any, error) => {
+                                    if (!!result) {
+                                        const text = typeof result.getText === 'function' ? result.getText() : result.text;
+                                        if (text) {
+                                            setQrValue(text);
+                                            setShowCamera(false);
+                                            // Auto-search can be tricky if state update isn't fast enough, so we pass text directly
+                                            // But searchOrder uses state 'qrValue'.
+                                            // We should modify searchOrder to accept an argument or use effect.
+                                            // For safety, let's just set value and let user click or trigger explicitly if we refactor.
+                                            // Actually, let's refactor searchOrder to take optional arg.
+                                            searchOrder(text);
+                                        }
+                                    }
+                                }}
+                                constraints={{ facingMode: 'environment' }}
+                                videoStyle={{ width: '100%' }}
+                                className="w-full"
+                            />
+                            <p className="text-white text-center py-2 text-sm">Apunte al código QR...</p>
+                        </div>
+                    )}
 
                     {/* Scale Badge (Read Only) */}
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center items-center">
