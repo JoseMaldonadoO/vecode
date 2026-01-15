@@ -189,13 +189,13 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                             </div>
                         </div>
 
-                        {/* Section 3: Arrival Info */}
+                        {/* Section 3: Arrival Info & Status */}
                         <div className="border-b pb-6">
                             <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                                 <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">3</span>
-                                Datos de Arribo
+                                Datos de Arribo y Status
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">ETA (Estimado Arribo)</label>
                                     <input
@@ -207,7 +207,44 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                     {errors.eta && <p className="text-red-500 text-xs mt-1">{errors.eta}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Fecha Atraco (ETB)</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">ETB (Estimado Atracado)</label>
+                                    <input
+                                        type="date"
+                                        value={data.etb || ''}
+                                        onChange={e => setData({ ...data, etb: e.target.value })}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    />
+                                    {errors.eta && <p className="text-red-500 text-xs mt-1">{(errors as any).etb}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Status Muelle</label>
+                                    <select
+                                        value={data.dock || ''}
+                                        onChange={e => setData({ ...data, dock: e.target.value })}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    >
+                                        <option value="">Por Asignar</option>
+                                        <option value="ECO">ECO</option>
+                                        <option value="WHISKY">WHISKY</option>
+                                    </select>
+                                </div>
+                                <div className="flex items-center pt-6">
+                                    <input
+                                        type="checkbox"
+                                        id="is_anchored"
+                                        checked={data.is_anchored || false}
+                                        onChange={e => setData({ ...data, is_anchored: e.target.checked })}
+                                        className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                    />
+                                    <label htmlFor="is_anchored" className="ml-2 block text-sm font-bold text-gray-700">
+                                        ¿Está Fondeado?
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 bg-gray-50 p-4 rounded-lg">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Fecha Atracado (Real)</label>
                                     <input
                                         type="date"
                                         value={data.docking_date}
@@ -217,7 +254,7 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                     {errors.docking_date && <p className="text-red-500 text-xs mt-1">{errors.docking_date}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Hora Atraco</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Hora Atracado (Real)</label>
                                     <input
                                         type="time"
                                         value={data.docking_time}

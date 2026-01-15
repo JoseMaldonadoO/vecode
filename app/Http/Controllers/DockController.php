@@ -60,6 +60,12 @@ class DockController extends Controller
             'customs_agency' => 'nullable|string|max:255',
             'client_id' => 'required|exists:clients,id',
 
+            // Status Dashboard Fields
+            'dock' => 'nullable|string|in:ECO,WHISKY',
+            'etb' => 'nullable|date',
+            'berthal_datetime' => 'nullable|date',
+            'is_anchored' => 'boolean',
+
             // Conditional
             'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
@@ -72,6 +78,11 @@ class DockController extends Controller
 
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
+
+        // Sync berthal_datetime
+        if (isset($validated['docking_date']) && isset($validated['docking_time'])) {
+            $validated['berthal_datetime'] = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        }
 
         try {
             Vessel::create($validated);
@@ -120,6 +131,12 @@ class DockController extends Controller
             'customs_agency' => 'nullable|string|max:255',
             'client_id' => 'required|exists:clients,id',
 
+            // Status Dashboard Fields
+            'dock' => 'nullable|string|in:ECO,WHISKY',
+            'etb' => 'nullable|date',
+            'berthal_datetime' => 'nullable|date',
+            'is_anchored' => 'boolean',
+
             // Conditional
             'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
             'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
@@ -132,6 +149,11 @@ class DockController extends Controller
 
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
+
+        // Sync berthal_datetime
+        if (isset($validated['docking_date']) && isset($validated['docking_time'])) {
+            $validated['berthal_datetime'] = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        }
 
         try {
             $vessel->update($validated);
