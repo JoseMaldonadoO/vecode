@@ -1,8 +1,28 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link } from '@inertiajs/react';
-import { Users, Ship } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Users, Ship, Filter, X } from 'lucide-react';
+import Pagination from '@/Components/Pagination';
+import { useState } from 'react';
+import { pickBy } from 'lodash';
 
-export default function Index({ auth, vessels = [] }: { auth: any, vessels?: any[] }) {
+export default function Index({ auth, vessels, filters }: { auth: any, vessels: any, filters: any }) {
+
+    const [params, setParams] = useState({
+        start_date: filters.start_date || '',
+        end_date: filters.end_date || '',
+    });
+
+    const handleSearch = () => {
+        router.get(route('dock.index'), pickBy(params), { preserveState: true, preserveScroll: true });
+    };
+
+    const clearFilters = () => {
+        setParams({ start_date: '', end_date: '' });
+        router.get(route('dock.index'), {}, { preserveState: true, preserveScroll: true });
+    };
+
+    // Vessels is now a Paginator object, so the array is in vessels.data
+    const vesselList = vessels?.data || [];
 
     return (
         <DashboardLayout user={auth.user} header="Muelle (Operaciones Marítimas)">
@@ -27,14 +47,53 @@ export default function Index({ auth, vessels = [] }: { auth: any, vessels?: any
                         </Link>
                     </div>
 
-                    {/* Active Vessels Table */}
+                    {/* Filters & Active Vessels Table */}
                     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <h3 className="text-lg font-bold text-gray-900 flex items-center">
                                 <Ship className="w-5 h-5 mr-2 text-indigo-600" />
                                 Barcos Activos
                             </h3>
+
+                            {/* Date Filters */}
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
+                                    <span className="text-xs font-medium text-gray-500 uppercase">Filtros:</span>
+                                    <input
+                                        type="date"
+                                        className="text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 py-1"
+                                        value={params.start_date}
+                                        onChange={(e) => setParams({ ...params, start_date: e.target.value })}
+                                        placeholder="Inicio"
+                                    />
+                                    <span className="text-gray-400">-</span>
+                                    <input
+                                        type="date"
+                                        className="text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 py-1"
+                                        value={params.end_date}
+                                        onChange={(e) => setParams({ ...params, end_date: e.target.value })}
+                                        placeholder="Fin"
+                                    />
+                                    <button
+                                        onClick={handleSearch}
+                                        className="p-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                                        title="Filtrar"
+                                    >
+                                        <Filter className="w-4 h-4" />
+                                    </button>
+                                    {(params.start_date || params.end_date) && (
+                                        <button
+                                            onClick={clearFilters}
+                                            className="p-1.5 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
+                                            title="Limpiar"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
+
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm text-gray-600">
                                 <thead className="bg-gray-50 text-gray-900 font-semibold">
@@ -49,8 +108,8 @@ export default function Index({ auth, vessels = [] }: { auth: any, vessels?: any
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {vessels && vessels.length > 0 ? (
-                                        vessels.map((v: any) => (
+                                    {vesselList && vesselList.length > 0 ? (
+                                        vesselList.map((v: any) => (
                                             <tr key={v.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{v.name} ({v.vessel_type})</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{v.eta}</td>
@@ -82,16 +141,19 @@ export default function Index({ auth, vessels = [] }: { auth: any, vessels?: any
                                     ) : (
                                         <tr>
                                             <td colSpan={7} className="px-6 py-8 text-center text-gray-400 italic">
-                                                No hay barcos registrados.
+                                                No hay barcos registrados en este periodo.
                                             </td>
                                         </tr>
                                     )}
                                 </tbody>
                             </table>
                         </div>
+
+                        {/* Pagination Component */}
+                        <div className="p-4 border-t border-gray-100 bg-gray-50">
+                            <Pagination links={vessels.links} />
+                        </div>
                     </div>
-
-
                 </div>
             </div>
         </DashboardLayout >

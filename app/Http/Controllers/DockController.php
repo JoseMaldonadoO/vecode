@@ -11,11 +11,18 @@ use Illuminate\Support\Facades\DB;
 
 class DockController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Vessel::with('product')->orderBy('created_at', 'desc');
+
+        if ($request->has('start_date') && $request->has('end_date') && $request->start_date && $request->end_date) {
+            $query->whereBetween('docking_date', [$request->start_date, $request->end_date]);
+        }
+
         return Inertia::render('Dock/Index', [
             'operators' => VesselOperator::orderBy('operator_name')->get(),
-            'vessels' => Vessel::with('product')->orderBy('created_at', 'desc')->get()
+            'vessels' => $query->paginate(10)->withQueryString(),
+            'filters' => $request->only(['start_date', 'end_date']),
         ]);
     }
 
