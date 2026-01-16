@@ -68,7 +68,72 @@ class AptController extends Controller
         return response()->json($operators);
     }
 
-    // Scanner
+    // Status Dashboard
+    public function status()
+    {
+        // Define Warehouse Structure
+        $warehouses = [
+            ['name' => 'Almacén 1', 'type' => 'flat'],
+            ['name' => 'Almacén 2', 'type' => 'flat'],
+            ['name' => 'Almacén 3', 'type' => 'flat'],
+            ['name' => 'Almacén 4', 'type' => 'cubicles', 'total_cubicles' => 8],
+            ['name' => 'Almacén 5', 'type' => 'cubicles', 'total_cubicles' => 8],
+        ];
+
+        // Fetch Active Orders (Loading or Authorized)
+        $activeOrders = \App\Models\ShipmentOrder::whereIn('status', ['loading', 'authorized'])
+            ->whereNotNull('warehouse')
+            ->get();
+
+        $data = [];
+
+        foreach ($warehouses as $wh) {
+            $whData = [
+                'name' => $wh['name'],
+                'type' => $wh['type'],
+                'occupied' => false,
+                'details' => null,
+                'cubicles' => []
+            ];
+
+            if ($wh['type'] === 'flat') {
+                // Check if any order is here
+                $order = $activeOrders->where('warehouse', $wh['name'])->first();
+                if ($order) {
+                    $whData['occupied'] = true;
+                    $whData['details'] = $order;
+                }
+            } else {
+                // Cubicles Logic
+                // Initialize 8 cubicles
+                for ($i = 1; $i <= 8; $i++) {
+                    $cubicleName = (string) $i; // Or "C-1"? Logic used simple numbers.
+                    // Check occupancy
+                    // We need to match loose strings potentially, but we standardized on "1", "2" etc.
+                    $order = $activeOrders->where('warehouse', $wh['name'])
+                        ->where('cubicle', $cubicleName)
+                        ->first();
+
+                    $whData['cubicles'][] = [
+                        'id' => $i,
+                        'occupied' => (bool) $order,
+                        'details' => $order
+                    ];
+                }
+
+                // Calculate total occupancy %
+                $occupiedCount = count(array_filter($whData['cubicles'], fn($c) => $c['occupied']));
+                $whData['occupancy_percentage'] = ($occupiedCount / 8) * 100;
+            }
+
+            $data[] = $whData;
+        }
+
+        return Inertia::render('APT/Status', [
+            'warehouses' => $data
+        ]);
+    }
+
     public function scanner()
     {
         $recentScans = \App\Models\AptScan::with('operator')
