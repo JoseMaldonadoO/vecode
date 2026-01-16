@@ -237,75 +237,86 @@ class WeightTicketController extends Controller
             'scale_id' => 'nullable|integer', // 1, 2, 3
         ]);
 
-        DB::transaction(function () use ($validated) {
-            $orderId = $validated['shipment_order_id'] ?? null;
+        try {
+            DB::transaction(function () use ($validated) {
+                $orderId = !empty($validated['shipment_order_id']) ? $validated['shipment_order_id'] : null;
 
-            // If no existing Order, create one (Vessel Entry Scenario)
-            if (!$orderId) {
-                // Generate Folio
-                $count = ShipmentOrder::count() + 1;
-                $folio = 'EMP-' . date('Ymd') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+                // Ensure nullable integer fields are strictly NULL if empty
+                $vesselId = !empty($validated['vessel_id']) ? $validated['vessel_id'] : null;
+                $productId = !empty($validated['product_id']) ? $validated['product_id'] : null;
+                $clientId = !empty($validated['client_id']) ? $validated['client_id'] : 1; // Default to 1 (General Public) if missing
+                $scaleId = !empty($validated['scale_id']) ? $validated['scale_id'] : null;
 
-                // Determine Client ID
-                $clientId = $validated['client_id'] ?? 1; // Fallback or assume validation handled it
+                // If no existing Order, create one (Vessel Entry Scenario)
+                if (!$orderId) {
+                    // Generate Folio
+                    $count = ShipmentOrder::count() + 1;
+                    $folio = 'EMP-' . date('Ymd') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
 
-                $order = ShipmentOrder::create([
-                    'id' => (string) \Illuminate\Support\Str::uuid(),
-                    'folio' => $folio,
-                    'client_id' => $clientId,
-                    'product_id' => $validated['product_id'] ?? null,
-                    'vessel_id' => $validated['vessel_id'] ?? null,
-                    'status' => 'loading',
-                    'entry_at' => now(),
+                    $order = ShipmentOrder::create([
+                        'id' => (string) \Illuminate\Support\Str::uuid(),
+                        'folio' => $folio,
+                        'client_id' => $clientId,
+                        'product_id' => $productId,
+                        'vessel_id' => $vesselId,
+                        'status' => 'loading',
+                        'entry_at' => now(),
 
-                    // Snapshot Fields
-                    'operator_name' => $validated['driver'],
-                    'tractor_plate' => $validated['vehicle_plate'],
-                    'trailer_plate' => $validated['trailer_plate'],
-                    'unit_type' => $validated['vehicle_type'],
-                    'transport_company' => $validated['transport_line'],
-                    'economic_number' => $validated['economic_number'] ?? null,
+                        // Snapshot Fields
+                        'operator_name' => $validated['driver'],
+                        'tractor_plate' => $validated['vehicle_plate'],
+                        'trailer_plate' => $validated['trailer_plate'],
+                        'unit_type' => $validated['vehicle_type'],
+                        'transport_company' => $validated['transport_line'],
+                        'economic_number' => $validated['economic_number'] ?? null,
 
-                    // New Fields
-                    'bill_of_lading' => $validated['bill_of_lading'],
-                    'withdrawal_letter' => $validated['withdrawal_letter'],
-                    'reference' => $validated['reference'],
-                    'consignee' => $validated['consignee'],
-                    'destination' => $validated['destination'],
-                    'origin' => $validated['origin'],
+                        // New Fields
+                        'bill_of_lading' => $validated['bill_of_lading'],
+                        'withdrawal_letter' => $validated['withdrawal_letter'],
+                        'reference' => $validated['reference'],
+                        'consignee' => $validated['consignee'],
+                        'destination' => $validated['destination'],
+                        'origin' => $validated['origin'],
 
-                    // Legacy text fallbacks if no ID
-                    'product' => $validated['product'] ?? null,
+                        // Legacy text fallbacks if no ID
+                        'product' => $validated['product'] ?? null,
+                    ]);
+
+                    $orderId = $order->id;
+                } else {
+                    // Update existing order
+                    $order = ShipmentOrder::find($orderId);
+                    if ($order) {
+                        $order->update([
+                            'status' => 'loading',
+                            'entry_at' => $order->entry_at ?? now(),
+                            'withdrawal_letter' => $validated['withdrawal_letter'] ?? $order->withdrawal_letter,
+                            'reference' => $validated['reference'] ?? $order->reference,
+                        ]);
+                    }
+                }
+
+                // Create Ticket
+                WeightTicket::create([
+                    'shipment_order_id' => $orderId,
+                    'user_id' => auth()->id(),
+                    'ticket_number' => 'TK-' . time(),
+                    'tare_weight' => $validated['tare_weight'],
+                    'gross_weight' => 0,
+                    'net_weight' => 0,
+                    'weighing_status' => 'in_progress',
+                    'weigh_in_at' => now(),
+                    'container_type' => $validated['container_type'] ?? 'N/A',
+                    'scale_id' => $scaleId,
                 ]);
+            });
 
-                $orderId = $order->id;
-            } else {
-                // Update existing order
-                $order = ShipmentOrder::find($orderId);
-                $order->update([
-                    'status' => 'loading',
-                    'entry_at' => $order->entry_at ?? now(),
-                    'withdrawal_letter' => $validated['withdrawal_letter'] ?? $order->withdrawal_letter,
-                    'reference' => $validated['reference'] ?? $order->reference,
-                ]);
-            }
+            return redirect()->route('scale.index')->with('success', 'Entrada registrada correctamente.');
 
-            // Create Ticket
-            WeightTicket::create([
-                'shipment_order_id' => $orderId,
-                'user_id' => auth()->id(),
-                'ticket_number' => 'TK-' . time(),
-                'tare_weight' => $validated['tare_weight'],
-                'gross_weight' => 0,
-                'net_weight' => 0,
-                'weighing_status' => 'in_progress',
-                'weigh_in_at' => now(),
-                'container_type' => $validated['container_type'] ?? 'N/A',
-                'scale_id' => $validated['scale_id'] ?? null,
-            ]);
-        });
-
-        return redirect()->route('scale.index')->with('success', 'Entrada registrada correctamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Scale Entry Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al registrar entrada: ' . $e->getMessage()]);
+        }
     }
 
     public function storeExit(Request $request)
