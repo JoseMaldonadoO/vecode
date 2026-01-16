@@ -71,14 +71,25 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
 
     // Sync Weight to Form
     useEffect(() => {
-        // If we have a captured weight, use that. Otherwise use live weight for the form...
-        // Actually, user wants "Capture" to freeze it.
         if (capturedWeight !== null) {
             setData('tare_weight', capturedWeight.toString());
         } else {
             setData('tare_weight', weight.toString());
         }
     }, [weight, capturedWeight]);
+
+    // Handle Errors & Flash Messages
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Atención',
+                html: Object.values(errors).map(e => `<div class="mb-1">${e}</div>`).join(''),
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Entendido'
+            });
+        }
+    }, [errors]);
 
     const handleCapture = () => {
         setCapturedWeight(weight);
