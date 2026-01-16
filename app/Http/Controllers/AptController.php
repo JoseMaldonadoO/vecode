@@ -76,8 +76,18 @@ class AptController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Check for Occupied Warehouses (1, 2, 3)
+        // We consider them occupied if there is ANY active order assigned to them.
+        $occupiedWarehouses = \App\Models\ShipmentOrder::whereIn('warehouse', ['Almacén 1', 'Almacén 2', 'Almacén 3'])
+            ->whereIn('status', ['loading', 'authorized'])
+            ->pluck('warehouse')
+            ->unique()
+            ->values()
+            ->all();
+
         return Inertia::render('APT/Scanner', [
-            'recentScans' => $recentScans
+            'recentScans' => $recentScans,
+            'occupiedWarehouses' => $occupiedWarehouses
         ]);
     }
 
@@ -197,10 +207,16 @@ class AptController extends Controller
             }
         }
 
+        // Create explicit variable for cubicle to ensure it's null for WH 1-3
+        $finalCubicle = $validated['cubicle'];
+        if (!in_array($validated['warehouse'], ['Almacén 4', 'Almacén 5', '4', '5'])) {
+            $finalCubicle = null;
+        }
+
         // Update Order
         $order->update([
             'warehouse' => $validated['warehouse'],
-            'cubicle' => $validated['cubicle'],
+            'cubicle' => $finalCubicle,
             'operation_type' => $validated['operation_type'],
             // Status remains 'loading' until Scale Exit
         ]);
@@ -210,7 +226,7 @@ class AptController extends Controller
             'shipment_order_id' => $order->id, // Need to add this column to apt_scans or use operator_id if we want legacy
             'operator_id' => null, // Legacy, nullable
             'warehouse' => $validated['warehouse'],
-            'cubicle' => $validated['cubicle'],
+            'cubicle' => $finalCubicle,
             'user_id' => auth()->id(),
         ]);
 
@@ -245,6 +261,11 @@ class AptController extends Controller
             if ($occupied) {
                 return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' ya está ocupado.']);
             }
+        }
+
+        // Force null cubicle if not WH 4/5
+        if (!in_array($validated['warehouse'], ['Almacén 4', 'Almacén 5', '4', '5'])) {
+            $validated['cubicle'] = null;
         }
 
         // Update Scan Record
