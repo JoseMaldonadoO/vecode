@@ -133,14 +133,14 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-50">
+                                        <thead className="bg-[#1e1b4b]">
                                             <tr>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Folio</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orden Venta (OV)</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
-                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                                                <th className="relative px-6 py-3"><span className="sr-only">Acciones</span></th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Folio</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Orden Venta (OV)</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cliente</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Estatus</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Fecha</th>
+                                                <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
