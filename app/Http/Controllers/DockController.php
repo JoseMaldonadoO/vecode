@@ -13,7 +13,10 @@ class DockController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Vessel::with('product')->orderBy('created_at', 'desc');
+        // Strict filter: Only show Blue Commander and Nordorinoco
+        $query = Vessel::with('product')
+            ->whereIn('name', ['Blue Commander', 'Nordorinoco'])
+            ->orderBy('created_at', 'desc');
 
         if ($request->has('start_date') && $request->has('end_date') && $request->start_date && $request->end_date) {
             $query->whereBetween('docking_date', [$request->start_date, $request->end_date]);
