@@ -106,13 +106,9 @@ class DocumentationController extends Controller
     public function createOperator()
     {
         // Strict filter: Only allowed vessels, and UNIQUE by name
-        $allowedVessels = ['Blue Commander', 'Nordorinoco'];
-
-        $vessels = Vessel::whereIn('name', $allowedVessels)
+        $vessels = Vessel::with('product')
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->unique('name') // Ensure only one vessel per name appears in the dropdown
-            ->values();      // Reset keys
+            ->get();
 
         return Inertia::render('Documentation/RegisterOperator', [
             'vessels' => $vessels
@@ -187,13 +183,9 @@ class DocumentationController extends Controller
     {
         $operator = VesselOperator::with('vessel')->findOrFail($id);
 
-        $allowedVessels = ['Blue Commander', 'Nordorinoco'];
-
-        $vessels = Vessel::whereIn('name', $allowedVessels)
+        $vessels = Vessel::with('product')
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->unique('name')
-            ->values();
+            ->get();
 
         return Inertia::render('Documentation/Operators/Edit', [
             'operator' => $operator,
