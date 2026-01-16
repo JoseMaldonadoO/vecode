@@ -15,7 +15,6 @@ class DockController extends Controller
     {
         // Strict filter: Only show Blue Commander and Nordorinoco
         $query = Vessel::with('product')
-            ->whereIn('name', ['Blue Commander', 'Nordorinoco'])
             ->orderBy('created_at', 'desc');
 
         if ($request->has('start_date') && $request->has('end_date') && $request->start_date && $request->end_date) {

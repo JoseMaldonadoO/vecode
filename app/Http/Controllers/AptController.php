@@ -20,7 +20,7 @@ class AptController extends Controller
     public function createOperator()
     {
         return Inertia::render('APT/RegisterOperator', [
-            'vessels' => Vessel::orderBy('created_at', 'desc')->get()
+            'vessels' => Vessel::with('product')->orderBy('created_at', 'desc')->get()
         ]);
     }
 
