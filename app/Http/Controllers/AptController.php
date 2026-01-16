@@ -136,7 +136,7 @@ class AptController extends Controller
                         $order = \App\Models\ShipmentOrder::create([
                             'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999), // Unique Folio
                             'sale_order' => 'N/A',
-                            'date' => today(),
+                            'entry_at' => now(), // Use entry_at instead of date
                             'client_id' => $operator->vessel->client_id,
                             'vessel_id' => $operator->vessel->id,
                             'product_id' => $operator->vessel->product_id,
