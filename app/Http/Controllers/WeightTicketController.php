@@ -299,7 +299,7 @@ class WeightTicketController extends Controller
                 // Create Ticket
                 WeightTicket::create([
                     'shipment_order_id' => $orderId,
-                    'user_id' => auth()->id(),
+                    'weighmaster_id' => auth()->id(),
                     'ticket_number' => 'TK-' . time(),
                     'tare_weight' => $validated['tare_weight'],
                     'gross_weight' => 0,
