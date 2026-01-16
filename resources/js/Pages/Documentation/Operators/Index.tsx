@@ -78,20 +78,14 @@ export default function Index({ auth, operators, filters }: PageProps) {
                         />
                     </form>
 
-                    <Link
-                        href={route('documentation.operators.create')}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                    >
-                        <Plus className="-ml-1 mr-2 h-5 w-5" />
-                        Nuevo Operador
-                    </Link>
+
                 </div>
 
                 {/* Table */}
                 <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-[#1e1b4b]">
+                            <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ID</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Operador</th>
@@ -161,8 +155,8 @@ export default function Index({ auth, operators, filters }: PageProps) {
                                             key={key}
                                             href={link.url}
                                             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                    ? 'bg-indigo-600 text-white shadow-sm'
-                                                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                ? 'bg-indigo-600 text-white shadow-sm'
+                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                                                 }`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
                                         />
