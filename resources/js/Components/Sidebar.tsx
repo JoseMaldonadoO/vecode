@@ -73,42 +73,25 @@ export function Sidebar({ className }: SidebarProps) {
                 <div className="px-4">
                     <div className="space-y-2">
                         {visibleLinks.map((link) => {
-                            // Enhanced Active Logic
-                            // 1. Exact match for Dashboard
-                            // 2. Prefix match for modules (e.g. /sales matches /sales/create)
-                            const isDashboard = link.href.endsWith('/dashboard');
-                            const currentPath = url.split('?')[0]; // Remove query params
-                            const linkPath = link.href.replace(baseUrl, '');
-
-                            const isActive = isDashboard
-                                ? currentPath === '/dashboard'
-                                : currentPath.startsWith(linkPath) && linkPath !== '/dashboard'; // Prevent dashboard overlap if paths were similar
-
+                            const isActive = url.startsWith(link.href.replace(baseUrl, '')) || (link.href.endsWith('dashboard') && url === '/');
                             return (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     className={cn(
-                                        "group flex items-center rounded-xl px-4 py-3.5 text-sm font-bold transition-all duration-300 relative overflow-hidden",
+                                        "group flex items-center rounded-xl px-4 py-4 text-base font-bold transition-all duration-200",
                                         isActive
-                                            ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-900/50 translate-x-2"
-                                            : "text-slate-400 hover:text-white hover:bg-slate-800/50 hover:pl-6"
+                                            ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30 translate-x-1"
+                                            : "text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-1"
                                     )}
                                 >
-                                    {/* Active Indicator Line */}
-                                    {isActive && (
-                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_10px_rgba(255,255,255,0.7)]" />
-                                    )}
-
                                     <link.icon className={cn(
-                                        "mr-4 h-5 w-5 transition-transform duration-300",
-                                        isActive ? "text-white scale-110" : "text-slate-500 group-hover:text-white group-hover:scale-110"
+                                        "mr-4 h-6 w-6 transition-colors",
+                                        isActive ? "text-white" : "text-slate-500 group-hover:text-white"
                                     )} />
                                     <span className="tracking-wide">{link.name}</span>
-
-                                    {/* Active Glow Effect */}
                                     {isActive && (
-                                        <div className="absolute inset-0 bg-white/10 animate-pulse-slow pointer-events-none" />
+                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                                     )}
                                 </Link>
                             );
