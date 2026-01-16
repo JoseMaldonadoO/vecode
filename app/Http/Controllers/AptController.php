@@ -128,30 +128,43 @@ class AptController extends Controller
             if (str_starts_with($qr, 'OP:')) {
                 $parts = explode('|', substr($qr, 3));
                 $operatorId = $parts[0] ?? null;
-                $operator = VesselOperator::find($operatorId);
+                $operator = VesselOperator::with('vessel.product')->find($operatorId);
 
-                if ($operator) {
-                    // Create new Order for this Burreo/Direct Trip
-                    $order = \App\Models\ShipmentOrder::create([
-                        'folio' => 'BUR-' . date('Ymd-His'), // Temporary Folio for Burreo
-                        'sale_order' => 'N/A',
-                        'date' => today(),
-                        'client_id' => $operator->vessel->client_id,
-                        'vessel_id' => $operator->vessel_id, // Link to Vessel
-                        'product_id' => $operator->vessel->product_id, // Link to Product
-                        'status' => 'loading', // Skip 'created', go straight to 'loading' for assignment
-                        'operator_name' => $operator->operator_name,
-                        'unit_number' => $operator->economic_number,
-                        'tractor_plate' => $operator->tractor_plate,
-                        'trailer_plate' => $operator->trailer_plate,
-                        'unit_type' => $operator->unit_type,
-                        'transport_company' => $operator->transporter_line,
-                        // Defaults
-                        'product' => $operator->vessel->product->name ?? 'N/A',
-                        'operation_type' => 'burreo', // Default to burreo if created here
-                    ]);
+                if ($operator && $operator->vessel) {
+                    try {
+                        // Create new Order for this Burreo/Direct Trip
+                        $order = \App\Models\ShipmentOrder::create([
+                            'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999), // Unique Folio
+                            'sale_order' => 'N/A',
+                            'date' => today(),
+                            'client_id' => $operator->vessel->client_id,
+                            'vessel_id' => $operator->vessel->id,
+                            'product_id' => $operator->vessel->product_id,
+                            'status' => 'loading',
+                            'operator_name' => $operator->operator_name,
+                            'unit_number' => $operator->economic_number,
+                            'tractor_plate' => $operator->tractor_plate,
+                            'trailer_plate' => $operator->trailer_plate,
+                            'unit_type' => $operator->unit_type,
+                            'transport_company' => $operator->transporter_line,
+                            'product' => $operator->vessel->product->name ?? 'N/A',
+                            'operation_type' => 'burreo',
+                            'warehouse' => $validated['warehouse'], // Assign immediately
+                            'cubicle' => $validated['cubicle'],     // Assign immediately
+                        ]);
+
+                        // Since we created it, we don't need to update it again below, 
+                        // unless we want to keep the logic unified. 
+                        // But the update below sets warehouse/cubicle/op_type again. 
+                        // Let's just let it fall through or return success here.
+                        // Ideally fall through to allow the Log Scan to happen.
+
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::error('Burreo Order Create Error: ' . $e->getMessage());
+                        return back()->withErrors(['qr' => 'Error creando orden automática: ' . $e->getMessage()]);
+                    }
                 } else {
-                    return back()->withErrors(['qr' => 'Operador no encontrado para crear orden automática.']);
+                    return back()->withErrors(['qr' => 'Operador o Barco no encontrado para crear orden automática.']);
                 }
             } else {
                 return back()->withErrors(['qr' => 'Orden no encontrada o no activa.']);
