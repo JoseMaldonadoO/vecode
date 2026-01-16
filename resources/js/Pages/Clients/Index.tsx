@@ -74,13 +74,7 @@ export default function Index({ auth, clients, filters }: PageProps) {
                         />
                     </form>
 
-                    <Link
-                        href={route('clients.create')}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                    >
-                        <Plus className="-ml-1 mr-2 h-5 w-5" />
-                        Nuevo Cliente
-                    </Link>
+
                 </div>
 
                 {/* Table */}
@@ -119,8 +113,13 @@ export default function Index({ auth, clients, filters }: PageProps) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 {/* Edit functionality would need a separate edit page, currently minimal action */}
-                                                <span className="text-gray-400 text-xs italic">Edición pendiente</span>
-                                                {/* <Link href={route('clients.edit', client.id)} ... >Editar</Link> */}
+                                                <Link
+                                                    href={route('clients.edit', client.id)}
+                                                    className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
+                                                >
+                                                    <Edit className="w-4 h-4 mr-1.5" />
+                                                    Editar
+                                                </Link>
                                             </td>
                                         </tr>
                                     ))

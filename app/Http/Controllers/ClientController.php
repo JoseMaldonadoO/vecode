@@ -45,6 +45,13 @@ class ClientController extends Controller
         return redirect()->back()->with('message', 'Cliente agregado correctamente.');
     }
 
+    public function edit(Client $client)
+    {
+        return \Inertia\Inertia::render('Clients/Edit', [
+            'client' => $client
+        ]);
+    }
+
     public function update(Request $request, Client $client)
     {
         $validated = $request->validate([

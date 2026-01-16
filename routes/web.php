@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/clients', [\App\Http\Controllers\ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/create', [\App\Http\Controllers\ClientController::class, 'create'])->name('clients.create');
     Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
+    Route::get('/clients/{client}/edit', [\App\Http\Controllers\ClientController::class, 'edit'])->name('clients.edit');
     Route::put('/clients/{client}', [\App\Http\Controllers\ClientController::class, 'update'])->name('clients.update');
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
     // User Registration in Traffic
