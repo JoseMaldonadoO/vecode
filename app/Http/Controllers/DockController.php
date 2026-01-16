@@ -42,8 +42,9 @@ class DockController extends Controller
             'vessel_type' => 'required|string',
             'name' => 'required|string|max:255',
             'eta' => 'required|date',
-            'docking_date' => 'required|date',
-            'docking_time' => 'required',
+            'eta' => 'required|date',
+            'docking_date' => 'nullable|date',
+            'docking_time' => 'nullable',
             'operation_type' => 'required|string',
             'stay_days' => 'required|integer',
             'etc' => 'nullable|date',
@@ -76,7 +77,11 @@ class DockController extends Controller
         $validated['service_type'] = $validated['operation_type'];
 
         // Combine Date & Time for ETB / Berthal Datetime
-        $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        // Combine Date & Time for ETB / Berthal Datetime
+        $etb = null;
+        if ($validated['docking_date'] && $validated['docking_time']) {
+            $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        }
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
 
@@ -107,8 +112,9 @@ class DockController extends Controller
             'vessel_type' => 'required|string',
             'name' => 'required|string|max:255',
             'eta' => 'required|date',
-            'docking_date' => 'required|date',
-            'docking_time' => 'required',
+            'eta' => 'required|date',
+            'docking_date' => 'nullable|date',
+            'docking_time' => 'nullable',
             'operation_type' => 'required|string',
             'stay_days' => 'required|integer',
             'etc' => 'nullable|date',
@@ -141,7 +147,11 @@ class DockController extends Controller
         $validated['service_type'] = $validated['operation_type'];
 
         // Combine Date & Time for ETB / Berthal Datetime
-        $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        // Combine Date & Time for ETB / Berthal Datetime
+        $etb = null;
+        if ($validated['docking_date'] && $validated['docking_time']) {
+            $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        }
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
 
