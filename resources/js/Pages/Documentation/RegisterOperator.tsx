@@ -8,14 +8,10 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
         vessel_id: '',
         operator_name: '',
         transporter_line: '',
-        real_transporter_line: '',
         unit_type: 'Volteo',
         brand_model: '',
         trailer_plate: '',
-        license: '',
         economic_number: '',
-        policy: '',
-        validity: '',
         tractor_plate: ''
     });
 
@@ -104,17 +100,6 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
                                     {errors.transporter_line && <p className="text-red-500 text-xs mt-1">{errors.transporter_line}</p>}
                                 </div>
 
-                                {/* Linea Real (New) */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Línea real:</label>
-                                    <input
-                                        type="text"
-                                        value={data.real_transporter_line}
-                                        onChange={e => setData('real_transporter_line', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
-
                                 {/* Tipo de Unidad */}
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Tipo de unidad:</label>
@@ -160,55 +145,6 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
 
                             {/* Right Column */}
                             <div className="space-y-6">
-                                {/* Licencia (New) */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Licencia:</label>
-                                    <input
-                                        type="text"
-                                        value={data.license}
-                                        onChange={e => setData('license', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
-
-                                {/* Economico */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Económico:</label>
-                                    <input
-                                        type="text"
-                                        value={data.economic_number}
-                                        onChange={e => setData('economic_number', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                        required
-                                    />
-                                    {errors.economic_number && <p className="text-red-500 text-xs mt-1">{errors.economic_number}</p>}
-                                </div>
-
-                                {/* Poliza (New) */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Póliza:</label>
-                                    <input
-                                        type="text"
-                                        value={data.policy}
-                                        onChange={e => setData('policy', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
-
-                                {/* Vigencia (New) */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Vigencia:</label>
-                                    <div className="relative">
-                                        <input
-                                            type="date"
-                                            value={data.validity}
-                                            onChange={e => setData('validity', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                        />
-                                        <Calendar className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                    </div>
-                                </div>
-
                                 {/* Placa Tracto */}
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Placa Tracto:</label>
