@@ -105,8 +105,15 @@ class DocumentationController extends Controller
     // Operator Registration (Alta Operador)
     public function createOperator()
     {
+        // Strict filter as per user request
+        $allowedVessels = ['Blue Commander', 'Nordorinoco'];
+
+        $vessels = Vessel::whereIn('name', $allowedVessels)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Documentation/RegisterOperator', [
-            'vessels' => Vessel::orderBy('created_at', 'desc')->get()
+            'vessels' => $vessels
         ]);
     }
 

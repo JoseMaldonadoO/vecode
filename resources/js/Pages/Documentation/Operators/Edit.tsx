@@ -70,7 +70,9 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                     >
                                         <option value="">-- Seleccione un barco --</option>
                                         {vessels.map((v: any) => (
-                                            <option key={v.id} value={v.id}>{v.name} ({v.origin})</option>
+                                            <option key={v.id} value={v.id}>
+                                                {v.name} {v.origin ? `(${v.origin})` : ''}
+                                            </option>
                                         ))}
                                     </select>
                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
