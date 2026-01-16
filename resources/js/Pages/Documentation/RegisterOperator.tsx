@@ -41,7 +41,7 @@ export default function RegisterOperator({ auth, vessels }: { auth: any, vessels
                     </Link>
                 </div>
 
-                {flash.success && (
+                {flash?.success && (
                     <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl shadow-md flex items-center transition-all duration-300 animate-fade-in-down">
                         <div className="bg-green-100 p-2 rounded-full mr-4">
                             <CheckCircle className="w-6 h-6 text-green-600" />
