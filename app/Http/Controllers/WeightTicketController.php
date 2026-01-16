@@ -159,6 +159,8 @@ class WeightTicketController extends Controller
                         'origin' => $operator->vessel->origin ?? 'Puerto',
                         'suggested_withdrawal_letter' => $suggestedWithdrawal,
                         'status' => 'new_entry',
+                        'vessel_etb' => $operator->vessel->etb,
+                        'force_burreo' => !empty($operator->vessel->etb),
                     ]);
                 }
             }
@@ -194,6 +196,8 @@ class WeightTicketController extends Controller
             'withdrawal_letter' => $order->withdrawal_letter ?? '',
             'reference' => $order->sale_order ?? '',
             'consignee' => $order->consignee ?? '',
+            'vessel_etb' => $order->vessel->etb ?? null,
+            'force_burreo' => !empty($order->vessel->etb ?? null),
         ]);
     }
 

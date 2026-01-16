@@ -47,6 +47,14 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
             if (response.data) {
                 setScanResult(response.data);
                 setData('qr', cleanCode);
+
+                // Auto-select Burreo if forced by ETB
+                if (response.data.force_burreo) {
+                    setData('operation_type', 'burreo');
+                } else {
+                    setData('operation_type', 'scale');
+                }
+
                 setIsScanning(false);
                 setShowCamera(false);
                 setScanInput(cleanCode);
@@ -329,15 +337,20 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                             </div>
                             <form onSubmit={submitForm} className="space-y-6 flex flex-col justify-center">
                                 <div className="flex gap-4 p-1 bg-gray-100 rounded-lg">
-                                    <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'scale' ? 'bg-white shadow-sm text-indigo-700 font-bold' : 'text-gray-500'}`}>
+                                    <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'scale'
+                                        ? 'bg-white shadow-sm text-indigo-700 font-bold'
+                                        : scanResult.force_burreo
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-500'}`}>
                                         <input
                                             type="radio"
                                             className="hidden"
                                             name="op_type"
                                             checked={data.operation_type === 'scale'}
-                                            onChange={() => setData('operation_type', 'scale')}
+                                            onChange={() => !scanResult.force_burreo && setData('operation_type', 'scale')}
+                                            disabled={scanResult.force_burreo}
                                         />
-                                        Descarga Báscula
+                                        {scanResult.force_burreo ? <span className="line-through decoration-2">Descarga Báscula</span> : 'Descarga Báscula'}
                                     </label>
                                     <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'burreo' ? 'bg-white shadow-sm text-indigo-700 font-bold' : 'text-gray-500'}`}>
                                         <input
@@ -350,6 +363,12 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                         Burreo
                                     </label>
                                 </div>
+                                {scanResult.force_burreo && (
+                                    <div className="text-amber-600 text-sm font-bold text-center -mt-4 mb-2">
+                                        <AlertTriangle className="w-3 h-3 inline mr-1" />
+                                        Modo Burreo Activado Automáticamente (ETB Detectado)
+                                    </div>
+                                )}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Asignar Almacén
