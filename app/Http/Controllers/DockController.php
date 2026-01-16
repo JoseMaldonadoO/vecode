@@ -75,6 +75,11 @@ class DockController extends Controller
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
 
+        // Combine Date & Time for ETB / Berthal Datetime
+        $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        $validated['etb'] = $etb;
+        $validated['berthal_datetime'] = $etb;
+
         try {
             Vessel::create($validated);
             return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
@@ -134,6 +139,11 @@ class DockController extends Controller
 
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
+
+        // Combine Date & Time for ETB / Berthal Datetime
+        $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        $validated['etb'] = $etb;
+        $validated['berthal_datetime'] = $etb;
 
         try {
             $vessel->update($validated);

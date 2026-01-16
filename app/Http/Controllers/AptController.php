@@ -124,7 +124,37 @@ class AptController extends Controller
         }
 
         if (!$order) {
-            return back()->withErrors(['qr' => 'Orden no encontrada o no activa.']);
+            // Auto-create Logic for Burreo / Operator Scan
+            if (str_starts_with($qr, 'OP:')) {
+                $parts = explode('|', substr($qr, 3));
+                $operatorId = $parts[0] ?? null;
+                $operator = VesselOperator::find($operatorId);
+
+                if ($operator) {
+                    // Create new Order for this Burreo/Direct Trip
+                    $order = \App\Models\ShipmentOrder::create([
+                        'folio' => 'BUR-' . date('Ymd-His'), // Temporary Folio for Burreo
+                        'sale_order' => 'N/A',
+                        'date' => today(),
+                        'client_id' => $operator->vessel->client_id,
+                        'status' => 'loading', // Skip 'created', go straight to 'loading' for assignment
+                        'p_vessel' => $operator->vessel->name,
+                        'operator_name' => $operator->operator_name,
+                        'unit_number' => $operator->economic_number,
+                        'tractor_plate' => $operator->tractor_plate,
+                        'trailer_plate' => $operator->trailer_plate,
+                        'unit_type' => $operator->unit_type,
+                        'transport_company' => $operator->transporter_line,
+                        // Defaults
+                        'product' => $operator->vessel->product->name ?? 'N/A',
+                        'operation_type' => 'burreo', // Default to burreo if created here?
+                    ]);
+                } else {
+                    return back()->withErrors(['qr' => 'Operador no encontrado para crear orden automática.']);
+                }
+            } else {
+                return back()->withErrors(['qr' => 'Orden no encontrada o no activa.']);
+            }
         }
 
         // status check for Scale Flow
