@@ -9,7 +9,7 @@ import Modal from '@/Components/Modal'; // Assuming we have a Modal component, o
 // I'll stick to inline Tailwind modal for simplicity and robustness if I don't know the exact path of Modal (though likely '@/Components/Modal').
 // Let's use a simple inline overlay to be safe.
 
-export default function Scanner({ auth, recentScans }: { auth: any, recentScans: any[] }) {
+export default function Scanner({ auth, recentScans, occupiedWarehouses = [] }: { auth: any, recentScans: any[], occupiedWarehouses?: string[] }) {
     const [scanInput, setScanInput] = useState('');
     const [isScanning, setIsScanning] = useState(true);
     const [scanResult, setScanResult] = useState<any>(null);
@@ -377,15 +377,28 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                     </label>
                                     <select
                                         value={data.warehouse}
-                                        onChange={e => setData('warehouse', e.target.value)}
+                                        onChange={e => {
+                                            const val = e.target.value;
+                                            setData(data => ({
+                                                ...data,
+                                                warehouse: val,
+                                                cubicle: (val === 'Almacén 4' || val === 'Almacén 5') ? data.cubicle : ''
+                                            }));
+                                        }}
                                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
                                         required
                                         autoFocus
                                     >
                                         <option value="">-- Seleccionar --</option>
-                                        <option value="Almacén 1">Almacén 1</option>
-                                        <option value="Almacén 2">Almacén 2</option>
-                                        <option value="Almacén 3">Almacén 3</option>
+                                        <option value="Almacén 1" disabled={occupiedWarehouses.includes('Almacén 1')}>
+                                            Almacén 1 {occupiedWarehouses.includes('Almacén 1') ? '(Ocupado)' : ''}
+                                        </option>
+                                        <option value="Almacén 2" disabled={occupiedWarehouses.includes('Almacén 2')}>
+                                            Almacén 2 {occupiedWarehouses.includes('Almacén 2') ? '(Ocupado)' : ''}
+                                        </option>
+                                        <option value="Almacén 3" disabled={occupiedWarehouses.includes('Almacén 3')}>
+                                            Almacén 3 {occupiedWarehouses.includes('Almacén 3') ? '(Ocupado)' : ''}
+                                        </option>
                                         <option value="Almacén 4">Almacén 4</option>
                                         <option value="Almacén 5">Almacén 5</option>
                                     </select>
@@ -444,7 +457,7 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
-                                                {scan.warehouse} {scan.cubicle ? `- ${scan.cubicle}` : ''}
+                                                {scan.warehouse} {(scan.warehouse === 'Almacén 4' || scan.warehouse === 'Almacén 5') && scan.cubicle ? `- Cubículo ${scan.cubicle}` : ''}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-600">
