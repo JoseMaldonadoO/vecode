@@ -4,7 +4,7 @@ import { Printer, UserPlus, Search, Ship, Anchor, Scan } from 'lucide-react';
 
 export default function Index({ auth }: { auth: any }) {
     const menuItems = [
-        { name: 'Escanear Entrada', icon: Scan, href: route('apt.scanner.index'), description: 'Escanear código QR para registrar entrada/salida.', color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500' },
+        { name: 'Escanear Entrada', icon: Scan, href: route('apt.scanner'), description: 'Escanear código QR para registrar entrada/salida.', color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500' },
     ];
 
     return (
