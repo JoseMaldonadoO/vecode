@@ -7,6 +7,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, active_scale_id?: number }) {
     const [weight, setWeight] = useState<number>(0);
