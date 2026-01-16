@@ -6,7 +6,9 @@ import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Index({ auth, pending_exit = [] }: { auth: any, pending_exit: any[] }) {
+import Swal from 'sweetalert2';
+
+export default function Index({ auth, pending_exit = [], flash }: { auth: any, pending_exit: any[], flash?: any }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
@@ -14,7 +16,19 @@ export default function Index({ auth, pending_exit = [] }: { auth: any, pending_
     useEffect(() => {
         const saved = localStorage.getItem('selected_scale_id');
         if (saved) setScaleId(parseInt(saved));
-    }, []);
+
+        if (flash?.success) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Operación Exitosa!',
+                text: flash.success,
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        }
+    }, [flash]);
 
     const handleScaleSelect = (id: number) => {
         setScaleId(id);
