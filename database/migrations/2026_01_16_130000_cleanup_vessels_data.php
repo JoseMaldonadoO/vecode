@@ -67,8 +67,30 @@ return new class extends Migration {
                 continue;
             }
 
-            // Move dependencies to Master
-            VesselOperator::where('vessel_id', $duplicate->id)->update(['vessel_id' => $masterId]);
+            // Handle Vessel Operators collisions (Avoid Duplicate entry error)
+            $duplicateOperators = VesselOperator::where('vessel_id', $duplicate->id)->get();
+            foreach ($duplicateOperators as $dupOp) {
+                // Check if this operator already exists on the Master vessel
+                $masterOp = VesselOperator::where('vessel_id', $masterId)
+                    ->where('operator_name', $dupOp->operator_name)
+                    ->first();
+
+                if ($masterOp) {
+                    // Collision! Master already has this operator.
+                    // 1. Move any children of $dupOp to $masterOp (e.g. AptScans)
+                    if (Schema::hasTable('apt_scans')) {
+                        DB::table('apt_scans')->where('operator_id', $dupOp->id)->update(['operator_id' => $masterOp->id]);
+                    }
+
+                    // 2. Delete the duplicate operator since we merged its data
+                    $dupOp->delete();
+                } else {
+                    // No collision, just move it to master
+                    $dupOp->update(['vessel_id' => $masterId]);
+                }
+            }
+
+            // Move ShipmentOrders
             ShipmentOrder::where('vessel_id', $duplicate->id)->update(['vessel_id' => $masterId]);
 
             // Delete Duplicate
