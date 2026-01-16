@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales/{id}/print', [\App\Http\Controllers\SalesController::class, 'print'])->name('sales.print');
     Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
     Route::resource('sales', \App\Http\Controllers\SalesController::class);
+    Route::get('/clients', [\App\Http\Controllers\ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/create', [\App\Http\Controllers\ClientController::class, 'create'])->name('clients.create');
     Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
     Route::put('/clients/{client}', [\App\Http\Controllers\ClientController::class, 'update'])->name('clients.update');

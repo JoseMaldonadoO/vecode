@@ -7,6 +7,25 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = Client::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where('business_name', 'like', "%{$search}%")
+                ->orWhere('rfc', 'like', "%{$search}%")
+                ->orWhere('contact_info', 'like', "%{$search}%");
+        }
+
+        $clients = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        return \Inertia\Inertia::render('Clients/Index', [
+            'clients' => $clients,
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
     public function create()
     {
         return \Inertia\Inertia::render('Clients/Create');
