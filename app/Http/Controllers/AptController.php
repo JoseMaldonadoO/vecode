@@ -137,8 +137,9 @@ class AptController extends Controller
                         'sale_order' => 'N/A',
                         'date' => today(),
                         'client_id' => $operator->vessel->client_id,
+                        'vessel_id' => $operator->vessel_id, // Link to Vessel
+                        'product_id' => $operator->vessel->product_id, // Link to Product
                         'status' => 'loading', // Skip 'created', go straight to 'loading' for assignment
-                        'p_vessel' => $operator->vessel->name,
                         'operator_name' => $operator->operator_name,
                         'unit_number' => $operator->economic_number,
                         'tractor_plate' => $operator->tractor_plate,
@@ -147,7 +148,7 @@ class AptController extends Controller
                         'transport_company' => $operator->transporter_line,
                         // Defaults
                         'product' => $operator->vessel->product->name ?? 'N/A',
-                        'operation_type' => 'burreo', // Default to burreo if created here?
+                        'operation_type' => 'burreo', // Default to burreo if created here
                     ]);
                 } else {
                     return back()->withErrors(['qr' => 'Operador no encontrado para crear orden automática.']);
