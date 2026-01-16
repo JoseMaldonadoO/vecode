@@ -39,23 +39,24 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                    <div className="bg-gradient-to-r from-blue-700 to-blue-900 px-8 py-6 flex items-center justify-between">
+                    {/* Header: Indigo Gradient */}
+                    <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">
                         <div className="flex items-center">
-                            <div className="p-2 bg-blue-600 rounded-lg mr-3 shadow-inner">
+                            <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
                                 <UserPlus className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h3 className="text-white font-bold text-xl">Editar Operador #{operator.id}</h3>
-                                <p className="text-blue-200 text-sm">Actualice los datos del conductor y unidad</p>
+                                <p className="text-indigo-200 text-sm">Actualice los datos del conductor y unidad</p>
                             </div>
                         </div>
                     </div>
 
                     <form onSubmit={submit} className="p-8">
 
-                        {/* Section: Vinculación */}
-                        <div className="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-100">
-                            <h4 className="text-blue-800 font-bold mb-4 flex items-center">
+                        {/* Section: Vinculación - Indigo Theme */}
+                        <div className="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+                            <h4 className="text-indigo-800 font-bold mb-4 flex items-center">
                                 <Truck className="w-5 h-5 mr-2" />
                                 Vinculación de Barco
                             </h4>
@@ -65,7 +66,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                     <select
                                         value={data.vessel_id}
                                         onChange={e => setData('vessel_id', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 pl-4 pr-10 appearance-none bg-white text-gray-700 font-medium"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 pl-4 pr-10 appearance-none bg-white text-gray-700 font-medium"
                                         required
                                     >
                                         <option value="">-- Seleccione un barco --</option>
@@ -97,7 +98,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                             type="text"
                                             value={data.operator_name}
                                             onChange={e => setData('operator_name', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
                                             placeholder="Nombre Completo"
                                             required
                                         />
@@ -114,7 +115,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                             type="text"
                                             value={data.transporter_line}
                                             onChange={e => setData('transporter_line', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
                                             placeholder="Empresa Transportista"
                                             required
                                         />
@@ -131,7 +132,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                             type="text"
                                             value={data.economic_number}
                                             onChange={e => setData('economic_number', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
                                             placeholder="Ej. 05, ECO-2024"
                                             required
                                         />
@@ -152,7 +153,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                         <select
                                             value={data.unit_type}
                                             onChange={e => setData('unit_type', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 pl-10 appearance-none bg-white"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white"
                                         >
                                             <option value="Volteo">Volteo</option>
                                             <option value="Tolva">Tolva</option>
@@ -176,7 +177,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                             type="text"
                                             value={data.brand_model}
                                             onChange={e => setData('brand_model', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                             placeholder="Ej. Kenworth 2020"
                                         />
                                     </div>
@@ -189,7 +190,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                                 type="text"
                                                 value={data.tractor_plate}
                                                 onChange={e => setData('tractor_plate', e.target.value)}
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 pl-10 uppercase font-mono"
+                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-mono"
                                                 placeholder="ABC-123"
                                                 required
                                             />
@@ -207,7 +208,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                                 value={data.trailer_plate}
                                                 onChange={e => setData('trailer_plate', e.target.value)}
                                                 disabled={data.unit_type === 'Volteo'}
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5 pl-10 uppercase font-mono disabled:bg-gray-100 disabled:text-gray-400"
+                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-mono disabled:bg-gray-100 disabled:text-gray-400"
                                                 placeholder={data.unit_type === 'Volteo' ? 'N/A' : 'XYZ-999'}
                                             />
                                             <CreditCard className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
@@ -219,10 +220,11 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                         </div>
 
                         <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
+                            {/* Button: Green Theme */}
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200 transition-all transform hover:-translate-y-0.5"
+                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
                             >
                                 <Save className="w-6 h-6 mr-2" />
                                 {processing ? 'Guardando...' : 'GUARDAR CAMBIOS'}
