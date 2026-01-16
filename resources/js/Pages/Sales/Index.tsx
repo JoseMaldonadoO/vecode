@@ -30,7 +30,6 @@ interface Order {
 
 export default function Index({ auth, orders, clients }: { auth: any, orders: Order[], clients: Client[] }) {
     const [viewMode, setViewMode] = useState<'menu' | 'report'>('menu');
-    const [isClientModalOpen, setIsClientModalOpen] = useState(false);
     const [isClientListModalOpen, setIsClientListModalOpen] = useState(false);
 
     // Inline Edit State
@@ -73,15 +72,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
         contact_info: '',
     });
 
-    const submitClient: FormEventHandler = (e) => {
-        e.preventDefault();
-        post(route('clients.store'), {
-            onSuccess: () => {
-                setIsClientModalOpen(false);
-                reset();
-            },
-        });
-    };
+
 
     const toggleStatus = (id: string) => {
         router.patch(route('sales.toggle-status', id), {}, {
@@ -105,7 +96,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
         {
             name: 'Agregar Cliente',
             icon: UserPlus,
-            action: () => setIsClientModalOpen(true),
+            action: () => router.visit(route('clients.create')),
             description: 'Registrar nuevo cliente.',
             color: 'bg-blue-50 text-blue-600',
             bg: 'bg-white',
@@ -373,74 +364,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                 </div>
             </Modal>
 
-            {/* Add Client Modal */}
-            <Modal show={isClientModalOpen} onClose={() => setIsClientModalOpen(false)}>
-                <div className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900">Agregar Nuevo Cliente</h2>
-                    <p className="mt-1 text-sm text-gray-600">
-                        Ingrese los detalles del cliente para registrarlo en el sistema.
-                    </p>
 
-                    <form onSubmit={submitClient} className="mt-6 space-y-6">
-                        <div>
-                            <InputLabel htmlFor="rfc" value="RFC" />
-                            <TextInput
-                                id="rfc"
-                                value={data.rfc}
-                                onChange={(e) => setData('rfc', e.target.value)}
-                                className="mt-1 block w-full"
-                                placeholder="RFC del cliente"
-                            />
-                            <InputError message={errors.rfc} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="business_name" value="Nombre / Razón Social" />
-                            <TextInput
-                                id="business_name"
-                                value={data.business_name}
-                                onChange={(e) => setData('business_name', e.target.value)}
-                                className="mt-1 block w-full"
-                                placeholder="Nombre completo o razón social"
-                            />
-                            <InputError message={errors.business_name} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="address" value="Dirección" />
-                            <TextInput
-                                id="address"
-                                value={data.address}
-                                onChange={(e) => setData('address', e.target.value)}
-                                className="mt-1 block w-full"
-                                placeholder="Calle, número, colonia, CP..."
-                            />
-                            <InputError message={errors.address} className="mt-2" />
-                        </div>
-
-                        <div>
-                            <InputLabel htmlFor="contact_info" value="Contacto" />
-                            <TextInput
-                                id="contact_info"
-                                value={data.contact_info}
-                                onChange={(e) => setData('contact_info', e.target.value)}
-                                className="mt-1 block w-full"
-                                placeholder="Teléfono, Email o Nombre de contacto"
-                            />
-                            <InputError message={errors.contact_info} className="mt-2" />
-                        </div>
-
-                        <div className="mt-6 flex justify-end gap-3">
-                            <SecondaryButton onClick={() => setIsClientModalOpen(false)}>
-                                Cancelar
-                            </SecondaryButton>
-                            <PrimaryButton disabled={processing}>
-                                Guardar Cliente
-                            </PrimaryButton>
-                        </div>
-                    </form>
-                </div>
-            </Modal>
         </DashboardLayout>
     );
 }

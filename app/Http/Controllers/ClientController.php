@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
+    public function create()
+    {
+        return \Inertia\Inertia::render('Clients/Create');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
