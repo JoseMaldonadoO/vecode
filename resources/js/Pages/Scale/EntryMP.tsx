@@ -10,6 +10,7 @@ import axios from 'axios';
 
 export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, active_scale_id?: number }) {
     const [weight, setWeight] = useState<number>(0);
+    const [capturedWeight, setCapturedWeight] = useState<number | null>(null); // New State
     const [isConnected, setIsConnected] = useState(false);
     const [qrValue, setQrValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -68,9 +69,20 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
     //      </div>
     //   </div>
 
+    // Sync Weight to Form
     useEffect(() => {
-        setData('tare_weight', weight.toString());
-    }, [weight]);
+        // If we have a captured weight, use that. Otherwise use live weight for the form...
+        // Actually, user wants "Capture" to freeze it.
+        if (capturedWeight !== null) {
+            setData('tare_weight', capturedWeight.toString());
+        } else {
+            setData('tare_weight', weight.toString());
+        }
+    }, [weight, capturedWeight]);
+
+    const handleCapture = () => {
+        setCapturedWeight(weight);
+    };
 
     const handleSerialConnect = async () => {
         if ('serial' in navigator) {
@@ -280,6 +292,12 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                     {weight > 0 ? weight : '0.00'} <span className="text-2xl text-gray-500">kg</span>
                                 </div>
                             </div>
+                            <div className="bg-gray-800 p-2 text-center border-t border-gray-700">
+                                <span className="text-gray-400 text-xs uppercase mr-2">Peso Capturado:</span>
+                                <span className={`text-xl font-bold font-mono ${capturedWeight ? 'text-yellow-400' : 'text-gray-600'}`}>
+                                    {capturedWeight ? capturedWeight.toFixed(2) : '---'} kg
+                                </span>
+                            </div>
                             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3">
                                 <button
                                     onClick={handleSerialConnect}
@@ -289,8 +307,13 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                     <LinkIcon className="w-5 h-5 mr-2" />
                                     {isConnected ? 'Conectado' : 'Conectar'}
                                 </button>
-                                <button type="button" className="flex items-center justify-center px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50">
-                                    <Scale className="w-5 h-5 mr-2" /> Capturar
+                                <button
+                                    type="button"
+                                    onClick={handleCapture}
+                                    className={`flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 ${capturedWeight ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 'bg-white text-gray-700'}`}
+                                >
+                                    <Scale className="w-5 h-5 mr-2" />
+                                    {capturedWeight ? 'Recapturar' : 'Capturar'}
                                 </button>
                             </div>
                         </div>
