@@ -7,6 +7,7 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import { QrReader } from 'react-qr-reader';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any, order?: any, active_scale_id?: number }) {
     // State for Search
@@ -20,7 +21,7 @@ export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any
     const portRef = useRef<any>(null);
     const readerRef = useRef<any>(null);
 
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         shipment_order_id: order?.id || '',
         weight: '', // Second Weight
         scale_id: active_scale_id, // Exit Scale
@@ -29,6 +30,19 @@ export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any
     useEffect(() => {
         setData('weight', weight.toString());
     }, [weight]);
+
+    // Handle Errors
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Atención',
+                html: Object.values(errors).map(e => `<div class="mb-1">${e}</div>`).join(''),
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Entendido'
+            });
+        }
+    }, [errors]);
 
     const handleSerialConnect = async () => {
         if ('serial' in navigator) {

@@ -326,41 +326,47 @@ class WeightTicketController extends Controller
             'weight' => 'required|numeric|min:0', // Exit weight (Gross or Second weight)
         ]);
 
-        DB::transaction(function () use ($validated) {
-            $order = ShipmentOrder::with('weight_ticket')->findOrFail($validated['shipment_order_id']);
-            $ticket = $order->weight_ticket;
+        try {
+            DB::transaction(function () use ($validated) {
+                $order = ShipmentOrder::with('weight_ticket')->findOrFail($validated['shipment_order_id']);
+                $ticket = $order->weight_ticket;
 
-            if (!$ticket) {
-                throw new \Exception("Esta orden no tiene ticket de entrada.");
-            }
+                if (!$ticket) {
+                    throw new \Exception("Esta orden no tiene ticket de entrada.");
+                }
 
-            // Calculate Net Weight (Always Positive)
-            // Typically: Net = Gross - Tare. 
-            // Here: Input 'weight' is the *current* weight.
-            // If truck came in Empty (Tare) and leaves Full (Gross): Net = Current - Tare.
-            // If truck came in Full (Gross) and leaves Empty (Tare): Net = Gross - Current.
-            // We use ABS to handle both logic without complex flags, assuming Process is valid.
-            // "El sistema debe dar siempre el peso neto en positivo".
+                // Calculate Net Weight (Always Positive)
+                // Typically: Net = Gross - Tare. 
+                // Here: Input 'weight' is the *current* weight.
+                // If truck came in Empty (Tare) and leaves Full (Gross): Net = Current - Tare.
+                // If truck came in Full (Gross) and leaves Empty (Tare): Net = Gross - Current.
+                // We use ABS to handle both logic without complex flags, assuming Process is valid.
+                // "El sistema debe dar siempre el peso neto en positivo".
 
-            $firstWeight = $ticket->tare_weight; // Named 'tare_weight' in DB but represents First Weight
-            $secondWeight = $validated['weight'];
-            $net = abs($secondWeight - $firstWeight);
+                $firstWeight = $ticket->tare_weight; // Named 'tare_weight' in DB but represents First Weight
+                $secondWeight = $validated['weight'];
+                $net = abs($secondWeight - $firstWeight);
 
-            // Update Ticket
-            $ticket->update([
-                'gross_weight' => $secondWeight, // Store second weight here
-                'net_weight' => $net,
-                'weighing_status' => 'completed',
-                'weigh_out_at' => now(),
-            ]);
+                // Update Ticket
+                $ticket->update([
+                    'gross_weight' => $secondWeight, // Store second weight here
+                    'net_weight' => $net,
+                    'weighing_status' => 'completed',
+                    'weigh_out_at' => now(),
+                ]);
 
-            // Update Order
-            $order->update([
-                'status' => 'completed',
-                'destare_status' => 'completed', // Explicitly marked as destared
-            ]);
-        });
+                // Update Order
+                $order->update([
+                    'status' => 'completed',
+                    'destare_status' => 'completed', // Explicitly marked as destared
+                ]);
+            });
 
-        return redirect()->route('scale.index')->with('success', 'Salida registrada correctamente.');
+            return redirect()->route('scale.index')->with('success', 'Salida registrada correctamente.');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Scale Exit Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al registrar salida: ' . $e->getMessage()]);
+        }
     }
 }
