@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText, Settings, Camera, X } from 'lucide-react';
+import { Head, useForm, Link } from '@inertiajs/react';
+import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText, Settings, Camera, X, ArrowLeft } from 'lucide-react';
 import { QrReader } from 'react-qr-reader';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -200,6 +200,13 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
             <Head title="Entrada MI / MP" />
 
             <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                <div className="mb-6">
+                    <Link href={route('scale.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                        <ArrowLeft className="w-4 h-4 mr-1" />
+                        Volver al Panel
+                    </Link>
+                </div>
 
                 {/* Header Section */}
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-8">
