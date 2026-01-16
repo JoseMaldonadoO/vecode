@@ -148,21 +148,23 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                     <option value="Almacén 3">Almacén 3</option>
                                     <option value="Almacén 4">Almacén 4</option>
                                     <option value="Almacén 5">Almacén 5</option>
-                                    <option value="Patio">Patio</option>
                                 </select>
                             </div>
 
                             {(editForm.data.warehouse === 'Almacén 4' || editForm.data.warehouse === 'Almacén 5') && (
                                 <div className="mb-6">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Cubículo</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         value={editForm.data.cubicle}
                                         onChange={e => editForm.setData('cubicle', e.target.value)}
                                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        placeholder="Ej. C-1"
                                         required
-                                    />
+                                    >
+                                        <option value="">-- Seleccionar --</option>
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                                            <option key={num} value={num.toString()}>{num}</option>
+                                        ))}
+                                    </select>
                                     {editForm.errors.cubicle && <p className="text-red-500 text-xs mt-1">{editForm.errors.cubicle}</p>}
                                 </div>
                             )}
@@ -386,25 +388,25 @@ export default function Scanner({ auth, recentScans }: { auth: any, recentScans:
                                         <option value="Almacén 3">Almacén 3</option>
                                         <option value="Almacén 4">Almacén 4</option>
                                         <option value="Almacén 5">Almacén 5</option>
-                                        <option value="Patio">Patio</option>
                                     </select>
                                 </div>
-                                {(data.warehouse === 'Almacén 4' || data.warehouse === 'Almacén 5' || data.warehouse === '4' || data.warehouse === '5') && (
-                                    <div className="animate-fade-in-up">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Asignar Cubículo
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={data.cubicle}
-                                            onChange={e => setData('cubicle', e.target.value)}
-                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
-                                            placeholder="Ej. C-1"
-                                            required
-                                        />
-                                        <p className="text-xs text-gray-500 mt-1">Requerido para Almacén 4 y 5</p>
-                                    </div>
-                                )}
+                                <div className="animate-fade-in-up">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Asignar Cubículo
+                                    </label>
+                                    <select
+                                        value={data.cubicle}
+                                        onChange={e => setData('cubicle', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
+                                        required
+                                    >
+                                        <option value="">-- Seleccionar --</option>
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                                            <option key={num} value={num.toString()}>{num}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-gray-500 mt-1">Requerido para Almacén 4 y 5 (Opciones 1-8)</p>
+                                </div>
                                 <button
                                     type="submit"
                                     disabled={processing}
