@@ -188,6 +188,7 @@ class AptController extends Controller
             $occupied = \App\Models\ShipmentOrder::where('warehouse', $validated['warehouse'])
                 ->where('cubicle', $validated['cubicle'])
                 ->whereIn('status', ['loading', 'authorized'])
+                ->where('id', '!=', $order->id) // Exclude current order
                 ->exists();
 
             if ($occupied) {
