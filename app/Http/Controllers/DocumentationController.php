@@ -149,4 +149,57 @@ class DocumentationController extends Controller
 
         return response()->json($operators);
     }
+
+    // --- New Methods for Operators List ---
+
+    public function operatorsIndex(Request $request)
+    {
+        $query = VesselOperator::query();
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('operator_name', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%")
+                    ->orWhere('transporter_line', 'like', "%{$search}%")
+                    ->orWhere('economic_number', 'like', "%{$search}%");
+            });
+        }
+
+        $operators = $query->with('vessel')->orderBy('created_at', 'desc')->paginate(10);
+
+        return Inertia::render('Documentation/Operators/Index', [
+            'operators' => $operators,
+            'filters' => $request->only(['search']),
+        ]);
+    }
+
+    public function editOperator($id)
+    {
+        $operator = VesselOperator::with('vessel')->findOrFail($id);
+
+        return Inertia::render('Documentation/Operators/Edit', [
+            'operator' => $operator,
+            'vessels' => Vessel::orderBy('created_at', 'desc')->get()
+        ]);
+    }
+
+    public function updateOperator(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'vessel_id' => 'required|exists:vessels,id',
+            'operator_name' => 'required|string|max:255',
+            'unit_type' => 'required|string',
+            'economic_number' => 'required|string',
+            'tractor_plate' => 'required|string',
+            'trailer_plate' => 'nullable|required_unless:unit_type,Volteo|string',
+            'transporter_line' => 'required|string',
+            'brand_model' => 'nullable|string',
+        ]);
+
+        $operator = VesselOperator::findOrFail($id);
+        $operator->update($validated);
+
+        return redirect()->route('documentation.operators.index')->with('success', 'Operador actualizado correctamente.');
+    }
 }

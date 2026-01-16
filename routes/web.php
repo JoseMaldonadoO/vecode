@@ -65,6 +65,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/documentation/qr/print', [\App\Http\Controllers\DocumentationController::class, 'qrPrint'])->name('documentation.qr');
     Route::get('/documentation/operators/create', [\App\Http\Controllers\DocumentationController::class, 'createOperator'])->name('documentation.operators.create');
     Route::post('/documentation/operators', [\App\Http\Controllers\DocumentationController::class, 'storeOperator'])->name('documentation.operators.store');
+    // New Operator List & Edit Routes
+    Route::get('/documentation/operators', [\App\Http\Controllers\DocumentationController::class, 'operatorsIndex'])->name('documentation.operators.index');
+    Route::get('/documentation/operators/{id}/edit', [\App\Http\Controllers\DocumentationController::class, 'editOperator'])->name('documentation.operators.edit');
+    Route::put('/documentation/operators/{id}', [\App\Http\Controllers\DocumentationController::class, 'updateOperator'])->name('documentation.operators.update');
+
     Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
 
     // APT Module
