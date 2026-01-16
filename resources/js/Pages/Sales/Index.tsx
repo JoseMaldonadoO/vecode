@@ -133,7 +133,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-[#1e1b4b]">
+                                        <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                             <tr>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Folio</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Orden Venta (OV)</th>
