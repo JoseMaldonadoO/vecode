@@ -214,6 +214,7 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                         onChange={e => setData('docking_date', e.target.value)}
                                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                     {errors.docking_date && <p className="text-red-500 text-xs mt-1">{errors.docking_date}</p>}
                                 </div>
                                 <div>
@@ -224,6 +225,7 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                         onChange={e => setData('docking_time', e.target.value)}
                                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                     {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
                                 </div>
                             </div>

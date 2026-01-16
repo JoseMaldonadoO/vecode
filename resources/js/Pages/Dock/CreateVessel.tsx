@@ -221,6 +221,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         onChange={e => setData('docking_date', e.target.value)}
                                         className="w-full mt-1"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">Opcional (Llenar al atracar)</p>
                                     {errors.docking_date && <p className="text-red-500 text-xs mt-1">{errors.docking_date}</p>}
                                 </div>
                                 <div>
@@ -231,6 +232,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         onChange={e => setData('docking_time', e.target.value)}
                                         className="w-full mt-1"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                     {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
                                 </div>
                             </div>
