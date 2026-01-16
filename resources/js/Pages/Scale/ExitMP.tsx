@@ -190,11 +190,21 @@ export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any
                     {/* LEFT: Scale */}
                     <div className="lg:col-span-4 space-y-6">
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                            <div className="bg-gray-900 p-6 text-center">
+                            <div className="bg-gray-900 p-6 text-center relative">
                                 <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">Peso Bruto (Salida)</h2>
                                 <div className="text-6xl font-mono font-bold text-[#39ff33] tracking-tighter">
                                     {weight > 0 ? weight : '0.00'} <span className="text-2xl text-gray-500">kg</span>
                                 </div>
+                                {auth.user?.roles?.some((r: string) => r.toLowerCase().includes('admin')) && (
+                                    <div className="mt-2 flex justify-center">
+                                        <input
+                                            type="number"
+                                            className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm"
+                                            placeholder="Manual Admin"
+                                            onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
+                                        />
+                                    </div>
+                                )}
                             </div>
                             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3">
                                 <button
