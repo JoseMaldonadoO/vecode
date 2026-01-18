@@ -111,7 +111,7 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                     {/* Responsive Content: Table for Desktop, Cards for Mobile */}
 
                     {/* Desktop View (Table) */}
-                    <div className="hidden md:block overflow-x-auto">
+                    <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-gray-600 text-sm uppercase font-bold">
                                 <tr>
@@ -162,7 +162,7 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                     </div>
 
                     {/* Mobile View (Cards) */}
-                    <div className="md:hidden p-4 space-y-4">
+                    <div className="lg:hidden p-4 space-y-4">
                         {pending_exit.length > 0 ? pending_exit.map((order) => (
                             <div key={order.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3">
                                 <div className="flex justify-between items-start">
