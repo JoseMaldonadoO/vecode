@@ -108,7 +108,10 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                         </span>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    {/* Responsive Content: Table for Desktop, Cards for Mobile */}
+
+                    {/* Desktop View (Table) */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-gray-600 text-sm uppercase font-bold">
                                 <tr>
@@ -156,6 +159,49 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile View (Cards) */}
+                    <div className="md:hidden p-4 space-y-4">
+                        {pending_exit.length > 0 ? pending_exit.map((order) => (
+                            <div key={order.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">Folio: {order.folio}</span>
+                                        <h3 className="font-bold text-gray-900 text-lg">{order.driver}</h3>
+                                        <p className="text-sm text-gray-500 font-mono">{order.plate}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-xs text-gray-400 uppercase">Peso Entrada</div>
+                                        <div className="font-mono font-bold text-gray-800">{order.tare_weight} kg</div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500">Producto:</span>
+                                        <span className="font-medium text-gray-800">{order.product}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm items-center">
+                                        <span className="text-gray-500">Ubicación:</span>
+                                        <span className={order.warehouse === 'N/A' ? 'text-amber-500 italic text-xs' : 'text-blue-600 font-bold text-xs'}>
+                                            {order.warehouse === 'N/A' ? 'Sin Asignar' : `${order.warehouse} - ${order.cubicle}`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <Link
+                                    href={route('scale.exit', order.id) + `?scale_id=${scaleId}`}
+                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                >
+                                    Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
+                                </Link>
+                            </div>
+                        )) : (
+                            <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                No hay unidades pendientes.
+                            </div>
+                        )}
                     </div>
                 </div>
 
