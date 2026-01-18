@@ -27,9 +27,21 @@ export default defineConfig({
                 icons: [
                     {
                         src: '/VECODE/images/Logo_vde.png',
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
+                    {
+                        src: '/VECODE/images/Logo_vde.png',
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
+                    {
+                        src: '/VECODE/images/Logo_vde.png',
                         sizes: 'any',
                         type: 'image/png',
-                        purpose: 'any maskable'
+                        purpose: 'maskable'
                     }
                 ]
             },
