@@ -129,7 +129,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                         vesselList.map((v: any) => (
                                             <tr key={v.id} className="hover:bg-gray-50 transition-colors">
                                                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{v.name} ({v.vessel_type})</td>
-                                                <td className="px-6 py-4 whitespace-nowrap">{v.eta}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{v.eta ? v.eta.substring(0, 10) : '--'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{v.docking_date}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{v.etc || '--'}</td>
                                                 <td className="px-6 py-4 whitespace-nowrap">{v.departure_date || '--'}</td>
