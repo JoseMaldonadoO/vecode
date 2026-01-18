@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-    base: '/vecode/build/',
+    base: '/VECODE/build/',
     plugins: [
         laravel({
             input: 'resources/js/app.tsx',
@@ -14,7 +14,7 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             outDir: 'public/build',
-            base: '/vecode/build/',
+            base: '/VECODE/build/',
             manifest: {
                 name: 'VECODE Platform',
                 short_name: 'VECODE',
@@ -22,23 +22,23 @@ export default defineConfig({
                 theme_color: '#1e1b4b',
                 background_color: '#0f172a',
                 display: 'standalone',
-                scope: '/vecode/',
-                start_url: '/vecode/dashboard',
+                scope: '/VECODE/',
+                start_url: '/VECODE/dashboard',
                 icons: [
                     {
-                        src: '/vecode/images/Logo_vde.png',
+                        src: '/VECODE/images/Logo_vde.png',
                         sizes: '192x192',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/vecode/images/Logo_vde.png',
+                        src: '/VECODE/images/Logo_vde.png',
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/vecode/images/Logo_vde.png',
+                        src: '/VECODE/images/Logo_vde.png',
                         sizes: 'any',
                         type: 'image/png',
                         purpose: 'maskable'
