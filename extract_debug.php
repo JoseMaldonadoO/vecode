@@ -64,6 +64,27 @@ if ($res === TRUE) {
        logMsg("Manifest timestamp: " . date("Y-m-d H:i:s", filemtime('public/build/manifest.webmanifest')));
     }
 
+    // 6. LIMPIEZA DE CACHÉ LARAVEL (CRITICO PARA ACTUALIZACION UI)
+    logMsg("Intentando limpiar caché de Laravel...");
+    try {
+        if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+            require __DIR__ . '/vendor/autoload.php';
+            $app = require_once __DIR__ . '/bootstrap/app.php';
+            $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+            $kernel->bootstrap();
+
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            logMsg("✅ View Clear: " . trim(\Illuminate\Support\Facades\Artisan::output()));
+            
+            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            logMsg("✅ Optimize Clear: " . trim(\Illuminate\Support\Facades\Artisan::output()));
+        } else {
+            logMsg("⚠️ No se encontró vendor/autoload.php. Omitiendo limpieza de caché.");
+        }
+    } catch (Exception $e) {
+        logMsg("❌ Error al limpiar caché: " . $e->getMessage());
+    }
+
     logMsg("Auto-eliminando ZIP...");
     if(unlink($zipFile)) {
         logMsg("ZIP eliminado.");
