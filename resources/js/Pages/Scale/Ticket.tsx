@@ -206,7 +206,7 @@ export default function Ticket({ ticket }: TicketProps) {
 
     const handleBack = () => {
         // Redirect back using window.location or Inertia router
-        window.location.href = '/scale';
+        window.location.href = route('scale.index');
     };
 
     return (
