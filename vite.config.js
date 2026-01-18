@@ -34,8 +34,11 @@ export default defineConfig({
                 ]
             },
             workbox: {
-                maximumFileSizeToCacheInBytes: 5000000, // Increase limit for large asset chunks
-                navigateFallback: null // Disable fallback since Laravel handles routing
+                maximumFileSizeToCacheInBytes: 5000000,
+                navigateFallback: null,
+                skipWaiting: true,
+                clientsClaim: true,
+                cleanupOutdatedCaches: true
             }
         })
     ],
