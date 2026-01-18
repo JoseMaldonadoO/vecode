@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Ship, Anchor, Calendar, Clock, ArrowRight, Wind, AlertTriangle, CheckCircle, Droplets } from 'lucide-react';
+import { Ship, Anchor, Calendar, Clock, ArrowRight, Wind, AlertTriangle, CheckCircle, Droplets, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { Card as TremorCard, Title, Text, Metric, Flex, ProgressBar, Tracker, Color } from "@tremor/react";
@@ -158,6 +158,12 @@ export default function Status({ auth, active_vessels, arrivals }: { auth: any, 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
+                        <div className="mb-4">
+                            <Link href={route('dock.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                                <ArrowLeft className="w-4 h-4 mr-1" />
+                                Volver al menú
+                            </Link>
+                        </div>
                         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Operación Marítima</h1>
                         <p className="text-slate-500 mt-1 flex items-center gap-2">
                             <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
