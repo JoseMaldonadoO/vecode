@@ -73,6 +73,23 @@ if ($res === TRUE) {
             $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
             $kernel->bootstrap();
 
+            // REPARAR ESTRUCTURA DE DIRECTORIOS (Prevent 'View path not found')
+            $storagePaths = [
+                __DIR__ . '/storage/framework/views',
+                __DIR__ . '/storage/framework/cache',
+                __DIR__ . '/storage/framework/sessions',
+                __DIR__ . '/storage/logs',
+                __DIR__ . '/bootstrap/cache',
+            ];
+
+            foreach ($storagePaths as $path) {
+                if (!file_exists($path)) {
+                    mkdir($path, 0755, true);
+                    logMsg("Directorio creado: $path");
+                }
+                chmod($path, 0755); // Asegurar permisos escribibles
+            }
+
             \Illuminate\Support\Facades\Artisan::call('view:clear');
             logMsg("✅ View Clear: " . trim(\Illuminate\Support\Facades\Artisan::output()));
             
