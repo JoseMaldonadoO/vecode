@@ -362,11 +362,73 @@ class WeightTicketController extends Controller
                 ]);
             });
 
-            return redirect()->route('scale.index')->with('success', 'Salida registrada correctamente.');
+
+            return redirect()->route('scale.ticket.print', ['id' => $validated['shipment_order_id']])->with('success', 'Salida registrada correctamente.');
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Scale Exit Error: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Error al registrar salida: ' . $e->getMessage()]);
         }
+    }
+
+    public function printTicket($id)
+    {
+        $order = ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel'])
+            ->findOrFail($id);
+        
+        $ticket = $order->weight_ticket;
+
+        if (!$ticket) {
+            return redirect()->route('scale.index')->withErrors(['error' => 'Esta orden no tiene ticket generado.']);
+        }
+
+        // Format dates
+        $entryDate = $transactionEntryDate = \Carbon\Carbon::parse($ticket->weigh_in_at ?? $order->entry_at);
+        $exitDate = \Carbon\Carbon::parse($ticket->weigh_out_at ?? now());
+
+        $data = [
+            'folio' => $order->folio,
+            'ticket_number' => $ticket->ticket_number,
+            'date' => $exitDate->format('d/m/Y'),
+            'time' => $exitDate->format('H:i:s'),
+            
+            'reference' => $order->reference ?? 'N/A',
+            'operation' => 'SALIDA', // Assuming always exit for generated ticket
+            'scale_number' => $ticket->scale_id ?? 2, // Default or fetch
+            
+            'product' => $order->product->name ?? 'N/A',
+            'presentation' => $order->product->presentation ?? 'GRANEL', // Fallback
+            
+            // Weights
+            'entry_weight' => $ticket->tare_weight, // stored as tare (1st weight)
+            'exit_weight' => $ticket->gross_weight, // stored as gross (2nd weight)
+            'gross_weight' => max($ticket->tare_weight, $ticket->gross_weight), // Real Bruto is the biggest
+            'tare_weight' => min($ticket->tare_weight, $ticket->gross_weight),  // Real Tara is the smallest
+            'net_weight' => $ticket->net_weight,
+
+            'client' => $order->client->name ?? 'N/A',
+            'sale_order' => $order->sale_order ?? $order->folio, // Fallback to Folio if no OV
+            'withdrawal_letter' => $order->withdrawal_letter ?? 'N/A', // CP
+            
+            'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
+            'tractor_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
+            'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
+            
+            'destination' => $order->destination_address ?? 'N/A',
+            'transporter' => $order->transport_company ?? $order->transporter->name ?? 'N/A',
+            'consignee' => $order->consignee ?? 'N/A',
+            
+            'observations' => $order->observation ?? $order->vessel->name ?? '', // Add vessel name as partial observation if useful
+            
+            'entry_at' => $entryDate->format('d/m/Y H:i'),
+            'exit_at' => $exitDate->format('d/m/Y H:i'),
+            
+            'weighmaster' => auth()->user()->name ?? 'BASCULA',
+            'documenter' => 'DOCUMENTACIÓN', // Placeholder
+        ];
+
+        return Inertia::render('Scale/Ticket', [
+            'ticket' => $data
+        ]);
     }
 }

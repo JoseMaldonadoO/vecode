@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scale/search-qr', [\App\Http\Controllers\WeightTicketController::class, 'searchQr'])->name('scale.search-qr');
     Route::post('/scale/entry', [\App\Http\Controllers\WeightTicketController::class, 'storeEntry'])->name('scale.entry.store');
     Route::post('/scale/exit', [\App\Http\Controllers\WeightTicketController::class, 'storeExit'])->name('scale.exit.store');
+    Route::get('/scale/ticket/{id}', [\App\Http\Controllers\WeightTicketController::class, 'printTicket'])->name('scale.ticket.print');
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
 
     // Documentation Module
