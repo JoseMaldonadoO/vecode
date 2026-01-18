@@ -54,7 +54,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /domains/ceetpower.com/public_html/VECODE/
+          server-dir: /domains/ceetpower.com/public_html/vecode/
           local-dir: ./delivery/
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
@@ -62,9 +62,9 @@ jobs:
       - name: 🚀 Extract and Fix permissions
         run: |
           echo "Ejecutando extract_debug.php..."
-          curl -v --max-time 60 https://ceetpower.com/VECODE/extract_debug.php
+          curl -v --max-time 60 https://ceetpower.com/vecode/extract_debug.php
           echo "Ejecutando fix_perms.php..."
-          curl -v --max-time 30 https://ceetpower.com/VECODE/fix_perms.php
+          curl -v --max-time 30 https://ceetpower.com/vecode/fix_perms.php
           echo "Ejecutando migraciones..."
-          curl -v --max-time 60 https://ceetpower.com/VECODE/migrate.php
-          echo "Despliegue completado (Debug Mode)."
+          curl -v --max-time 60 https://ceetpower.com/vecode/migrate.php
+          echo "Despliegue completado (Lowercase Target)."
