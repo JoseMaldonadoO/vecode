@@ -108,7 +108,10 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        {/* Responsive Content: Table for Desktop, Cards for Mobile */}
+
+                        {/* Desktop View (Table) */}
+                        <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left text-sm text-gray-600">
                                 <thead className="bg-gray-50 text-gray-900 font-semibold">
                                     <tr>
@@ -161,6 +164,60 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Mobile View (Cards) */}
+                        <div className="md:hidden p-4 space-y-4">
+                            {vesselList && vesselList.length > 0 ? (
+                                vesselList.map((v: any) => (
+                                    <div key={v.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1">
+                                                <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider block mb-1">{v.vessel_type}</span>
+                                                <h3 className="font-bold text-gray-900 text-lg flex items-center pr-2">
+                                                    <Ship className="w-4 h-4 mr-2 text-gray-400" />
+                                                    {v.name}
+                                                </h3>
+                                            </div>
+                                            <Link
+                                                href={route('dock.vessel.edit', v.id)}
+                                                className="text-indigo-600 hover:text-indigo-800 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md"
+                                            >
+                                                Editar
+                                            </Link>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3 text-sm border-t border-gray-200 pt-3">
+                                            <div>
+                                                <span className="block text-gray-500 text-xs uppercase">ETA</span>
+                                                <span className="font-medium">{v.eta}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-gray-500 text-xs uppercase">ETB</span>
+                                                <span className="font-medium">{v.docking_date}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-3 rounded-lg border border-gray-100">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="text-xs text-gray-500 uppercase font-bold">Operación</span>
+                                                <span className={`text-sm font-bold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
+                                                    {v.operation_type}
+                                                </span>
+                                            </div>
+                                            {v.operation_type === 'Descarga' && v.product && (
+                                                <div className="text-xs text-gray-600">
+                                                    {v.product.name} • <span className="font-mono">{v.programmed_tonnage} Ton</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                    No hay barcos registrados.
+                                </div>
+                            )}
                         </div>
 
                         {/* Pagination Component */}

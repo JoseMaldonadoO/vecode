@@ -54,7 +54,7 @@ export function Sidebar({ className }: SidebarProps) {
     // Correction: I should probably just show links if the user has permission.
 
     return (
-        <div className={cn("pb-12 min-h-screen border-r border-slate-800 bg-gradient-to-b from-slate-900 via-slate-900 to-black text-white shadow-2xl", className)}>
+        <div className={cn("pb-12 min-h-screen border-r border-slate-800 bg-gradient-to-b from-slate-900 via-slate-900 to-black text-white shadow-2xl overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent h-screen fixed w-64", className)}>
             <div className="space-y-8 py-6">
                 <div className="px-6 flex flex-col items-center">
                     <Link href={`${baseUrl}/dashboard`} className="mb-4 flex items-center justify-center transition-transform hover:scale-105">

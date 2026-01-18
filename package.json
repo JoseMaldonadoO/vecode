@@ -25,7 +25,8 @@
         "tailwindcss": "^3.2.1",
         "tailwindcss-animate": "^1.0.7",
         "typescript": "^5.0.2",
-        "vite": "^7.0.7"
+        "vite": "^7.0.7",
+        "vite-plugin-pwa": "^0.20.0"
     },
     "dependencies": {
         "@tanstack/react-table": "^8.21.3",
