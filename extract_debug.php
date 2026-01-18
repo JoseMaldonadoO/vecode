@@ -67,6 +67,15 @@ if ($res === TRUE) {
     // 6. LIMPIEZA DE CACHÉ LARAVEL (CRITICO PARA ACTUALIZACION UI)
     logMsg("Intentando limpiar caché de Laravel...");
     try {
+        // NUKE MANUAL DE CACHÉ DE BOOTSTRAP (Vital si config.php tiene rutas viejas)
+        $bootstrapCache = glob(__DIR__ . '/bootstrap/cache/*.php');
+        foreach ($bootstrapCache as $file) {
+            if(is_file($file)) {
+                unlink($file);
+                logMsg("🗑️ Cache eliminado: " . basename($file));
+            }
+        }
+
         if (file_exists(__DIR__ . '/vendor/autoload.php')) {
             require __DIR__ . '/vendor/autoload.php';
             $app = require_once __DIR__ . '/bootstrap/app.php';

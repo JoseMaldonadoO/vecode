@@ -104,7 +104,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                         <div className="overflow-hidden">
                             <p className="text-sm font-bold text-white truncate">{user?.name}</p>
                             <p className="text-xs text-slate-400 truncate capitalize">
-                                {roles[0] || 'Operador'} • <span className="text-pink-400">v2.6 (Storage Fix)</span>
+                                {roles[0] || 'Operador'} • <span className="text-purple-400">v2.7 (Config Nuke)</span>
                             </p>
                         </div>
                     </div>
