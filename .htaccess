@@ -1,16 +1,24 @@
 <IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
     RewriteEngine On
-    RewriteBase /VECODE/
 
-    # 1. Rewrite requests for missing assets to the /public folder
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_URI} !^/VECODE/public/
-    RewriteCond %{DOCUMENT_ROOT}/VECODE/public/$1 -f [OR]
-    RewriteCond %{DOCUMENT_ROOT}/domains/ceetpower.com/public_html/VECODE/public/$1 -f
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # 2. Rewrite all other missing paths to the root index.php
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_URI} !(\.css|\.js|\.png|\.jpg|\.gif|robots\.txt)$ [NC]
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
