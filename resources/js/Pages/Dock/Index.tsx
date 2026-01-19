@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Users, Ship, Filter, X } from 'lucide-react';
+import { Users, Ship, Filter, X, List } from 'lucide-react';
 import Pagination from '@/Components/Pagination';
 import { useState } from 'react';
 import { pickBy } from 'lodash';
@@ -11,6 +11,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
         start_date: filters.start_date || '',
         end_date: filters.end_date || '',
     });
+    const [showVessels, setShowVessels] = useState(false); // Mobile: toggle vessels list
 
     const handleSearch = () => {
         router.get(route('dock.index'), pickBy(params), { preserveState: true, preserveScroll: true });
@@ -59,10 +60,24 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                 Dashboard en vivo de operación marítima (ECO/WHISKY).
                             </p>
                         </Link>
+
+                        {/* Mobile-only: Button to show/hide vessels list */}
+                        <button
+                            onClick={() => setShowVessels(!showVessels)}
+                            className="lg:hidden group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl hover:border-teal-500"
+                        >
+                            <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 text-teal-600">
+                                <List className="w-10 h-10" />
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 break-words w-full">Ver Barcos Activos</h3>
+                            <p className="text-gray-500 mt-2 text-sm">
+                                {vesselList.length} barcos registrados
+                            </p>
+                        </button>
                     </div>
 
-                    {/* Filters & Active Vessels Table */}
-                    <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                    {/* Filters & Active Vessels Table - Always visible on desktop, collapsible on mobile */}
+                    <div className={`bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden ${showVessels ? 'block' : 'hidden'} lg:block`}>
                         <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                             <h3 className="text-lg font-bold text-gray-900 flex items-center">
                                 <Ship className="w-5 h-5 mr-2 text-indigo-600" />
