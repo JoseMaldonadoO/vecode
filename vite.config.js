@@ -19,6 +19,7 @@ export default defineConfig({
                 name: 'VECODE Platform',
                 short_name: 'VECODE',
                 description: 'Sistema Integral de Logística Pro-Agroindustria',
+                version: '1.0.1', // Cache bust - mobile improvements
                 theme_color: '#1e1b4b',
                 background_color: '#0f172a',
                 display: 'standalone',
