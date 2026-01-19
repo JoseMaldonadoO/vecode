@@ -63,3 +63,16 @@ git merge main                 # Mezclas sus cambios en TU rama
 | **Guardar** | `git commit -m "Cambios"` |
 | **Subir** | `git push origin feature/nueva-tarea` |
 | **Actualizar mi rama** | `git pull origin main` (estando en main) -> `git merge main` (en tu rama) |
+
+---
+
+## 🧪 Verificación de Despliegue
+
+**Timestamp de última modificación**: 2026-01-19 11:25 CST
+
+✅ Si puedes ver esta sección en el servidor de producción, significa que:
+- El archivo `release.zip` se está creando correctamente
+- El archivo `extract.php` está funcionando
+- Los archivos se están extrayendo exitosamente en `/VECODE/`
+
+**Workflow ejecutado**: #261 (fix: Corregir ruta de eliminación del archivo de estado FTP)
