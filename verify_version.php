@@ -23,12 +23,19 @@ if (file_exists($file)) {
 
 echo "<hr>";
 echo "<h3>Verificación de Assets (Vite)</h3>";
-$manifestPath = __DIR__ . '/public/build/manifest.json';
-if (file_exists($manifestPath)) {
-    echo "<p>✅ manifest.json encontrado.</p>";
-    $manifest = json_decode(file_get_contents($manifestPath), true);
-    echo "<pre>" . print_r($manifest, true) . "</pre>";
+$buildDir = __DIR__ . '/public/build';
+
+if (is_dir($buildDir)) {
+    echo "<p>✅ Directorio public/build encontrado.</p>";
+    $files = scandir($buildDir);
+    echo "<ul>";
+    foreach ($files as $f) {
+        if ($f != "." && $f != "..") {
+            echo "<li>$f (" . filesize($buildDir . '/' . $f) . " bytes)</li>";
+        }
+    }
+    echo "</ul>";
 } else {
-    echo "<p>❌ No se encuentra public/build/manifest.json</p>";
+    echo "<p>❌ No se encuentra el directorio public/build</p>";
 }
 ?>
