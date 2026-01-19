@@ -12,8 +12,8 @@ const VesselCard = ({ vessel, side }: { vessel: any, side: 'ECO' | 'WHISKY' }) =
 
     return (
         <div className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 ${isOccupied
-                ? 'border-blue-500 bg-gradient-to-br from-slate-900 to-blue-900 shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)]'
-                : 'border-slate-200 bg-slate-50 border-dashed opacity-70 hover:opacity-100 hover:border-slate-300'
+            ? 'border-blue-500 bg-gradient-to-br from-slate-900 to-blue-900 shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)]'
+            : 'border-slate-200 bg-slate-50 border-dashed opacity-70 hover:opacity-100 hover:border-slate-300'
             } p-6 h-full flex flex-col justify-between group`}>
 
             {/* Background Animation for Occupied */}
@@ -94,7 +94,8 @@ const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => (
             <CardDescription>Programación estimada de buques</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full text-sm text-left">
                     <thead className="bg-slate-100 text-slate-600 uppercase text-xs font-bold">
                         <tr>
@@ -141,6 +142,51 @@ const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => (
                     </tbody>
                 </table>
             </div>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden p-4 space-y-4">
+                {arrivals.map((arrival, idx) => (
+                    <div key={idx} className="bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                    {arrival.type}
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900">{arrival.name}</h4>
+                                    <Badge variant="outline" className="text-xs border-indigo-200 text-indigo-600 bg-indigo-50 mt-1">
+                                        {arrival.dock}
+                                    </Badge>
+                                </div>
+                            </div>
+                            {arrival.is_anchored ? (
+                                <Badge className="bg-amber-500 text-xs"><Anchor className="w-3 h-3" /></Badge>
+                            ) : (
+                                <Badge className="bg-slate-200 text-slate-600 text-xs">Prog.</Badge>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 text-sm mb-3 bg-slate-50 p-3 rounded-lg">
+                            <div>
+                                <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">ETA</p>
+                                <p className="font-mono text-slate-700">{arrival.eta}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">ETB</p>
+                                <p className="font-mono text-indigo-600 font-bold">{arrival.etb}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-end">
+                            <div>
+                                <p className="text-sm font-medium text-slate-800">{arrival.operation_type}</p>
+                                <p className="text-xs text-slate-500">{arrival.product}</p>
+                            </div>
+                            <span className="text-xs font-bold text-slate-400">{arrival.est_stay} Días Est.</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </CardContent>
     </Card>
 );
@@ -175,7 +221,7 @@ export default function Status({ auth, active_vessels, arrivals }: { auth: any, 
                 </div>
 
                 {/* Main Visual: The Docks */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <VesselCard vessel={ecoVessel} side="ECO" />
                     <VesselCard vessel={whiskyVessel} side="WHISKY" />
                 </div>

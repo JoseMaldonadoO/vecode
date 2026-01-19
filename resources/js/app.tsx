@@ -7,13 +7,18 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 
 // Register PWA Service Worker
+// Register PWA Service Worker with Auto-Update
 const updateSW = registerSW({
-    onNeedRefresh() {
-        if (confirm('Nueva versión disponible. ¿Recargar?')) {
-            updateSW(true);
-        }
+    immediate: true,
+    onRegisterError(error) {
+        console.error('SW registration error', error);
     },
 });
+
+// Poll for updates every 2 minutes
+setInterval(() => {
+    updateSW(true);
+}, 2 * 60 * 1000);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
