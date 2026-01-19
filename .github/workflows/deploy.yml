@@ -47,6 +47,8 @@ jobs:
           cp debug_final.php delivery/
           cp migrate.php delivery/
           cp .htaccess delivery/
+          # Touch files to ensure they're always uploaded
+          touch delivery/extract.php delivery/fix_perms.php delivery/migrate.php
 
       - name: 📂 Sync release (Zip & Script)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
