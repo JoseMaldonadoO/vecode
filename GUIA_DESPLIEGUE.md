@@ -67,3 +67,18 @@ Como Hostinger compartido a veces no permite SSH, puedes crear el enlace simból
 
 - Los archivos `.htaccess` ya están configurados para que la aplicación funcione desde `/vecode`.
 - Cada vez que hagas `push` a la rama `main`, GitHub Actions compilará los assets de Vite y subirá los cambios automáticamente.
+
+---
+
+## 🧪 Verificación de Despliegue
+
+**Última actualización de prueba:** 2026-01-19 10:46 CST
+
+> [!TIP]
+> Si puedes ver esta sección en el servidor de producción, significa que el despliegue automático está funcionando correctamente. Cada cambio a `main` debería reflejarse automáticamente en `https://ceetpower.com/vecode/`.
+
+### Checklist de Verificación:
+- [ ] Los archivos se suben correctamente vía FTP
+- [ ] Los cambios en archivos markdown se reflejan en producción
+- [ ] Los assets compilados de Vite se despliegan correctamente
+- [ ] Las rutas y configuraciones funcionan en el subdirectorio `/vecode`
