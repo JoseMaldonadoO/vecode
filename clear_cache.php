@@ -1,37 +1,41 @@
 <?php
-// clear_cache.php - Clear Laravel caches via web request
+echo "<h2>🧹 Limpieza Manual de Caché</h2>";
 
-define('LARAVEL_START', microtime(true));
+function clearFolder($path)
+{
+    if (!is_dir($path)) {
+        echo "❌ Carpeta no encontrada: $path<br>";
+        return;
+    }
 
-require __DIR__ . '/vendor/autoload.php';
-
-$app = require_once __DIR__ . '/bootstrap/app.php';
-
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-
-$kernel->bootstrap();
-
-echo "<h1>Clearing Application Cache...</h1>";
-
-echo "<pre>";
-
-try {
-    echo "Running optimize:clear...\n";
-    \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-    echo \Illuminate\Support\Facades\Artisan::output();
-
-    echo "\nRunning config:clear...\n";
-    \Illuminate\Support\Facades\Artisan::call('config:clear');
-    echo \Illuminate\Support\Facades\Artisan::output();
-
-    echo "\nRunning cache:clear...\n";
-    \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    echo \Illuminate\Support\Facades\Artisan::output();
-
-    echo "</pre>";
-    echo "<h2 style='color: green;'>Cache Cleared Successfully!</h2>";
-
-} catch (\Exception $e) {
-    echo "</pre>";
-    echo "<h2 style='color: red;'>Error: " . $e->getMessage() . "</h2>";
+    $files = glob($path . '/*');
+    $count = 0;
+    foreach ($files as $file) {
+        if (is_file($file) && basename($file) !== '.gitignore') {
+            unlink($file);
+            $count++;
+        }
+    }
+    echo "✅ Limpiados $count archivos en: $path<br>";
 }
+
+$baseDir = __DIR__;
+
+// 1. Limpiar View Cache (CRÍTICO para ver cambios de Vite)
+clearFolder($baseDir . '/storage/framework/views');
+
+// 2. Limpiar Config Cache (Importante para cambios de .env o config)
+clearFolder($baseDir . '/bootstrap/cache');
+
+// 3. Intentar artisan vía exec como respaldo
+echo "<hr>";
+echo "Intentando 'php artisan optimize:clear' via exec...<br>";
+try {
+    $output = shell_exec('php artisan optimize:clear 2>&1');
+    echo "<pre>$output</pre>";
+} catch (Exception $e) {
+    echo "Exec falló: " . $e->getMessage();
+}
+
+echo "<h3>🎉 Proceso finalizado. Por favor recarga tu aplicación ahora.</h3>";
+?>
