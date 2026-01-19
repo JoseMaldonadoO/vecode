@@ -1,13 +1,10 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, useForm, router } from '@inertiajs/react';
+import { Head, useForm, router, Link } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import { QrCode, ArrowLeft, Save, Search, Scan, Camera, X, AlertTriangle, CheckCircle, Warehouse, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { QrReader } from 'react-qr-reader';
-import Modal from '@/Components/Modal'; // Assuming we have a Modal component, or if not I'll build a simple one inline or check for it. 
-// Checking imports actually... I don't see Modal imported in original file.
-// I'll stick to inline Tailwind modal for simplicity and robustness if I don't know the exact path of Modal (though likely '@/Components/Modal').
-// Let's use a simple inline overlay to be safe.
+import Modal from '@/Components/Modal';
 
 export default function Scanner({ auth, recentScans, occupiedWarehouses = [] }: { auth: any, recentScans: any[], occupiedWarehouses?: string[] }) {
     const [scanInput, setScanInput] = useState('');
@@ -123,6 +120,13 @@ export default function Scanner({ auth, recentScans, occupiedWarehouses = [] }: 
     return (
         <DashboardLayout user={auth.user} header="APT - Escáner y Asignación">
             <Head title="Escáner APT" />
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                    <ArrowLeft className="w-4 h-4 mr-1" />
+                    Volver al menú
+                </Link>
+            </div>
 
             {/* Edit Modal */}
             {editingScan && (
