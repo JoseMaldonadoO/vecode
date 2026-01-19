@@ -22,20 +22,31 @@ if (file_exists($file)) {
 }
 
 echo "<hr>";
-echo "<h3>Verificación de Assets (Vite)</h3>";
-$buildDir = __DIR__ . '/public/build';
+echo "<h3>Diagnóstico de Assets (Vite)</h3>";
+$manifestPath = __DIR__ . '/public/build/manifest.json';
 
-if (is_dir($buildDir)) {
-    echo "<p>✅ Directorio public/build encontrado.</p>";
-    $files = scandir($buildDir);
-    echo "<ul>";
-    foreach ($files as $f) {
-        if ($f != "." && $f != "..") {
-            echo "<li>$f (" . filesize($buildDir . '/' . $f) . " bytes)</li>";
+if (file_exists($manifestPath)) {
+    $manifest = json_decode(file_get_contents($manifestPath), true);
+    $dockKey = 'resources/js/Pages/Dock/Index.tsx';
+
+    if (isset($manifest[$dockKey])) {
+        $entry = $manifest[$dockKey];
+        $file = $entry['file'];
+        echo "<p>✅ Mapping encontrado para Dock/Index:</p>";
+        echo "<ul>";
+        echo "<li><b>Archivo esperado:</b> $file</li>";
+        echo "<li><b>Ruta completa:</b> public/build/$file</li>";
+
+        if (file_exists(__DIR__ . "/public/build/$file")) {
+            echo "<li>✅ <b>El archivo existe físico en el servidor.</b> (" . filesize(__DIR__ . "/public/build/$file") . " bytes)</li>";
+        } else {
+            echo "<li>❌ <b>EL ARCHIVO NO EXISTE FÍSICAMENTE.</b> (Posible error de extracción)</li>";
         }
+        echo "</ul>";
+    } else {
+        echo "<p>❌ No se encontró entrada para $dockKey en manifest.json</p>";
     }
-    echo "</ul>";
 } else {
-    echo "<p>❌ No se encuentra el directorio public/build</p>";
+    echo "<p>❌ No se encuentra public/build/manifest.json</p>";
 }
 ?>
