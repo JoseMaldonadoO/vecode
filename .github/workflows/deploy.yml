@@ -47,8 +47,8 @@ jobs:
           cp debug_final.php delivery/
           cp migrate.php delivery/
           cp .htaccess delivery/
-          # Delete state file to force full upload
-          rm -f .ftp-deploy-zip-state.json
+          # Delete state file from delivery directory to force full upload
+          rm -f delivery/.ftp-deploy-zip-state.json
 
       - name: 📂 Sync release (Zip & Script)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
