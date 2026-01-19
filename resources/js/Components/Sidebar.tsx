@@ -2,9 +2,11 @@ import { Link, usePage } from '@inertiajs/react';
 import { LayoutDashboard, Truck, Scale, Users, Settings, Package, ClipboardList, LogOut, Box, FileText, Anchor, Search, Ship } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+    isMobile?: boolean; // Add isMobile prop
+}
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className, isMobile = false }: SidebarProps) {
     const { url, props } = usePage();
     const baseUrl = (props.base_url as string) || '';
 
@@ -39,22 +41,14 @@ export function Sidebar({ className }: SidebarProps) {
         return false;
     });
 
-    // Fix for Traffic: If no permission required, show it? Or assume Admin? 
-    // The user requirement said: "Vigilancia Supervisor (Ve todo módulo Vigilancia)", etc.
-    // It didn't explicitly restrict Traffic. I should probably add 'view traffic' to Seeder or make it accessible to all authenticated for now if not specified.
-    // But RBAC implies restrictions. I will add 'view traffic' logic but I need to make sure Seeder has it if I use it.
-    // Actually, I'll update Seeder later if needed. For now, I'll filter based on available permissions.
-    // Let's stick to the requested list.
-    // Wait, the user did NOT mention Traffic restrictions in "Roles Iniciales".
-    // "Muelle (Solo ve módulo Muelle)", "Documentador (Solo ve Documentación)", etc.
-    // This implies that if I have "Muelle" role, I should NOT see Traffic.
-    // So Traffic SHOULD be protected. I will assume Admin/Traffic role see it.
-    // Since I didn't create a Traffic role, I will hide it for now unless Admin.
-
-    // Correction: I should probably just show links if the user has permission.
-
+    // Fix: Remove fixed positioning when isMobile is true to let parent drawer handle layout
     return (
-        <div className={cn("pb-12 min-h-screen border-r border-slate-800 bg-gradient-to-b from-slate-900 via-slate-900 to-black text-white shadow-2xl overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent h-screen fixed w-64", className)}>
+        <div className={cn(
+            "pb-32 bg-gradient-to-b from-slate-900 via-slate-900 to-black text-white shadow-2xl overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent",
+            !isMobile && "min-h-screen border-r border-slate-800 h-[100dvh] fixed w-64 z-50",
+            isMobile && "h-full w-full",
+            className
+        )}>
             <div className="space-y-8 py-6">
                 <div className="px-6 flex flex-col items-center">
                     <Link href={`${baseUrl}/dashboard`} className="mb-4 flex items-center justify-center transition-transform hover:scale-105">
@@ -109,7 +103,9 @@ export function Sidebar({ className }: SidebarProps) {
                         </div>
                         <div className="overflow-hidden">
                             <p className="text-sm font-bold text-white truncate">{user?.name}</p>
-                            <p className="text-xs text-slate-400 truncate capitalize">{roles[0] || 'Operador'}</p>
+                            <p className="text-xs text-slate-400 truncate capitalize">
+                                {roles[0] || 'Operador'} • <span className="text-orange-400">v2.8 (Root Htaccess)</span>
+                            </p>
                         </div>
                     </div>
                 </div>

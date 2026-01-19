@@ -33,13 +33,13 @@ export default function DashboardLayout({ user, header, children }: PropsWithChi
                                 <X className="h-6 w-6" />
                             </button>
                         </div>
-                        <Sidebar className="border-none" />
+                        <Sidebar className="border-none" isMobile={true} />
                     </div>
                 </div>
             )}
 
             {/* Main Content */}
-            <main className="md:pl-64 flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out">
+            <main className="md:pl-64 flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out overflow-x-hidden">
                 {/* Top Header */}
                 <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
                     <div className="flex h-16 items-center px-6 justify-between">

@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Truck, Package, Scale, Activity, Printer, Database, Lock, ArrowRight, Warehouse, Settings, Check } from 'lucide-react';
+import { Truck, Package, Scale, Activity, Printer, Database, Lock, ArrowRight, Warehouse, Settings, Check, List } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Modal from '@/Components/Modal';
 import SecondaryButton from '@/Components/SecondaryButton';
@@ -8,10 +8,18 @@ import PrimaryButton from '@/Components/PrimaryButton';
 
 import Swal from 'sweetalert2';
 
+// TODO: Mobile UI/UX improvements
+// - [x] Analizar interfaces actuales de Báscula y Muelle
+// - [x] Identificar patrón de cards móviles existente
+// - [x] Implementar botón "Ver Pendientes" en Báscula (móvil)
+// - [ ] Implementar botón "Ver Barcos" en Muelle (móvil)
+// - [x] Hacer tablas colapsables en móvil (Báscula)
+
 export default function Index({ auth, pending_exit = [], flash }: { auth: any, pending_exit: any[], flash?: any }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
+    const [showRecords, setShowRecords] = useState(false); // Mobile: toggle records list
 
     useEffect(() => {
         const saved = localStorage.getItem('selected_scale_id');
@@ -91,10 +99,22 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                             </button>
                         );
                     })}
+
+                    {/* Mobile-only: Button to show/hide pending records */}
+                    <button
+                        onClick={() => setShowRecords(!showRecords)}
+                        className="lg:hidden group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-green-500 w-full"
+                    >
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 bg-green-50 text-green-600">
+                            <List className="w-8 h-8" />
+                        </div>
+                        <h3 className="font-bold text-gray-800">Ver Pendientes</h3>
+                        <span className="text-xs text-gray-500 mt-1">{pending_exit.length} unidades</span>
+                    </button>
                 </div>
 
-                {/* Pending Exit List */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Pending Exit List - Always visible on desktop, collapsible on mobile */}
+                <div className={`bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden ${showRecords ? 'block' : 'hidden'} lg:block`}>
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                         <div>
                             <h2 className="text-xl font-bold text-gray-800 flex items-center">
@@ -111,7 +131,7 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                     {/* Responsive Content: Table for Desktop, Cards for Mobile */}
 
                     {/* Desktop View (Table) */}
-                    <div className="hidden md:block overflow-x-auto">
+                    <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-gray-600 text-sm uppercase font-bold">
                                 <tr>
@@ -162,7 +182,7 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
                     </div>
 
                     {/* Mobile View (Cards) */}
-                    <div className="md:hidden p-4 space-y-4">
+                    <div className="lg:hidden p-4 space-y-4">
                         {pending_exit.length > 0 ? pending_exit.map((order) => (
                             <div key={order.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3">
                                 <div className="flex justify-between items-start">

@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head } from '@inertiajs/react'; // Link removed as unused
-import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft } from 'lucide-react';
 
 // --- Unicorn Components ---
 
@@ -11,7 +11,7 @@ const WarehouseCard = ({ wh }: { wh: any }) => {
     return (
         <div className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 group h-full
             ${isOccupied
-                ? 'border-indigo-500 bg-gradient-to-br from-indigo-900 to-slate-900 shadow-[0_0_30px_-5px_rgba(99,102,241,0.4)]'
+                ? 'border-indigo-500 bg-gradient-to-br from-indigo-900 to-slate-900 shadow-[0_0_30px_-1px_rgba(99,102,241,0.4)]'
                 : 'border-slate-200 bg-white/50 border-dashed hover:border-indigo-300 hover:bg-white'
             }`}>
 
@@ -184,6 +184,12 @@ export default function Status({ auth, warehouses }: { auth: any, warehouses: an
                 {/* Header Section */}
                 <div className="flex items-center justify-between">
                     <div>
+                        <div className="mb-4">
+                            <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                                <ArrowLeft className="w-4 h-4 mr-1" />
+                                Volver al menú
+                            </Link>
+                        </div>
                         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Estado de Almacenes</h1>
                         <p className="text-slate-500 mt-1">Visualización entiempo real de la ocupación en Terminal APT.</p>
                     </div>

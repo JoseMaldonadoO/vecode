@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VECODE">
-    <link rel="manifest" href="/VECODE/build/manifest.webmanifest">
+    <link rel="manifest" href="/vecode/build/manifest.webmanifest">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
