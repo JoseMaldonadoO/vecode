@@ -31,6 +31,10 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    {/* DEBUG BANNER */}
+                    <div className="bg-red-600 text-white p-4 text-center font-bold text-xl rounded-lg">
+                        DEBUG: V3 LOADED - IF YOU SEE THIS, UPDATE WORKED
+                    </div>
 
                     {viewMode === 'menu' ? (
                         /* Action Cards Menu */
