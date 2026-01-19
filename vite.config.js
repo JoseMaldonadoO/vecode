@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-    base: '/VECODE/build/',
+    base: '/vecode/build/',
     plugins: [
         laravel({
             input: 'resources/js/app.tsx',
@@ -14,31 +14,32 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             outDir: 'public/build',
-            base: '/VECODE/build/',
+            base: '/vecode/build/',
             manifest: {
                 name: 'VECODE Platform',
                 short_name: 'VECODE',
                 description: 'Sistema Integral de Logística Pro-Agroindustria',
+                version: '1.0.1', // Cache bust - mobile improvements
                 theme_color: '#1e1b4b',
                 background_color: '#0f172a',
                 display: 'standalone',
-                scope: '/VECODE/',
-                start_url: '/VECODE/dashboard',
+                scope: '/vecode/',
+                start_url: '/vecode/dashboard',
                 icons: [
                     {
-                        src: '/VECODE/images/Logo_vde.png',
+                        src: '/vecode/images/Logo_vde.png',
                         sizes: '192x192',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/VECODE/images/Logo_vde.png',
+                        src: '/vecode/images/Logo_vde.png',
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'any'
                     },
                     {
-                        src: '/VECODE/images/Logo_vde.png',
+                        src: '/vecode/images/Logo_vde.png',
                         sizes: 'any',
                         type: 'image/png',
                         purpose: 'maskable'

@@ -41,6 +41,7 @@ jobs:
           mkdir -p delivery
           zip -r delivery/release.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "GUIA_DESPLIEGUE.md" "delivery/*"
           cp extract.php delivery/
+          cp extract_debug.php delivery/
           cp index.php delivery/
           cp fix_perms.php delivery/
           cp debug_final.php delivery/
@@ -53,17 +54,17 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /domains/ceetpower.com/public_html/VECODE/
+          server-dir: /domains/ceetpower.com/public_html/vecode/
           local-dir: ./delivery/
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
 
       - name: 🚀 Extract and Fix permissions
         run: |
-          echo "Ejecutando extract.php..."
-          curl -s --max-time 30 https://ceetpower.com/VECODE/extract.php
+          echo "Ejecutando extract_debug.php..."
+          curl -v --max-time 60 https://ceetpower.com/vecode/extract_debug.php
           echo "Ejecutando fix_perms.php..."
-          curl -s --max-time 30 https://ceetpower.com/VECODE/fix_perms.php
+          curl -v --max-time 30 https://ceetpower.com/vecode/fix_perms.php
           echo "Ejecutando migraciones..."
-          curl -s --max-time 60 https://ceetpower.com/VECODE/migrate.php
-          echo "Despliegue optimizado y permisos corregidos."
+          curl -v --max-time 60 https://ceetpower.com/vecode/migrate.php
+          echo "Despliegue completado (Lowercase Target)."
