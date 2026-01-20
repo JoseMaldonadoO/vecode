@@ -139,8 +139,8 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     provider: res.provider,
                     product: res.product,
 
-                    reference: res.reference || '',
-                    origin: res.origin,
+                    origin: res.reference || '',
+                    reference: '',
                     transport_line: res.transport_line,
                     driver: res.driver,
                     vehicle_type: res.vehicle_type,
@@ -148,7 +148,7 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     trailer_plate: res.trailer_plate,
                     economic_number: res.economic_number,
 
-                    withdrawal_letter: res.suggested_withdrawal_letter || '',
+                    withdrawal_letter: '',
                     consignee: '',
                     destination: '',
                     bill_of_lading: '',
@@ -391,13 +391,12 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Referencia (Si Barco=N/A)</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Origen</label>
                                     <input
                                         type="text"
-                                        value={data.reference}
-                                        onChange={e => setData('reference', e.target.value)}
+                                        value={data.origin}
+                                        onChange={e => setData('origin', e.target.value)}
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                        placeholder="Ej. Orden de Venta"
                                     />
                                 </div>
                                 <div>
@@ -407,50 +406,22 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                         value={data.withdrawal_letter}
                                         onChange={e => setData('withdrawal_letter', e.target.value)}
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                        placeholder="Consecutivo..."
+                                        placeholder=""
                                     />
                                 </div>
                                 {/* Force Origin if needed */}
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Origen</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Referencia</label>
                                     <input
                                         type="text"
-                                        value={data.origin}
-                                        onChange={e => setData('origin', e.target.value)}
-                                        readOnly={!!orderDetails?.origin}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 bg-gray-50"
+                                        value={data.reference}
+                                        onChange={e => setData('reference', e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* 2. Destino */}
-                        <div className="p-8 border-b border-gray-100">
-                            <h4 className="text-indigo-800 font-bold mb-6 flex items-center bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                <MapPin className="w-5 h-5 mr-3" />
-                                Destino
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Consignado a (Cliente Manual)</label>
-                                    <input
-                                        type="text"
-                                        value={data.consignee}
-                                        onChange={e => setData('consignee', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Destino Final</label>
-                                    <input
-                                        type="text"
-                                        value={data.destination}
-                                        onChange={e => setData('destination', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
-                            </div>
-                        </div>
 
                         {/* 3. Transporte (Read Only mostly) */}
                         <div className="p-8 border-b border-gray-100">
