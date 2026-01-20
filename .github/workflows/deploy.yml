@@ -79,4 +79,4 @@ jobs:
           curl -v --max-time 30 https://pro-agroindustria.com/fix_perms.php
           echo "Ejecutando migraciones..."
           curl -v --max-time 60 https://pro-agroindustria.com/migrate.php
-          echo "Despliegue completado (Migration V3)."gidos."
+          echo "Despliegue completado (Migration V3)."
