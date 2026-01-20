@@ -272,8 +272,9 @@ class WeightTicketController extends Controller
                 // If no existing Order, create one (Vessel Entry Scenario)
                 if (!$orderId) {
                     // Generate Folio
-                    $count = ShipmentOrder::count() + 1;
-                    $folio = 'EMP-' . date('Ymd') . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+                    // Generate Folio (Reset sequence to numeric only starting at 0000)
+                    $numericCount = ShipmentOrder::where('folio', 'REGEXP', '^[0-9]+$')->count();
+                    $folio = str_pad($numericCount, 4, '0', STR_PAD_LEFT);
 
                     $order = ShipmentOrder::create([
                         'id' => (string) \Illuminate\Support\Str::uuid(),
@@ -446,7 +447,7 @@ class WeightTicketController extends Controller
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
             'consignee' => 'N/A',
 
-            'observations' => $order->observation ?? ($order->vessel->name ?? ''), // Add vessel name as partial observation if useful
+            'observations' => trim('DESCARGA DE BARCO ' . ($order->vessel->name ?? '') . ' ' . ($order->observation ?? '')),
 
             'entry_at' => $entryDate->format('d/m/Y H:i'),
             'exit_at' => $exitDate->format('d/m/Y H:i'),

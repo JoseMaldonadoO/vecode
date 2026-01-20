@@ -77,10 +77,8 @@ const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: bool
                     {/* Folio */}
                     <div className="flex-1 flex flex-col items-center justify-center p-1 border-b border-black">
                         <div className="text-[11px] font-bold uppercase">FOLIO</div>
-                        <div className="border-[2px] border-black px-2 py-0.5 mt-0.5 flex items-center font-bold">
-                            <span className="text-[16px]">No PRO</span>
-                            <span className="text-[20px] text-red-600 ml-2">{ticket.folio || ticket.ticket_number}</span>
-                            <span className="text-[16px] ml-2">B</span>
+                        <div className="border-[2px] border-black px-4 py-1 mt-1 flex items-center font-bold">
+                            <span className="text-[24px] text-red-600">{(ticket.folio || '').split('-').pop()}</span>
                         </div>
                     </div>
                     {/* Date */}
