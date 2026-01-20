@@ -135,6 +135,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
 
                             {/* Responsive Content: Table for Desktop, Cards for Mobile */}
 
+<<<<<<< HEAD
                             {/* Desktop View (Table) */}
                             <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left text-sm text-gray-600">
@@ -162,6 +163,39 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                         <div className="flex flex-col">
                                                             <span className={`font-semibold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
                                                                 {v.operation_type}
+=======
+                        {/* Desktop View (Table) */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full text-left text-sm text-gray-600">
+                                <thead className="bg-gray-50 text-gray-900 font-semibold">
+                                    <tr>
+                                        <th className="px-6 py-4 whitespace-nowrap">Buque</th>
+                                        <th className="px-6 py-4 whitespace-nowrap">ETA</th>
+                                        <th className="px-6 py-4 whitespace-nowrap">ETB</th>
+                                        <th className="px-6 py-4 whitespace-nowrap">ETC</th>
+                                        <th className="px-6 py-4 whitespace-nowrap">F. Salida</th>
+                                        <th className="px-6 py-4 whitespace-nowrap">Operación</th>
+                                        <th className="px-6 py-4 text-center whitespace-nowrap">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {vesselList && vesselList.length > 0 ? (
+                                        vesselList.map((v: any) => (
+                                            <tr key={v.id} className="hover:bg-gray-50 transition-colors">
+                                                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{v.name} ({v.vessel_type})</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{v.eta ? v.eta.substring(0, 10) : '--'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{v.docking_date}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{v.etc || '--'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{v.departure_date || '--'}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex flex-col">
+                                                        <span className={`font-semibold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
+                                                            {v.operation_type}
+                                                        </span>
+                                                        {v.operation_type === 'Descarga' && v.product && (
+                                                            <span className="text-xs text-gray-500 mt-1">
+                                                                {v.product.name} ({v.programmed_tonnage} Ton)
+>>>>>>> feature/admin-pagination
                                                             </span>
                                                             {v.operation_type === 'Descarga' && v.product && (
                                                                 <span className="text-xs text-gray-500 mt-1">
