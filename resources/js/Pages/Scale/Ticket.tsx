@@ -6,35 +6,37 @@ interface TicketData {
     ticket_number: string;
     date: string;
     time: string;
-    reference: string;
-    operation: string;
+    reference: string; // e.g., N/A
+    operation: string; // e.g., ENTRADA / SALIDA
     scale_number: number;
     product: string;
-    presentation: string;
-    client: string;
-    sale_order: string; // OV
-    withdrawal_letter: string; // Carta Porte / Retiro
+    presentation: string; // e.g., GRANEL
+    client: string; // Cliente o Proveedor
+    sale_order: string; // N/A
+    withdrawal_letter: string; // Carta Porte
     driver: string;
     tractor_plate: string;
     trailer_plate: string;
     destination: string;
     transporter: string;
-    consignee: string;
+    consignee: string; // Consignado
     observations: string;
+    programmed_weight: string; // Cantidad Programada e.g. N/A
+    economic_number: string;
 
     // Weights
     entry_weight: number;
-    exit_weight: number; // Pb (Peso Bruto usually, or second weight)
+    exit_weight: number;
     net_weight: number;
-    tare_weight: number; // Tara
-    gross_weight: number; // Bruto
+    tare_weight: number;
+    gross_weight: number;
 
     // Dates
     entry_at: string;
     exit_at: string;
 
     weighmaster: string;
-    documenter: string; // Optional if we capture it
+    documenter: string;
 }
 
 interface TicketProps {
@@ -43,152 +45,193 @@ interface TicketProps {
 
 const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: boolean }> = ({ ticket, copyName, isLast }) => {
     return (
-        <div className={`w-[21cm] h-[14.8cm] mx-auto bg-white p-8 mb-4 relative text-black font-sans box-border ${!isLast ? 'print:break-after-page' : ''}`}>
-            {/* Header */}
-            <div className="flex border-b-2 border-black pb-2 mb-2">
-                <div className="w-1/4 flex items-center justify-center border-r-2 border-black pr-2">
-                    <img src="/images/logo-placeholder.png" alt="Proagro" className="h-16 w-auto object-contain" onError={(e) => e.currentTarget.style.display = 'none'} />
-                    <div className="text-center font-bold text-sm hidden">PROAGRO</div>
-                </div>
-                <div className="w-2/4 text-center px-2 flex flex-col justify-center">
-                    <h1 className="font-bold text-lg leading-tight">PRO-AGROINDUSTRIA S.A. DE C.V.</h1>
-                    <p className="text-xs">COATZACOALCOS, VERACRUZ</p>
-                    <p className="text-xs font-bold">LOGISTICA Y SUMINISTROS</p>
-                    <p className="text-xs border border-black inline-block px-2 mt-1 mx-auto">TICKETS DE PESO</p>
-                </div>
-                <div className="w-1/4 flex flex-col justify-center items-center border-l-2 border-black pl-2">
-                    <div className="text-xs font-bold mb-1">FOLIO</div>
-                    <div className="border border-black px-2 py-1 font-mono text-lg font-bold">
-                        {ticket.ticket_number}
-                    </div>
-                </div>
-            </div>
+        <div className={`w-[24cm] h-[14cm] mx-auto bg-white p-6 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? 'print:break-after-page' : ''}`}>
 
-            {/* Content Table Style */}
-            <div className="w-full text-xs">
-                {/* Fecha Header */}
-                <div className="flex justify-end mb-1">
-                    <div className="flex border border-black">
-                        <div className="bg-gray-200 px-2 font-bold border-r border-black">FECHA:</div>
-                        <div className="px-2">{ticket.date}</div>
-                        <div className="px-2 border-l border-black bg-gray-200 font-bold">HORA:</div>
-                        <div className="px-2">{ticket.time}</div>
+            {/* --- Header --- */}
+            <div className="flex border border-black mb-1 p-1">
+                {/* Logo Section */}
+                <div className="w-[20%] flex flex-col items-center justify-center border-r border-black p-1">
+                    <img src="/images/logo_proagro.png" alt="Logo" className="h-16 w-auto object-contain mb-1" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <div className="text-[10px] font-bold text-center leading-none">PRO<br />AGROINDUSTRIA</div>
+                    <div className="text-[8px] text-center mt-1">BASCULA</div>
+                    <div className="text-[8px] text-center">RECIBIDO/DESPACHADO</div>
+                </div>
+
+                {/* Company Info */}
+                <div className="w-[55%] flex flex-col justify-center items-center text-center px-2">
+                    <h1 className="font-bold text-xl leading-tight">PRO-AGROINDUSTRIA S.A. DE C.V.</h1>
+                    <p className="text-xs font-semibold">COATZACOALCOS, VERACRUZ</p>
+                    <p className="text-sm font-bold mt-1">LOGISTICA Y SUMINISTROS</p>
+                    <p className="text-[10px] mt-1">GLS-TR-FO-005.</p>
+                    <div className="border border-black px-4 py-0.5 mt-1 font-bold text-sm bg-gray-100">
+                        TICKETS DE PESO
                     </div>
                 </div>
 
-                {/* Rows */}
-                <div className="border border-black">
-                    {/* Row 1 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">REFERENCIA:</div>
-                        <div className="w-2/6 px-1 border-r border-black">{ticket.reference}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">OPERACION:</div>
-                        <div className="w-1/6 px-1 border-r border-black">{ticket.operation}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">BASCULA:</div>
-                        <div className="w-1/6 px-1 text-center">{ticket.scale_number}</div>
-                    </div>
-
-                    {/* Row 2: Producto & Entrada */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">PRODUCTO:</div>
-                        <div className="w-2/6 px-1 border-r border-black">{ticket.product} {ticket.presentation}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black !text-black">1er PESO:</div>
-                        <div className="w-1/6 px-1 font-mono text-right border-r border-black">{ticket.entry_weight.toLocaleString()} Kg</div>
-                        <div className="w-2/6 bg-gray-100"></div>
-                    </div>
-
-                    {/* Row 3: Cliente & Cantidad */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">CLIENTE:</div>
-                        <div className="w-2/6 px-1 border-r border-black truncate" title={ticket.client}>{ticket.client}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black !text-black">2do PESO:</div>
-                        <div className="w-1/6 px-1 font-mono text-right border-r border-black">{ticket.exit_weight.toLocaleString()} Kg</div>
-                        <div className="w-2/6 bg-gray-100"></div>
-                    </div>
-
-                    {/* Row 4: OV & Bruto */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">ORDEN VENTA:</div>
-                        <div className="w-2/6 px-1 border-r border-black">{ticket.sale_order}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">BRUTO:</div>
-                        <div className="w-1/6 px-1 font-mono text-right border-r border-black">{ticket.gross_weight.toLocaleString()} Kg</div>
-                        <div className="w-2/6 bg-gray-100"></div>
-                    </div>
-
-                    {/* Row 5: Carta Porte & Tara */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">CARTA PORTE:</div>
-                        <div className="w-2/6 px-1 border-r border-black">{ticket.withdrawal_letter}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">TARA:</div>
-                        <div className="w-1/6 px-1 font-mono text-right border-r border-black">{ticket.tare_weight.toLocaleString()} Kg</div>
-                        <div className="w-2/6 bg-gray-100"></div>
-                    </div>
-
-                    {/* Row 6: Placas & Neto */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">PLACAS:</div>
-                        <div className="w-2/6 px-1 border-r border-black">{ticket.tractor_plate} / {ticket.trailer_plate}</div>
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">NETO:</div>
-                        <div className="w-1/6 px-1 font-bold font-mono text-right border-r border-black">{ticket.net_weight.toLocaleString()} Kg</div>
-                        <div className="w-2/6 bg-gray-100"></div>
-                    </div>
-
-                    {/* Row 7: Conductor & Timestamp */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">CONDUCTOR:</div>
-                        <div className="w-2/6 px-1 border-r border-black truncate" title={ticket.driver}>{ticket.driver}</div>
-                        <div className="w-3/6 px-1 text-center italic text-[10px] text-gray-500">
-                            Entrada: {ticket.entry_at} | Salida: {ticket.exit_at}
+                {/* Folio & Date */}
+                <div className="w-[25%] flex flex-col border-l border-black">
+                    {/* Folio */}
+                    <div className="flex-1 flex flex-col items-center justify-center p-2 border-b border-black">
+                        <div className="text-xs font-bold mb-1">FOLIO</div>
+                        <div className="border border-black px-3 py-1 font-mono text-xl font-bold rounded-sm">
+                            No PRO <span className="text-red-600">{ticket.folio || ticket.ticket_number}</span> B
                         </div>
                     </div>
-
-                    {/* Row 8: Destino */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">DESTINO:</div>
-                        <div className="w-5/6 px-1 truncate" title={ticket.destination}>{ticket.destination}</div>
+                    {/* Date */}
+                    <div className="flex text-xs h-8">
+                        <div className="w-1/4 flex items-center justify-center font-bold border-r border-black bg-gray-100 pl-1">FECHA:</div>
+                        <div className="flex-1 flex items-center justify-around px-1 font-mono">
+                            {ticket.date}
+                        </div>
                     </div>
-
-                    {/* Row 9: Transportista && Destara Info (Empty slots in original) */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">TRANSP.:</div>
-                        <div className="w-2/6 px-1 border-r border-black truncate" title={ticket.transporter}>{ticket.transporter}</div>
-                        <div className="w-3/6 bg-white"></div>
-                    </div>
-
-                    {/* Row 10: Consignado */}
-                    <div className="flex border-b border-black">
-                        <div className="w-1/6 bg-gray-50 px-1 font-bold border-r border-black">CONSIGNADO:</div>
-                        <div className="w-5/6 px-1 truncate" title={ticket.consignee}>{ticket.consignee}</div>
-                    </div>
-                </div>
-
-                {/* Observaciones */}
-                <div className="border-l border-r border-b border-black mb-2">
-                    <div className="bg-gray-100 font-bold px-1 text-center border-b border-black text-[10px]">OBSERVACIONES</div>
-                    <div className="px-1 h-8 overflow-hidden text-[10px]">{ticket.observations}</div>
-                </div>
-
-                {/* Firmas */}
-                <div className="flex justify-between mt-8 text-[10px] pt-4">
-                    <div className="flex flex-col items-center w-1/3">
-                        <div className="border-t border-black w-3/4 text-center pt-1 font-bold">{ticket.documenter}</div>
-                        <div>FIRMA DE DOCUMENTADOR</div>
-                    </div>
-                    <div className="flex flex-col items-center w-1/3">
-                        <div className="border-t border-black w-3/4 text-center pt-1 font-bold">{ticket.weighmaster}</div>
-                        <div>FIRMA DEL PESADOR</div>
-                    </div>
-                    <div className="flex flex-col items-center w-1/3">
-                        <div className="border-t border-black w-3/4 text-center pt-1 font-bold">{ticket.driver}</div>
-                        <div>FIRMA DEL OPERADOR</div>
-                    </div>
-                </div>
-
-                {/* Copy Label */}
-                <div className="text-center font-bold text-red-600 mt-2 uppercase border border-red-200 inline-block px-4 py-1 rounded w-full">
-                    {copyName}
                 </div>
             </div>
+
+            {/* --- Main Content --- */}
+            <div className="flex border border-black text-[10px]">
+
+                {/* --- Left Column: Data --- */}
+                <div className="w-[60%] border-r border-black">
+                    {/* Row 1 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">REFERENCIA:</div>
+                        <div className="w-[35%] px-1 py-0.5 border-r border-black">{ticket.reference || 'N/A'}</div>
+                        <div className="w-[20%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">OPERACIÓN:</div>
+                        <div className="w-[20%] px-1 py-0.5 font-bold text-center">{ticket.operation}</div>
+                    </div>
+
+                    {/* Row 2 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">PRODUCTO:</div>
+                        <div className="w-[75%] px-1 py-0.5">{ticket.product} ({ticket.presentation})</div>
+                    </div>
+
+                    {/* Row 3 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[40%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CANTIDAD PROGRAMADA:</div>
+                        <div className="w-[60%] px-1 py-0.5">{ticket.programmed_weight || 'N/A'}</div>
+                    </div>
+
+                    {/* Row 4 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[30%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CLIENTE Ó PROVEEDOR:</div>
+                        <div className="w-[70%] px-1 py-0.5">{ticket.client}</div>
+                    </div>
+
+                    {/* Row 5 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[30%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">No. ORDEN DE VENTA:</div>
+                        <div className="w-[70%] px-1 py-0.5">{ticket.sale_order}</div>
+                    </div>
+
+                    {/* Row 6 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[30%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CARTA DE RETIRO:</div>
+                        <div className="w-[70%] px-1 py-0.5">{ticket.withdrawal_letter}</div>
+                    </div>
+
+                    {/* Row 7 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">No. DE PLACAS:</div>
+                        <div className="w-[25%] px-1 py-0.5 border-r border-black">{ticket.trailer_plate || ticket.tractor_plate}</div>
+                        <div className="w-[20%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">ECONO:</div>
+                        <div className="w-[30%] px-1 py-0.5">{ticket.economic_number || 'N/A'}</div>
+                    </div>
+
+                    {/* Row 8 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CONDUCTOR:</div>
+                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.driver}</div>
+                    </div>
+
+                    {/* Row 9 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">DESTINO:</div>
+                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.destination}</div>
+                    </div>
+
+                    {/* Row 10 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">TRANSPORTISTA:</div>
+                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.transporter}</div>
+                    </div>
+
+                    {/* Row 11 */}
+                    <div className="flex border-b border-black">
+                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CONSIGNADO:</div>
+                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.consignee || 'N/A'}</div>
+                    </div>
+
+                    {/* Observaciones */}
+                    <div className="h-16 bg-white">
+                        <div className="font-bold px-1 py-0.5 bg-gray-100 border-b border-black">OBSERVACIONES:</div>
+                        <div className="px-1 py-0.5 italic">{ticket.observations}</div>
+                    </div>
+                </div>
+
+                {/* --- Right Column: Weights --- */}
+                <div className="w-[40%] flex flex-col bg-cyan-50/10"> {/* Subtle tinge or keeping it white as requested */}
+                    <div className="border-b border-black px-1 py-1 text-center font-bold bg-gray-100">ESPACIO PARA IMPRESIÓN</div>
+
+                    <div className="flex-1 p-4 font-mono text-xs space-y-3">
+                        <div className="text-center text-gray-500 text-[10px]">PRO-AGROINDUSTRIA S.A DE C.V</div>
+                        <div className="text-center text-gray-500 text-[10px]">BASCULA {ticket.scale_number}</div>
+
+                        <div className="flex justify-between mt-4">
+                            <span>TICKET No.:</span>
+                            <span className="font-bold">{ticket.ticket_number}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>VEHICULO:</span>
+                            <span>{ticket.economic_number}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>ENTRADA :</span>
+                            <span>{ticket.entry_weight.toLocaleString()} kg</span>
+                        </div>
+                        <div className="text-right text-[9px] text-gray-500">{ticket.entry_at || ticket.date}</div>
+
+                        {/* Salida data */}
+                        {ticket.net_weight > 0 && (
+                            <>
+                                <div className="mt-4 flex justify-between">
+                                    <span>BRUTO &nbsp;:</span>
+                                    <span>{ticket.gross_weight.toLocaleString()} kg</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>TARA &nbsp;&nbsp;:</span>
+                                    <span>{ticket.tare_weight.toLocaleString()} kg</span>
+                                </div>
+                                <div className="flex justify-between font-bold text-lg border-t border-dashed border-gray-400 pt-1">
+                                    <span>NETO &nbsp;&nbsp;:</span>
+                                    <span>{ticket.net_weight.toLocaleString()} kg</span>
+                                </div>
+                                <div className="text-right text-[9px] text-gray-500">{ticket.exit_at || ticket.time}</div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* --- Signatures --- */}
+            <div className="flex justify-between mt-auto pt-8 px-4 text-[10px] absolute bottom-8 w-full left-0 box-border">
+                <div className="flex flex-col items-center w-[30%]">
+                    <div className="border-t border-black w-full text-center pt-1 font-bold">{ticket.documenter || '___________________'}</div>
+                    <div>FIRMA DE DOCUMENTADOR</div>
+                </div>
+                <div className="flex flex-col items-center w-[30%]">
+                    <div className="border-t border-black w-full text-center pt-1 font-bold">{ticket.weighmaster}</div>
+                    <div>FIRMA DEL PESADOR</div>
+                </div>
+                <div className="flex flex-col items-center w-[30%]">
+                    <div className="border-t border-black w-full text-center pt-1 font-bold relative">
+                        {ticket.driver}
+                    </div>
+                    <div>FIRMA DE OPERADOR</div>
+                </div>
+            </div>
+
+            <div className="absolute top-2 right-2 text-[10px] text-gray-400 opacity-50">{copyName}</div>
         </div>
     );
 };
@@ -196,8 +239,7 @@ const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: bool
 export default function Ticket({ ticket }: TicketProps) {
 
     useEffect(() => {
-        // Automatically trigger print on load? Or wait for user?
-        // Let's wait for user to click print, but show a toast or something?
+        // Optional: auto print
     }, []);
 
     const handlePrint = () => {
@@ -205,37 +247,34 @@ export default function Ticket({ ticket }: TicketProps) {
     };
 
     const handleBack = () => {
-        // Redirect back using window.location or Inertia router
-        window.location.href = route('scale.index');
+        window.history.back();
     };
 
     return (
         <div className="bg-gray-200 min-h-screen p-4 print:p-0 print:bg-white text-sm">
             <Head title={`Ticket - ${ticket.ticket_number}`} />
 
-            {/* Styling for Print */}
             <style>{`
                 @media print {
                     @page {
-                        size: A5 landscape;
-                        margin: 0;
+                        size: letter landscape; /* Ajustar a carta horizontal para q quepan 2 o half-letter */
+                        margin: 0.5cm;
                     }
                     body {
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
                     }
+                    .print\\:hidden {
+                        display: none !important;
+                    }
                 }
             `}</style>
 
-            {/* Action Bar (Hidden in Print) */}
             <div className="max-w-4xl mx-auto mb-4 flex justify-between print:hidden">
                 <button
                     onClick={handleBack}
                     className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded shadow flex items-center gap-2"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
                     Regresar
                 </button>
                 <div className="text-xl font-bold text-gray-800">Vista Previa de Ticket</div>
@@ -243,18 +282,13 @@ export default function Ticket({ ticket }: TicketProps) {
                     onClick={handlePrint}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow flex items-center gap-2 font-bold"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zm0 8H7v4h6v-4z" clipRule="evenodd" />
-                    </svg>
                     IMPRIMIR
                 </button>
             </div>
 
-            {/* Ticket Copies */}
-            <div className="max-w-5xl mx-auto">
-                <TicketCopy ticket={ticket} copyName="CLIENTE" />
-                <TicketCopy ticket={ticket} copyName="VIGILANCIA" />
-                <TicketCopy ticket={ticket} copyName="DOCUMENTACIÓN" isLast={true} />
+            <div className="max-w-[25cm] mx-auto print:max-w-none">
+                <TicketCopy ticket={ticket} copyName="ORIGINAL" />
+                {/* <TicketCopy ticket={ticket} copyName="COPIA" isLast={true} /> */}
             </div>
         </div>
     );
