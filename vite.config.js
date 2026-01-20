@@ -56,7 +56,7 @@ export default defineConfig({
         })
     ],
     build: {
-        manifest: 'manifest.json',
+        manifest: true, // Generate .vite/manifest.json (Handled by Deploy Script)
         chunkSizeWarningLimit: 1600,
     }
 });
