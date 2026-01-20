@@ -57,8 +57,9 @@ jobs:
           mkdir delivery
           mkdir delivery/public
           
-          # Copiar extractor a PUBLIC para que sea accesible via web (Bypass .htaccess)
+          # Copiar extractor y herramienta de inspección a PUBLIC
           cp extract_debug.php delivery/public/extract_debug.php
+          cp inspect_db.php delivery/public/inspect_db.php
           
           # Create UNIQUE zip filename to prevent FTP caching/skipping
           zip -r delivery/release_${{ github.run_number }}.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "delivery/*"
