@@ -129,14 +129,25 @@ class DocumentationController extends Controller
             'brand_model' => 'nullable|string',
         ]);
 
-        $exists = VesselOperator::where('vessel_id', $validated['vessel_id'])
+        $query = VesselOperator::where('vessel_id', $validated['vessel_id'])
             ->where('operator_name', $validated['operator_name'])
             ->where('economic_number', $validated['economic_number'])
             ->where('tractor_plate', $validated['tractor_plate'])
-            ->exists();
+            ->where('unit_type', $validated['unit_type'])
+            ->where('transporter_line', $validated['transporter_line']);
+
+        if (!empty($validated['trailer_plate'])) {
+            $query->where('trailer_plate', $validated['trailer_plate']);
+        }
+
+        if (!empty($validated['brand_model'])) {
+            $query->where('brand_model', $validated['brand_model']);
+        }
+
+        $exists = $query->exists();
 
         if ($exists) {
-            return back()->withErrors(['operator_name' => 'Este operador ya está registrado en este barco con la misma unidad (Placas/Económico).']);
+            return back()->withErrors(['operator_name' => 'Este operador ya está registrado con exactamente los mismos datos (Unidad, Placas, Línea).']);
         }
 
         VesselOperator::create($validated);
