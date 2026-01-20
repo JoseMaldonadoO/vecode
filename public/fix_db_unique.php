@@ -25,9 +25,11 @@ try {
         if (count($exists) > 0) {
             echo "<p>Índice '<strong>$indexName</strong>' ENCONTRADO. Procediendo a eliminar...</p>";
 
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             Schema::table($tableName, function ($table) use ($indexName) {
                 $table->dropUnique($indexName);
             });
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
             echo "<p style='color:green; font-weight:bold;'>✔ Índice eliminado EXITOSAMENTE.</p>";
         } else {
