@@ -6,7 +6,7 @@ import axios from 'axios';
 import { QrReader } from 'react-qr-reader';
 import Modal from '@/Components/Modal';
 
-export default function Scanner({ auth, recentScans, occupiedWarehouses = [] }: { auth: any, recentScans: any[], occupiedWarehouses?: string[] }) {
+export default function Scanner({ auth, recentScans, occupiedFlat = [], occupiedCubicles = [] }: { auth: any, recentScans: any[], occupiedFlat?: string[], occupiedCubicles?: string[] }) {
     const [scanInput, setScanInput] = useState('');
     const [isScanning, setIsScanning] = useState(true);
     const [scanResult, setScanResult] = useState<any>(null);
@@ -394,36 +394,43 @@ export default function Scanner({ auth, recentScans, occupiedWarehouses = [] }: 
                                         autoFocus
                                     >
                                         <option value="">-- Seleccionar --</option>
-                                        <option value="Almacén 1" disabled={occupiedWarehouses.includes('Almacén 1')}>
-                                            Almacén 1 {occupiedWarehouses.includes('Almacén 1') ? '(Ocupado)' : ''}
+                                        <option value="Almacén 1" disabled={occupiedFlat.includes('Almacén 1')}>
+                                            Almacén 1 {occupiedFlat.includes('Almacén 1') ? '(Ocupado)' : ''}
                                         </option>
-                                        <option value="Almacén 2" disabled={occupiedWarehouses.includes('Almacén 2')}>
-                                            Almacén 2 {occupiedWarehouses.includes('Almacén 2') ? '(Ocupado)' : ''}
+                                        <option value="Almacén 2" disabled={occupiedFlat.includes('Almacén 2')}>
+                                            Almacén 2 {occupiedFlat.includes('Almacén 2') ? '(Ocupado)' : ''}
                                         </option>
-                                        <option value="Almacén 3" disabled={occupiedWarehouses.includes('Almacén 3')}>
-                                            Almacén 3 {occupiedWarehouses.includes('Almacén 3') ? '(Ocupado)' : ''}
+                                        <option value="Almacén 3" disabled={occupiedFlat.includes('Almacén 3')}>
+                                            Almacén 3 {occupiedFlat.includes('Almacén 3') ? '(Ocupado)' : ''}
                                         </option>
                                         <option value="Almacén 4">Almacén 4</option>
                                         <option value="Almacén 5">Almacén 5</option>
                                     </select>
                                 </div>
-                                <div className="animate-fade-in-up">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Asignar Cubículo
-                                    </label>
-                                    <select
-                                        value={data.cubicle}
-                                        onChange={e => setData('cubicle', e.target.value)}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
-                                        required
-                                    >
-                                        <option value="">-- Seleccionar --</option>
-                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                                            <option key={num} value={num.toString()}>{num}</option>
-                                        ))}
-                                    </select>
-                                    <p className="text-xs text-gray-500 mt-1">Requerido para Almacén 4 y 5 (Opciones 1-8)</p>
-                                </div>
+                                {(data.warehouse === 'Almacén 4' || data.warehouse === 'Almacén 5') && (
+                                    <div className="animate-fade-in-up">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Asignar Cubículo
+                                        </label>
+                                        <select
+                                            value={data.cubicle}
+                                            onChange={e => setData('cubicle', e.target.value)}
+                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
+                                            required
+                                        >
+                                            <option value="">-- Seleccionar --</option>
+                                            {[1, 2, 3, 4, 5, 6, 7, 8].map(num => {
+                                                const isOccupied = occupiedCubicles.includes(`${data.warehouse}:${num}`);
+                                                return (
+                                                    <option key={num} value={num.toString()} disabled={isOccupied}>
+                                                        {num} {isOccupied ? '(Ocupado)' : ''}
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                        <p className="text-xs text-gray-500 mt-1">Requerido para Almacén 4 y 5 (Opciones 1-8)</p>
+                                    </div>
+                                )}
                                 <button
                                     type="submit"
                                     disabled={processing}

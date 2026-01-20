@@ -129,6 +129,28 @@ class WeightTicketController extends Controller
                 $operator = VesselOperator::with(['vessel.client', 'vessel.product'])->find($operatorId);
 
                 if ($operator) {
+                    // BEFORE suggesting a new entry, check if this operator already has an active order "In Plant"
+                    $activeOrder = ShipmentOrder::where('status', 'loading')
+                        ->where('tractor_plate', $operator->tractor_plate)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    if ($activeOrder) {
+                        return response()->json([
+                            'type' => 'shipment_order',
+                            'id' => $activeOrder->id,
+                            'provider' => $activeOrder->client->name ?? 'N/A',
+                            'driver' => $activeOrder->operator_name ?? 'N/A',
+                            'vehicle_plate' => $activeOrder->tractor_plate ?? 'N/A',
+                            'product' => $activeOrder->product->name ?? 'N/A',
+                            'status' => $activeOrder->status,
+                            'warehouse' => $activeOrder->warehouse,
+                            'cubicle' => $activeOrder->cubicle,
+                            'vessel_etb' => $operator->vessel->etb,
+                            'force_burreo' => !empty($operator->vessel->etb),
+                        ]);
+                    }
+
                     // Suggest Withdrawal Letter ID logic
                     $lastOrder = ShipmentOrder::latest()->first();
                     $nextFolio = 1;
@@ -333,6 +355,10 @@ class WeightTicketController extends Controller
 
                 if (!$ticket) {
                     throw new \Exception("Esta orden no tiene ticket de entrada.");
+                }
+
+                if (empty($order->warehouse)) {
+                    throw new \Exception("ALERTA: No se puede destarar sin haber asignado Almacén en el módulo APT.");
                 }
 
                 // Calculate Net Weight (Always Positive)
