@@ -313,20 +313,7 @@ class AptController extends Controller
             if (empty($validated['cubicle'])) {
                 return back()->withErrors(['cubicle' => 'El cubículo es obligatorio para el Almacén seleccionado.']);
             }
-
-            // Allow same cubicle if it's the same order being edited? 
-            // We need to check if occupied by DIFFERENT order.
-            // But wait, $scan->shipment_order_id is the current one.
-
-            $occupied = \App\Models\ShipmentOrder::where('warehouse', $validated['warehouse'])
-                ->where('cubicle', $validated['cubicle'])
-                ->whereIn('status', ['loading', 'authorized'])
-                ->where('id', '!=', $scan->shipment_order_id) // Exclude current order
-                ->exists();
-
-            if ($occupied) {
-                return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' ya está ocupado.']);
-            }
+            // Occupancy Check REMOVED to allow multiple units
         }
 
         // Force 'N/A' cubicle if not WH 4/5
