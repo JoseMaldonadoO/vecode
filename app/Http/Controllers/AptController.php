@@ -287,6 +287,13 @@ class AptController extends Controller
             $finalCubicle = 'N/A';
         }
 
+        // Get Operator ID if available from QR or order
+        $operatorId = null;
+        if (str_starts_with($qr, 'OP ')) {
+            $parts = explode('|', substr($qr, 3));
+            $operatorId = $parts[0] ?? null;
+        }
+
         // Update Order
         $order->update([
             'warehouse' => $validated['warehouse'],
@@ -297,8 +304,8 @@ class AptController extends Controller
 
         // Log Scan
         \App\Models\AptScan::create([
-            'shipment_order_id' => $order->id, // Need to add this column to apt_scans or use operator_id if we want legacy
-            'operator_id' => null, // Legacy, nullable
+            'shipment_order_id' => $order->id,
+            'operator_id' => $operatorId,
             'warehouse' => $validated['warehouse'],
             'cubicle' => $finalCubicle,
             'user_id' => auth()->id(),
