@@ -401,7 +401,7 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Carta de Retiro (Sugerido)</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Carta Porte</label>
                                     <input
                                         type="text"
                                         value={data.withdrawal_letter}
@@ -478,17 +478,6 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Carta Porte (Manual si aplica)</label>
-                                    <input
-                                        type="text"
-                                        value={data.bill_of_lading}
-                                        onChange={e => setData('bill_of_lading', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
-                            </div>
                         </div>
 
                         {/* 4. Báscula (Simplified) */}

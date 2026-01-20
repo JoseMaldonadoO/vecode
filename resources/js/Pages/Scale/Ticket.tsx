@@ -117,7 +117,7 @@ const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: bool
                         ['Cantidad Programada:', ticket.programmed_weight || 'N/A'],
                         ['Cliente ó Proveedor:', ticket.client],
                         ['No. Orden de Venta:', ticket.sale_order],
-                        ['Carta de Retiro:', ticket.withdrawal_letter],
+                        ['Carta Porte:', ticket.withdrawal_letter],
                     ].map(([label, value], idx) => (
                         <div key={idx} className="flex border-b border-black">
                             <div className="w-[35%] font-bold border-r border-black px-1.5 py-0.5 uppercase">{label}</div>

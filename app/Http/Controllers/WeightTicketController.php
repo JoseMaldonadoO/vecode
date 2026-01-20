@@ -434,7 +434,7 @@ class WeightTicketController extends Controller
 
             'client' => $order->client->name ?? ($order->vessel->client->name ?? 'N/A'),
             'sale_order' => $order->sale_order ?? $order->folio, // Fallback to Folio if no OV
-            'withdrawal_letter' => $order->withdrawal_letter ?? 'N/A', // CP
+            'withdrawal_letter' => $order->bill_of_lading ?? ($order->withdrawal_letter ?? 'N/A'),
 
             'driver' => $order->operator_name ?? 'N/A',
             'tractor_plate' => $order->tractor_plate ?? 'N/A',
