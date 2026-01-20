@@ -147,26 +147,8 @@ class AptController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Check for Occupied Warehouses (1, 2, 3) - Flat
-        $occupiedFlat = \App\Models\ShipmentOrder::whereIn('warehouse', ['Almacén 1', 'Almacén 2', 'Almacén 3'])
-            ->whereIn('status', ['loading', 'authorized'])
-            ->pluck('warehouse')
-            ->unique()
-            ->values()
-            ->all();
-
-        // Check for Occupied Cubicles (4, 5)
-        $occupiedCubicles = \App\Models\ShipmentOrder::whereIn('warehouse', ['Almacén 4', 'Almacén 5'])
-            ->whereIn('status', ['loading', 'authorized'])
-            ->select('warehouse', 'cubicle')
-            ->get()
-            ->map(fn($item) => "{$item->warehouse}:{$item->cubicle}")
-            ->all();
-
         return Inertia::render('APT/Scanner', [
-            'recentScans' => $recentScans,
-            'occupiedFlat' => $occupiedFlat,
-            'occupiedCubicles' => $occupiedCubicles
+            'recentScans' => $recentScans
         ]);
     }
 

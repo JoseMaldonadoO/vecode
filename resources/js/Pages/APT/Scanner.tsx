@@ -471,15 +471,9 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                         autoFocus
                                     >
                                         <option value="">-- Seleccionar --</option>
-                                        <option value="Almacén 1" disabled={occupiedFlat.includes('Almacén 1')}>
-                                            Almacén 1 {occupiedFlat.includes('Almacén 1') ? '(Ocupado)' : ''}
-                                        </option>
-                                        <option value="Almacén 2" disabled={occupiedFlat.includes('Almacén 2')}>
-                                            Almacén 2 {occupiedFlat.includes('Almacén 2') ? '(Ocupado)' : ''}
-                                        </option>
-                                        <option value="Almacén 3" disabled={occupiedFlat.includes('Almacén 3')}>
-                                            Almacén 3 {occupiedFlat.includes('Almacén 3') ? '(Ocupado)' : ''}
-                                        </option>
+                                        <option value="Almacén 1">Almacén 1</option>
+                                        <option value="Almacén 2">Almacén 2</option>
+                                        <option value="Almacén 3">Almacén 3</option>
                                         <option value="Almacén 4">Almacén 4</option>
                                         <option value="Almacén 5">Almacén 5</option>
                                     </select>
@@ -496,14 +490,11 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                             required
                                         >
                                             <option value="">-- Seleccionar --</option>
-                                            {[1, 2, 3, 4, 5, 6, 7, 8].map(num => {
-                                                const isOccupied = occupiedCubicles.includes(`${data.warehouse}:${num}`);
-                                                return (
-                                                    <option key={num} value={num.toString()} disabled={isOccupied}>
-                                                        {num} {isOccupied ? '(Ocupado)' : ''}
-                                                    </option>
-                                                );
-                                            })}
+                                            {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                                                <option key={num} value={num.toString()}>
+                                                    {num}
+                                                </option>
+                                            ))}
                                         </select>
                                         <p className="text-xs text-gray-500 mt-1">Requerido para Almacén 4 y 5 (Opciones 1-8)</p>
                                     </div>
