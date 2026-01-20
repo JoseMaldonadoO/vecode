@@ -22,7 +22,8 @@ function parseEnv($path) {
 $currentEnv = parseEnv(__DIR__ . '/../../.env');
 $targetDb = $currentEnv['DB_DATABASE'] ?? 'u174025152_vecode';
 $targetUser = $currentEnv['DB_USERNAME'] ?? 'u174025152_vecode_';
-$targetPass = $currentEnv['DB_PASSWORD'] ?? '';
+// We will ask for this manually to avoid parsing validation issues
+$targetPassAuto = $currentEnv['DB_PASSWORD'] ?? ''; 
 $host = $currentEnv['DB_HOST'] ?? '127.0.0.1';
 
 // Hardcoded Source Config based on User Screenshot
@@ -33,6 +34,9 @@ $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sourcePass = $_POST['source_password'] ?? '';
+    // Prefer manual input, fallback to auto if user left blank (optional)
+    $targetPassInput = $_POST['target_password'] ?? ''; 
+    $targetPass = !empty($targetPassInput) ? $targetPassInput : $targetPassAuto;
 
     if (empty($sourcePass)) {
         $message = "Error: Password required.";
@@ -135,8 +139,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p><b>Destino:</b> <?php echo $targetDb; ?></p>
         
         <form method="POST">
-            <label>Contraseña del Usuario Origen (<?php echo $sourceUser; ?>):</label>
-            <input type="password" name="source_password" placeholder="Ingrese contraseña..." required>
+            <div style="margin-bottom: 20px; padding: 10px; background: #e0e7ff; border-radius: 4px;">
+                <label><b>1. Contraseña BASE DE DATOS ACTUAL (Destino):</b></label><br>
+                <small>Usuario: <?php echo $targetUser; ?></small>
+                <input type="password" name="target_password" placeholder="Contraseña del .env actual..." required>
+            </div>
+
+            <div style="margin-bottom: 20px; padding: 10px; background: #fef3c7; border-radius: 4px;">
+                <label><b>2. Contraseña BASE DE DATOS ANTIGUA (Origen):</b></label><br>
+                <small>Usuario: <?php echo $sourceUser; ?></small>
+                <input type="password" name="source_password" placeholder="Contraseña de la BD antigua..." required>
+            </div>
+
             <button type="submit">Iniciar Migración</button>
         </form>
 
