@@ -531,7 +531,7 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ubicación</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Detalle</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No. Económico</th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
                                 </tr>
                             </thead>
@@ -546,8 +546,8 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                                 {scan.warehouse} {(scan.warehouse === 'Almacén 4' || scan.warehouse === 'Almacén 5') && scan.cubicle ? `- Cubículo ${scan.cubicle}` : ''}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">
-                                            Scan ID: {scan.id}
+                                        <td className="px-6 py-4 text-sm font-bold text-gray-700">
+                                            {(scan.shipment_order || scan.shipmentOrder)?.unit_number || scan.operator?.economic_number || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm">
                                             <div className="flex justify-end gap-2">
