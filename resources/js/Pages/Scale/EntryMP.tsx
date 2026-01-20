@@ -139,7 +139,7 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     provider: res.provider,
                     product: res.product,
 
-                    origin: res.reference || '',
+                    origin: res.origin || res.reference || '',
                     reference: '',
                     transport_line: res.transport_line,
                     driver: res.driver,
