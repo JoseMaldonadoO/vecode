@@ -14,16 +14,17 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
     const permissions = user?.permissions || [];
     const roles = user?.roles || [];
 
+    // Remove baseUrl for root deployment
     const allLinks = [
-        { name: 'Inicio', href: `${baseUrl}/dashboard`, icon: LayoutDashboard, show: true }, // Always show dashboard
-        { name: 'Comercialización', href: `${baseUrl}/sales`, icon: ClipboardList, permission: 'view commercialization' },
-        { name: 'Tráfico', href: `${baseUrl}/traffic`, icon: Truck, permission: 'view traffic', role: 'Admin' }, // Assuming permission name
-        { name: 'Vigilancia', icon: Search, href: `${baseUrl}/surveillance`, permission: 'view surveillance' },
-        { name: 'Documentación', icon: FileText, href: `${baseUrl}/documentation`, permission: 'view documentation' },
-        { name: 'Báscula', href: `${baseUrl}/scale`, icon: Scale, permission: 'view scale' },
-        { name: 'Muelle', href: `${baseUrl}/dock`, icon: Ship, permission: 'view dock' },
-        { name: 'APT', href: `${baseUrl}/apt`, icon: Box, permission: 'view apt' },
-        { name: 'Administración', href: `${baseUrl}/admin/users`, icon: Users, role: 'Admin' },
+        { name: 'Inicio', href: `/dashboard`, icon: LayoutDashboard, show: true },
+        { name: 'Comercialización', href: `/sales`, icon: ClipboardList, permission: 'view commercialization' },
+        { name: 'Tráfico', href: `/traffic`, icon: Truck, permission: 'view traffic', role: 'Admin' },
+        { name: 'Vigilancia', icon: Search, href: `/surveillance`, permission: 'view surveillance' },
+        { name: 'Documentación', icon: FileText, href: `/documentation`, permission: 'view documentation' },
+        { name: 'Báscula', href: `/scale`, icon: Scale, permission: 'view scale' },
+        { name: 'Muelle', href: `/dock`, icon: Ship, permission: 'view dock' },
+        { name: 'APT', href: `/apt`, icon: Box, permission: 'view apt' },
+        { name: 'Administración', href: `/admin/users`, icon: Users, role: 'Admin' },
     ];
 
     const visibleLinks = allLinks.filter(link => {
@@ -51,9 +52,9 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
         )}>
             <div className="space-y-8 py-6">
                 <div className="px-6 flex flex-col items-center">
-                    <Link href={`${baseUrl}/dashboard`} className="mb-4 flex items-center justify-center transition-transform hover:scale-105">
+                    <Link href={`/dashboard`} className="mb-4 flex items-center justify-center transition-transform hover:scale-105">
                         <img
-                            src={`${baseUrl}/images/logovecode.png`}
+                            src={`/images/logovecode.png`}
                             alt="Proagro"
                             className="h-20 w-auto object-contain drop-shadow-2xl"
                         />
@@ -67,7 +68,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                 <div className="px-4">
                     <div className="space-y-2">
                         {visibleLinks.map((link) => {
-                            const isActive = url.startsWith(link.href.replace(baseUrl, '')) || (link.href.endsWith('dashboard') && url === '/');
+                            const isActive = url.startsWith(link.href) || (link.href === '/dashboard' && url === '/');
                             return (
                                 <Link
                                     key={link.href}
