@@ -34,13 +34,13 @@ export default function Login({
 
                 {/* Header / Logo */}
                 <div className="bg-white p-6 flex justify-center border-b border-gray-100">
-                    <img src={`${window.location.origin}/img/Logo_vde.png`} alt="Logo" className="h-16 object-contain" />
+                    <img src="/img/Logo_vde.png" alt="Logo" className="h-16 object-contain" />
                 </div>
 
                 <div className="p-8">
                     <div className="text-center mb-8">
-                        <img src={`${window.location.origin}/img/Proagro2.png`} alt="Proagro" className="h-20 mx-auto mb-4 object-contain" />
-                        <h2 className="text-2xl font-bold text-gray-800">Bienvenido</h2>
+                        <img src="/img/Proagro2.png" alt="Proagro" className="h-20 mx-auto mb-4 object-contain" />
+                        <h2 className="text-2xl font-bold text-gray-800">Bienvenido al Sistema VECODE</h2>
                         <p className="text-gray-500 text-sm">Ingrese sus credenciales para continuar</p>
                     </div>
 
