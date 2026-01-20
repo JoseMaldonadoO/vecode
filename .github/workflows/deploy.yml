@@ -55,6 +55,7 @@ jobs:
       - name: 🤐 Prepare Delivery Directory
         run: |
           mkdir delivery
+          mkdir delivery/public
           # Copiar extractor a PUBLIC (Mecanismo de Despliegue Principal - Bypass FTP Cache)
           cp extract_debug.php delivery/public/extract_debug.php
           

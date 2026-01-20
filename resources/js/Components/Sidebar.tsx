@@ -42,15 +42,15 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
         return false;
     });
 
-    // Fix: Remove fixed positioning when isMobile is true to let parent drawer handle layout
     return (
         <div className={cn(
-            "pb-32 bg-gradient-to-b from-slate-900 via-slate-900 to-black text-white shadow-2xl overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent",
+            "flex flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-black text-white shadow-2xl",
             !isMobile && "min-h-screen border-r border-slate-800 h-[100dvh] fixed w-64 z-50",
             isMobile && "h-full w-full",
             className
         )}>
-            <div className="space-y-8 py-6">
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent py-6 space-y-8">
                 <div className="px-6 flex flex-col items-center">
                     <Link href={`/dashboard`} className="mb-4 flex items-center justify-center transition-transform hover:scale-105">
                         <img
@@ -66,7 +66,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                 </div>
 
                 <div className="px-4">
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                         {visibleLinks.map((link) => {
                             const isActive = url.startsWith(link.href) || (link.href === '/dashboard' && url === '/');
                             return (
@@ -74,14 +74,14 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                                     key={link.href}
                                     href={link.href}
                                     className={cn(
-                                        "group flex items-center rounded-xl px-4 py-4 text-base font-bold transition-all duration-200",
+                                        "group flex items-center rounded-xl px-4 py-3 text-sm font-bold transition-all duration-200",
                                         isActive
                                             ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30 translate-x-1"
                                             : "text-slate-400 hover:text-white hover:bg-slate-800/50 hover:translate-x-1"
                                     )}
                                 >
                                     <link.icon className={cn(
-                                        "mr-4 h-6 w-6 transition-colors",
+                                        "mr-3 h-5 w-5 transition-colors",
                                         isActive ? "text-white" : "text-slate-500 group-hover:text-white"
                                     )} />
                                     <span className="tracking-wide">{link.name}</span>
@@ -95,17 +95,17 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                 </div>
             </div>
 
-            {/* Unicorn Footer Decoration */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black to-transparent">
-                <div className="rounded-xl bg-slate-800/50 p-4 border border-slate-700/50 backdrop-blur-sm">
+            {/* Pinned Footer */}
+            <div className="p-4 bg-slate-900/50 backdrop-blur-sm border-t border-slate-800/50">
+                <div className="rounded-xl bg-slate-800/50 p-3 border border-slate-700/50">
                     <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold shadow-lg">
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-white font-bold shadow-lg text-sm">
                             {user?.name?.charAt(0) || 'U'}
                         </div>
                         <div className="overflow-hidden">
                             <p className="text-sm font-bold text-white truncate">{user?.name}</p>
-                            <p className="text-xs text-slate-400 truncate capitalize">
-                                {roles[0] || 'Operador'} • <span className="text-indigo-400">v3.0</span>
+                            <p className="text-[10px] text-slate-400 truncate uppercase tracking-wider">
+                                {roles[0] || 'Operador'} • <span className="text-emerald-400">Online</span>
                             </p>
                         </div>
                     </div>
