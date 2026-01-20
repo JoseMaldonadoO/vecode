@@ -48,13 +48,17 @@ const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: bool
         <div className={`w-[24cm] mx-auto bg-white p-6 pt-2 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? 'print:break-after-page' : ''}`}>
 
             {/* --- Header --- */}
-            <div className="flex mb-1">
-                {/* Stamp/Sello Section */}
-                <div className="w-[20%] border-2 border-blue-600 p-1 flex flex-col items-center justify-center relative -left-2 rotate-[-1deg]">
-                    <div className="text-blue-600 font-bold text-[14px] leading-tight text-center">PRO<br />AGROINDUSTRIA</div>
-                    <div className="text-blue-600 font-bold text-[18px] leading-none mt-1">BASCULA</div>
-                    <div className="text-blue-600 text-[9px] font-bold mt-1">RECIBIDO/DESPACHADO</div>
-                    <div className="text-blue-600 font-bold text-[12px] opacity-70 mt-1">20 ENE 2026</div>
+            <div className="flex mb-1 items-center">
+                {/* Logo Section */}
+                <div className="w-[20%] p-1 flex items-center justify-center">
+                    <img
+                        src="/img/Proagro2.png"
+                        alt="Logo Proagro"
+                        className="h-20 w-auto object-contain"
+                        onError={(e) => {
+                            e.currentTarget.src = "/images/logo_proagro.png"; // Fallback to original if new one fails
+                        }}
+                    />
                 </div>
 
                 {/* Company Info */}
