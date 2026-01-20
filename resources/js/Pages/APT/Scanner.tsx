@@ -218,7 +218,9 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                     <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">No. Económico</span>
                                     <div className="font-bold text-gray-800">
-                                        {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.unit_number || viewingUnit.operator?.economic_number || 'N/A'}
+                                        {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.unit_number ||
+                                            (viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.economic_number ||
+                                            viewingUnit.operator?.economic_number || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -547,7 +549,9 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm font-bold text-gray-700">
-                                            {(scan.shipment_order || scan.shipmentOrder)?.unit_number || scan.operator?.economic_number || 'N/A'}
+                                            {(scan.shipment_order || scan.shipmentOrder)?.unit_number ||
+                                                (scan.shipment_order || scan.shipmentOrder)?.economic_number ||
+                                                scan.operator?.economic_number || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm">
                                             <div className="flex justify-end gap-2">

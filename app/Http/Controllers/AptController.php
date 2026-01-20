@@ -294,6 +294,14 @@ class AptController extends Controller
             $operatorId = $parts[0] ?? null;
         }
 
+        // If still null, try to match by plate from Order
+        if (!$operatorId && $order) {
+            $matchedOp = \App\Models\VesselOperator::where('tractor_plate', $order->tractor_plate)->first();
+            if ($matchedOp) {
+                $operatorId = $matchedOp->id;
+            }
+        }
+
         // Update Order
         $order->update([
             'warehouse' => $validated['warehouse'],
