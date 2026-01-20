@@ -95,8 +95,8 @@ class WeightTicketController extends Controller
             $orderData = [
                 'id' => $order->id,
                 'folio' => $order->folio,
-                'provider' => $order->client->name ?? 'N/A',
-                'product' => $order->product->name ?? 'N/A',
+                'provider' => $order->client_name ?? ($order->client->name ?? ($order->vessel->client->name ?? 'N/A')),
+                'product' => is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A'),
                 'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
                 'vehicle_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
                 'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
