@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { Scale, Truck, Save, Link as LinkIcon, AlertCircle, Warehouse, Box, ArrowRight, Search, Camera, X } from 'lucide-react';
+import { Scale, Truck, Save, Link as LinkIcon, AlertCircle, Warehouse, Box, ArrowRight, Search, Camera, X, Printer, Activity } from 'lucide-react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
@@ -180,22 +180,59 @@ export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any
         <DashboardLayout user={auth.user} header={`Salida / Destare - ${order.folio}`}>
             <Head title="Salida Báscula" />
 
-            <div className="py-6 max-w-7xl mx-auto px-4 space-y-6">
+            <div className="py-8 max-w-7xl mx-auto px-4 space-y-8">
 
-                <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                    <div>
-                        <h2 className="text-xl font-bold text-gray-800 flex items-center">
-                            <Truck className="w-6 h-6 mr-2 text-indigo-500" />
-                            {order.transport_line}
-                        </h2>
-                        <div className="flex gap-4 text-sm text-gray-500 mt-1">
-                            <span>Placa: <strong className="text-gray-700">{order.vehicle_plate}</strong></span>
-                            <span>Chofer: <strong className="text-gray-700">{order.driver}</strong></span>
-                        </div>
+                {/* Step Indicator / Process Flow */}
+                <div className="flex items-center justify-center gap-4 mb-2">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold shadow-lg shadow-green-200">1</div>
+                        <span className="text-sm font-bold text-gray-500">Entrada</span>
                     </div>
-                    <div className="text-right">
-                        <span className="block text-xs uppercase text-gray-400">Folio</span>
-                        <span className="font-mono font-bold text-xl text-indigo-600">{order.folio}</span>
+                    <div className="h-0.5 w-12 bg-green-200"></div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-xl shadow-indigo-200 animate-pulse">2</div>
+                        <span className="text-base font-black text-indigo-900">Salida / Destare</span>
+                    </div>
+                    <div className="h-0.5 w-12 bg-gray-200 border-dashed border-t-2"></div>
+                    <div className="flex items-center gap-2 grayscale">
+                        <div className="w-8 h-8 rounded-full bg-white border-2 border-gray-300 text-gray-400 flex items-center justify-center font-bold">3</div>
+                        <span className="text-sm font-bold text-gray-400">Generación de Ticket</span>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-60"></div>
+
+                    <div className="relative flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div className="flex items-center gap-6">
+                            <div className="p-4 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 rotate-3 transition-transform hover:rotate-0 duration-500">
+                                <Truck className="w-10 h-10 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2">
+                                    {order.transport_line}
+                                </h1>
+                                <div className="flex flex-wrap gap-3 mt-1">
+                                    <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold border border-gray-200 uppercase tracking-wider">
+                                        Placa: {order.vehicle_plate}
+                                    </span>
+                                    <span className="inline-flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold border border-indigo-100 uppercase tracking-wider">
+                                        Chofer: {order.driver}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex bg-gray-50 p-4 rounded-2xl border border-gray-200 shadow-inner min-w-[200px] justify-between items-center group">
+                            <div className="text-left">
+                                <span className="block text-[10px] uppercase text-gray-400 font-black tracking-widest mb-1 group-hover:text-indigo-500 transition-colors">Folio de Orden</span>
+                                <span className="font-mono font-black text-2xl text-gray-800 tracking-tighter">{order.folio}</span>
+                            </div>
+                            <div className="h-10 w-px bg-gray-200 mx-4"></div>
+                            <div className="p-2 bg-white rounded-lg border border-gray-100 shadow-sm">
+                                <Activity className="w-5 h-5 text-indigo-600 animate-pulse" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -317,11 +354,29 @@ export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any
                             </div>
                         </div>
 
-                        <div className="pt-4">
-                            <PrimaryButton disabled={processing || weight <= 0} className="w-full h-16 text-xl bg-indigo-600 hover:bg-indigo-700 shadow-xl transform transition hover:scale-[1.01] flex justify-center items-center">
-                                <Save className="w-6 h-6 mr-2" />
-                                REGISTRAR PESO NETO Y SALIDA
-                            </PrimaryButton>
+                        <div className="pt-6">
+                            <button
+                                disabled={processing || weight <= 0}
+                                className="group relative w-full h-20 bg-indigo-600 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                            >
+                                <div className="relative z-10 flex items-center justify-center gap-4">
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center animate-bounce">
+                                        <Printer className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div className="text-left">
+                                        <span className="block text-xl font-black text-white leading-tight">REGISTRAR Y GENERAR TICKET</span>
+                                        <span className="block text-xs font-bold text-indigo-200 uppercase tracking-widest leading-none mt-0.5">Finalizar proceso de báscula</span>
+                                    </div>
+                                    <ArrowRight className="w-6 h-6 text-white group-hover:translate-x-2 transition-transform" />
+                                </div>
+
+                                {/* Button Hover Background Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                            </button>
+
+                            <p className="text-center mt-4 text-xs font-bold text-gray-400 uppercase tracking-[0.2em] animate-pulse">
+                                Al confirmar se imprimirá el ticket automáticamente
+                            </p>
                         </div>
 
                     </div>
