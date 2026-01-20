@@ -22,13 +22,23 @@ logMsg("Directorio actual: " . __DIR__);
 logMsg("Usuario: " . get_current_user());
 logMsg("Permisos de directorio: " . substr(sprintf('%o', fileperms(__DIR__)), -4));
 
-// 2. Verificar ZIP
-$zipFile = 'release.zip';
-if (!file_exists($zipFile)) {
-    logMsg("ERROR CRITICO: No existe $zipFile en " . __DIR__);
-    die("Error: No zip found.");
+// 2. Verificar ZIP (Buscar cualquier archivo release_*.zip)
+$zipFiles = glob(__DIR__ . '/release_*.zip');
+
+if (empty($zipFiles)) {
+    // Fallback por si acaso
+    if (file_exists('release.zip')) {
+        $zipFile = 'release.zip';
+    } else {
+        logMsg("ERROR CRITICO: No se encontró ningún archivo release_*.zip en " . __DIR__);
+        die("Error: No zip found.");
+    }
+} else {
+    // Tomar el primero (debería haber solo uno si limpiamos bien)
+    $zipFile = $zipFiles[0];
 }
-logMsg("Archivo $zipFile encontrado. Tamaño: " . filesize($zipFile) . " bytes");
+
+logMsg("Archivo ZIP detectado: $zipFile. Tamaño: " . filesize($zipFile) . " bytes");
 
 // 3. Verificar Extensión Zip
 if (!class_exists('ZipArchive')) {

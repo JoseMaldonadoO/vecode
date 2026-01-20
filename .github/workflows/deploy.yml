@@ -54,8 +54,10 @@ jobs:
 
       - name: 🤐 Prepare Delivery Directory
         run: |
-          mkdir -p delivery
-          zip -r delivery/release.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "delivery/*"
+          mkdir delivery
+          cp extract_debug.php delivery/
+          # Create UNIQUE zip filename to prevent FTP caching/skipping
+          zip -r delivery/release_${{ github.run_number }}.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "delivery/*"
           cp extract.php delivery/
           cp extract_debug.php delivery/
           cp index.php delivery/
