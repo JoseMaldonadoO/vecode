@@ -281,10 +281,10 @@ class AptController extends Controller
             }
         }
 
-        // Create explicit variable for cubicle to ensure it's null for WH 1-3
-        $finalCubicle = $validated['cubicle'];
+        // Create explicit variable for cubicle to ensure it's 'N/A' for WH 1-3
+        $finalCubicle = $validated['cubicle'] ?? 'N/A';
         if (!in_array($validated['warehouse'], ['Almacén 4', 'Almacén 5', '4', '5'])) {
-            $finalCubicle = null;
+            $finalCubicle = 'N/A';
         }
 
         // Update Order
@@ -337,9 +337,12 @@ class AptController extends Controller
             }
         }
 
-        // Force null cubicle if not WH 4/5
+        // Force 'N/A' cubicle if not WH 4/5
         if (!in_array($validated['warehouse'], ['Almacén 4', 'Almacén 5', '4', '5'])) {
-            $validated['cubicle'] = null;
+            $validated['cubicle'] = 'N/A';
+        }
+        if (empty($validated['cubicle'])) {
+            $validated['cubicle'] = 'N/A';
         }
 
         // Update Scan Record
