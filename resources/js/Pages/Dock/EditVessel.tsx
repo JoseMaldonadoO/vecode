@@ -12,8 +12,8 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
         registration_number: vessel.registration_number || '',
         client_id: vessel.client_id || '',
 
-        eta: vessel.eta ? vessel.eta.split('T')[0] : '',
-        docking_date: vessel.docking_date ? vessel.docking_date.split('T')[0] : '',
+        eta: vessel.eta ? String(vessel.eta).substring(0, 10) : '',
+        docking_date: vessel.docking_date ? String(vessel.docking_date).substring(0, 10) : '',
         docking_time: vessel.docking_time || '',
 
         length: vessel.length || '',
@@ -33,8 +33,8 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
         customs_agency: vessel.customs_agency || '',
 
         stay_days: vessel.stay_days || '',
-        etc: vessel.etc ? vessel.etc.split('T')[0] : '',
-        departure_date: vessel.departure_date ? vessel.departure_date.split('T')[0] : '',
+        etc: vessel.etc ? String(vessel.etc).substring(0, 10) : '',
+        departure_date: vessel.departure_date ? String(vessel.departure_date).substring(0, 10) : '',
         observations: vessel.observations || ''
     });
 
