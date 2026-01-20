@@ -32,7 +32,7 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
         consignee_agency: vessel.consignee_agency || '',
         customs_agency: vessel.customs_agency || '',
 
-        stay_days: vessel.stay_days || '',
+        stay_days: vessel.stay_days !== null ? vessel.stay_days : '',
         etc: vessel.etc ? String(vessel.etc).substring(0, 10) : '',
         departure_date: vessel.departure_date ? String(vessel.departure_date).substring(0, 10) : '',
         observations: vessel.observations || ''
