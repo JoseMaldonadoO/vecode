@@ -1,12 +1,12 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link } from '@inertiajs/react';
-import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft } from 'lucide-react';
+import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft, X, FileText, User as UserIcon, Scale } from 'lucide-react';
+import { useState } from 'react';
 
 // --- Unicorn Components ---
 
-const WarehouseCard = ({ wh }: { wh: any }) => {
+const WarehouseCard = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location: any) => void }) => {
     // Almacén 1-3 (Flat)
     const isOccupied = wh.occupied;
+    const unitCount = wh.orders?.length || 0;
 
     return (
         <div className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 group h-full
@@ -40,29 +40,30 @@ const WarehouseCard = ({ wh }: { wh: any }) => {
                 {isOccupied ? (
                     <div className="space-y-4 animate-fade-in-up">
                         <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/10">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-green-500/20 text-green-400 rounded-lg">
-                                    <Truck className="w-5 h-5" />
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 bg-blue-500/20 text-blue-300 rounded-lg">
+                                        <Truck className="w-4 h-4" />
+                                    </div>
+                                    <span className="text-white font-black text-sm">{unitCount} {unitCount === 1 ? 'Unidad' : 'Unidades'}</span>
                                 </div>
-                                <div>
-                                    <p className="text-white font-bold text-lg">{wh.details?.product || 'Producto Desconocido'}</p>
-                                    <p className="text-indigo-200 text-xs text-wrap break-all">Folio: {wh.details?.folio}</p>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs mt-3">
-                                <div>
-                                    <span className="block text-indigo-300">Operador</span>
-                                    <span className="text-white font-medium">{wh.details?.operator_name?.split(' ')[0]}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-indigo-300">Placas</span>
-                                    <span className="text-white font-medium">{wh.details?.vehicle_plate || wh.details?.tractor_plate}</span>
+                                <div className="text-right">
+                                    <span className="block text-[10px] font-black text-indigo-300 uppercase tracking-widest">Peso Total</span>
+                                    <span className="text-white font-black text-lg">{(wh.total_net / 1000).toFixed(1)} TM</span>
                                 </div>
                             </div>
+
+                            <button
+                                onClick={() => onViewDetails(wh)}
+                                className="w-full py-2 bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 group/btn"
+                            >
+                                Ver Detalle Unidades
+                                <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                            </button>
                         </div>
                         <div className="flex items-center gap-2 text-green-400 text-sm font-bold">
                             <div className="w-2 h-2 bg-green-500 rounded-full animate-ping" />
-                            Ocupado / En Uso
+                            Operación Activa
                         </div>
                     </div>
                 ) : (
@@ -78,7 +79,7 @@ const WarehouseCard = ({ wh }: { wh: any }) => {
     );
 };
 
-const CubicleGrid = ({ wh }: { wh: any }) => {
+const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location: any) => void }) => {
     // Almacén 4-5 (Cubicles)
     const occupancyRate = wh.occupancy_percentage;
 
@@ -136,19 +137,24 @@ const CubicleGrid = ({ wh }: { wh: any }) => {
                         </div>
 
                         {cubicle.occupied ? (
-                            <div className="space-y-2 animate-fade-in">
-                                <div className="flex items-start gap-2">
-                                    <Package className="w-4 h-4 text-indigo-500 mt-0.5" />
-                                    <div>
-                                        <p className="font-bold text-slate-800 text-sm leading-tight line-clamp-2">
-                                            {cubicle.details?.product}
-                                        </p>
+                            <div className="space-y-3 animate-fade-in">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5 text-indigo-600">
+                                        <Truck className="w-3.5 h-3.5" />
+                                        <span className="text-xs font-black">{cubicle.orders?.length} {cubicle.orders?.length === 1 ? 'Unidad' : 'Unidades'}</span>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="block text-[9px] font-black text-gray-400 uppercase">Peso</span>
+                                        <span className="text-xs font-black text-gray-800">{(cubicle.total_net / 1000).toFixed(1)} T</span>
                                     </div>
                                 </div>
-                                <div className="pt-2 border-t border-slate-100 text-xs text-slate-500">
-                                    <p className="truncate">Op: {cubicle.details?.operator_name?.split(' ')[0]}</p>
-                                    <p className="font-mono text-[10px] text-slate-400">{cubicle.details?.folio}</p>
-                                </div>
+
+                                <button
+                                    onClick={() => onViewDetails(cubicle)}
+                                    className="w-full py-1.5 bg-slate-50 hover:bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-bold border border-slate-200 hover:border-indigo-200 transition-all"
+                                >
+                                    Detalle
+                                </button>
                             </div>
                         ) : (
                             <div className="h-16 flex items-center justify-center text-slate-300 text-xs font-medium">
@@ -172,6 +178,7 @@ const CubicleGrid = ({ wh }: { wh: any }) => {
 
 
 export default function Status({ auth, warehouses }: { auth: any, warehouses: any[] }) {
+    const [viewingLocation, setViewingLocation] = useState<any>(null);
     const flatWarehouses = warehouses.filter(w => w.type === 'flat');
     const cubicledWarehouses = warehouses.filter(w => w.type === 'cubicles');
 
@@ -190,12 +197,15 @@ export default function Status({ auth, warehouses }: { auth: any, warehouses: an
                                 Volver al menú
                             </Link>
                         </div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Estado de Almacenes</h1>
-                        <p className="text-slate-500 mt-1">Visualización entiempo real de la ocupación en Terminal APT.</p>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Celdas y Almacenes</h1>
+                        <p className="text-slate-500 mt-1">Gestión de unidades y pesajes acumulados en tiempo real.</p>
                     </div>
-                    <div className="hidden md:flex items-center gap-2 text-sm text-slate-400 bg-slate-50 px-3 py-1 rounded-full border">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        Actualizado: {new Date().toLocaleTimeString()}
+                    <div className="hidden md:flex flex-col items-end">
+                        <div className="flex items-center gap-2 text-sm text-slate-400 bg-slate-50 px-3 py-1 rounded-full border mb-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                            LIVE
+                        </div>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     </div>
                 </div>
 
@@ -203,7 +213,7 @@ export default function Status({ auth, warehouses }: { auth: any, warehouses: an
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {flatWarehouses.map((wh, idx) => (
                         <div key={idx} className="h-64">
-                            <WarehouseCard wh={wh} />
+                            <WarehouseCard wh={wh} onViewDetails={setViewingLocation} />
                         </div>
                     ))}
                 </div>
@@ -218,11 +228,132 @@ export default function Status({ auth, warehouses }: { auth: any, warehouses: an
                 {/* Row 2: Cubicled Warehouses (4-5) */}
                 <div className="space-y-8">
                     {cubicledWarehouses.map((wh, idx) => (
-                        <CubicleGrid key={idx} wh={wh} />
+                        <CubicleGrid key={idx} wh={wh} onViewDetails={(cub) => setViewingLocation({ ...cub, name: `${wh.name} - Cubículo ${cub.id}` })} />
                     ))}
                 </div>
 
             </div>
+
+            {/* MODAL: Detalle de Ubicación Multi-Unidad */}
+            {viewingLocation && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200">
+                        {/* Modal Header */}
+                        <div className="p-8 bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-900 flex justify-between items-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                            <div className="relative z-10">
+                                <h3 className="text-white text-3xl font-black tracking-tight">{viewingLocation.name}</h3>
+                                <p className="text-indigo-200 font-bold uppercase tracking-widest text-xs mt-1">Unidades en ubicación</p>
+                            </div>
+                            <button
+                                onClick={() => setViewingLocation(null)}
+                                className="relative z-10 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-all transform hover:rotate-90"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Modal Metrics Bar */}
+                        <div className="bg-slate-50 border-b border-slate-100 px-8 py-4 flex flex-wrap gap-8 items-center justify-center">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl">
+                                    <Truck className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Unidades</span>
+                                    <span className="text-lg font-black text-slate-800">{viewingLocation.orders?.length}</span>
+                                </div>
+                            </div>
+                            <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-100 text-blue-600 rounded-xl">
+                                    <Scale className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonelaje Neto Acumulado</span>
+                                    <span className="text-lg font-black text-blue-900">{(viewingLocation.total_net / 1000).toLocaleString()} TM</span>
+                                </div>
+                            </div>
+                            <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-amber-100 text-amber-600 rounded-xl">
+                                    <Package className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonelaje Programado</span>
+                                    <span className="text-lg font-black text-amber-900">{(viewingLocation.total_programmed / 1000).toLocaleString()} TM</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Table Body */}
+                        <div className="flex-1 overflow-y-auto p-8">
+                            <table className="w-full text-left border-separate border-spacing-y-3">
+                                <thead>
+                                    <tr>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Orden / Folio</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Operador / Línea</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Unidad</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Peso Neto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {viewingLocation.orders?.map((order: any) => (
+                                        <tr key={order.id} className="group hover:scale-[1.01] transition-all">
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-l-2xl border-y border-l border-slate-100 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-white rounded-lg border border-slate-100 text-indigo-600">
+                                                        <FileText className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="block font-black text-slate-800 text-sm">{order.folio}</span>
+                                                        <span className="text-[10px] text-slate-400 uppercase font-bold">{order.product}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
+                                                <div className="flex items-center gap-2">
+                                                    <UserIcon className="w-3.5 h-3.5 text-slate-400" />
+                                                    <div>
+                                                        <span className="block font-bold text-slate-700 text-sm">{order.operator_name}</span>
+                                                        <span className="text-[10px] text-slate-400 font-medium">{order.transport_company}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
+                                                <span className="inline-flex items-center px-2 py-1 bg-white border rounded-md text-xs font-black text-slate-600">
+                                                    {order.unit_number || order.tractor_plate}
+                                                </span>
+                                            </td>
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-r-2xl border-y border-r border-slate-100 text-right transition-colors">
+                                                <span className="text-sm font-black text-indigo-600">
+                                                    {((order.weight_ticket?.net_weight || 0) / 1000).toLocaleString()} TM
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {(!viewingLocation.orders || viewingLocation.orders.length === 0) && (
+                                <div className="text-center py-12">
+                                    <Package className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                                    <p className="text-slate-400 font-bold">No hay unidades activas en esta ubicación.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
+                            <button
+                                onClick={() => setViewingLocation(null)}
+                                className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg"
+                            >
+                                Cerrar Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style>{`
                 @keyframes fade-in-up {

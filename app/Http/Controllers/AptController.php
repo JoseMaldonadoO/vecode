@@ -81,7 +81,8 @@ class AptController extends Controller
         ];
 
         // Fetch Active Orders (Loading or Authorized)
-        $activeOrders = \App\Models\ShipmentOrder::whereIn('status', ['loading', 'authorized'])
+        $activeOrders = \App\Models\ShipmentOrder::with(['weight_ticket'])
+            ->whereIn('status', ['loading', 'authorized'])
             ->whereNotNull('warehouse')
             ->get();
 
@@ -92,37 +93,42 @@ class AptController extends Controller
                 'name' => $wh['name'],
                 'type' => $wh['type'],
                 'occupied' => false,
-                'details' => null,
+                'orders' => [],
+                'total_programmed' => 0,
+                'total_net' => 0,
                 'cubicles' => []
             ];
 
             if ($wh['type'] === 'flat') {
                 // Check if any order is here
-                $order = $activeOrders->where('warehouse', $wh['name'])->first();
-                if ($order) {
+                $orders = $activeOrders->where('warehouse', $wh['name']);
+                if ($orders->isNotEmpty()) {
                     $whData['occupied'] = true;
-                    $whData['details'] = $order;
+                    $whData['orders'] = $orders->values()->all();
+                    $whData['total_programmed'] = $orders->sum('programmed_tons');
+                    $whData['total_net'] = $orders->sum(fn($o) => $o->weight_ticket?->net_weight ?? 0);
                 }
             } else {
                 // Cubicles Logic
-                // Initialize 8 cubicles
+                $occupiedCount = 0;
                 for ($i = 1; $i <= 8; $i++) {
-                    $cubicleName = (string) $i; // Or "C-1"? Logic used simple numbers.
-                    // Check occupancy
-                    // We need to match loose strings potentially, but we standardized on "1", "2" etc.
-                    $order = $activeOrders->where('warehouse', $wh['name'])
-                        ->where('cubicle', $cubicleName)
-                        ->first();
+                    $cubicleName = (string) $i;
+                    $orders = $activeOrders->where('warehouse', $wh['name'])
+                        ->where('cubicle', $cubicleName);
+
+                    $isOccupied = $orders->isNotEmpty();
+                    if ($isOccupied)
+                        $occupiedCount++;
 
                     $whData['cubicles'][] = [
                         'id' => $i,
-                        'occupied' => (bool) $order,
-                        'details' => $order
+                        'occupied' => $isOccupied,
+                        'orders' => $orders->values()->all(),
+                        'total_programmed' => $orders->sum('programmed_tons'),
+                        'total_net' => $orders->sum(fn($o) => $o->weight_ticket?->net_weight ?? 0)
                     ];
                 }
 
-                // Calculate total occupancy %
-                $occupiedCount = count(array_filter($whData['cubicles'], fn($c) => $c['occupied']));
                 $whData['occupancy_percentage'] = ($occupiedCount / 8) * 100;
             }
 
@@ -267,18 +273,7 @@ class AptController extends Controller
             if (empty($validated['cubicle'])) {
                 return back()->withErrors(['cubicle' => 'El cubículo es obligatorio para el Almacén seleccionado.']);
             }
-            // Strict Occupancy Check
-            // Checks if any active order (status 'loading' or 'authorized') is already assigned to this cubicle.
-            $occupied = \App\Models\ShipmentOrder::where('warehouse', $validated['warehouse'])
-                ->where('cubicle', $validated['cubicle'])
-                ->whereIn('status', ['loading', 'authorized'])
-                ->where('id', '!=', $order->id) // Exclude current order
-                ->exists();
-
-            if ($occupied) {
-                // Return Error with a clear message and disable action
-                return back()->withErrors(['cubicle' => 'El cubículo ' . $validated['cubicle'] . ' en ' . $validated['warehouse'] . ' ya está ocupado por otra orden activa.']);
-            }
+            // Occupancy Check REMOVED to allow multiple units
         }
 
         // Create explicit variable for cubicle to ensure it's 'N/A' for WH 1-3
