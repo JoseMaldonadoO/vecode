@@ -130,7 +130,8 @@ class WeightTicketController extends Controller
 
                 if ($operator) {
                     // BEFORE suggesting a new entry, check if this operator already has an active order "In Plant"
-                    $activeOrder = ShipmentOrder::where('status', 'loading')
+                    $activeOrder = ShipmentOrder::with(['client', 'product', 'vessel'])
+                        ->where('status', 'loading')
                         ->where('tractor_plate', $operator->tractor_plate)
                         ->orderBy('created_at', 'desc')
                         ->first();
@@ -139,11 +140,11 @@ class WeightTicketController extends Controller
                         return response()->json([
                             'type' => 'shipment_order',
                             'id' => $activeOrder->id,
-                            'provider' => $activeOrder->client_name ?? ($activeOrder->client->name ?? 'N/A'),
+                            'provider' => $activeOrder->client_name ?? ($activeOrder->client->name ?? ($operator->vessel->client->name ?? 'N/A')),
                             'driver' => $activeOrder->operator_name ?? 'N/A',
                             'vehicle_plate' => $activeOrder->tractor_plate ?? 'N/A',
-                            'product' => $activeOrder->product ?? ($activeOrder->product()->first()->name ?? 'N/A'),
-                            'origin' => $activeOrder->origin ?? 'N/A',
+                            'product' => $activeOrder->product ?? ($activeOrder->product->name ?? ($operator->vessel->product->name ?? 'N/A')),
+                            'origin' => $activeOrder->origin ?? ($operator->vessel->origin ?? 'N/A'),
                             'status' => $activeOrder->status,
                             'warehouse' => $activeOrder->warehouse,
                             'cubicle' => $activeOrder->cubicle,
@@ -201,15 +202,15 @@ class WeightTicketController extends Controller
         return response()->json([
             'type' => 'shipment_order',
             'id' => $order->id,
-            'provider' => $order->client_name ?? ($order->client->name ?? 'N/A'),
-            'product' => $order->product ?? ($order->product()->first()->name ?? 'N/A'),
+            'provider' => $order->client_name ?? ($order->client->name ?? ($order->vessel->client->name ?? 'N/A')),
+            'product' => $order->product ?? ($order->product->name ?? ($order->vessel->product->name ?? 'N/A')),
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? ''),
             'carta_porte' => $order->bill_of_lading ?? '',
             'driver' => $order->operator_name ?? ($order->driver->name ?? 'N/A'),
             'vehicle_type' => $order->unit_type ?? ($order->vehicle->type ?? 'N/A'),
             'vehicle_plate' => $order->tractor_plate ?? ($order->vehicle->plate ?? ''),
             'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
-            'origin' => $order->origin ?? ($order->origin_address ?? 'N/A'),
+            'origin' => $order->origin ?? ($order->vessel->origin ?? ($order->origin_address ?? 'N/A')),
             'destination' => $order->destination_address ?? 'N/A',
             'presentation' => $order->presentation ?? 'Granel',
             'programmed_weight' => $order->programmed_amount ?? 0,
