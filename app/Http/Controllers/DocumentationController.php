@@ -131,10 +131,12 @@ class DocumentationController extends Controller
 
         $exists = VesselOperator::where('vessel_id', $validated['vessel_id'])
             ->where('operator_name', $validated['operator_name'])
+            ->where('economic_number', $validated['economic_number'])
+            ->where('tractor_plate', $validated['tractor_plate'])
             ->exists();
 
         if ($exists) {
-            return back()->withErrors(['operator_name' => 'Este operador ya está registrado en este barco.']);
+            return back()->withErrors(['operator_name' => 'Este operador ya está registrado en este barco con la misma unidad (Placas/Económico).']);
         }
 
         VesselOperator::create($validated);
