@@ -39,8 +39,10 @@ class AdminController extends Controller
             });
 
         return Inertia::render('Admin/Users/Index', [
-            'users' => $users,
-            'filters' => $request->only(['search']),
+            'users' => $users->withQueryString(),
+            'filters' => [
+                'search' => $request->input('search', ''),
+            ],
         ]);
     }
 

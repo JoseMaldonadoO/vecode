@@ -24,10 +24,11 @@ export default function Index({ auth, users, filters }: { auth: any, users: any,
 
     // Trigger search when debounced value changes
     useEffect(() => {
-        if (debouncedSearch !== filters.search) {
+        const currentSearch = filters.search || '';
+        if (debouncedSearch !== currentSearch) {
             router.get(
                 route('admin.users.index'),
-                { search: debouncedSearch },
+                { search: debouncedSearch || undefined }, // Send undefined if empty to clean URL
                 { preserveState: true, replace: true }
             );
         }
