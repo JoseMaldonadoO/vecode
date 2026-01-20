@@ -1,6 +1,7 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Pencil, Trash2, UserPlus, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserPlus, Search } from 'lucide-react';
+import Pagination from '@/Components/Pagination';
 import { useState, useEffect } from 'react';
 
 // Simple Debounce Hook
@@ -92,7 +93,7 @@ export default function Index({ auth, users, filters }: { auth: any, users: any,
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.username}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {user.roles.map((role: string) => (
+                                            {Array.isArray(user.roles) && user.roles.map((role: string) => (
                                                 <span key={role} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-1">
                                                     {role}
                                                 </span>
@@ -121,31 +122,7 @@ export default function Index({ auth, users, filters }: { auth: any, users: any,
                         </table>
                     </div>
                     {/* Pagination */}
-                    <div className="mt-4 flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
-                        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                            <div>
-                                <p className="text-sm text-gray-700">
-                                    Mostrando <span className="font-medium">{users.from}</span> a <span className="font-medium">{users.to}</span> de <span className="font-medium">{users.total}</span> resultados
-                                </p>
-                            </div>
-                            <div>
-                                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                                    {users.links.map((link: any, index: number) => (
-                                        <Link
-                                            key={index}
-                                            href={link.url || '#'}
-                                            className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${link.active
-                                                    ? 'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
-                                                    : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                                                } ${!link.url ? 'pointer-events-none opacity-50' : ''} ${index === 0 ? 'rounded-l-md' : ''
-                                                } ${index === users.links.length - 1 ? 'rounded-r-md' : ''}`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        />
-                                    ))}
-                                </nav>
-                            </div>
-                        </div>
-                    </div>
+                    <Pagination links={users.links} />
                 </div>
             </div>
         </DashboardLayout>
