@@ -36,6 +36,18 @@ if (!class_exists('ZipArchive')) {
     die("Error: No ZipArchive.");
 }
 
+// 3.5 Limpieza Previa (Aggressive cache clearing)
+if (function_exists('opcache_reset')) {
+    opcache_reset();
+    logMsg("Opcache reseteado.");
+}
+
+// Eliminar manifest anterior para asegurar que se usa el nuevo
+if (file_exists(__DIR__ . '/public/build/manifest.json')) {
+    unlink(__DIR__ . '/public/build/manifest.json');
+    logMsg("Manifest anterior eliminado.");
+}
+
 // 4. Intentar Extracción
 $zip = new ZipArchive;
 $res = $zip->open($zipFile);

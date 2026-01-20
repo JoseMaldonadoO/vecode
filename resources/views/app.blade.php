@@ -26,8 +26,9 @@
 
     <!-- Scripts -->
     @routes
-    @viteReactRefresh
-    @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
+        <!-- Cache Buster: v=3.1-migration-fix -->
+        @viteReactRefresh
+        @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
     @inertiaHead
 </head>
 
