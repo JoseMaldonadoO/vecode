@@ -186,7 +186,7 @@ class AptController extends Controller
                 // We need to find the LATEST active order for this operator
                 // This is a bit loose, ideally we scan the Order Folio or Ticket.
                 // But if they use the same Badge (Operator QR):
-                $order = \App\Models\ShipmentOrder::where('status', 'loading')
+                $order = \App\Models\ShipmentOrder::with('weight_ticket')->where('status', 'loading')
                     ->where(function ($q) use ($operatorId) {
                         // This assumes we stored Operator ID or can link back.
                         // Our ShipmentOrder has driver/vehicle snapshots.
@@ -203,7 +203,7 @@ class AptController extends Controller
             }
         } else {
             // Assume UUID or Folio
-            $order = \App\Models\ShipmentOrder::where('id', $qr)->orWhere('folio', $qr)->first();
+            $order = \App\Models\ShipmentOrder::with('weight_ticket')->where('id', $qr)->orWhere('folio', $qr)->first();
         }
 
         if (!$order) {
@@ -256,8 +256,9 @@ class AptController extends Controller
 
         // status check for Scale Flow
         if ($validated['operation_type'] === 'scale') {
-            if ($order->status !== 'loading') { // 'loading' is set after Scale Entry
-                return back()->withErrors(['qr' => 'ALERTA: El vehículo no ha pasado por báscula de entrada (Status: ' . $order->status . ').']);
+            // Must be 'loading' AND have a Weight Ticket
+            if ($order->status !== 'loading' || !$order->weight_ticket) {
+                return back()->withErrors(['qr' => 'ALERTA: El vehículo no ha pasado por báscula de entrada. No tiene ticket activo o estatus válido (Status: ' . $order->status . ').']);
             }
         }
 
