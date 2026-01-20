@@ -26,4 +26,9 @@ class AptScan extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function shipmentOrder()
+    {
+        return $this->belongsTo(ShipmentOrder::class);
+    }
 }

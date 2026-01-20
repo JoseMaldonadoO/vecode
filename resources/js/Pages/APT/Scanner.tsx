@@ -15,6 +15,7 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
 
     // Edit State
     const [editingScan, setEditingScan] = useState<any>(null);
+    const [viewingUnit, setViewingUnit] = useState<any>(null);
     const [deletingId, setDeletingId] = useState<number | null>(null);
 
     const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
@@ -190,6 +191,68 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* View Unit Modal */}
+            {viewingUnit && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-scale-in">
+                        <div className="flex justify-between items-center mb-6 border-b pb-4">
+                            <h3 className="text-xl font-bold text-gray-800">Detalles de la Unidad</h3>
+                            <button onClick={() => setViewingUnit(null)} className="text-gray-400 hover:text-gray-600">
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                                <span className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Operadora Logística</span>
+                                <div className="text-lg font-black text-indigo-900">{viewingUnit.shipment_order?.operator_name || 'N/A'}</div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">No. Económico</span>
+                                    <div className="font-bold text-gray-800">{viewingUnit.shipment_order?.unit_number || 'N/A'}</div>
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tipo de Unidad</span>
+                                    <div className="font-bold text-gray-800">{viewingUnit.shipment_order?.unit_type || 'N/A'}</div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Placas Tractor</span>
+                                    <div className="font-bold text-gray-800">{viewingUnit.shipment_order?.tractor_plate || 'N/A'}</div>
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Placas Remolque</span>
+                                    <div className="font-bold text-gray-800">{viewingUnit.shipment_order?.trailer_plate || 'N/A'}</div>
+                                </div>
+                            </div>
+
+                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Línea Transportista</span>
+                                <div className="font-bold text-gray-800">{viewingUnit.shipment_order?.transport_company || 'N/A'}</div>
+                            </div>
+
+                            <div className="pt-4 flex items-center justify-between text-xs text-gray-400 italic">
+                                <span>Folio: {viewingUnit.shipment_order?.folio}</span>
+                                <span>ID Escaneo: {viewingUnit.id}</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-8">
+                            <button
+                                onClick={() => setViewingUnit(null)}
+                                className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-colors shadow-lg"
+                            >
+                                Cerrar Detalles
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -477,15 +540,23 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                         <td className="px-6 py-4 text-right text-sm">
                                             <div className="flex justify-end gap-2">
                                                 <button
+                                                    onClick={() => setViewingUnit(scan)}
+                                                    className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-bold text-xs transition-all border border-blue-200"
+                                                    title="Ver detalles de unidad"
+                                                >
+                                                    <Search className="w-3 h-3" />
+                                                    Ver Unidad
+                                                </button>
+                                                <button
                                                     onClick={() => startEdit(scan)}
-                                                    className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                                                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                                                     title="Editar"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => setDeletingId(scan.id)}
-                                                    className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                     title="Eliminar"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
