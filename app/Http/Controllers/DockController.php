@@ -42,7 +42,6 @@ class DockController extends Controller
             'vessel_type' => 'required|string',
             'name' => 'required|string|max:255',
             'eta' => 'required|date',
-            'eta' => 'required|date',
             'docking_date' => 'nullable|date',
             'docking_time' => 'nullable',
             'operation_type' => 'required|string',
@@ -77,10 +76,9 @@ class DockController extends Controller
         $validated['service_type'] = $validated['operation_type'];
 
         // Combine Date & Time for ETB / Berthal Datetime
-        // Combine Date & Time for ETB / Berthal Datetime
         $etb = null;
-        if ($validated['docking_date'] && $validated['docking_time']) {
-            $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        if ($request->filled('docking_date')) {
+            $etb = $request->docking_date . ' ' . ($request->docking_time ?? '00:00:00');
         }
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
@@ -112,7 +110,6 @@ class DockController extends Controller
             'vessel_type' => 'required|string',
             'name' => 'required|string|max:255',
             'eta' => 'required|date',
-            'eta' => 'required|date',
             'docking_date' => 'nullable|date',
             'docking_time' => 'nullable',
             'operation_type' => 'required|string',
@@ -147,13 +144,16 @@ class DockController extends Controller
         $validated['service_type'] = $validated['operation_type'];
 
         // Combine Date & Time for ETB / Berthal Datetime
-        // Combine Date & Time for ETB / Berthal Datetime
         $etb = null;
-        if ($validated['docking_date'] && $validated['docking_time']) {
-            $etb = $validated['docking_date'] . ' ' . $validated['docking_time'];
+        if ($request->filled('docking_date')) {
+            $etb = $request->docking_date . ' ' . ($request->docking_time ?? '00:00:00');
         }
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
+
+        if (isset($validated['stay_days']) && $validated['stay_days'] === null) {
+            $validated['stay_days'] = 0;
+        }
 
         try {
             $vessel->update($validated);
