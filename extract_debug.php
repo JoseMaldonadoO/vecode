@@ -16,25 +16,24 @@ function logMsg($msg) {
 // Limpiar log anterior
 file_put_contents($logFile, "--- INICIO DEL DESPLIEGUE ---" . PHP_EOL);
 
-// 1. Verificar Entorno
-logMsg("Iniciando script extract_debug.php");
-logMsg("Directorio actual: " . __DIR__);
-logMsg("Usuario: " . get_current_user());
-logMsg("Permisos de directorio: " . substr(sprintf('%o', fileperms(__DIR__)), -4));
-
-// 2. Verificar ZIP (Buscar cualquier archivo release_*.zip)
-$zipFiles = glob(__DIR__ . '/release_*.zip');
+// 2. Verificar ZIP (Buscar en el directorio PADRE porque estamos en public/)
+// El script ahora corre en /public/extract_debug.php, pero el zip está en / (root)
+$zipFiles = glob(__DIR__ . '/../release_*.zip');
 
 if (empty($zipFiles)) {
-    // Fallback por si acaso
-    if (file_exists('release.zip')) {
-        $zipFile = 'release.zip';
+    // Fallback checking current dir just in case
+    $zipFiles = glob(__DIR__ . '/release_*.zip');
+}
+
+if (empty($zipFiles)) {
+    // Fallback hardcoded
+    if (file_exists(__DIR__ . '/../release.zip')) {
+        $zipFile = __DIR__ . '/../release.zip';
     } else {
-        logMsg("ERROR CRITICO: No se encontró ningún archivo release_*.zip en " . __DIR__);
+        logMsg("ERROR CRITICO: No se encontró ningún archivo release_*.zip en ../ ni en ./");
         die("Error: No zip found.");
     }
 } else {
-    // Tomar el primero (debería haber solo uno si limpiamos bien)
     $zipFile = $zipFiles[0];
 }
 
@@ -46,15 +45,14 @@ if (!class_exists('ZipArchive')) {
     die("Error: No ZipArchive.");
 }
 
-// 3.5 Limpieza Previa (Aggressive cache clearing)
+// 3.5 Limpieza Previa
 if (function_exists('opcache_reset')) {
     opcache_reset();
     logMsg("Opcache reseteado.");
 }
 
-// Eliminar manifest anterior para asegurar que se usa el nuevo
-if (file_exists(__DIR__ . '/public/build/manifest.json')) {
-    unlink(__DIR__ . '/public/build/manifest.json');
+if (file_exists(__DIR__ . '/build/manifest.json')) {
+    unlink(__DIR__ . '/build/manifest.json');
     logMsg("Manifest anterior eliminado.");
 }
 
@@ -65,9 +63,11 @@ $res = $zip->open($zipFile);
 if ($res === TRUE) {
     logMsg("ZIP abierto correctamente.");
     
-    // Intentar extraer
+    // Intentar extraer al directorio PADRE (ROOT)
     try {
-        $extracted = $zip->extractTo(__DIR__);
+        $targetDir = dirname(__DIR__); // Sube un nivel
+        logMsg("Extrayendo en: $targetDir");
+        $extracted = $zip->extractTo($targetDir);
         if ($extracted) {
             logMsg("Extracción reportada como EXITOSA.");
         } else {
