@@ -422,7 +422,7 @@ class WeightTicketController extends Controller
             'operation' => 'SALIDA', // Assuming always exit for generated ticket
             'scale_number' => $ticket->scale_id ?? 2, // Default or fetch
 
-            'product' => $order->product->name ?? 'N/A',
+            'product' => $order->product->name ?? $order->product_name ?? 'N/A',
             'presentation' => $order->product->presentation ?? 'GRANEL', // Fallback
 
             // Weights
@@ -432,19 +432,20 @@ class WeightTicketController extends Controller
             'tare_weight' => min($ticket->tare_weight, $ticket->gross_weight),  // Real Tara is the smallest
             'net_weight' => $ticket->net_weight,
 
-            'client' => $order->client->name ?? 'N/A',
+            'client' => $order->client->name ?? ($order->vessel->client->name ?? 'N/A'),
             'sale_order' => $order->sale_order ?? $order->folio, // Fallback to Folio if no OV
             'withdrawal_letter' => $order->withdrawal_letter ?? 'N/A', // CP
 
-            'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
-            'tractor_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
-            'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
+            'driver' => $order->operator_name ?? 'N/A',
+            'tractor_plate' => $order->tractor_plate ?? 'N/A',
+            'trailer_plate' => $order->trailer_plate ?? 'N/A',
+            'economic_number' => $order->economic_number ?? 'N/A',
 
-            'destination' => $order->destination_address ?? 'N/A',
-            'transporter' => $order->transport_company ?? $order->transporter->name ?? 'N/A',
+            'destination' => $order->destination ?? $order->destination_address ?? 'N/A',
+            'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
             'consignee' => $order->consignee ?? 'N/A',
 
-            'observations' => $order->observation ?? $order->vessel->name ?? '', // Add vessel name as partial observation if useful
+            'observations' => $order->observation ?? ($order->vessel->name ?? ''), // Add vessel name as partial observation if useful
 
             'entry_at' => $entryDate->format('d/m/Y H:i'),
             'exit_at' => $exitDate->format('d/m/Y H:i'),

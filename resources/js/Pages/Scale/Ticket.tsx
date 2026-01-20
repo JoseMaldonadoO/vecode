@@ -45,193 +45,182 @@ interface TicketProps {
 
 const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: boolean }> = ({ ticket, copyName, isLast }) => {
     return (
-        <div className={`w-[24cm] h-[14cm] mx-auto bg-white p-6 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? 'print:break-after-page' : ''}`}>
+        <div className={`w-[24cm] mx-auto bg-white p-6 pt-2 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? 'print:break-after-page' : ''}`}>
 
             {/* --- Header --- */}
-            <div className="flex border border-black mb-1 p-1">
-                {/* Logo Section */}
-                <div className="w-[20%] flex flex-col items-center justify-center border-r border-black p-1">
-                    <img src="/images/logo_proagro.png" alt="Logo" className="h-16 w-auto object-contain mb-1" onError={(e) => e.currentTarget.style.display = 'none'} />
-                    <div className="text-[10px] font-bold text-center leading-none">PRO<br />AGROINDUSTRIA</div>
-                    <div className="text-[8px] text-center mt-1">BASCULA</div>
-                    <div className="text-[8px] text-center">RECIBIDO/DESPACHADO</div>
+            <div className="flex mb-1">
+                {/* Stamp/Sello Section */}
+                <div className="w-[20%] border-2 border-blue-600 p-1 flex flex-col items-center justify-center relative -left-2 rotate-[-1deg]">
+                    <div className="text-blue-600 font-bold text-[14px] leading-tight text-center">PRO<br />AGROINDUSTRIA</div>
+                    <div className="text-blue-600 font-bold text-[18px] leading-none mt-1">BASCULA</div>
+                    <div className="text-blue-600 text-[9px] font-bold mt-1">RECIBIDO/DESPACHADO</div>
+                    <div className="text-blue-600 font-bold text-[12px] opacity-70 mt-1">20 ENE 2026</div>
                 </div>
 
                 {/* Company Info */}
                 <div className="w-[55%] flex flex-col justify-center items-center text-center px-2">
-                    <h1 className="font-bold text-xl leading-tight">PRO-AGROINDUSTRIA S.A. DE C.V.</h1>
-                    <p className="text-xs font-semibold">COATZACOALCOS, VERACRUZ</p>
-                    <p className="text-sm font-bold mt-1">LOGISTICA Y SUMINISTROS</p>
-                    <p className="text-[10px] mt-1">GLS-TR-FO-005.</p>
-                    <div className="border border-black px-4 py-0.5 mt-1 font-bold text-sm bg-gray-100">
-                        TICKETS DE PESO
+                    <h1 className="font-bold text-[24px] leading-tight tracking-tight">PRO-AGROINDUSTRIA S.A. DE C.V.</h1>
+                    <p className="text-[11px] font-bold">COATZACOALCOS, VERACRUZ</p>
+                    <p className="text-[14px] font-bold mt-1">LOGISTICA Y SUMINISTROS</p>
+                    <p className="text-[10px] mt-0.5">GLS-TR-FO-005.</p>
+                    <div className="border border-black px-6 py-0.5 mt-1 font-bold text-[14px] uppercase tracking-widest">
+                        Tickets de Peso
                     </div>
                 </div>
 
                 {/* Folio & Date */}
-                <div className="w-[25%] flex flex-col border-l border-black">
+                <div className="w-[25%] flex flex-col border border-black">
                     {/* Folio */}
-                    <div className="flex-1 flex flex-col items-center justify-center p-2 border-b border-black">
-                        <div className="text-xs font-bold mb-1">FOLIO</div>
-                        <div className="border border-black px-3 py-1 font-mono text-xl font-bold rounded-sm">
-                            No PRO <span className="text-red-600">{ticket.folio || ticket.ticket_number}</span> B
+                    <div className="flex-1 flex flex-col items-center justify-center p-1 border-b border-black">
+                        <div className="text-[11px] font-bold uppercase">FOLIO</div>
+                        <div className="border-[2px] border-black px-2 py-0.5 mt-0.5 flex items-center font-bold">
+                            <span className="text-[16px]">No PRO</span>
+                            <span className="text-[20px] text-red-600 ml-2">{ticket.folio || ticket.ticket_number}</span>
+                            <span className="text-[16px] ml-2">B</span>
                         </div>
                     </div>
                     {/* Date */}
-                    <div className="flex text-xs h-8">
-                        <div className="w-1/4 flex items-center justify-center font-bold border-r border-black bg-gray-100 pl-1">FECHA:</div>
-                        <div className="flex-1 flex items-center justify-around px-1 font-mono">
-                            {ticket.date}
+                    <div className="flex text-[10px]">
+                        <div className="w-1/3 flex items-center justify-center font-bold bg-gray-50 uppercase h-10 border-r border-black">Fecha:</div>
+                        <div className="flex-1 flex flex-col items-center justify-center font-mono">
+                            <div className="flex w-full justify-around border-b border-gray-100 px-1 font-bold text-[9px]">
+                                <span>DIA</span><span>MES</span><span>AÑO</span>
+                            </div>
+                            <div className="flex w-full justify-around px-1 text-[12px] font-bold">
+                                <span>{ticket.date.split('/')[0]}</span>
+                                <span>{ticket.date.split('/')[1]}</span>
+                                <span>{ticket.date.split('/')[2]}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* --- Main Content --- */}
-            <div className="flex border border-black text-[10px]">
+            <div className="flex border border-black text-[12px]">
 
                 {/* --- Left Column: Data --- */}
-                <div className="w-[60%] border-r border-black">
-                    {/* Row 1 */}
+                <div className="w-[60%] border-r border-black flex flex-col">
                     <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">REFERENCIA:</div>
-                        <div className="w-[35%] px-1 py-0.5 border-r border-black">{ticket.reference || 'N/A'}</div>
-                        <div className="w-[20%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">OPERACIÓN:</div>
-                        <div className="w-[20%] px-1 py-0.5 font-bold text-center">{ticket.operation}</div>
+                        <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">Referencia:</div>
+                        <div className="w-1/4 px-1.5 py-0.5 border-r border-black">{ticket.reference}</div>
+                        <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">Operación:</div>
+                        <div className="w-1/4 px-1.5 py-0.5 text-center font-bold">{ticket.operation}</div>
                     </div>
 
-                    {/* Row 2 */}
+                    {[
+                        ['Producto:', `${ticket.product} (${ticket.presentation})`],
+                        ['Cantidad Programada:', ticket.programmed_weight || 'N/A'],
+                        ['Cliente ó Proveedor:', ticket.client],
+                        ['No. Orden de Venta:', ticket.sale_order],
+                        ['Carta de Retiro:', ticket.withdrawal_letter],
+                    ].map(([label, value], idx) => (
+                        <div key={idx} className="flex border-b border-black">
+                            <div className="w-[35%] font-bold border-r border-black px-1.5 py-0.5 uppercase">{label}</div>
+                            <div className="w-[65%] px-1.5 py-0.5">{value}</div>
+                        </div>
+                    ))}
+
                     <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">PRODUCTO:</div>
-                        <div className="w-[75%] px-1 py-0.5">{ticket.product} ({ticket.presentation})</div>
+                        <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">No. de Placas:</div>
+                        <div className="w-1/4 px-1.5 py-0.5 border-r border-black font-mono">{ticket.tractor_plate}</div>
+                        <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">Econo:</div>
+                        <div className="w-1/4 px-1.5 py-0.5 font-mono">{ticket.economic_number}</div>
                     </div>
 
-                    {/* Row 3 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[40%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CANTIDAD PROGRAMADA:</div>
-                        <div className="w-[60%] px-1 py-0.5">{ticket.programmed_weight || 'N/A'}</div>
-                    </div>
+                    {[
+                        ['Conductor:', ticket.driver],
+                        ['Destino:', ticket.destination],
+                        ['Transportista:', ticket.transporter],
+                        ['Consignado:', ticket.consignee],
+                    ].map(([label, value], idx) => (
+                        <div key={idx} className="flex border-b border-black">
+                            <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">{label}</div>
+                            <div className="w-3/4 px-1.5 py-0.5 uppercase">{value}</div>
+                        </div>
+                    ))}
 
-                    {/* Row 4 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[30%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CLIENTE Ó PROVEEDOR:</div>
-                        <div className="w-[70%] px-1 py-0.5">{ticket.client}</div>
-                    </div>
-
-                    {/* Row 5 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[30%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">No. ORDEN DE VENTA:</div>
-                        <div className="w-[70%] px-1 py-0.5">{ticket.sale_order}</div>
-                    </div>
-
-                    {/* Row 6 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[30%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CARTA DE RETIRO:</div>
-                        <div className="w-[70%] px-1 py-0.5">{ticket.withdrawal_letter}</div>
-                    </div>
-
-                    {/* Row 7 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">No. DE PLACAS:</div>
-                        <div className="w-[25%] px-1 py-0.5 border-r border-black">{ticket.trailer_plate || ticket.tractor_plate}</div>
-                        <div className="w-[20%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">ECONO:</div>
-                        <div className="w-[30%] px-1 py-0.5">{ticket.economic_number || 'N/A'}</div>
-                    </div>
-
-                    {/* Row 8 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CONDUCTOR:</div>
-                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.driver}</div>
-                    </div>
-
-                    {/* Row 9 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">DESTINO:</div>
-                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.destination}</div>
-                    </div>
-
-                    {/* Row 10 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">TRANSPORTISTA:</div>
-                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.transporter}</div>
-                    </div>
-
-                    {/* Row 11 */}
-                    <div className="flex border-b border-black">
-                        <div className="w-[25%] font-bold px-1 py-0.5 bg-gray-100 border-r border-black">CONSIGNADO:</div>
-                        <div className="w-[75%] px-1 py-0.5 uppercase">{ticket.consignee || 'N/A'}</div>
-                    </div>
-
-                    {/* Observaciones */}
-                    <div className="h-16 bg-white">
-                        <div className="font-bold px-1 py-0.5 bg-gray-100 border-b border-black">OBSERVACIONES:</div>
-                        <div className="px-1 py-0.5 italic">{ticket.observations}</div>
+                    {/* Observaciones Area */}
+                    <div className="flex-1 min-h-[60px] flex flex-col">
+                        <div className="font-bold px-1.5 pt-0.5 text-[10px] uppercase">Observaciones:</div>
+                        <div className="px-1.5 py-0.5 text-[11px] italic leading-tight">
+                            {ticket.observations}
+                        </div>
                     </div>
                 </div>
 
-                {/* --- Right Column: Weights --- */}
-                <div className="w-[40%] flex flex-col bg-cyan-50/10"> {/* Subtle tinge or keeping it white as requested */}
-                    <div className="border-b border-black px-1 py-1 text-center font-bold bg-gray-100">ESPACIO PARA IMPRESIÓN</div>
+                {/* --- Right Column: Weights (Dot Matrix Simulation) --- */}
+                <div className="w-[40%] flex flex-col font-mono text-[13px] bg-gray-50/5">
+                    <div className="border-b border-black text-center font-bold py-1 uppercase text-[11px]">Espacio para Impresión</div>
 
-                    <div className="flex-1 p-4 font-mono text-xs space-y-3">
-                        <div className="text-center text-gray-500 text-[10px]">PRO-AGROINDUSTRIA S.A DE C.V</div>
-                        <div className="text-center text-gray-500 text-[10px]">BASCULA {ticket.scale_number}</div>
+                    <div className="flex-1 p-3 space-y-2 flex flex-col justify-center">
+                        <div className="text-center opacity-60 text-[10px] mb-2">PRO-AGROINDUSTRIA S.A DE C.V <br /> BASCULA {ticket.scale_number}</div>
 
-                        <div className="flex justify-between mt-4">
+                        <div className="flex justify-between">
                             <span>TICKET No.:</span>
-                            <span className="font-bold">{ticket.ticket_number}</span>
+                            <span className="font-bold">{ticket.ticket_number.replace('TK-', '')}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span>VEHICULO:</span>
+                            <span>VEHICULO :</span>
                             <span>{ticket.economic_number}</span>
                         </div>
-                        <div className="flex justify-between">
-                            <span>ENTRADA :</span>
-                            <span>{ticket.entry_weight.toLocaleString()} kg</span>
+                        <div className="flex justify-between border-b border-dotted border-gray-400 pb-1">
+                            <span>ENTRADA  :</span>
+                            <div className="flex flex-col items-end">
+                                <span>{ticket.entry_weight.toLocaleString()} kg</span>
+                                <span className="text-[9px] opacity-70">{ticket.entry_at || ticket.date}</span>
+                            </div>
                         </div>
-                        <div className="text-right text-[9px] text-gray-500">{ticket.entry_at || ticket.date}</div>
 
-                        {/* Salida data */}
-                        {ticket.net_weight > 0 && (
-                            <>
-                                <div className="mt-4 flex justify-between">
-                                    <span>BRUTO &nbsp;:</span>
+                        {ticket.net_weight > 0 ? (
+                            <div className="space-y-2 pt-2">
+                                <div className="flex justify-between">
+                                    <span>BRUTO    :</span>
                                     <span>{ticket.gross_weight.toLocaleString()} kg</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span>TARA &nbsp;&nbsp;:</span>
+                                    <span>TARA     :</span>
                                     <span>{ticket.tare_weight.toLocaleString()} kg</span>
                                 </div>
-                                <div className="flex justify-between font-bold text-lg border-t border-dashed border-gray-400 pt-1">
-                                    <span>NETO &nbsp;&nbsp;:</span>
+                                <div className="flex justify-between pt-1 border-t-2 border-black font-bold text-[18px]">
+                                    <span>NETO     :</span>
                                     <span>{ticket.net_weight.toLocaleString()} kg</span>
                                 </div>
-                                <div className="text-right text-[9px] text-gray-500">{ticket.exit_at || ticket.time}</div>
-                            </>
+                                <div className="text-right text-[10px] opacity-70">{ticket.exit_at || ticket.time}</div>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex items-center justify-center text-[20px] opacity-20 rotate-[-15deg] font-bold border-2 border-dashed border-gray-300 m-4">
+                                PENDIENTE
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
 
-            {/* --- Signatures --- */}
-            <div className="flex justify-between mt-auto pt-8 px-4 text-[10px] absolute bottom-8 w-full left-0 box-border">
+            {/* --- Footer / Signatures --- */}
+            <div className="flex justify-between mt-auto mb-2 px-4 h-24 items-end">
                 <div className="flex flex-col items-center w-[30%]">
-                    <div className="border-t border-black w-full text-center pt-1 font-bold">{ticket.documenter || '___________________'}</div>
-                    <div>FIRMA DE DOCUMENTADOR</div>
+                    <div className="w-full h-10 border-b border-black text-center text-[10px] flex items-end justify-center pb-1">
+                        {ticket.documenter}
+                    </div>
+                    <div className="text-[10px] font-bold text-center mt-1 uppercase">Firma de Documentador</div>
                 </div>
                 <div className="flex flex-col items-center w-[30%]">
-                    <div className="border-t border-black w-full text-center pt-1 font-bold">{ticket.weighmaster}</div>
-                    <div>FIRMA DEL PESADOR</div>
+                    <div className="w-full h-10 border-b border-black text-center text-[10px] flex items-end justify-center pb-1">
+                        {ticket.weighmaster}
+                    </div>
+                    <div className="text-[10px] font-bold text-center mt-1 uppercase">Firma del Pesador</div>
+                    <div className="text-[9px] text-red-600 font-bold">BASCULA</div>
                 </div>
                 <div className="flex flex-col items-center w-[30%]">
-                    <div className="border-t border-black w-full text-center pt-1 font-bold relative">
+                    <div className="w-full h-10 border-b border-black text-center text-[10px] flex items-end justify-center pb-1 uppercase">
                         {ticket.driver}
                     </div>
-                    <div>FIRMA DE OPERADOR</div>
+                    <div className="text-[10px] font-bold text-center mt-1 uppercase">Firma de Operador</div>
                 </div>
             </div>
 
-            <div className="absolute top-2 right-2 text-[10px] text-gray-400 opacity-50">{copyName}</div>
+            <div className="absolute top-2 right-2 text-[9px] font-bold opacity-30 tracking-widest">{copyName}</div>
         </div>
     );
 };
