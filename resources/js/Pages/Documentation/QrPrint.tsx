@@ -32,7 +32,7 @@ export default function QrPrint({ auth }: { auth: any }) {
     useEffect(() => {
         if (selectedOperator) {
             // Generate QR Code with Operator ID or unique data
-            const qrText = `OP:${selectedOperator.id}|${selectedOperator.operator_name}`;
+            const qrText = `OP ${selectedOperator.id}|${selectedOperator.operator_name}`;
             QRCode.toDataURL(qrText, { width: 200, margin: 1 }, (err, url) => {
                 if (!err) setQrDataUrl(url);
             });

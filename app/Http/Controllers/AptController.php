@@ -169,7 +169,7 @@ class AptController extends Controller
         $qr = $validated['qr'];
         $order = null;
 
-        if (str_starts_with($qr, 'OP:')) {
+        if (str_starts_with($qr, 'OP ')) {
             // Find active order for this operator
             $parts = explode('|', substr($qr, 3));
             $operatorId = $parts[0] ?? null;
@@ -200,7 +200,7 @@ class AptController extends Controller
 
         if (!$order) {
             // Auto-create Logic for Burreo / Operator Scan
-            if (str_starts_with($qr, 'OP:')) {
+            if (str_starts_with($qr, 'OP ')) {
                 $parts = explode('|', substr($qr, 3));
                 $operatorId = $parts[0] ?? null;
                 $operator = VesselOperator::with('vessel.product')->find($operatorId);

@@ -120,7 +120,7 @@ class WeightTicketController extends Controller
         $qr = $request->input('qr');
 
         // Check for Vessel Operator QR format: OP:{id}|{name}
-        if (str_starts_with($qr, 'OP:')) {
+        if (str_starts_with($qr, 'OP ')) {
             $parts = explode('|', substr($qr, 3));
             $operatorId = $parts[0] ?? null;
 
@@ -375,7 +375,7 @@ class WeightTicketController extends Controller
     {
         $order = ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel'])
             ->findOrFail($id);
-        
+
         $ticket = $order->weight_ticket;
 
         if (!$ticket) {
@@ -391,14 +391,14 @@ class WeightTicketController extends Controller
             'ticket_number' => $ticket->ticket_number,
             'date' => $exitDate->format('d/m/Y'),
             'time' => $exitDate->format('H:i:s'),
-            
+
             'reference' => $order->reference ?? 'N/A',
             'operation' => 'SALIDA', // Assuming always exit for generated ticket
             'scale_number' => $ticket->scale_id ?? 2, // Default or fetch
-            
+
             'product' => $order->product->name ?? 'N/A',
             'presentation' => $order->product->presentation ?? 'GRANEL', // Fallback
-            
+
             // Weights
             'entry_weight' => $ticket->tare_weight, // stored as tare (1st weight)
             'exit_weight' => $ticket->gross_weight, // stored as gross (2nd weight)
@@ -409,20 +409,20 @@ class WeightTicketController extends Controller
             'client' => $order->client->name ?? 'N/A',
             'sale_order' => $order->sale_order ?? $order->folio, // Fallback to Folio if no OV
             'withdrawal_letter' => $order->withdrawal_letter ?? 'N/A', // CP
-            
+
             'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
             'tractor_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
             'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
-            
+
             'destination' => $order->destination_address ?? 'N/A',
             'transporter' => $order->transport_company ?? $order->transporter->name ?? 'N/A',
             'consignee' => $order->consignee ?? 'N/A',
-            
+
             'observations' => $order->observation ?? $order->vessel->name ?? '', // Add vessel name as partial observation if useful
-            
+
             'entry_at' => $entryDate->format('d/m/Y H:i'),
             'exit_at' => $exitDate->format('d/m/Y H:i'),
-            
+
             'weighmaster' => auth()->user()->name ?? 'BASCULA',
             'documenter' => 'DOCUMENTACIÓN', // Placeholder
         ];
