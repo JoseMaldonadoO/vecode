@@ -279,6 +279,7 @@ class WeightTicketController extends Controller
                         'id' => (string) \Illuminate\Support\Str::uuid(),
                         'folio' => $folio,
                         'client_id' => $clientId,
+                        'client_name' => $validated['provider'] ?? null,
                         'product_id' => $productId,
                         'vessel_id' => $vesselId,
                         'status' => 'loading',
@@ -418,12 +419,12 @@ class WeightTicketController extends Controller
             'date' => $exitDate->format('d/m/Y'),
             'time' => $exitDate->format('H:i:s'),
 
-            'reference' => $order->reference ?? 'N/A',
+            'reference' => 'N/A',
             'operation' => 'SALIDA', // Assuming always exit for generated ticket
             'scale_number' => $ticket->scale_id ?? 2, // Default or fetch
 
-            'product' => $order->product->name ?? $order->product_name ?? 'N/A',
-            'presentation' => $order->product->presentation ?? 'GRANEL', // Fallback
+            'product' => is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A'),
+            'presentation' => $order->presentation ?? ($order->product->presentation ?? 'GRANEL'),
 
             // Weights
             'entry_weight' => $ticket->tare_weight, // stored as tare (1st weight)
@@ -432,8 +433,8 @@ class WeightTicketController extends Controller
             'tare_weight' => min($ticket->tare_weight, $ticket->gross_weight),  // Real Tara is the smallest
             'net_weight' => $ticket->net_weight,
 
-            'client' => $order->client->name ?? ($order->vessel->client->name ?? 'N/A'),
-            'sale_order' => $order->sale_order ?? $order->folio, // Fallback to Folio if no OV
+            'client' => $order->client_name ?? ($order->client->name ?? ($order->vessel->client->name ?? 'N/A')),
+            'sale_order' => 'N/A',
             'withdrawal_letter' => $order->bill_of_lading ?? ($order->withdrawal_letter ?? 'N/A'),
 
             'driver' => $order->operator_name ?? 'N/A',
