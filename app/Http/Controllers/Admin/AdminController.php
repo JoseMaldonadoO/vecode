@@ -13,12 +13,21 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($user) {
+        $query = User::with('roles')->orderBy('created_at', 'desc');
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('username', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->paginate(10)
+            ->through(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -30,7 +39,8 @@ class AdminController extends Controller
             });
 
         return Inertia::render('Admin/Users/Index', [
-            'users' => $users
+            'users' => $users,
+            'filters' => $request->only(['search']),
         ]);
     }
 
