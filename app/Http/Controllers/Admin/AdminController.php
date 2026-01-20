@@ -33,7 +33,7 @@ class AdminController extends Controller
                     'name' => $user->name,
                     'username' => $user->username,
                     'email' => $user->email,
-                    'roles' => $user->getRoleNames(),
+                    'roles' => $user->roles->pluck('name'),
                     'created_at' => $user->created_at->format('Y-m-d'),
                 ];
             });
