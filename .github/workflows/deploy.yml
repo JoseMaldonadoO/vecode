@@ -45,6 +45,12 @@ jobs:
         run: |
           npm install --legacy-peer-deps
           npm run build
+          ls -R public/build
+          # HACK: Force manifest to root if it is in .vite
+          if [ -f public/build/.vite/manifest.json ]; then
+            cp public/build/.vite/manifest.json public/build/manifest.json
+            echo "Moved .vite/manifest.json to root"
+          fi
 
       - name: 🤐 Prepare Delivery Directory
         run: |
