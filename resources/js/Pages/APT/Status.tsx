@@ -1,3 +1,5 @@
+import DashboardLayout from '@/Layouts/DashboardLayout';
+import { Head, Link } from '@inertiajs/react';
 import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft, X, FileText, User as UserIcon, Scale } from 'lucide-react';
 import { useState } from 'react';
 
