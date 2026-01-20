@@ -19,10 +19,10 @@ function parseEnv($path) {
 
 echo "--- DATABASE CONFIGURATION INSPECTOR ---\n\n";
 
-// 1. Current Root Environment
-$currentPath = __DIR__ . '/../../.env'; // Assumes script is in /public/
-echo "Checking Current Root .env ($currentPath): ";
-$currentEnv = parseEnv($currentPath);
+// 1. Current Root Environment (One level up from public/)
+$currentPath = realpath(__DIR__ . '/../.env'); 
+echo "Checking Current Root .env (" . ($currentPath ?: 'NOT FOUND at ' . __DIR__ . '/../.env') . "): ";
+$currentEnv = parseEnv($currentPath ?: __DIR__ . '/../.env');
 
 if ($currentEnv) {
     echo "FOUND\n";
@@ -35,10 +35,10 @@ if ($currentEnv) {
 
 echo "\n----------------------------------------\n\n";
 
-// 2. Old Subfolder Environment
-$oldPath = __DIR__ . '/../../VECODE/.env';
-echo "Checking Old Subfolder .env ($oldPath): ";
-$oldEnv = parseEnv($oldPath);
+// 2. Old Subfolder Environment (Sibling of public/)
+$oldPath = realpath(__DIR__ . '/../VECODE/.env');
+echo "Checking Old Subfolder .env (" . ($oldPath ?: 'NOT FOUND at ' . __DIR__ . '/../VECODE/.env') . "): ";
+$oldEnv = parseEnv($oldPath ?: __DIR__ . '/../VECODE/.env');
 
 if ($oldEnv) {
     echo "FOUND\n";

@@ -31,7 +31,8 @@ if (empty($zipFiles)) {
         $zipFile = __DIR__ . '/../release.zip';
     } else {
         logMsg("ERROR CRITICO: No se encontró ningún archivo release_*.zip en ../ ni en ./");
-        die("Error: No zip found.");
+        logMsg("Contenido de ../ : " . implode(", ", scandir(__DIR__ . '/../')));
+        die("Error: No zip found. Files in root: " . implode(", ", scandir(__DIR__ . '/../')));
     }
 } else {
     $zipFile = $zipFiles[0];
