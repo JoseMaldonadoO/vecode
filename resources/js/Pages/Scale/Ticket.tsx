@@ -136,7 +136,7 @@ const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: bool
                         ['Conductor:', ticket.driver],
                         ['Destino:', ticket.destination],
                         ['Transportista:', ticket.transporter],
-                        ['Consignado:', ticket.consignee],
+                        ['Consignación:', ticket.consignee],
                     ].map(([label, value], idx) => (
                         <div key={idx} className="flex border-b border-black">
                             <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">{label}</div>

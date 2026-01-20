@@ -442,9 +442,9 @@ class WeightTicketController extends Controller
             'trailer_plate' => $order->trailer_plate ?? 'N/A',
             'economic_number' => $order->economic_number ?? 'N/A',
 
-            'destination' => $order->destination ?? $order->destination_address ?? 'N/A',
+            'destination' => trim(($order->warehouse ?? '') . ($order->cubicle && $order->cubicle !== 'N/A' ? " - Cubículo {$order->cubicle}" : '')) ?: 'N/A',
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
-            'consignee' => $order->consignee ?? 'N/A',
+            'consignee' => 'N/A',
 
             'observations' => $order->observation ?? ($order->vessel->name ?? ''), // Add vessel name as partial observation if useful
 
