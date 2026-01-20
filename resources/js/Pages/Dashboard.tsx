@@ -177,9 +177,9 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <div>
                             <h3 className="text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
                                 <Activity className="w-5 h-5 text-blue-600" />
-                                Estado de la Operación
+                                Avance de Descarga
                             </h3>
-                            <p className="text-sm text-gray-400 font-bold mb-8">Rendimiento acumulado hoy</p>
+                            <p className="text-sm text-gray-400 font-bold mb-8">Tonelaje acumulado hoy</p>
                         </div>
 
                         <div className="relative py-12 flex items-center justify-center">
@@ -188,30 +188,22 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                 <path
                                     d="M20,80 L180,80 L160,110 L40,110 Z"
                                     fill="#1e3a8a"
-                                    className="animate-pulse"
                                 />
                                 <rect x="50" y="55" width="20" height="25" fill="#3b82f6" opacity="0.8" />
                                 <rect x="75" y="45" width="25" height="35" fill="#2563eb" />
                                 <rect x="105" y="40" width="30" height="40" fill="#1d4ed8" />
                                 <rect x="140" y="60" width="15" height="20" fill="#3b82f6" opacity="0.7" />
                                 <path d="M100,20 L100,40 M90,30 L110,30" stroke="#cbd5e1" strokeWidth="2" />
-                                <circle cx="165" cy="95" r="3" fill="white" opacity="0.3" />
-                                <circle cx="175" cy="95" r="2" fill="white" opacity="0.2" />
                             </svg>
-
-                            <div className="absolute inset-0 flex flex-col items-center justify-center pt-24">
-                                <span className="text-5xl font-black text-gray-900 tracking-tighter">19%</span>
-                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">Eficiencia Estimada</span>
-                            </div>
                         </div>
 
                         <div className="mt-8 space-y-4">
                             <div className="flex justify-between items-end">
-                                <span className="text-xs font-black text-gray-500 uppercase tracking-widest">Descargado:</span>
-                                <span className="text-xl font-black text-blue-900">{(stats.total_tonnes / 1000).toFixed(1)} TM</span>
+                                <span className="text-xs font-black text-gray-500 uppercase tracking-widest">Peso Neto Total:</span>
+                                <span className="text-xl font-black text-blue-900">{(stats.total_tonnes / 1000).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} TM</span>
                             </div>
                             <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
-                                <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full w-[19%] shadow-lg shadow-blue-200"></div>
+                                <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full w-full opacity-20"></div>
                             </div>
                         </div>
                     </div>
