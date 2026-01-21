@@ -10,12 +10,18 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        if (config('database.default') === 'mysql') {
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        }
+
         Schema::table('vessel_operators', function (Blueprint $table) {
             // Drop the unique index that prevents same operator name in same vessel
             $table->dropUnique('vessel_operators_vessel_id_operator_name_unique');
         });
-        \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        if (config('database.default') === 'mysql') {
+            \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        }
     }
 
     /**

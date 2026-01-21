@@ -18,7 +18,16 @@ return new class extends Migration {
         });
 
         // Populate username for existing users (using email prefix)
-        DB::statement("UPDATE users SET username = SUBSTRING_INDEX(email, '@', 1) WHERE username IS NULL");
+        if (config('database.default') === 'mysql') {
+            DB::statement("UPDATE users SET username = SUBSTRING_INDEX(email, '@', 1) WHERE username IS NULL");
+        } else {
+            DB::table('users')->whereNull('username')->get()->each(function ($user) {
+                if ($user->email) {
+                    $username = explode('@', $user->email)[0];
+                    DB::table('users')->where('id', $user->id)->update(['username' => $username]);
+                }
+            });
+        }
 
         // Make username required after population
         Schema::table('users', function (Blueprint $table) {

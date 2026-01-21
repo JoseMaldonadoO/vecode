@@ -35,10 +35,9 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
         consignee_agency: '',
         customs_agency: '',
 
-        stay_days: '',
-        etc: '',
         departure_date: '',
-        observations: ''
+        observations: '',
+        apt_operation_type: 'scale' // Default
     });
 
     // Reset fields if operation type changes
@@ -235,6 +234,43 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                     <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                     {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
                                 </div>
+                            </div>
+
+                            {/* New Operation Type Buttons (Scale vs Burreo) */}
+                            <div className="mt-8 pt-6 border-t border-gray-100">
+                                <InputLabel value="Operación en APT" className="text-center mb-3 text-indigo-800 font-bold" />
+                                <div className="flex justify-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setData('apt_operation_type', 'scale')}
+                                        className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
+                                            ${data.apt_operation_type === 'scale'
+                                                ? 'border-indigo-600 bg-indigo-50 text-indigo-800 shadow-md ring-2 ring-indigo-500/20'
+                                                : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'}
+                                        `}
+                                    >
+                                        <div className={`p-2 rounded-lg ${data.apt_operation_type === 'scale' ? 'bg-indigo-600 text-white' : 'bg-gray-100'}`}>
+                                            <Save className="w-5 h-5" />
+                                        </div>
+                                        <span className="font-bold text-sm">DESCARGA BASCULA</span>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setData('apt_operation_type', 'burreo')}
+                                        className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
+                                            ${data.apt_operation_type === 'burreo'
+                                                ? 'border-orange-500 bg-orange-50 text-orange-800 shadow-md ring-2 ring-orange-500/20'
+                                                : 'border-gray-200 bg-white text-gray-400 hover:border-gray-300'}
+                                        `}
+                                    >
+                                        <div className={`p-2 rounded-lg ${data.apt_operation_type === 'burreo' ? 'bg-orange-500 text-white' : 'bg-gray-100'}`}>
+                                            <Ship className="w-5 h-5" />
+                                        </div>
+                                        <span className="font-bold text-sm">BURREO</span>
+                                    </button>
+                                </div>
+                                {errors.apt_operation_type && <p className="text-red-500 text-xs mt-2 text-center font-bold">{errors.apt_operation_type}</p>}
                             </div>
                         </div>
 

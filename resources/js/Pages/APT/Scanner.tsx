@@ -46,8 +46,10 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                 setScanResult(response.data);
                 setData('qr', cleanCode);
 
-                // Auto-select Burreo if forced by ETB
-                if (response.data.force_burreo) {
+                // Auto-select based on Vessel Preference
+                if (response.data.apt_operation_type) {
+                    setData('operation_type', response.data.apt_operation_type);
+                } else if (response.data.force_burreo) {
                     setData('operation_type', 'burreo');
                 } else {
                     setData('operation_type', 'scale');
@@ -420,31 +422,35 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                             </div>
                             <form onSubmit={submitForm} className="space-y-6 flex flex-col justify-center">
                                 <div className="flex gap-4 p-1 bg-gray-100 rounded-lg">
-                                    <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'scale'
-                                        ? 'bg-white shadow-sm text-indigo-700 font-bold'
-                                        : scanResult.force_burreo
-                                            ? 'text-gray-300 cursor-not-allowed'
-                                            : 'text-gray-500'}`}>
-                                        <input
-                                            type="radio"
-                                            className="hidden"
-                                            name="op_type"
-                                            checked={data.operation_type === 'scale'}
-                                            onChange={() => !scanResult.force_burreo && setData('operation_type', 'scale')}
-                                            disabled={scanResult.force_burreo}
-                                        />
-                                        {scanResult.force_burreo ? <span className="line-through decoration-2">Descarga Báscula</span> : 'Descarga Báscula'}
-                                    </label>
-                                    <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'burreo' ? 'bg-white shadow-sm text-indigo-700 font-bold' : 'text-gray-500'}`}>
-                                        <input
-                                            type="radio"
-                                            className="hidden"
-                                            name="op_type"
-                                            checked={data.operation_type === 'burreo'}
-                                            onChange={() => setData('operation_type', 'burreo')}
-                                        />
-                                        Burreo
-                                    </label>
+                                    {(scanResult.apt_operation_type === 'scale' || !scanResult.apt_operation_type) && (
+                                        <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'scale'
+                                            ? 'bg-white shadow-sm text-indigo-700 font-bold'
+                                            : scanResult.force_burreo
+                                                ? 'text-gray-300 cursor-not-allowed'
+                                                : 'text-gray-500'}`}>
+                                            <input
+                                                type="radio"
+                                                className="hidden"
+                                                name="op_type"
+                                                checked={data.operation_type === 'scale'}
+                                                onChange={() => !scanResult.force_burreo && setData('operation_type', 'scale')}
+                                                disabled={scanResult.force_burreo}
+                                            />
+                                            {scanResult.force_burreo ? <span className="line-through decoration-2">Descarga Báscula</span> : 'Descarga Báscula'}
+                                        </label>
+                                    )}
+                                    {(scanResult.apt_operation_type === 'burreo' || !scanResult.apt_operation_type) && (
+                                        <label className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === 'burreo' ? 'bg-white shadow-sm text-indigo-700 font-bold' : 'text-gray-500'}`}>
+                                            <input
+                                                type="radio"
+                                                className="hidden"
+                                                name="op_type"
+                                                checked={data.operation_type === 'burreo'}
+                                                onChange={() => setData('operation_type', 'burreo')}
+                                            />
+                                            Burreo
+                                        </label>
+                                    )}
                                 </div>
                                 {scanResult.force_burreo && (
                                     <div className="text-amber-600 text-sm font-bold text-center -mt-4 mb-2">

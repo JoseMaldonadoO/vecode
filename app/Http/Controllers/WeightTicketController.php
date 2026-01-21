@@ -150,6 +150,7 @@ class WeightTicketController extends Controller
                             'cubicle' => $activeOrder->cubicle,
                             'vessel_etb' => $operator->vessel->etb,
                             'force_burreo' => !empty($operator->vessel->etb),
+                            'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
                         ]);
                     }
 
@@ -185,6 +186,7 @@ class WeightTicketController extends Controller
                         'status' => 'new_entry',
                         'vessel_etb' => $operator->vessel->etb,
                         'force_burreo' => !empty($operator->vessel->etb),
+                        'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
                     ]);
                 }
             }
@@ -222,6 +224,7 @@ class WeightTicketController extends Controller
             'consignee' => $order->consignee ?? '',
             'vessel_etb' => $order->vessel->etb ?? null,
             'force_burreo' => !empty($order->vessel->etb ?? null),
+            'apt_operation_type' => $order->vessel->apt_operation_type ?? 'scale',
         ]);
     }
 

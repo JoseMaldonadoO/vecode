@@ -61,6 +61,7 @@ class DockController extends Controller
             'consignee_agency' => 'nullable|string|max:255',
             'customs_agency' => 'nullable|string|max:255',
             'client_id' => 'required|exists:clients,id',
+            'apt_operation_type' => 'required|string|in:scale,burreo',
 
             // Conditional
             'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
@@ -129,6 +130,7 @@ class DockController extends Controller
             'consignee_agency' => 'nullable|string|max:255',
             'customs_agency' => 'nullable|string|max:255',
             'client_id' => 'required|exists:clients,id',
+            'apt_operation_type' => 'required|string|in:scale,burreo',
 
             // Conditional
             'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',

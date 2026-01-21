@@ -12,7 +12,9 @@ return new class extends Migration {
     public function up(): void
     {
         // Use raw SQL to bypass doctrine/dbal requirement for column modification
-        DB::statement('ALTER TABLE apt_scans MODIFY operator_id BIGINT UNSIGNED NULL');
+        if (config('database.default') === 'mysql') {
+            DB::statement('ALTER TABLE apt_scans MODIFY operator_id BIGINT UNSIGNED NULL');
+        }
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        DB::statement('ALTER TABLE apt_scans MODIFY operator_id BIGINT UNSIGNED NOT NULL');
+        if (config('database.default') === 'mysql') {
+            DB::statement('ALTER TABLE apt_scans MODIFY operator_id BIGINT UNSIGNED NOT NULL');
+        }
     }
 };

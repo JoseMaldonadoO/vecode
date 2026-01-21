@@ -13,7 +13,9 @@ return new class extends Migration {
     {
         // Modify the ENUM column to include 'closed'
         // Note: We restate all existing values to preserve them.
-        DB::statement("ALTER TABLE shipment_orders MODIFY COLUMN status ENUM('created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled', 'closed') NOT NULL DEFAULT 'created'");
+        if (config('database.default') === 'mysql') {
+            DB::statement("ALTER TABLE shipment_orders MODIFY COLUMN status ENUM('created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled', 'closed') NOT NULL DEFAULT 'created'");
+        }
     }
 
     /**
@@ -22,8 +24,8 @@ return new class extends Migration {
     public function down(): void
     {
         // Revert to original enum without 'closed'
-        // WARNING: This might fail if there are records with 'closed' status.
-        // For dev environment it's acceptable.
-        DB::statement("ALTER TABLE shipment_orders MODIFY COLUMN status ENUM('created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled') NOT NULL DEFAULT 'created'");
+        if (config('database.default') === 'mysql') {
+            DB::statement("ALTER TABLE shipment_orders MODIFY COLUMN status ENUM('created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled') NOT NULL DEFAULT 'created'");
+        }
     }
 };
