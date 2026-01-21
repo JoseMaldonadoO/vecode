@@ -320,62 +320,59 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                         </div>
 
                         {/* Modal Table Body */}
-                        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 m-8">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
+                        <div className="flex-1 overflow-y-auto p-8">
+                            <table className="w-full text-left border-separate border-spacing-y-3">
+                                <thead>
                                     <tr>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Orden / Folio</th>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Operador / Línea</th>
-                                        <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Unidad</th>
-                                        <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Peso Neto</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Orden / Folio</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Operador / Línea</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Unidad</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Peso Neto</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody>
                                     {viewingLocation.orders?.map((order: any) => (
-                                        <tr key={order.id} className="hover:bg-indigo-50 transition-colors duration-150">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0 p-2 bg-indigo-100 rounded-lg text-indigo-600">
-                                                        <FileText className="w-5 h-5" />
+                                        <tr key={order.id} className="group hover:scale-[1.01] transition-all">
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-l-2xl border-y border-l border-slate-100 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-white rounded-lg border border-slate-100 text-indigo-600">
+                                                        <FileText className="w-4 h-4" />
                                                     </div>
-                                                    <div className="ml-4">
-                                                        <div className="text-sm font-bold text-gray-900">{order.folio}</div>
-                                                        <div className="text-xs text-gray-500 uppercase">{order.product}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-8 w-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-500">
-                                                        <UserIcon className="w-4 h-4" />
-                                                    </div>
-                                                    <div className="ml-3">
-                                                        <div className="text-sm font-medium text-gray-900">{order.operator_name}</div>
-                                                        <div className="text-xs text-gray-500">{order.transport_company}</div>
+                                                    <div>
+                                                        <span className="block font-black text-slate-800 text-sm">{order.folio}</span>
+                                                        <span className="text-[10px] text-slate-400 uppercase font-bold">{order.product}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
+                                                <div className="flex items-center gap-2">
+                                                    <UserIcon className="w-3.5 h-3.5 text-slate-400" />
+                                                    <div>
+                                                        <span className="block font-bold text-slate-700 text-sm">{order.operator_name}</span>
+                                                        <span className="text-[10px] text-slate-400 font-medium">{order.transport_company}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
+                                                <span className="inline-flex items-center px-2 py-1 bg-white border rounded-md text-xs font-black text-slate-600">
                                                     {order.unit_number || order.tractor_plate}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-bold text-indigo-600">
-                                                {((order.weight_ticket?.net_weight || 0) / 1000).toLocaleString()} TM
+                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-r-2xl border-y border-r border-slate-100 text-right transition-colors">
+                                                <span className="text-sm font-black text-indigo-600">
+                                                    {((order.weight_ticket?.net_weight || 0) / 1000).toLocaleString()} TM
+                                                </span>
                                             </td>
                                         </tr>
                                     ))}
-                                    {(!viewingLocation.orders || viewingLocation.orders.length === 0) && (
-                                        <tr>
-                                            <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
-                                                <Package className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                                <p className="text-lg font-medium">No hay unidades activas</p>
-                                                <p className="text-sm">Esta ubicación está vacía por el momento.</p>
-                                            </td>
-                                        </tr>
-                                    )}
                                 </tbody>
                             </table>
+                            {(!viewingLocation.orders || viewingLocation.orders.length === 0) && (
+                                <div className="text-center py-12">
+                                    <Package className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                                    <p className="text-slate-400 font-bold">No hay unidades activas en esta ubicación.</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Modal Footer */}
