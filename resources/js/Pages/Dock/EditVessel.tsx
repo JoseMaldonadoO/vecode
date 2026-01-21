@@ -15,6 +15,7 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
         eta: vessel.eta ? String(vessel.eta).substring(0, 10) : '',
         docking_date: vessel.docking_date ? String(vessel.docking_date).substring(0, 10) : '',
         docking_time: vessel.docking_time || '',
+        dock: vessel.dock || '',
 
         length: vessel.length || '',
         beam: vessel.beam || '',
@@ -196,7 +197,7 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                 <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded">3</span>
                                 Datos de Arribo
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">ETA (Estimado Arribo)</label>
                                     <input
@@ -228,6 +229,19 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                     {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Muelle Asignado</label>
+                                    <select
+                                        value={data.dock}
+                                        onChange={e => setData('dock', e.target.value)}
+                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        <option value="ECO">ECO</option>
+                                        <option value="WHISKY">WHISKY</option>
+                                    </select>
+                                    <p className="text-xs text-gray-500 mt-1">Requerido para Status</p>
                                 </div>
                             </div>
 

@@ -18,6 +18,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
         eta: '',
         docking_date: '',
         docking_time: '',
+        dock: '',
 
         length: '',
         beam: '',
@@ -203,7 +204,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                 <Calendar className="w-5 h-5 mr-3" />
                                 3. Datos de Arribo
                             </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div>
                                     <InputLabel value="ETA (Estimado Arribo)" />
                                     <TextInput
@@ -235,6 +236,19 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                     />
                                     <p className="text-xs text-gray-500 mt-1">Opcional</p>
                                     {errors.docking_time && <p className="text-red-500 text-xs mt-1">{errors.docking_time}</p>}
+                                </div>
+                                <div>
+                                    <InputLabel value="Muelle Asignado" />
+                                    <select
+                                        value={data.dock}
+                                        onChange={e => setData('dock', e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        <option value="ECO">ECO</option>
+                                        <option value="WHISKY">WHISKY</option>
+                                    </select>
+                                    <p className="text-xs text-gray-500 mt-1">Requerido para Status</p>
                                 </div>
                             </div>
 

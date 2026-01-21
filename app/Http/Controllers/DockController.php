@@ -77,10 +77,17 @@ class DockController extends Controller
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
 
-        // Combine Date & Time for ETB / Berthal Datetime
+        // Create valid ETB Timestamp using Carbon to handle time formats
         $etb = null;
         if ($request->filled('docking_date')) {
-            $etb = $request->docking_date . ' ' . ($request->docking_time ?? '00:00:00');
+            $timeString = $request->docking_time ?? '00:00:00';
+            try {
+                // Combine date and time, let Carbon parse whatever format comes in (e.g. 1:00 p.m., 13:00)
+                $etb = \Carbon\Carbon::parse($request->docking_date . ' ' . $timeString);
+            } catch (\Exception $e) {
+                // Fallback if parsing fails
+                $etb = \Carbon\Carbon::parse($request->docking_date);
+            }
         }
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
@@ -147,10 +154,17 @@ class DockController extends Controller
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
 
-        // Combine Date & Time for ETB / Berthal Datetime
+        // Create valid ETB Timestamp using Carbon to handle time formats
         $etb = null;
         if ($request->filled('docking_date')) {
-            $etb = $request->docking_date . ' ' . ($request->docking_time ?? '00:00:00');
+            $timeString = $request->docking_time ?? '00:00:00';
+            try {
+                // Combine date and time, let Carbon parse whatever format comes in (e.g. 1:00 p.m., 13:00)
+                $etb = \Carbon\Carbon::parse($request->docking_date . ' ' . $timeString);
+            } catch (\Exception $e) {
+                // Fallback if parsing fails
+                $etb = \Carbon\Carbon::parse($request->docking_date);
+            }
         }
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
