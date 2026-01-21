@@ -69,8 +69,10 @@ class AptController extends Controller
     }
 
     // Status Dashboard
-    public function status()
+    public function status(Request $request)
     {
+        $date = $request->input('date', Carbon::today()->toDateString());
+
         // Define Warehouse Structure
         $warehouses = [
             ['name' => 'Almacén 1', 'type' => 'flat'],
@@ -80,11 +82,50 @@ class AptController extends Controller
             ['name' => 'Almacén 5', 'type' => 'cubicles', 'total_cubicles' => 8],
         ];
 
-        // Fetch Active Orders (Loading or Authorized)
-        $activeOrders = \App\Models\ShipmentOrder::with(['weight_ticket'])
-            ->whereIn('status', ['loading', 'authorized'])
-            ->whereNotNull('warehouse')
-            ->get();
+        // Fetch Orders for the selected date (Active OR Completed)
+        // AND Active orders (regardless of date) if they are currently occupying space?
+        // Actually, user wants a "Log view" per day usually, but "Status" implies Current State.
+        // Hybrid Approach:
+        // 1. If Date == Today: Show EVERYTHING active (regardless of entry date) + Completed Today.
+        // 2. If Date != Today: Show ONLY what was active/completed ON that specific day?
+        //    Let's stick to: "Show me the Log of [Date]".
+        //    But for "Current Status", we usually want "What is here NOW".
+        //    The user asked for "lo que entró ayer", so it's a log view.
+
+        $query = \App\Models\ShipmentOrder::with(['weight_ticket'])
+            ->whereNotNull('warehouse');
+
+        // Filter: 
+        // We want orders that were "Active" or "Completed" on that date.
+        // Simplest proxy: date(entry_at) == date OR date(updated_at) == date?
+        // Let's use entry_at for "Lo que entró". Or if they want "Production Report", usually it's by Exit Date.
+        // Let's stick to: "Orders processed/relevant to this date".
+
+        // Revised Logic based on "Inventory":
+        // Users want to know "How much weight ended up in Almacen 1 on Date X".
+        // So we filter by the date the valid action happened. 
+        // For simplicity and user expectation: Filter by `entry_at` (Date of Entry) matches selected date.
+        // This shows "What entered on this day".
+        $query->whereDate('entry_at', $date);
+
+        // Include all relevant statuses
+        $query->whereIn('status', ['loading', 'authorized', 'completed', 'closed', 'weighing_out']);
+
+        $dailyOrders = $query->get();
+
+        // If Date is TODAY, we MIGHT also want to include "Leftovers" from previous days that are still Active?
+        // If the view is "Inventory Status", yes. If it's "Daily Entry Log", no.
+        // The Prompt said: "detalle de las ubicaciones... marca los pesos que quedaron guardados".
+        // This implies INVENTORY.
+        // If it's Inventory, we need:
+        // 1. ALL currently Active units (regardless of entry date). -> Only if viewing Today?
+        // 2. ALL units that COMPLETED/CLOSED on the requested date? 
+        // Let's refine:
+        // "Show me the stored weight".
+        // If I pick "Yesterday", I probably want to see what was stored Yesterday.
+        // Let's stick to the Date Filter on `created_at` or `entry_at`.
+
+        // HOWEVER, to be safe: filtering by `entry_at` is the most "Logbook" style.
 
         $data = [];
 
@@ -100,12 +141,13 @@ class AptController extends Controller
             ];
 
             if ($wh['type'] === 'flat') {
-                // Check if any order is here
-                $orders = $activeOrders->where('warehouse', $wh['name']);
+                $orders = $dailyOrders->where('warehouse', $wh['name']);
+
                 if ($orders->isNotEmpty()) {
-                    $whData['occupied'] = true;
+                    $whData['occupied'] = true; // Has activity on this day
                     $whData['orders'] = $orders->values()->all();
-                    $whData['total_programmed'] = $orders->sum('programmed_tons');
+                    $whData['total_programmed'] = $orders->sum('programmed_tons'); // Assuming column exists
+                    // Sum Net Weight (using weight_ticket)
                     $whData['total_net'] = $orders->sum(fn($o) => $o->weight_ticket?->net_weight ?? 0);
                 }
             } else {
@@ -113,22 +155,23 @@ class AptController extends Controller
                 $occupiedCount = 0;
                 for ($i = 1; $i <= 8; $i++) {
                     $cubicleName = (string) $i;
-                    $orders = $activeOrders->where('warehouse', $wh['name'])
+                    $orders = $dailyOrders->where('warehouse', $wh['name'])
                         ->where('cubicle', $cubicleName);
 
-                    $isOccupied = $orders->isNotEmpty();
-                    if ($isOccupied)
-                        $occupiedCount++;
+                    $hasActivity = $orders->isNotEmpty();
+                    if ($hasActivity)
+                        $occupiedCount++; // Simply counts active cubicles for this date
 
                     $whData['cubicles'][] = [
                         'id' => $i,
-                        'occupied' => $isOccupied,
+                        'occupied' => $hasActivity,
                         'orders' => $orders->values()->all(),
-                        'total_programmed' => $orders->sum('programmed_tons'),
+                        'total_programmed' => $orders->sum('programmed_tons'), // Assuming column exists
                         'total_net' => $orders->sum(fn($o) => $o->weight_ticket?->net_weight ?? 0)
                     ];
                 }
 
+                // Occupancy Rate for the specific Day's view
                 $whData['occupancy_percentage'] = ($occupiedCount / 8) * 100;
             }
 
@@ -136,7 +179,10 @@ class AptController extends Controller
         }
 
         return Inertia::render('APT/Status', [
-            'warehouses' => $data
+            'warehouses' => $data,
+            'filters' => [
+                'date' => $date
+            ]
         ]);
     }
 

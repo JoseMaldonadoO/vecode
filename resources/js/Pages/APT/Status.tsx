@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft, X, FileText, User as UserIcon, Scale } from 'lucide-react';
+import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft, X, FileText, User as UserIcon, Scale, Calendar } from 'lucide-react';
 import { useState } from 'react';
 
 // --- Unicorn Components ---
@@ -179,10 +179,25 @@ const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location:
 };
 
 
-export default function Status({ auth, warehouses }: { auth: any, warehouses: any[] }) {
+import { router } from '@inertiajs/react';
+
+// ... (imports remain)
+
+export default function Status({ auth, warehouses, filters }: { auth: any, warehouses: any[], filters: any }) {
     const [viewingLocation, setViewingLocation] = useState<any>(null);
+    const [date, setDate] = useState(filters.date || new Date().toISOString().split('T')[0]);
+
     const flatWarehouses = warehouses.filter(w => w.type === 'flat');
     const cubicledWarehouses = warehouses.filter(w => w.type === 'cubicles');
+
+    const handleDateChange = (newDate: string) => {
+        setDate(newDate);
+        router.get(route('apt.status'), { date: newDate }, {
+            preserveState: true,
+            replace: true,
+            preserveScroll: true
+        });
+    };
 
     return (
         <DashboardLayout user={auth.user} header="Status APT">
@@ -191,7 +206,7 @@ export default function Status({ auth, warehouses }: { auth: any, warehouses: an
             <div className="max-w-7xl mx-auto py-8 px-4 space-y-8 animate-fade-in">
 
                 {/* Header Section */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <div className="mb-4">
                             <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
@@ -200,14 +215,30 @@ export default function Status({ auth, warehouses }: { auth: any, warehouses: an
                             </Link>
                         </div>
                         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Celdas y Almacenes</h1>
-                        <p className="text-slate-500 mt-1">Gestión de unidades y pesajes acumulados en tiempo real.</p>
+                        <p className="text-slate-500 mt-1">Gestión de unidades y pesajes acumulados por día.</p>
                     </div>
-                    <div className="hidden md:flex flex-col items-end">
-                        <div className="flex items-center gap-2 text-sm text-slate-400 bg-slate-50 px-3 py-1 rounded-full border mb-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                            LIVE
+
+                    <div className="flex items-center gap-4">
+                        {/* Date Filter */}
+                        <div className="relative">
+                            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                                type="date"
+                                value={date}
+                                onChange={(e) => handleDateChange(e.target.value)}
+                                className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold shadow-sm focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                            />
                         </div>
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+
+                        <div className="hidden md:flex flex-col items-end">
+                            <div className={`flex items-center gap-2 text-sm px-3 py-1 rounded-full border mb-2 ${date === new Date().toISOString().split('T')[0] ? 'text-slate-400 bg-slate-50' : 'text-indigo-500 bg-indigo-50 border-indigo-100'}`}>
+                                <div className={`w-2 h-2 rounded-full ${date === new Date().toISOString().split('T')[0] ? 'bg-green-500 animate-pulse' : 'bg-indigo-500'}`} />
+                                {date === new Date().toISOString().split('T')[0] ? 'LIVE' : 'HISTÓRICO'}
+                            </div>
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                {new Date(date + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
