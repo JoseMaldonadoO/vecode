@@ -10,6 +10,11 @@ $app = require_once __DIR__ . '/../bootstrap/app.php';
 
 $kernel = $app->make(Kernel::class);
 
+// Bootstrap the application by handling a dummy request
+$response = $kernel->handle(
+    $request = Illuminate\Http\Request::capture()
+);
+
 echo "<html><body style='font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px;'>";
 echo "<h1>🚀 Vessel Cleanup 'HOLA'</h1>";
 echo "<pre>";
