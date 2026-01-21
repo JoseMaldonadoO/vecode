@@ -187,14 +187,23 @@ class AptController extends Controller
         ]);
     }
 
-    public function scanner()
+    public function scanner(Request $request)
     {
-        $recentScans = \App\Models\AptScan::with(['operator', 'shipmentOrder'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $filters = $request->only(['date']);
+
+        $query = \App\Models\AptScan::with(['operator', 'shipmentOrder'])
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $recentScans = $query->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('APT/Scanner', [
-            'recentScans' => $recentScans
+            'recentScans' => $recentScans,
+            'filters' => $filters,
         ]);
     }
 

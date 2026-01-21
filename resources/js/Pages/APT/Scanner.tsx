@@ -3,10 +3,11 @@ import { Head, useForm, router, Link } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 import { QrCode, ArrowLeft, Save, Search, Scan, Camera, X, AlertTriangle, CheckCircle, Warehouse, Edit, Trash2 } from 'lucide-react';
 import axios from 'axios';
+import { pickBy } from 'lodash';
 import { QrReader } from 'react-qr-reader';
 import Modal from '@/Components/Modal';
 
-export default function Scanner({ auth, recentScans, occupiedFlat = [], occupiedCubicles = [] }: { auth: any, recentScans: { data: any[], links: any[], from: number, to: number, total: number }, occupiedFlat?: string[], occupiedCubicles?: string[] }) {
+export default function Scanner({ auth, recentScans, occupiedFlat = [], occupiedCubicles = [], filters = { date: '' } }: { auth: any, recentScans: { data: any[], links: any[], from: number, to: number, total: number }, occupiedFlat?: string[], occupiedCubicles?: string[], filters?: { date?: string } }) {
     const [scanInput, setScanInput] = useState('');
     const [isScanning, setIsScanning] = useState(true);
     const [scanResult, setScanResult] = useState<any>(null);
@@ -17,6 +18,15 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
     const [editingScan, setEditingScan] = useState<any>(null);
     const [viewingUnit, setViewingUnit] = useState<any>(null);
     const [deletingId, setDeletingId] = useState<number | null>(null);
+
+    // Filter State
+    const [dateFilter, setDateFilter] = useState(filters.date || '');
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setDateFilter(val);
+        router.get(route('apt.scanner'), pickBy({ date: val }), { preserveState: true, preserveScroll: true });
+    };
 
     const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
         qr: '',
@@ -526,6 +536,32 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                             Movimientos Recientes
                         </h3>
                         <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full">{recentScans.total} registros</span>
+
+                    </div>
+
+                    {/* Date Filter */}
+                    <div className="px-6 py-2 bg-gray-50 border-b border-gray-100 flex justify-end">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-500 font-medium">Filtrar por fecha:</span>
+                            <input
+                                type="date"
+                                value={dateFilter}
+                                onChange={handleDateChange}
+                                className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
+                            />
+                            {dateFilter && (
+                                <button
+                                    onClick={() => {
+                                        setDateFilter('');
+                                        router.get(route('apt.scanner'), {}, { preserveState: true, preserveScroll: true });
+                                    }}
+                                    className="text-gray-400 hover:text-gray-600"
+                                    title="Limpiar filtro"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
