@@ -13,5 +13,8 @@ class WeightTicket extends Model
         'weigh_out_at' => 'datetime',
     ];
 
-    //
+    public function shipment_order()
+    {
+        return $this->belongsTo(ShipmentOrder::class);
+    }
 }
