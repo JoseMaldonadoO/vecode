@@ -56,15 +56,127 @@ class WeightTicketController extends Controller
         ]);
     }
 
-    // ... (keep store and update methods for legacy or refactor later) ...
-    public function store(Request $request)
+    // --- Ticket Management Section ---
+
+    public function tickets(Request $request)
     {
-        return redirect()->back();
-    } // Stub legacy
-    public function update(Request $request, $id)
+        $filters = $request->only(['search', 'date']);
+
+        $query = WeightTicket::with([
+            'shipment_order' => function ($q) {
+                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client']);
+            }
+        ])
+            ->join('shipment_orders', 'weight_tickets.shipment_order_id', '=', 'shipment_orders.id')
+            ->select('weight_tickets.*', 'shipment_orders.folio', 'shipment_orders.operator_name', 'shipment_orders.tractor_plate')
+            ->orderBy('weight_tickets.created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('weight_tickets.ticket_number', 'like', "%{$search}%")
+                    ->orWhere('shipment_orders.folio', 'like', "%{$search}%")
+                    ->orWhere('shipment_orders.operator_name', 'like', "%{$search}%")
+                    ->orWhere('shipment_orders.tractor_plate', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('weight_tickets.created_at', $request->date);
+        }
+
+        $tickets = $query->paginate(10)
+            ->withQueryString()
+            ->through(function ($ticket) {
+                return [
+                    'id' => $ticket->shipment_order_id, // Link acts on Order ID often, but Ticket ID is internal
+                    'ticket_id' => $ticket->id,
+                    'folio' => $ticket->shipment_order->folio,
+                    'ticket_number' => $ticket->ticket_number,
+                    'driver' => $ticket->shipment_order->operator_name ?? 'N/A',
+                    'vehicle_plate' => $ticket->shipment_order->tractor_plate ?? 'N/A',
+                    'provider' => $ticket->shipment_order->client_name ?? ($ticket->shipment_order->client->name ?? ($ticket->shipment_order->vessel->client->name ?? 'N/A')),
+                    'product' => is_string($ticket->shipment_order->product) ? $ticket->shipment_order->product : ($ticket->shipment_order->product->name ?? 'N/A'),
+                    'status' => $ticket->weighing_status,
+                    'entry_at' => $ticket->weigh_in_at,
+                    'exit_at' => $ticket->weigh_out_at,
+                    'tare_weight' => $ticket->tare_weight,
+                    'gross_weight' => $ticket->gross_weight,
+                    'net_weight' => $ticket->net_weight,
+                ];
+            });
+
+        return Inertia::render('Scale/Tickets/Index', [
+            'tickets' => $tickets,
+            'filters' => $filters
+        ]);
+    }
+
+    public function editTicket($id)
     {
-        return redirect()->back();
-    } // Stub legacy
+        // $id is shipment_order_id passed from index
+        $order = ShipmentOrder::with(['weight_ticket'])->findOrFail($id);
+
+        if (!$order->weight_ticket) {
+            return back()->withErrors(['error' => 'Ticket no encontrado.']);
+        }
+
+        return Inertia::render('Scale/Tickets/Edit', [
+            'ticket' => $order->weight_ticket,
+            'order' => $order
+        ]);
+    }
+
+    public function updateTicket(Request $request, $id)
+    {
+        // $id is ticket ID (or order ID depending on route param, standard resource uses model ID)
+        // My route said /scale/tickets/{id} -> usually ticket ID.
+        // Let's assume passed ID is Ticket ID for safety, OR handle logic.
+        // But my edit link passes Order ID usually. Let's make it Order ID based to match 'id'.
+
+        $order = ShipmentOrder::with('weight_ticket')->findOrFail($id);
+        $ticket = $order->weight_ticket;
+
+        $validated = $request->validate([
+            'tare_weight' => 'required|numeric|min:0',
+            'gross_weight' => 'required|numeric|min:0',
+            'net_weight' => 'required|numeric|min:0', // calculated usually, but allowed to edit?
+            'observations' => 'nullable|string',
+        ]);
+
+        $ticket->update([
+            'tare_weight' => $validated['tare_weight'],
+            'gross_weight' => $validated['gross_weight'],
+            'net_weight' => $validated['net_weight'],
+        ]);
+
+        // Also update Order observations if needed
+        if ($request->has('observations')) {
+            $order->update(['observation' => $validated['observations']]);
+        }
+
+        return redirect()->route('scale.tickets.index')->with('success', 'Ticket actualizado correctamente.');
+    }
+
+    public function destroyTicket($id)
+    {
+        // $id is Order ID
+        $order = ShipmentOrder::with('weight_ticket')->findOrFail($id);
+
+        if ($order->weight_ticket) {
+            $order->weight_ticket->delete();
+        }
+
+        // Reset Order?
+        // If we delete the ticket, we revert the order to a state where it has NO ticket.
+        // "Authorized" allows creating a new ticket (Entry).
+        $order->update([
+            'status' => 'authorized', // Revert to pre-scale status
+            'destare_status' => null, // Clear custom flags
+        ]);
+
+        return redirect()->back()->with('success', 'Ticket eliminado. La orden ha vuelto a estado "Autorizado".');
+    }
 
     // --- New Methods for Entry MI / MP ---
 

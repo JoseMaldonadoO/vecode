@@ -62,6 +62,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/scale/entry', [\App\Http\Controllers\WeightTicketController::class, 'storeEntry'])->name('scale.entry.store');
     Route::post('/scale/exit', [\App\Http\Controllers\WeightTicketController::class, 'storeExit'])->name('scale.exit.store');
     Route::get('/scale/ticket/{id}', [\App\Http\Controllers\WeightTicketController::class, 'printTicket'])->name('scale.ticket.print');
+
+    // Ticket Management
+    Route::get('/scale/tickets', [\App\Http\Controllers\WeightTicketController::class, 'tickets'])->name('scale.tickets.index');
+    Route::get('/scale/tickets/{id}/edit', [\App\Http\Controllers\WeightTicketController::class, 'editTicket'])->name('scale.tickets.edit');
+    Route::put('/scale/tickets/{id}', [\App\Http\Controllers\WeightTicketController::class, 'updateTicket'])->name('scale.tickets.update');
+    Route::delete('/scale/tickets/{id}', [\App\Http\Controllers\WeightTicketController::class, 'destroyTicket'])->name('scale.tickets.destroy');
+
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
 
     // Documentation Module
