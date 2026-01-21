@@ -13,83 +13,126 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $date = $request->input('date', Carbon::today()->toDateString());
+        $vesselId = $request->input('vessel_id');
+        $dateStart = $request->input('start_date');
+        $dateEnd = $request->input('end_date');
+
         $warehouse = $request->input('warehouse');
         $cubicle = $request->input('cubicle');
         $operator = $request->input('operator');
 
-        // Base query for stats and filtering
-        // Prefix columns to avoid ambiguity after joins
-        $baseQuery = ShipmentOrder::whereDate('shipment_orders.updated_at', $date);
+        // 1. Resolve Vessel (Default to latest active if not provided)
+        if (!$vesselId) {
+            $latestVessel = \App\Models\Vessel::latest('created_at')->first();
+            $vesselId = $latestVessel ? $latestVessel->id : null;
+        }
+
+        $selectedVessel = $vesselId ? \App\Models\Vessel::find($vesselId) : null;
+
+        // Base query linked to the specific vessel
+        $baseQuery = ShipmentOrder::query();
+
+        if ($vesselId) {
+            $baseQuery->where('vessel_id', $vesselId);
+        }
+
+        // Apply filters
+        if ($dateStart && $dateEnd) {
+            $baseQuery->whereBetween('updated_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+        } elseif ($request->has('date')) {
+            // Fallback for single date legacy filter
+            $baseQuery->whereDate('updated_at', $request->date);
+        }
 
         if ($warehouse)
-            $baseQuery->where('shipment_orders.warehouse', $warehouse);
+            $baseQuery->where('warehouse', $warehouse);
         if ($cubicle)
-            $baseQuery->where('shipment_orders.cubicle', $cubicle);
+            $baseQuery->where('cubicle', $cubicle);
         if ($operator)
-            $baseQuery->where('shipment_orders.operator_name', $operator);
+            $baseQuery->where('operator_name', $operator);
 
-        // 1. Calculate Stats
-        $stats = [
-            // Trips completed (Today or filtered date)
-            'trips_completed' => (clone $baseQuery)->where('shipment_orders.status', 'completed')->count(),
+        // --- KPIS ---
 
-            // Units in circuit (Currently in plant, regardless of date filtering)
-            'units_in_circuit' => ShipmentOrder::whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count(),
+        // Trips Completed (Total for this vessel, filtered by date if applied)
+        $tripsCompleted = (clone $baseQuery)->where('status', 'completed')->count();
 
-            // Units discharging (Currently in APT)
-            'units_discharging' => ShipmentOrder::where('status', 'loading')
-                ->whereNotNull('warehouse')
-                ->count(),
+        // Units in Circuit (Live status, usually usually filtered by vessel but NOT by date, as they are "current")
+        // However, if we are looking at historical data, this might be 0. 
+        // For "Dashboard", we usually want CURRENT state for operational KPIs.
+        // We'll restrict to vessel but ignore date filter for "Current Status" KPIs
+        $liveQuery = ShipmentOrder::where('vessel_id', $vesselId);
+        if ($warehouse)
+            $liveQuery->where('warehouse', $warehouse); // Filter live units by warehouse if selected
 
-            // Total Tonnes (Filtered)
-            'total_tonnes' => (clone $baseQuery)
-                ->where('shipment_orders.status', 'completed')
-                ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-                ->sum('weight_tickets.net_weight'),
+        $unitsInCircuit = (clone $liveQuery)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count();
+        $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
 
-            'active_users' => User::count(),
-        ];
-
-        // 2. Charts Data (Grouped)
-        $by_cubicle = (clone $baseQuery)
+        // Total Tonnage (Net Weight from Tickets)
+        $totalTonnage = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->selectRaw('CONCAT(shipment_orders.warehouse, " - ", shipment_orders.cubicle) as label, SUM(weight_tickets.net_weight) as total')
-            ->groupBy('shipment_orders.warehouse', 'shipment_orders.cubicle')
+            ->sum('weight_tickets.net_weight');
+
+        // --- CHARTS ---
+
+        // 1. Daily Tonnage (Classic Bar Chart)
+        $dailyTonnage = (clone $baseQuery)
+            ->where('shipment_orders.status', 'completed')
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->selectRaw('DATE(shipment_orders.updated_at) as date, SUM(weight_tickets.net_weight) as total')
+            ->groupBy('date')
+            ->orderBy('date')
             ->get();
 
-        $by_operator = (clone $baseQuery)
+        // 2. Storage Breakdown (By Cubicle)
+        $byCubicle = (clone $baseQuery)
+            ->where('shipment_orders.status', 'completed')
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->selectRaw('shipment_orders.cubicle, SUM(weight_tickets.net_weight) as total')
+            ->whereNotNull('shipment_orders.cubicle')
+            ->groupBy('shipment_orders.cubicle')
+            ->orderByDesc('total')
+            ->get();
+
+        // 3. Operator Breakdown
+        $byOperator = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->selectRaw('shipment_orders.operator_name as label, SUM(weight_tickets.net_weight) as total')
             ->groupBy('shipment_orders.operator_name')
+            ->orderByDesc('total')
             ->get();
 
-        // 3. Filter Options
-        $options = [
-            'warehouses' => ShipmentOrder::whereNotNull('warehouse')->distinct()->pluck('warehouse'),
-            'cubicles' => ShipmentOrder::whereNotNull('cubicle')->distinct()->pluck('cubicle'),
-            'operators' => ShipmentOrder::whereNotNull('operator_name')->distinct()->pluck('operator_name'),
+
+        // Options for Selectors
+        $vessels = \App\Models\Vessel::orderBy('created_at', 'desc')->take(20)->get(['id', 'name']);
+
+        // Filter options based on the CURRENT vessel context
+        $filterOptions = [
+            'warehouses' => ShipmentOrder::where('vessel_id', $vesselId)->whereNotNull('warehouse')->distinct()->pluck('warehouse'),
+            'cubicles' => ShipmentOrder::where('vessel_id', $vesselId)->whereNotNull('cubicle')->distinct()->pluck('cubicle'),
+            'operators' => ShipmentOrder::where('vessel_id', $vesselId)->whereNotNull('operator_name')->distinct()->pluck('operator_name'),
         ];
 
-        // 4. Latest Vessel
-        $vessel = \App\Models\Vessel::latest()->first();
-
         return Inertia::render('Dashboard', [
-            'stats' => $stats,
+            'vessel' => $selectedVessel,
+            'vessels_list' => $vessels,
+            'stats' => [
+                'trips_completed' => $tripsCompleted,
+                'units_in_circuit' => $unitsInCircuit,
+                'units_discharging' => $unitsDischarging,
+                'total_tonnage' => $totalTonnage,
+                'progress_percent' => ($selectedVessel && $selectedVessel->programmed_tonnage > 0)
+                    ? round(($totalTonnage / $selectedVessel->programmed_tonnage) * 100, 1)
+                    : 0
+            ],
             'charts' => [
-                'by_cubicle' => $by_cubicle,
-                'by_operator' => $by_operator,
+                'daily_tonnage' => $dailyTonnage,
+                'by_cubicle' => $byCubicle,
+                'by_operator' => $byOperator
             ],
-            'options' => $options,
-            'filters' => [
-                'date' => $date,
-                'warehouse' => $warehouse,
-                'cubicle' => $cubicle,
-                'operator' => $operator,
-            ],
-            'vessel' => $vessel
+            'filters' => $request->all(),
+            'options' => $filterOptions
         ]);
     }
 }
