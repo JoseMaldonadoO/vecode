@@ -396,9 +396,19 @@ class WeightTicketController extends Controller
                 // If no existing Order, create one (Vessel Entry Scenario)
                 if (!$orderId) {
                     // Generate Folio
-                    // Generate Folio (Reset sequence to numeric only starting at 0000)
-                    $numericCount = ShipmentOrder::where('folio', 'REGEXP', '^[0-9]+$')->count();
-                    $folio = str_pad($numericCount, 4, '0', STR_PAD_LEFT);
+                    // Generate Folio
+                    // Use LockForUpdate to prevent race conditions during high concurrency
+                    // And get the MAX numeric folio instead of count()
+                    $lastFolio = ShipmentOrder::where('folio', 'REGEXP', '^[0-9]+$')
+                        ->lockForUpdate() // Pessimistic lock within transaction
+                        ->max('folio');
+
+                    $nextFolioNum = 1;
+                    if ($lastFolio) {
+                        $nextFolioNum = intval($lastFolio) + 1;
+                    }
+
+                    $folio = str_pad($nextFolioNum, 4, '0', STR_PAD_LEFT);
 
                     $order = ShipmentOrder::create([
                         'id' => (string) \Illuminate\Support\Str::uuid(),
