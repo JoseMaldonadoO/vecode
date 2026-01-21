@@ -170,7 +170,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100">
                             <div className="flex justify-between items-end mb-6">
                                 <div>
-                                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber((stats.total_tonnes || 0) / 1000)}</h2>
+                                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber((stats.total_tonnage || 0) / 1000)}</h2>
                                     <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-1">Toneladas Métricas Descargadas</p>
                                 </div>
                                 <div className="text-right">
@@ -251,14 +251,14 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                             </div>
                             <div className="absolute inset-0 flex items-center justify-between px-4">
                                 <span className="text-xs font-bold text-blue-900/50 uppercase">Progreso</span>
-                                <span className="text-xs font-bold text-blue-900/50">{formatTonnes(stats.total_tonnes || 0)} / {formatNumber(vessel?.programmed_tonnage || 0)}</span>
+                                <span className="text-xs font-bold text-blue-900/50">{formatTonnes(stats.total_tonnage || 0)} / {formatNumber(vessel?.programmed_tonnage || 0)}</span>
                             </div>
                         </div>
 
                         <div className="w-full mt-auto pt-6 border-t border-gray-100">
                             <div className="flex justify-between items-center mb-3">
                                 <span className="text-sm font-bold text-gray-500 uppercase">Descargado:</span>
-                                <span className="text-xl font-black text-gray-900 font-mono">{formatTonnes(stats.total_tonnes || 0)} TM</span>
+                                <span className="text-xl font-black text-gray-900 font-mono">{formatTonnes(stats.total_tonnage || 0)} TM</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-sm font-bold text-gray-400 uppercase">Total Programado:</span>
