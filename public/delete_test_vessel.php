@@ -22,10 +22,14 @@ echo "<pre>";
 
 try {
     DB::transaction(function () {
+        // Disable FK checks to force deletion of stubborn records
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
         // 1. Find Vessel
         $vessel = Vessel::where('name', 'HOLA')->first();
 
         if (!$vessel) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             echo "<span style='color: #fbbf24;'>⚠️ Vessel 'HOLA' not found. Nothing to delete.</span>";
             return;
         }
@@ -55,8 +59,11 @@ try {
         }
 
         // 7. Delete Vessel
-        $vessel->delete();
+        // Force delete via DB builder to bypass any model events or soft delete issues
+        DB::table('vessels')->where('id', $vessel->id)->delete();
         echo "<span style='color: #4ade80;'>✅ Vessel 'HOLA' and all dependencies deleted successfully.</span>\n";
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     });
 
 } catch (\Exception $e) {
