@@ -219,4 +219,28 @@ class DockController extends Controller
             'arrivals' => $arrivals
         ]);
     }
+    public function destroy($id)
+    {
+        $vessel = Vessel::findOrFail($id);
+
+        // Check for dependencies
+        if (ShipmentOrder::where('vessel_id', $id)->exists()) {
+            return back()->withErrors(['error' => 'No se puede eliminar: El barco tiene Órdenes de Embarque asociadas.']);
+        }
+
+        if (VesselOperator::where('vessel_id', $id)->exists()) {
+            return back()->withErrors(['error' => 'No se puede eliminar: El barco tiene Operadores registrados.']);
+        }
+
+        // Optional: Check specific other relations if necessary, e.g., WeighTickets if they link directly to vessels not via orders
+        // if (WeightTicket::where('vessel_id', $id)->exists()) { ... }
+
+        try {
+            $vessel->delete();
+            return redirect()->route('dock.index')->with('success', 'Barco eliminado correctamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Vessel Delete Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al eliminar barco: ' . $e->getMessage()]);
+        }
+    }
 }

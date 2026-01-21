@@ -78,29 +78,31 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                         </div>
                     ) : (
                         /* Filters & Active Vessels Table */
-                        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+                            <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white">
                                 <div className="flex items-center gap-4">
                                     <button
                                         onClick={() => setViewMode('menu')}
-                                        className="flex items-center text-gray-500 hover:text-indigo-600 transition-colors"
+                                        className="group flex items-center text-gray-500 hover:text-indigo-600 transition-colors"
                                     >
-                                        <ArrowLeft className="w-6 h-6 mr-1" />
-                                        <span className="font-medium">Volver</span>
+                                        <div className="p-1 rounded-full group-hover:bg-indigo-50 mr-2 transition-colors">
+                                            <ArrowLeft className="w-5 h-5" />
+                                        </div>
+                                        <span className="font-bold">Volver</span>
                                     </button>
-                                    <h3 className="text-lg font-bold text-gray-900 flex items-center border-l-2 border-gray-200 pl-4">
-                                        <Ship className="w-5 h-5 mr-2 text-indigo-600" />
+                                    <h3 className="text-xl font-bold text-gray-900 flex items-center border-l-2 border-gray-200 pl-4">
+                                        <Ship className="w-6 h-6 mr-3 text-indigo-600" />
                                         Barcos Activos
                                     </h3>
                                 </div>
 
                                 {/* Date Filters */}
                                 <div className="flex items-center gap-2">
-                                    <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                                        <span className="text-xs font-medium text-gray-500 uppercase">Filtros:</span>
+                                    <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-lg border border-gray-200 shadow-sm">
+                                        <span className="text-xs font-bold text-gray-500 uppercase px-2">Filtros</span>
                                         <input
                                             type="date"
-                                            className="text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 py-1"
+                                            className="text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 py-1.5"
                                             value={params.start_date}
                                             onChange={(e) => setParams({ ...params, start_date: e.target.value })}
                                             placeholder="Inicio"
@@ -108,14 +110,14 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                         <span className="text-gray-400">-</span>
                                         <input
                                             type="date"
-                                            className="text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 py-1"
+                                            className="text-sm border-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 py-1.5"
                                             value={params.end_date}
                                             onChange={(e) => setParams({ ...params, end_date: e.target.value })}
                                             placeholder="Fin"
                                         />
                                         <button
                                             onClick={handleSearch}
-                                            className="p-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
+                                            className="p-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition shadow-sm"
                                             title="Filtrar"
                                         >
                                             <Filter className="w-4 h-4" />
@@ -123,7 +125,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                         {(params.start_date || params.end_date) && (
                                             <button
                                                 onClick={clearFilters}
-                                                className="p-1.5 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
+                                                className="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
                                                 title="Limpiar"
                                             >
                                                 <X className="w-4 h-4" />
@@ -137,53 +139,80 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
 
                             {/* Desktop View (Table) */}
                             <div className="hidden lg:block overflow-x-auto">
-                                <table className="w-full text-left text-sm text-gray-600">
-                                    <thead className="bg-gray-50 text-gray-900 font-semibold">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                         <tr>
-                                            <th className="px-6 py-4 whitespace-nowrap">Buque</th>
-                                            <th className="px-6 py-4 whitespace-nowrap">ETA</th>
-                                            <th className="px-6 py-4 whitespace-nowrap">ETB</th>
-                                            <th className="px-6 py-4 whitespace-nowrap">ETC</th>
-                                            <th className="px-6 py-4 whitespace-nowrap">F. Salida</th>
-                                            <th className="px-6 py-4 whitespace-nowrap">Operación</th>
-                                            <th className="px-6 py-4 text-center whitespace-nowrap">Acciones</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Buque</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETA</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETB</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETC</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">F. Salida</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Operación</th>
+                                            <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100">
+                                    <tbody className="bg-white divide-y divide-gray-200">
                                         {vesselList && vesselList.length > 0 ? (
                                             vesselList.map((v: any) => (
-                                                <tr key={v.id} className="hover:bg-gray-50 transition-colors">
-                                                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{v.name} ({v.vessel_type})</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{v.eta ? v.eta.substring(0, 10) : '--'}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{v.docking_date}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{v.etc || '--'}</td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">{v.departure_date || '--'}</td>
+                                                <tr key={v.id} className="hover:bg-indigo-50 transition-colors duration-150">
                                                     <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="flex flex-col">
-                                                            <span className={`font-semibold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
-                                                                {v.operation_type}
-                                                            </span>
-                                                            {v.operation_type === 'Descarga' && v.product && (
-                                                                <span className="text-xs text-gray-500 mt-1">
-                                                                    {v.product.name} ({v.programmed_tonnage} Ton)
-                                                                </span>
-                                                            )}
+                                                        <div className="flex items-center">
+                                                            <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">
+                                                                {v.vessel_type.substring(0, 2)}
+                                                            </div>
+                                                            <div className="ml-4">
+                                                                <div className="text-sm font-bold text-gray-900">{v.name}</div>
+                                                                <div className="text-xs text-gray-500">{v.vessel_type}</div>
+                                                            </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 text-center whitespace-nowrap">
-                                                        <Link
-                                                            href={route('dock.vessel.edit', v.id)}
-                                                            className="text-indigo-600 hover:text-indigo-900 font-bold"
-                                                        >
-                                                            Editar
-                                                        </Link>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{v.eta ? v.eta.substring(0, 10) : '--'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold font-mono">{v.docking_date || '--'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{v.etc || '--'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{v.departure_date || '--'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${v.operation_type === 'Descarga' ? 'bg-indigo-100 text-indigo-800' : 'bg-green-100 text-green-800'}`}>
+                                                            {v.operation_type}
+                                                        </span>
+                                                        {v.operation_type === 'Descarga' && v.product && (
+                                                            <div className="text-xs text-gray-500 mt-1 font-medium">
+                                                                {v.product.name}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <div className="flex justify-end gap-2">
+                                                            <Link
+                                                                href={route('dock.vessel.edit', v.id)}
+                                                                className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors"
+                                                            >
+                                                                Editar
+                                                            </Link>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm('¿Estás seguro de eliminar este barco? Esta acción solo se permitirá si no tiene registros asociados.')) {
+                                                                        router.delete(route('dock.destroy', v.id), {
+                                                                            preserveScroll: true,
+                                                                            onError: (errors) => {
+                                                                                alert(errors.error || 'Error al eliminar');
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }}
+                                                                className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors"
+                                                            >
+                                                                Eliminar
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={7} className="px-6 py-8 text-center text-gray-400 italic">
-                                                    No hay barcos registrados en este periodo.
+                                                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                                                    <Ship className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                                                    <p className="text-lg font-medium">No se encontraron barcos</p>
+                                                    <p className="text-sm">Intenta ajustar los filtros de búsqueda.</p>
                                                 </td>
                                             </tr>
                                         )}
@@ -195,46 +224,58 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                             <div className="lg:hidden p-4 space-y-4">
                                 {vesselList && vesselList.length > 0 ? (
                                     vesselList.map((v: any) => (
-                                        <div key={v.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3">
+                                        <div key={v.id} className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm flex flex-col gap-4">
                                             <div className="flex justify-between items-start">
-                                                <div className="flex-1">
-                                                    <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider block mb-1">{v.vessel_type}</span>
-                                                    <h3 className="font-bold text-gray-900 text-lg flex items-center pr-2">
-                                                        <Ship className="w-4 h-4 mr-2 text-gray-400" />
-                                                        {v.name}
-                                                    </h3>
-                                                </div>
-                                                <Link
-                                                    href={route('dock.vessel.edit', v.id)}
-                                                    className="text-indigo-600 hover:text-indigo-800 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md"
-                                                >
-                                                    Editar
-                                                </Link>
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-3 text-sm border-t border-gray-200 pt-3">
-                                                <div>
-                                                    <span className="block text-gray-500 text-xs uppercase">ETA</span>
-                                                    <span className="font-medium">{v.eta}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="block text-gray-500 text-xs uppercase">ETB</span>
-                                                    <span className="font-medium">{v.docking_date}</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="bg-white p-3 rounded-lg border border-gray-100">
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className="text-xs text-gray-500 uppercase font-bold">Operación</span>
-                                                    <span className={`text-sm font-bold ${v.operation_type === 'Descarga' ? 'text-indigo-600' : 'text-gray-700'}`}>
-                                                        {v.operation_type}
-                                                    </span>
-                                                </div>
-                                                {v.operation_type === 'Descarga' && v.product && (
-                                                    <div className="text-xs text-gray-600">
-                                                        {v.product.name} • <span className="font-mono">{v.programmed_tonnage} Ton</span>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
+                                                        {v.vessel_type.substring(0, 2)}
                                                     </div>
-                                                )}
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-900 text-lg">{v.name}</h3>
+                                                        <span className="text-xs font-bold text-indigo-500 uppercase tracking-wider">{v.vessel_type}</span>
+                                                    </div>
+                                                </div>
+                                                <span className={`px-2 py-1 rounded text-xs font-bold ${v.operation_type === 'Descarga' ? 'bg-indigo-50 text-indigo-700' : 'bg-green-50 text-green-700'}`}>
+                                                    {v.operation_type}
+                                                </span>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-3 text-sm bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                                <div>
+                                                    <span className="block text-gray-400 text-[10px] uppercase font-bold">ETA</span>
+                                                    <span className="font-mono text-gray-700 font-medium">{v.eta ? v.eta.substring(0, 10) : '--'}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="block text-gray-400 text-[10px] uppercase font-bold">ETB</span>
+                                                    <span className="font-mono text-indigo-700 font-bold">{v.docking_date || '--'}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                                                {v.operation_type === 'Descarga' && v.product ? (
+                                                    <span className="text-xs font-medium text-gray-600">
+                                                        {v.product.name} ({v.programmed_tonnage} Ton)
+                                                    </span>
+                                                ) : <span></span>}
+
+                                                <div className="flex gap-2">
+                                                    <Link
+                                                        href={route('dock.vessel.edit', v.id)}
+                                                        className="text-indigo-600 font-bold text-sm hover:underline"
+                                                    >
+                                                        Editar
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('¿Estás seguro de eliminar este barco?')) {
+                                                                router.delete(route('dock.destroy', v.id));
+                                                            }
+                                                        }}
+                                                        className="text-red-600 font-bold text-sm hover:underline"
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     ))
@@ -246,7 +287,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                             </div>
 
                             {/* Pagination Component */}
-                            <div className="p-4 border-t border-gray-100 bg-gray-50">
+                            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50">
                                 <Pagination links={vessels.links} />
                             </div>
                         </div>
