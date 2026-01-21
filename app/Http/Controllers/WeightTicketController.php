@@ -63,7 +63,7 @@ class WeightTicketController extends Controller
         $filters = $request->only(['search', 'date']);
 
         $query = WeightTicket::with([
-            'shipment_order' => function ($q) {
+            'shipmentOrder' => function ($q) {
                 $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client']);
             }
         ])
@@ -91,12 +91,12 @@ class WeightTicketController extends Controller
                 return [
                     'id' => $ticket->shipment_order_id, // Link acts on Order ID often, but Ticket ID is internal
                     'ticket_id' => $ticket->id,
-                    'folio' => $ticket->shipment_order->folio,
+                    'folio' => $ticket->shipmentOrder->folio ?? $ticket->folio, // Fallback to join column if relation not loaded (?) Join column acts as property on model usually
                     'ticket_number' => $ticket->ticket_number,
-                    'driver' => $ticket->shipment_order->operator_name ?? 'N/A',
-                    'vehicle_plate' => $ticket->shipment_order->tractor_plate ?? 'N/A',
-                    'provider' => $ticket->shipment_order->client_name ?? ($ticket->shipment_order->client->name ?? ($ticket->shipment_order->vessel->client->name ?? 'N/A')),
-                    'product' => is_string($ticket->shipment_order->product) ? $ticket->shipment_order->product : ($ticket->shipment_order->product->name ?? 'N/A'),
+                    'driver' => $ticket->shipmentOrder->operator_name ?? 'N/A',
+                    'vehicle_plate' => $ticket->shipmentOrder->tractor_plate ?? 'N/A',
+                    'provider' => $ticket->shipmentOrder->client_name ?? ($ticket->shipmentOrder->client->name ?? ($ticket->shipmentOrder->vessel->client->name ?? 'N/A')),
+                    'product' => is_string($ticket->shipmentOrder->product) ? $ticket->shipmentOrder->product : ($ticket->shipmentOrder->product->name ?? 'N/A'),
                     'status' => $ticket->weighing_status,
                     'entry_at' => $ticket->weigh_in_at,
                     'exit_at' => $ticket->weigh_out_at,
