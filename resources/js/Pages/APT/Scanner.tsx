@@ -519,57 +519,60 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                 )}
 
                 {/* Recent Scans */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                        <h3 className="text-gray-700 font-bold text-md">Movimientos Recientes</h3>
-                        <span className="text-xs text-gray-500 bg-white border px-2 py-1 rounded-full">{recentScans.length} registros</span>
+                <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 mt-8">
+                    <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+                        <h3 className="text-indigo-900 font-bold text-lg flex items-center gap-2">
+                            <Scan className="w-5 h-5 text-indigo-600" />
+                            Movimientos Recientes
+                        </h3>
+                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full">{recentScans.length} registros</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Hora</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ubicación</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">No. Económico</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Hora</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Ubicación</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">No. Económico</th>
+                                    <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {recentScans.map((scan) => (
-                                    <tr key={scan.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                    <tr key={scan.id} className="hover:bg-indigo-50 transition-colors duration-150">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
                                             {new Date(scan.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">
                                                 {scan.warehouse} {(scan.warehouse === 'Almacén 4' || scan.warehouse === 'Almacén 5') && scan.cubicle ? `- Cubículo ${scan.cubicle}` : ''}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-bold text-gray-700">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
                                             {(scan.shipment_order || scan.shipmentOrder)?.unit_number ||
                                                 (scan.shipment_order || scan.shipmentOrder)?.economic_number ||
                                                 scan.operator?.economic_number || 'N/A'}
                                         </td>
-                                        <td className="px-6 py-4 text-right text-sm">
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex justify-end gap-2">
                                                 <button
                                                     onClick={() => setViewingUnit(scan)}
-                                                    className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg font-bold text-xs transition-all border border-blue-200"
+                                                    className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
                                                     title="Ver detalles de unidad"
                                                 >
-                                                    <Search className="w-3 h-3" />
-                                                    Ver Unidad
+                                                    <Search className="w-4 h-4 mr-1.5" />
+                                                    Ver
                                                 </button>
                                                 <button
                                                     onClick={() => startEdit(scan)}
-                                                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                                    className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-md transition-colors border border-transparent hover:border-gray-200"
                                                     title="Editar"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => setDeletingId(scan.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white rounded-md transition-colors border border-transparent hover:border-gray-200"
                                                     title="Eliminar"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -579,7 +582,13 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                     </tr>
                                 ))}
                                 {recentScans.length === 0 && (
-                                    <tr><td colSpan={4} className="px-6 py-4 text-center text-gray-400">Sin movimientos hoy.</td></tr>
+                                    <tr>
+                                        <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                            <Scan className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                                            <p className="text-lg font-medium">Sin movimientos hoy</p>
+                                            <p className="text-sm">Los registros aparecerán aquí.</p>
+                                        </td>
+                                    </tr>
                                 )}
                             </tbody>
                         </table>
