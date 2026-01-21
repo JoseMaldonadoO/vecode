@@ -35,6 +35,8 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
         consignee_agency: '',
         customs_agency: '',
 
+        stay_days: '',
+        etc: '',
         departure_date: '',
         observations: '',
         apt_operation_type: 'scale' // Default
