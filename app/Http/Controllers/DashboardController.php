@@ -67,11 +67,14 @@ class DashboardController extends Controller
         $unitsInCircuit = (clone $liveQuery)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count();
         $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
 
-        // Total Tonnage (Net Weight from Tickets)
+        // Total Tonnes (Net Weight from Tickets in Kg)
         $totalTonnage = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->sum('weight_tickets.net_weight');
+
+        // Cast to float to avoid issues
+        $totalTonnage = (float) $totalTonnage;
 
         // --- CHARTS ---
 
@@ -122,8 +125,9 @@ class DashboardController extends Controller
                 'units_in_circuit' => $unitsInCircuit,
                 'units_discharging' => $unitsDischarging,
                 'total_tonnage' => $totalTonnage,
+                // Fix: programmed_tonnage is in MT, totalTonnage is in KG. Convert KG to MT for percentage.
                 'progress_percent' => ($selectedVessel && $selectedVessel->programmed_tonnage > 0)
-                    ? round(($totalTonnage / $selectedVessel->programmed_tonnage) * 100, 1)
+                    ? round((($totalTonnage / 1000) / $selectedVessel->programmed_tonnage) * 100, 1)
                     : 0
             ],
             'charts' => [

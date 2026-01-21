@@ -170,7 +170,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100">
                             <div className="flex justify-between items-end mb-6">
                                 <div>
-                                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber(stats.total_tonnes / 1000)}</h2>
+                                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber((stats.total_tonnes || 0) / 1000)}</h2>
                                     <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-1">Toneladas Métricas Descargadas</p>
                                 </div>
                                 <div className="text-right">
@@ -197,17 +197,17 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         {/* Breakdown by Cubicle (Bottom Cards) */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {charts.by_cubicle.slice(0, 3).map((item: any, idx: number) => (
-                                <div key={idx} className="bg-[#1e40af] text-white p-4 rounded-xl shadow-lg relative overflow-hidden group">
+                                <div key={idx} className="bg-[#1e40af] text-white p-4 rounded-xl shadow-lg relative overflow-hidden group flex flex-col justify-between h-32">
                                     <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-5 -mt-5 blur-xl group-hover:bg-white/10 transition-colors"></div>
-                                    <h4 className="text-xs font-bold uppercase tracking-widest opacity-70 mb-2">{item.label}</h4>
-                                    <p className="text-2xl font-black font-mono tracking-tight group-hover:scale-105 transition-transform origin-left">
+                                    <p className="text-3xl font-black font-mono tracking-tight group-hover:scale-105 transition-transform origin-left mt-2">
                                         {formatTonnes(item.total)}
                                     </p>
+                                    <h4 className="text-xs font-bold uppercase tracking-widest opacity-70 mt-auto pt-2 border-t border-white/10">{item.label}</h4>
                                 </div>
                             ))}
                             {/* Show 'More' card if > 3 */}
                             {charts.by_cubicle.length > 3 && (
-                                <div className="bg-gray-100 text-gray-500 p-4 rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-widest border border-dashed border-gray-300">
+                                <div className="bg-gray-100 text-gray-500 p-4 rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-widest border border-dashed border-gray-300 h-32">
                                     + {charts.by_cubicle.length - 3} más...
                                 </div>
                             )}
@@ -219,7 +219,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2">Porcentaje de Descarga</h3>
 
                         <div className="text-5xl font-black text-green-600 tracking-tighter mb-8">
-                            {stats.progress_percent}%
+                            {stats.progress_percent || 0}%
                         </div>
 
                         {/* Ship Graphic Container */}
@@ -246,23 +246,23 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <div className="w-full bg-blue-100 h-16 rounded-xl border border-blue-200 relative overflow-hidden mb-6">
                             <div
                                 className="h-full bg-blue-500 flex items-center justify-center text-white font-black text-lg transition-all duration-1000 ease-out"
-                                style={{ width: `${Math.min(stats.progress_percent, 100)}%` }}
+                                style={{ width: `${Math.min(stats.progress_percent || 0, 100)}%` }}
                             >
                             </div>
                             <div className="absolute inset-0 flex items-center justify-between px-4">
                                 <span className="text-xs font-bold text-blue-900/50 uppercase">Progreso</span>
-                                <span className="text-xs font-bold text-blue-900/50">{formatTonnes(stats.total_tonnes)} / {formatTonnes(vessel?.programmed_tonnage || 0)}</span>
+                                <span className="text-xs font-bold text-blue-900/50">{formatTonnes(stats.total_tonnes || 0)} / {formatNumber(vessel?.programmed_tonnage || 0)}</span>
                             </div>
                         </div>
 
                         <div className="w-full mt-auto pt-6 border-t border-gray-100">
                             <div className="flex justify-between items-center mb-3">
                                 <span className="text-sm font-bold text-gray-500 uppercase">Descargado:</span>
-                                <span className="text-xl font-black text-gray-900 font-mono">{formatTonnes(stats.total_tonnes)} TM</span>
+                                <span className="text-xl font-black text-gray-900 font-mono">{formatTonnes(stats.total_tonnes || 0)} TM</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-sm font-bold text-gray-400 uppercase">Total Programado:</span>
-                                <span className="text-sm font-bold text-gray-500 font-mono">{formatTonnes(vessel?.programmed_tonnage || 0)} TM</span>
+                                <span className="text-sm font-bold text-gray-500 font-mono">{formatNumber(vessel?.programmed_tonnage || 0)} TM</span>
                             </div>
                         </div>
                     </div>
