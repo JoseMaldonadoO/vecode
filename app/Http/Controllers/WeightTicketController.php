@@ -160,22 +160,29 @@ class WeightTicketController extends Controller
 
     public function destroyTicket($id)
     {
-        // $id is Order ID
-        $order = ShipmentOrder::with('weight_ticket')->findOrFail($id);
+        try {
+            DB::transaction(function () use ($id) {
+                // $id is Order ID
+                $order = ShipmentOrder::with('weight_ticket')->findOrFail($id);
 
-        if ($order->weight_ticket) {
-            $order->weight_ticket->delete();
+                if ($order->weight_ticket) {
+                    $order->weight_ticket->delete();
+                }
+
+                // Reset Order
+                // "Authorized" allows creating a new ticket (Entry).
+                $order->update([
+                    'status' => 'authorized', // Revert to pre-scale status
+                    'destare_status' => 'pending', // Reset to default (cannot be null)
+                ]);
+            });
+
+            return redirect()->back()->with('success', 'Ticket eliminado. La orden ha vuelto a estado "Autorizado".');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting ticket: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al eliminar ticket: ' . $e->getMessage()]);
         }
-
-        // Reset Order?
-        // If we delete the ticket, we revert the order to a state where it has NO ticket.
-        // "Authorized" allows creating a new ticket (Entry).
-        $order->update([
-            'status' => 'authorized', // Revert to pre-scale status
-            'destare_status' => null, // Clear custom flags
-        ]);
-
-        return redirect()->back()->with('success', 'Ticket eliminado. La orden ha vuelto a estado "Autorizado".');
     }
 
     // --- New Methods for Entry MI / MP ---
