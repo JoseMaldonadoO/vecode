@@ -45,6 +45,7 @@ class DockController extends Controller
             'docking_date' => 'nullable|date',
             'docking_time' => 'nullable',
             'operation_type' => 'required|string',
+            'dock' => 'nullable|string', // Added validation for dock
             'stay_days' => 'required|integer',
             'etc' => 'nullable|date',
             'departure_date' => 'nullable|date',
@@ -114,6 +115,7 @@ class DockController extends Controller
             'docking_date' => 'nullable|date',
             'docking_time' => 'nullable',
             'operation_type' => 'required|string',
+            'dock' => 'nullable|string', // Added validation for dock
             'stay_days' => 'required|integer',
             'etc' => 'nullable|date',
             'departure_date' => 'nullable|date',
@@ -167,21 +169,26 @@ class DockController extends Controller
     }
     public function status()
     {
-        // Active Vessels (Atracados y sin zarpar)
-        $eco = Vessel::where('dock', 'ECO')
-            ->whereNotNull('berthal_datetime')
-            ->whereNull('departure_date')
-            ->first();
+        $now = now(); // Use Carbon::now()
 
-        $whisky = Vessel::where('dock', 'WHISKY')
-            ->whereNotNull('berthal_datetime')
-            ->whereNull('departure_date')
-            ->first();
+        // Active Vessels (Atracados y sin zarpar) - Logic: ETB passed and no departure
+        $activeQuery = Vessel::whereNotNull('berthal_datetime')
+            ->where('berthal_datetime', '<=', $now)
+            ->whereNull('departure_date');
 
-        // Arrivals (No atracados aún, o fondeados)
+        $activeVessels = $activeQuery->get();
+
+        // Categorize by dock
+        $eco = $activeVessels->firstWhere('dock', 'ECO');
+        $whisky = $activeVessels->firstWhere('dock', 'WHISKY');
+
+        // Arrivals (No atracados aún, o fondeados) - Logic: No ETB OR ETB is in future
         $arrivals = Vessel::with('product') // Eager load
-            ->whereNull('berthal_datetime')
             ->whereNull('departure_date')
+            ->where(function ($query) use ($now) {
+                $query->whereNull('berthal_datetime')
+                    ->orWhere('berthal_datetime', '>', $now);
+            })
             ->orderBy('eta', 'asc')
             ->get()
             ->map(function ($vessel) {
@@ -189,7 +196,7 @@ class DockController extends Controller
                     'name' => $vessel->name,
                     'type' => $vessel->vessel_type ?? 'M/V',
                     'eta' => $vessel->is_anchored ? 'Fondeado' : ($vessel->eta ? (is_string($vessel->eta) ? date('d/m/Y', strtotime($vessel->eta)) : $vessel->eta->format('d/m/Y')) : 'Pendiente'),
-                    'etb' => $vessel->etb ? (is_string($vessel->etb) ? date('d/m/Y', strtotime($vessel->etb)) : $vessel->etb->format('d/m/Y')) : '-',
+                    'etb' => $vessel->etb ? (is_string($vessel->etb) ? date('d/m/Y H:i', strtotime($vessel->etb)) : $vessel->etb->format('d/m/Y H:i')) : '-',
                     'operation_type' => $vessel->operation_type,
                     'dock' => $vessel->dock ?? 'Por Asignar',
                     'est_stay' => $vessel->stay_days,
@@ -207,7 +214,7 @@ class DockController extends Controller
                 'type' => $v->vessel_type ?? 'B/T',
                 'operation_type' => $v->operation_type,
                 'stay_days' => $v->stay_days,
-                'etb' => $v->berthal_datetime ? $v->berthal_datetime->format('d/m/Y H:i') : '-',
+                'etb' => $v->berthal_datetime ? (is_string($v->berthal_datetime) ? date('d/m/Y H:i', strtotime($v->berthal_datetime)) : $v->berthal_datetime->format('d/m/Y H:i')) : '-',
             ];
         };
 
