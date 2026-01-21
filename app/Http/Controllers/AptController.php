@@ -190,9 +190,8 @@ class AptController extends Controller
     public function scanner()
     {
         $recentScans = \App\Models\AptScan::with(['operator', 'shipmentOrder'])
-            ->whereDate('created_at', today())
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
 
         return Inertia::render('APT/Scanner', [
             'recentScans' => $recentScans

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { QrReader } from 'react-qr-reader';
 import Modal from '@/Components/Modal';
 
-export default function Scanner({ auth, recentScans, occupiedFlat = [], occupiedCubicles = [] }: { auth: any, recentScans: any[], occupiedFlat?: string[], occupiedCubicles?: string[] }) {
+export default function Scanner({ auth, recentScans, occupiedFlat = [], occupiedCubicles = [] }: { auth: any, recentScans: { data: any[], links: any[], from: number, to: number, total: number }, occupiedFlat?: string[], occupiedCubicles?: string[] }) {
     const [scanInput, setScanInput] = useState('');
     const [isScanning, setIsScanning] = useState(true);
     const [scanResult, setScanResult] = useState<any>(null);
@@ -525,7 +525,7 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                             <Scan className="w-5 h-5 text-indigo-600" />
                             Movimientos Recientes
                         </h3>
-                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full">{recentScans.length} registros</span>
+                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full">{recentScans.total} registros</span>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -538,7 +538,7 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {recentScans.map((scan) => (
+                                {recentScans.data.map((scan) => (
                                     <tr key={scan.id} className="hover:bg-indigo-50 transition-colors duration-150">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
                                             {new Date(scan.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -581,7 +581,7 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                                         </td>
                                     </tr>
                                 ))}
-                                {recentScans.length === 0 && (
+                                {recentScans.data.length === 0 && (
                                     <tr>
                                         <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                                             <Scan className="mx-auto h-12 w-12 text-gray-300 mb-3" />
@@ -593,6 +593,35 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                             </tbody>
                         </table>
                     </div>
+                    {/* Pagination */}
+                    {recentScans.links.length > 3 && (
+                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 md:flex md:items-center md:justify-between">
+                            <div className="text-sm text-gray-500 mb-4 md:mb-0">
+                                Mostrando <span className="font-medium">{recentScans.from}</span> a <span className="font-medium">{recentScans.to}</span> de <span className="font-medium">{recentScans.total}</span> resultados
+                            </div>
+                            <div className="flex justify-center space-x-1">
+                                {recentScans.links.map((link, key) => (
+                                    link.url ? (
+                                        <Link
+                                            key={key}
+                                            href={link.url}
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
+                                                ? 'bg-indigo-600 text-white shadow-sm'
+                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                                                }`}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    ) : (
+                                        <span
+                                            key={key}
+                                            className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    )
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
             </div>
