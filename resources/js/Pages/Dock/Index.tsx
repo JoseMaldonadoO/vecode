@@ -145,6 +145,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Buque</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETA</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETB</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Muelle</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETC</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">F. Salida</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Operación</th>
@@ -168,6 +169,15 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{v.eta ? v.eta.substring(0, 10) : '--'}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold font-mono">{v.docking_date || '--'}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold font-mono text-center">
+                                                        {v.dock ? (
+                                                            <span className={`px-2 py-1 rounded text-xs text-white ${v.dock === 'ECO' ? 'bg-green-500' : 'bg-orange-500'}`}>
+                                                                {v.dock}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-gray-400">--</span>
+                                                        )}
+                                                    </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{v.etc || '--'}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">{v.departure_date || '--'}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -248,6 +258,16 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                 <div>
                                                     <span className="block text-gray-400 text-[10px] uppercase font-bold">ETB</span>
                                                     <span className="font-mono text-indigo-700 font-bold">{v.docking_date || '--'}</span>
+                                                </div>
+                                                <div className="col-span-2 border-t pt-2 mt-1">
+                                                    <span className="block text-gray-400 text-[10px] uppercase font-bold mb-1">Muelle Asignado</span>
+                                                    {v.dock ? (
+                                                        <span className={`px-2 py-1 rounded text-xs font-bold text-white ${v.dock === 'ECO' ? 'bg-green-500' : 'bg-orange-500'}`}>
+                                                            {v.dock}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-sm">--</span>
+                                                    )}
                                                 </div>
                                             </div>
 
