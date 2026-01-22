@@ -322,8 +322,15 @@ class AptController extends Controller
         // Get Operator ID if available from QR or order
         $operatorId = null;
         if (str_starts_with($qr, 'OP ')) {
-            $parts = explode('|', substr($qr, 3));
-            $operatorId = $parts[0] ?? null;
+            // Format: OP {ID}|{NAME} or OP {ID}]{INITIALS}
+            // We split by '|' OR ']' just in case, or simply cast to int to be safe
+            // Assuming format matches, first part of substr is ID.
+            $rawId = substr($qr, 3);
+
+            // Clean up: Extract only the leading integer
+            // Example: "103|Juan" -> 103, "103]JCE" -> 103
+            preg_match('/^\d+/', $rawId, $matches);
+            $operatorId = $matches[0] ?? null;
         }
 
         // If still null, try to match by plate from Order
