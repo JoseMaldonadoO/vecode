@@ -35,6 +35,27 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
     const formatNumber = (val: number) =>
         new Intl.NumberFormat('en-US').format(val);
 
+    const [viewMode, setViewMode] = useState<'all' | 'scale' | 'burreo'>('all');
+
+    // Calculate effective stats based on View Mode
+    const effectiveTotal = viewMode === 'scale'
+        ? (stats.total_scale || 0)
+        : viewMode === 'burreo'
+            ? (stats.total_burreo || 0)
+            : (stats.total_tonnage || 0);
+
+    const categories = viewMode === 'scale'
+        ? ["scale"]
+        : viewMode === 'burreo'
+            ? ["burreo"]
+            : ["total"];
+
+    const colors = viewMode === 'scale'
+        ? ["blue"]
+        : viewMode === 'burreo'
+            ? ["amber"]
+            : ["slate"];
+
     return (
         <DashboardLayout user={auth.user} header="Centro de Mando Operativo">
             <Head title="Dashboard" />
@@ -58,6 +79,31 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
+                        {/* Unicorn Mode Toggle */}
+                        <div className="bg-white/10 p-1 rounded-xl flex items-center border border-white/10">
+                            <button
+                                onClick={() => setViewMode('all')}
+                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === 'all' ? 'bg-white text-[#1e3a8a] shadow-lg scale-105' : 'text-blue-200 hover:text-white'
+                                    }`}
+                            >
+                                Total
+                            </button>
+                            <button
+                                onClick={() => setViewMode('scale')}
+                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === 'scale' ? 'bg-blue-400 text-white shadow-lg scale-105' : 'text-blue-200 hover:text-white'
+                                    }`}
+                            >
+                                Báscula
+                            </button>
+                            <button
+                                onClick={() => setViewMode('burreo')}
+                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === 'burreo' ? 'bg-amber-400 text-amber-900 shadow-lg scale-105' : 'text-blue-200 hover:text-white'
+                                    }`}
+                            >
+                                Burreo
+                            </button>
+                        </div>
+
                         {/* Vessel Selector */}
                         <div className="relative group">
                             <select
@@ -170,8 +216,16 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100">
                             <div className="flex justify-between items-end mb-6">
                                 <div>
-                                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber((stats.total_tonnage || 0) / 1000)}</h2>
-                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-1">Toneladas Métricas Descargadas</p>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber(effectiveTotal / 1000)}</h2>
+                                        {viewMode !== 'all' && (
+                                            <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${viewMode === 'scale' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                                                }`}>
+                                                {viewMode === 'scale' ? 'Vía Báscula' : 'Vía Burreo'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Toneladas Métricas Descargadas</p>
                                 </div>
                                 <div className="text-right">
                                     <span className="text-xs font-bold text-gray-400 uppercase block mb-1">Última actualización</span>
@@ -184,8 +238,8 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                     className="h-full"
                                     data={charts.daily_tonnage}
                                     index="date"
-                                    categories={["total"]}
-                                    colors={["slate"]}
+                                    categories={categories}
+                                    colors={colors}
                                     valueFormatter={(val) => `${(val / 1000).toLocaleString()} TM`}
                                     showAnimation={true}
                                     showLegend={false}
@@ -258,7 +312,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         <div className="w-full mt-auto pt-6 border-t border-gray-100">
                             <div className="flex justify-between items-center mb-3">
                                 <span className="text-sm font-bold text-gray-500 uppercase">Descargado:</span>
-                                <span className="text-xl font-black text-gray-900 font-mono">{formatTonnes(stats.total_tonnage || 0)} TM</span>
+                                <span className="text-xl font-black text-gray-900 font-mono">{formatTonnes(effectiveTotal || 0)} TM</span>
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-sm font-bold text-gray-400 uppercase">Total Programado:</span>

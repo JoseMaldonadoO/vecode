@@ -68,21 +68,38 @@ class DashboardController extends Controller
         $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
 
         // Total Tonnes (Net Weight from Tickets in Kg)
-        $totalTonnage = (clone $baseQuery)
+        // Split by Operation Type
+        $totalScale = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
+            ->where(function ($q) {
+                $q->where('shipment_orders.operation_type', 'scale')
+                    ->orWhereNull('shipment_orders.operation_type');
+            })
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->sum('weight_tickets.net_weight');
 
-        // Cast to float to avoid issues
-        $totalTonnage = (float) $totalTonnage;
+        $totalBurreo = (clone $baseQuery)
+            ->where('shipment_orders.status', 'completed')
+            ->where('shipment_orders.operation_type', 'burreo')
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->sum('weight_tickets.net_weight');
+
+        $totalTonnage = (float) ($totalScale + $totalBurreo);
+        $totalScale = (float) $totalScale;
+        $totalBurreo = (float) $totalBurreo;
 
         // --- CHARTS ---
 
-        // 1. Daily Tonnage (Classic Bar Chart)
+        // 1. Daily Tonnage (Split keys)
         $dailyTonnage = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->selectRaw('DATE(shipment_orders.updated_at) as date, SUM(weight_tickets.net_weight) as total')
+            ->selectRaw('
+                DATE(shipment_orders.updated_at) as date, 
+                SUM(weight_tickets.net_weight) as total,
+                SUM(CASE WHEN shipment_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo,
+                SUM(CASE WHEN shipment_orders.operation_type != "burreo" OR shipment_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale
+            ')
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -125,6 +142,8 @@ class DashboardController extends Controller
                 'units_in_circuit' => $unitsInCircuit,
                 'units_discharging' => $unitsDischarging,
                 'total_tonnage' => $totalTonnage,
+                'total_scale' => $totalScale,
+                'total_burreo' => $totalBurreo,
                 // Fix: programmed_tonnage is in MT, totalTonnage is in KG. Convert KG to MT for percentage.
                 'progress_percent' => ($selectedVessel && $selectedVessel->programmed_tonnage > 0)
                     ? round((($totalTonnage / 1000) / $selectedVessel->programmed_tonnage) * 100, 1)
