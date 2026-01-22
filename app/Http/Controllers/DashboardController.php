@@ -29,20 +29,20 @@ class DashboardController extends Controller
 
         $selectedVessel = $vesselId ? \App\Models\Vessel::find($vesselId) : null;
 
-        // Base query linked to the specific vessel
-        $baseQuery = ShipmentOrder::query();
+        // Base query linked to the specific vessel and ALWAYS joined with weight_tickets
+        // since the dashboard focuses on tonnages and operational dates (weigh_out_at).
+        $baseQuery = ShipmentOrder::query()
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id');
 
         if ($vesselId) {
-            $baseQuery->where('vessel_id', $vesselId);
+            $baseQuery->where('shipment_orders.vessel_id', $vesselId);
         }
 
         // Apply filters
         if ($dateStart && $dateEnd) {
-            $baseQuery->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-                ->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+            $baseQuery->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
         } elseif ($request->has('date')) {
-            $baseQuery->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-                ->whereDate('weight_tickets.weigh_out_at', $request->date);
+            $baseQuery->whereDate('weight_tickets.weigh_out_at', $request->date);
         }
 
         if ($warehouse)
@@ -55,15 +55,12 @@ class DashboardController extends Controller
         // --- KPIS ---
 
         // Trips Completed (Total for this vessel, filtered by date if applied)
-        $tripsCompleted = (clone $baseQuery)->where('status', 'completed')->count();
+        $tripsCompleted = (clone $baseQuery)->where('shipment_orders.status', 'completed')->count();
 
-        // Units in Circuit (Live status, usually usually filtered by vessel but NOT by date, as they are "current")
-        // However, if we are looking at historical data, this might be 0. 
-        // For "Dashboard", we usually want CURRENT state for operational KPIs.
-        // We'll restrict to vessel but ignore date filter for "Current Status" KPIs
+        // Units in Circuit (Live status, restricted to vessel but usually ignores date filter for current state)
         $liveQuery = ShipmentOrder::where('vessel_id', $vesselId);
         if ($warehouse)
-            $liveQuery->where('warehouse', $warehouse); // Filter live units by warehouse if selected
+            $liveQuery->where('warehouse', $warehouse);
 
         $unitsInCircuit = (clone $liveQuery)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count();
         $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
@@ -76,13 +73,11 @@ class DashboardController extends Controller
                 $q->where('shipment_orders.operation_type', 'scale')
                     ->orWhereNull('shipment_orders.operation_type');
             })
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->sum('weight_tickets.net_weight');
 
         $totalBurreo = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->where('shipment_orders.operation_type', 'burreo')
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->sum('weight_tickets.net_weight');
 
         $totalTonnage = (float) ($totalScale + $totalBurreo);
@@ -94,7 +89,6 @@ class DashboardController extends Controller
         // 1. Daily Tonnage (Split keys)
         $dailyTonnage = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->selectRaw('
                 DATE(weight_tickets.weigh_out_at) as date, 
                 SUM(weight_tickets.net_weight) as total,
@@ -116,7 +110,6 @@ class DashboardController extends Controller
         // 2. Storage Breakdown (By Warehouse/Cubicle)
         $byCubicle = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->selectRaw('CONCAT(COALESCE(shipment_orders.warehouse, "Almacén ??"), " - ", COALESCE(shipment_orders.cubicle, "General")) as label, SUM(weight_tickets.net_weight) as total')
             ->whereNotNull('shipment_orders.warehouse')
             ->groupBy('shipment_orders.warehouse', 'shipment_orders.cubicle')
@@ -126,7 +119,6 @@ class DashboardController extends Controller
         // 3. Operator Breakdown
         $byOperator = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->selectRaw('shipment_orders.operator_name as label, SUM(weight_tickets.net_weight) as total')
             ->groupBy('shipment_orders.operator_name')
             ->orderByDesc('total')
