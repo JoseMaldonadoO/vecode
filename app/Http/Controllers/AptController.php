@@ -280,14 +280,20 @@ class AptController extends Controller
                         ]);
 
                         // Auto-create Weight Ticket for Burreo
+                        // Mark as COMPLETED immediately as per user request (skip scale exit)
                         \App\Models\WeightTicket::create([
                             'shipment_order_id' => $order->id,
                             'ticket_number' => 'B-' . $order->folio,
-                            'weighing_status' => 'in_progress',
+                            'weighing_status' => 'completed',
                             'is_burreo' => true,
                             'tare_weight' => $operator->vessel->provisional_burreo_weight ?? 0,
+                            'net_weight' => $operator->vessel->provisional_burreo_weight ?? 0,
                             'weigh_in_at' => now(),
+                            'weigh_out_at' => now(),
                         ]);
+
+                        // Mark Order as completed immediately
+                        $order->update(['status' => 'completed']);
 
                         // Since we created it, we don't need to update it again below, 
                         // unless we want to keep the logic unified. 
@@ -359,17 +365,33 @@ class AptController extends Controller
             // Status remains 'loading' until Scale Exit
         ]);
 
-        // If it's Burreo and NO Weight Ticket exists, create one now 
-        // to ensure it appears in the Scale Exit list
-        if ($validated['operation_type'] === 'burreo' && !$order->weight_ticket) {
-            \App\Models\WeightTicket::create([
-                'shipment_order_id' => $order->id,
-                'ticket_number' => 'B-' . $order->folio,
-                'weighing_status' => 'in_progress',
-                'is_burreo' => true,
-                'tare_weight' => $order->vessel->provisional_burreo_weight ?? 0,
-                'weigh_in_at' => now(),
-            ]);
+        if ($validated['operation_type'] === 'burreo') {
+            // Find existing ticket or create one
+            $ticket = $order->weight_ticket;
+
+            if (!$ticket) {
+                $ticket = \App\Models\WeightTicket::create([
+                    'shipment_order_id' => $order->id,
+                    'ticket_number' => 'B-' . $order->folio,
+                    'weighing_status' => 'completed',
+                    'is_burreo' => true,
+                    'tare_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                    'net_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                    'weigh_in_at' => now(),
+                    'weigh_out_at' => now(),
+                ]);
+            } else {
+                $ticket->update([
+                    'weighing_status' => 'completed',
+                    'is_burreo' => true,
+                    'tare_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                    'net_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                    'weigh_out_at' => now(),
+                ]);
+            }
+
+            // Mark Order as completed
+            $order->update(['status' => 'completed']);
         }
 
         // Log Scan
