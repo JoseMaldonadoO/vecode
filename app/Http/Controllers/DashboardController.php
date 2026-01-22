@@ -38,18 +38,19 @@ class DashboardController extends Controller
 
         // Apply filters
         if ($dateStart && $dateEnd) {
-            $baseQuery->whereBetween('shipment_orders.updated_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+            $baseQuery->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+                ->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
         } elseif ($request->has('date')) {
-            // Fallback for single date legacy filter
-            $baseQuery->whereDate('shipment_orders.updated_at', $request->date);
+            $baseQuery->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+                ->whereDate('weight_tickets.weigh_out_at', $request->date);
         }
 
         if ($warehouse)
-            $baseQuery->where('warehouse', $warehouse);
+            $baseQuery->where('shipment_orders.warehouse', $warehouse);
         if ($cubicle)
-            $baseQuery->where('cubicle', $cubicle);
+            $baseQuery->where('shipment_orders.cubicle', $cubicle);
         if ($operator)
-            $baseQuery->where('operator_name', $operator);
+            $baseQuery->where('shipment_orders.operator_name', $operator);
 
         // --- KPIS ---
 
@@ -95,7 +96,7 @@ class DashboardController extends Controller
             ->where('shipment_orders.status', 'completed')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->selectRaw('
-                DATE(shipment_orders.updated_at) as date, 
+                DATE(weight_tickets.weigh_out_at) as date, 
                 SUM(weight_tickets.net_weight) as total,
                 SUM(CASE WHEN shipment_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo,
                 SUM(CASE WHEN shipment_orders.operation_type != "burreo" OR shipment_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale
