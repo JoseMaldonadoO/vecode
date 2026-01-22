@@ -11,6 +11,7 @@ class WeightTicket extends Model
     protected $casts = [
         'weigh_in_at' => 'datetime',
         'weigh_out_at' => 'datetime',
+        'is_burreo' => 'boolean',
     ];
 
     public function shipmentOrder()

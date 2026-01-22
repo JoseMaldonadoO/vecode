@@ -57,10 +57,13 @@ El procedimiento normal para camiones que entran y salen del recinto fiscalizado
 Utilizado cuando se aligera un barco o se mueve carga desde una ubicación externa directa sin pesaje de entrada tradicional.
 
 1.  **Entrada Directa**: La unidad ingresa o se carga directamente (ej. desde chalana o muelle alterno).
-2.  **Descarga**: Va a Almacén (APT) y descarga producto.
-3.  **Pesaje de Destare (Weigh Out)**: *Punto Crítico*. Aunque no hubo pesaje de entrada estricto en el flujo normal, la unidad **SÍ** pasa por báscula al salir (vacía) para registrar la Tara y confirmar el ciclo.
-4.  **Cálculo**: El sistema asume/calcula el peso descargado o utiliza el ticket generado en el destare para sumar al inventario.
-    *   *Nota Dashboard*: En el "Modo Unicornio", estos tonelajes se separan visualmente para diferenciar qué carga entró por circuito completo y cuál por operación de aligeramiento.
+2.  **Peso Provisional (Opcional)**: El módulo de **Tráfico** puede asignar un **Peso Promedio Provisional** a las unidades de este barco. Esto permite que el sistema genere un registro de peso aunque la unidad no haya pasado por la báscula de entrada.
+3.  **Descarga**: Va a Almacén (APT) y descarga producto.
+4.  **Pesaje de Destare (Weigh Out)**: La unidad pasa por báscula al salir. Se registra la Tara.
+5.  **Cálculo de Peso Neto**: 
+    -   *Fase 1 (Provisional)*: `Peso Promedio Provisional - Tara`. Reflejado inmediatamente en el Dashboard.
+    -   *Fase 2 (Final - Draft)*: Una vez finalizada la descarga total del barco, se ingresa el **Peso de Draft** (medición real por calado del barco).
+    -   *Recálculo*: El sistema calcula el promedio real (`Peso Draft / Total de Unidades`) y actualiza automáticamente todos los tickets de Burreo de ese barco con este valor real.
 
 ---
 

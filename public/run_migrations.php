@@ -1,26 +1,35 @@
 <?php
 
-use Illuminate\Contracts\Console\Kernel;
-
 require __DIR__ . '/../vendor/autoload.php';
-
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$kernel = $app->make(Kernel::class);
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
-echo "<html><body style='font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px;'>";
-echo "<h1>🚀 Database Migration Runner</h1>";
-echo "<pre>";
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
+
+header('Content-Type: text/plain');
 
 try {
-    $kernel->call('migrate', ['--force' => true]);
-    echo $kernel->output();
-    echo "\n<span style='color: #4ade80;'>SUCCESS: Migrations executed successfully.</span>";
-} catch (\Exception $e) {
-    echo "<span style='color: #ef4444;'>ERROR: " . $e->getMessage() . "</span>";
-    echo "\n" . $e->getTraceAsString();
-}
+    echo "Iniciando ejecución de migraciones...\n";
 
-echo "</pre>";
-echo "<p>⚠️ Please delete this file after use for security.</p>";
-echo "</body></html>";
+    // Run migrations
+    Artisan::call('migrate', ['--force' => true]);
+    echo Artisan::output();
+
+    echo "\nMigraciones terminadas correctamente.\n";
+
+    // Check if columns exist
+    $hasProvisional = DB::getSchemaBuilder()->hasColumn('vessels', 'provisional_burreo_weight');
+    $hasDraft = DB::getSchemaBuilder()->hasColumn('vessels', 'draft_weight');
+    $hasIsBurreo = DB::getSchemaBuilder()->hasColumn('weight_tickets', 'is_burreo');
+
+    echo "\nVerificación de Columnas:\n";
+    echo "vessels.provisional_burreo_weight: " . ($hasProvisional ? "OK" : "NO ENCONTRADA") . "\n";
+    echo "vessels.draft_weight: " . ($hasDraft ? "OK" : "NO ENCONTRADA") . "\n";
+    echo "weight_tickets.is_burreo: " . ($hasIsBurreo ? "OK" : "NO ENCONTRADA") . "\n";
+
+} catch (\Exception $e) {
+    echo "ERROR: " . $e->getMessage() . "\n";
+}

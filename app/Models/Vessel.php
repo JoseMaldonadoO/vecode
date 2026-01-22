@@ -19,6 +19,8 @@ class Vessel extends Model
         'docking_date' => 'date',
         'departure_date' => 'datetime',
         'is_anchored' => 'boolean',
+        'provisional_burreo_weight' => 'decimal:2',
+        'draft_weight' => 'decimal:2',
     ];
 
     public function product()

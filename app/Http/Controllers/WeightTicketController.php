@@ -393,6 +393,16 @@ class WeightTicketController extends Controller
                 $clientId = !empty($validated['client_id']) ? $validated['client_id'] : 1; // Default to 1 (General Public) if missing
                 $scaleId = !empty($validated['scale_id']) ? $validated['scale_id'] : null;
 
+                $vessel = $vesselId ? Vessel::find($vesselId) : null;
+                $isBurreo = $vessel && $vessel->apt_operation_type === 'burreo';
+                $tareWeight = $validated['tare_weight'];
+
+                // If it's burreo and we have a provisional weight, use it if needed
+                if ($isBurreo && $vessel->provisional_burreo_weight > 0) {
+                    // Force provisional weight? Or only if not provided?
+                    // Usually they "skip scale", so we might need to handle that.
+                }
+
                 // If no existing Order, create one (Vessel Entry Scenario)
                 if (!$orderId) {
                     // Generate Folio
@@ -466,6 +476,7 @@ class WeightTicketController extends Controller
                     'weigh_in_at' => now(),
                     'container_type' => $validated['container_type'] ?? 'N/A',
                     'scale_id' => $scaleId,
+                    'is_burreo' => $isBurreo,
                 ]);
             });
 
