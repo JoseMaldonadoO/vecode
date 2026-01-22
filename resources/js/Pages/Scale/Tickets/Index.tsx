@@ -205,14 +205,16 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                                         <Printer className="w-5 h-5" />
                                                     </a>
 
-                                                    {/* Edit */}
-                                                    <Link
-                                                        href={route('scale.tickets.edit', ticket.id)}
-                                                        className="inline-flex items-center text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 p-2 rounded-md transition-colors"
-                                                        title="Editar Ticket"
-                                                    >
-                                                        <Edit className="w-5 h-5" />
-                                                    </Link>
+                                                    {/* Edit - Only for Admin */}
+                                                    {auth.user?.roles?.includes('Admin') && (
+                                                        <Link
+                                                            href={route('scale.tickets.edit', ticket.id)}
+                                                            className="inline-flex items-center text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 p-2 rounded-md transition-colors"
+                                                            title="Editar Ticket"
+                                                        >
+                                                            <Edit className="w-5 h-5" />
+                                                        </Link>
+                                                    )}
 
                                                     {/* Delete */}
                                                     <button
@@ -261,8 +263,8 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                             key={i}
                                             href={link.url}
                                             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                    ? 'bg-indigo-600 text-white shadow-sm'
-                                                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                                                ? 'bg-indigo-600 text-white shadow-sm'
+                                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                                                 }`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
                                         />
