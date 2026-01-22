@@ -282,7 +282,6 @@ class AptController extends Controller
                         // Auto-create Weight Ticket for Burreo
                         \App\Models\WeightTicket::create([
                             'shipment_order_id' => $order->id,
-                            'vessel_id' => $order->vessel_id,
                             'ticket_number' => 'B-' . $order->folio,
                             'weighing_status' => 'in_progress',
                             'is_burreo' => true,
@@ -365,7 +364,6 @@ class AptController extends Controller
         if ($validated['operation_type'] === 'burreo' && !$order->weight_ticket) {
             \App\Models\WeightTicket::create([
                 'shipment_order_id' => $order->id,
-                'vessel_id' => $order->vessel_id,
                 'ticket_number' => 'B-' . $order->folio,
                 'weighing_status' => 'in_progress',
                 'is_burreo' => true,
