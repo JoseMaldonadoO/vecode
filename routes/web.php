@@ -47,7 +47,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
     Route::get('/clients/{client}/edit', [\App\Http\Controllers\ClientController::class, 'edit'])->name('clients.edit');
     Route::put('/clients/{client}', [\App\Http\Controllers\ClientController::class, 'update'])->name('clients.update');
-    Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
     Route::get('/traffic/burreo-weights', [\App\Http\Controllers\BurreoWeightController::class, 'index'])->name('traffic.burreo.index');
     Route::post('/traffic/burreo-weights/{vessel}/provisional', [\App\Http\Controllers\BurreoWeightController::class, 'updateProvisional'])->name('traffic.burreo.provisional');
     Route::post('/traffic/burreo-weights/{vessel}/draft', [\App\Http\Controllers\BurreoWeightController::class, 'applyDraft'])->name('traffic.burreo.draft');
@@ -55,6 +54,8 @@ Route::middleware('auth')->group(function () {
     // User Registration in Traffic
     Route::get('/traffic/users/create', [\App\Http\Controllers\TrafficController::class, 'createUser'])->name('traffic.users.create');
     Route::post('/traffic/users', [\App\Http\Controllers\TrafficController::class, 'storeUser'])->name('traffic.users.store');
+
+    Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
 
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);
 
