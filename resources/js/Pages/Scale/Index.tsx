@@ -43,7 +43,13 @@ export default function Index({ auth, pending_exit = [], flash }: { auth: any, p
         { name: 'Salida', icon: Truck, color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500', href: route('scale.exit') + `?scale_id=${scaleId}` },
         // Append scale_id to the entry route
         { name: 'Entrada MI / MP', icon: Package, color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500', href: route('scale.entry-mp') + `?scale_id=${scaleId}` },
-        { name: 'Edita / Reimprime Ticket', icon: Printer, color: 'bg-purple-50 text-purple-600', hover: 'hover:border-purple-500', href: route('scale.tickets.index') },
+        {
+            name: auth.user?.roles?.includes('Admin') ? 'Edita / Reimprime Ticket' : 'Reimprime Ticket',
+            icon: Printer,
+            color: 'bg-purple-50 text-purple-600',
+            hover: 'hover:border-purple-500',
+            href: route('scale.tickets.index')
+        },
         { name: 'Alta lote / almacen', icon: Database, color: 'bg-teal-50 text-teal-600', hover: 'hover:border-teal-500', href: '#' },
         { name: 'Cierre de Lote', icon: Lock, color: 'bg-red-50 text-red-600', hover: 'hover:border-red-500', href: '#' },
     ];

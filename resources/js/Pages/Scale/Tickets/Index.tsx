@@ -216,14 +216,16 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                                         </Link>
                                                     )}
 
-                                                    {/* Delete */}
-                                                    <button
-                                                        onClick={() => confirmDelete(ticket.id, ticket.folio)}
-                                                        className="inline-flex items-center text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-md transition-colors"
-                                                        title="Eliminar Ticket"
-                                                    >
-                                                        <Trash2 className="w-5 h-5" />
-                                                    </button>
+                                                    {/* Delete - Only for Admin */}
+                                                    {auth.user?.roles?.includes('Admin') && (
+                                                        <button
+                                                            onClick={() => confirmDelete(ticket.id, ticket.folio)}
+                                                            className="inline-flex items-center text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-md transition-colors"
+                                                            title="Eliminar Ticket"
+                                                        >
+                                                            <Trash2 className="w-5 h-5" />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
