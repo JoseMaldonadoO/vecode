@@ -279,6 +279,17 @@ class AptController extends Controller
                             'cubicle' => $validated['cubicle'],     // Assign immediately
                         ]);
 
+                        // Auto-create Weight Ticket for Burreo
+                        \App\Models\WeightTicket::create([
+                            'shipment_order_id' => $order->id,
+                            'vessel_id' => $order->vessel_id,
+                            'ticket_number' => 'B-' . $order->folio,
+                            'weighing_status' => 'in_progress',
+                            'is_burreo' => true,
+                            'tare_weight' => $operator->vessel->provisional_burreo_weight ?? 0,
+                            'weigh_in_at' => now(),
+                        ]);
+
                         // Since we created it, we don't need to update it again below, 
                         // unless we want to keep the logic unified. 
                         // But the update below sets warehouse/cubicle/op_type again. 
@@ -348,6 +359,20 @@ class AptController extends Controller
             'operation_type' => $validated['operation_type'],
             // Status remains 'loading' until Scale Exit
         ]);
+
+        // If it's Burreo and NO Weight Ticket exists, create one now 
+        // to ensure it appears in the Scale Exit list
+        if ($validated['operation_type'] === 'burreo' && !$order->weight_ticket) {
+            \App\Models\WeightTicket::create([
+                'shipment_order_id' => $order->id,
+                'vessel_id' => $order->vessel_id,
+                'ticket_number' => 'B-' . $order->folio,
+                'weighing_status' => 'in_progress',
+                'is_burreo' => true,
+                'tare_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                'weigh_in_at' => now(),
+            ]);
+        }
 
         // Log Scan
         \App\Models\AptScan::create([

@@ -14,7 +14,7 @@ class BurreoWeightController extends Controller
     public function index()
     {
         $vessels = Vessel::with(['client', 'product'])
-            ->where('is_anchored', true) // Only active vessels? Or maybe all recent ones
+            ->where('status', 'active')
             ->orWhereNotNull('provisional_burreo_weight')
             ->orderBy('created_at', 'desc')
             ->get();
