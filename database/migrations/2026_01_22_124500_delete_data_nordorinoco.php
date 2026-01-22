@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        $vesselId = 'a0e0cb66-55ee-4b34-9835-0ba16b21c1b0';
+        $vesselId = 'a0e2b156-646a-4edd-8f81-22f1b00c7114';
 
         // Disable foreign key checks to force deletion if any constraint is stuck
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
