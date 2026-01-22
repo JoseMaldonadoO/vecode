@@ -68,7 +68,7 @@ const TicketCopy: React.FC<{ ticket: TicketData; copyName: string; isLast?: bool
                     <p className="text-[14px] font-bold mt-1">LOGISTICA Y SUMINISTROS</p>
                     <p className="text-[10px] mt-0.5">GLS-TR-FO-005.</p>
                     <div className="border border-black px-6 py-0.5 mt-1 font-bold text-[14px] uppercase tracking-widest">
-                        Tickets de Peso
+                        TICKETS DE ENTRADA
                     </div>
                 </div>
 

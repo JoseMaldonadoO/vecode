@@ -555,7 +555,7 @@ class WeightTicketController extends Controller
             'time' => $exitDate->format('H:i:s'),
 
             'reference' => $order->reference ?? 'N/A',
-            'operation' => 'SALIDA', // Assuming always exit for generated ticket
+            'operation' => 'ENTRADA', // Changed from SALIDA as per user request
             'scale_number' => $ticket->scale_id ?? 2, // Default or fetch
 
             'product' => is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A'),
