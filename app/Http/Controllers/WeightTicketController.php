@@ -152,7 +152,7 @@ class WeightTicketController extends Controller
 
         // Also update Order observations if needed
         if ($request->has('observations')) {
-            $order->update(['observation' => $validated['observations']]);
+            $order->update(['observations' => $validated['observations']]);
         }
 
         return redirect()->route('scale.tickets.index')->with('success', 'Ticket actualizado correctamente.');
