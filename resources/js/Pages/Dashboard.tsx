@@ -141,7 +141,6 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                             onChange={(e) => handleFilterChange('date', e.target.value)}
                             className="w-full border-none text-sm font-bold text-gray-700 focus:ring-0 bg-transparent"
                         />
-                        <span className="absolute right-3 text-[10px] font-black uppercase text-gray-300 tracking-wider pointer-events-none group-hover:text-blue-400 transition-colors">Fecha</span>
                     </div>
 
                     {/* Warehouse Filter */}
@@ -254,7 +253,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                 <div key={idx} className="bg-[#1e40af] text-white p-4 rounded-xl shadow-lg relative overflow-hidden group flex flex-col justify-between h-32">
                                     <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-5 -mt-5 blur-xl group-hover:bg-white/10 transition-colors"></div>
                                     <p className="text-3xl font-black font-mono tracking-tight group-hover:scale-105 transition-transform origin-left mt-2">
-                                        {formatTonnes(item.total)}
+                                        {formatTonnes(item.total)} TM
                                     </p>
                                     <h4 className="text-xs font-bold uppercase tracking-widest opacity-70 mt-auto pt-2 border-t border-white/10">{item.label}</h4>
                                 </div>

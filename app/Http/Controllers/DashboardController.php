@@ -38,10 +38,10 @@ class DashboardController extends Controller
 
         // Apply filters
         if ($dateStart && $dateEnd) {
-            $baseQuery->whereBetween('updated_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+            $baseQuery->whereBetween('shipment_orders.updated_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
         } elseif ($request->has('date')) {
             // Fallback for single date legacy filter
-            $baseQuery->whereDate('updated_at', $request->date);
+            $baseQuery->whereDate('shipment_orders.updated_at', $request->date);
         }
 
         if ($warehouse)
@@ -102,15 +102,23 @@ class DashboardController extends Controller
             ')
             ->groupBy('date')
             ->orderBy('date')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'date' => $item->date,
+                    'total' => (float) $item->total,
+                    'burreo' => (float) $item->burreo,
+                    'scale' => (float) $item->scale,
+                ];
+            });
 
-        // 2. Storage Breakdown (By Cubicle)
+        // 2. Storage Breakdown (By Warehouse/Cubicle)
         $byCubicle = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->selectRaw('shipment_orders.cubicle, SUM(weight_tickets.net_weight) as total')
-            ->whereNotNull('shipment_orders.cubicle')
-            ->groupBy('shipment_orders.cubicle')
+            ->selectRaw('CONCAT(COALESCE(shipment_orders.warehouse, "Almacén ??"), " - ", COALESCE(shipment_orders.cubicle, "General")) as label, SUM(weight_tickets.net_weight) as total')
+            ->whereNotNull('shipment_orders.warehouse')
+            ->groupBy('shipment_orders.warehouse', 'shipment_orders.cubicle')
             ->orderByDesc('total')
             ->get();
 
