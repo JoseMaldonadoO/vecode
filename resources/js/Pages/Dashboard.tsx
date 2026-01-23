@@ -365,11 +365,11 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                             index="date"
                                             categories={categories}
                                             colors={colors}
-                                            valueFormatter={(val) => `${(val / 1000).toLocaleString()} TM`}
+                                            valueFormatter={(val: any) => `${(val / 1000).toLocaleString()} TM`}
                                             showAnimation={true}
                                             showLegend={false}
                                             yAxisWidth={50}
-                                            onValueChange={(v) => handleBarClick(v)}
+                                            onValueChange={(v: any) => handleBarClick(v)}
                                         />
                                         <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4 animate-pulse">
                                             💡 Haz clic en una barra para ver detalles
@@ -383,7 +383,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                             </div>
                                         ) : drillLevel === 1 ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                                {drillData.map((item, idx) => (
+                                                {drillData.map((item: any, idx: number) => (
                                                     <div
                                                         key={idx}
                                                         onClick={() => handleWarehouseClick(item.warehouse)}
