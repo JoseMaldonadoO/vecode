@@ -20,6 +20,7 @@ class DashboardController extends Controller
         $warehouse = $request->input('warehouse');
         $cubicle = $request->input('cubicle');
         $operator = $request->input('operator');
+        $operationType = $request->input('operation_type', 'all'); // 'all', 'scale', 'burreo'
 
         // 1. Resolve Vessel (Default to latest active if not provided)
         if (!$vesselId) {
@@ -52,6 +53,15 @@ class DashboardController extends Controller
         if ($operator)
             $baseQuery->where('shipment_orders.operator_name', $operator);
 
+        if ($operationType === 'scale') {
+            $baseQuery->where(function ($q) {
+                $q->where('shipment_orders.operation_type', 'scale')
+                    ->orWhereNull('shipment_orders.operation_type');
+            });
+        } elseif ($operationType === 'burreo') {
+            $baseQuery->where('shipment_orders.operation_type', 'burreo');
+        }
+
         // --- KPIS ---
 
         // Trips Completed (Total for this vessel, filtered by date if applied)
@@ -66,7 +76,12 @@ class DashboardController extends Controller
         $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
 
         // Total Tonnes (Net Weight from Tickets in Kg)
-        // Split by Operation Type
+        // Respecting the GLOBAL operationType filter
+        $totalTonnage = (clone $baseQuery)
+            ->where('shipment_orders.status', 'completed')
+            ->sum('weight_tickets.net_weight');
+
+        // Stats for the toggle buttons (always independent of the global operation_type filter)
         $totalScale = (clone $baseQuery)
             ->where('shipment_orders.status', 'completed')
             ->where(function ($q) {
@@ -80,7 +95,7 @@ class DashboardController extends Controller
             ->where('shipment_orders.operation_type', 'burreo')
             ->sum('weight_tickets.net_weight');
 
-        $totalTonnage = (float) ($totalScale + $totalBurreo);
+        $totalTonnage = (float) $totalTonnage;
         $totalScale = (float) $totalScale;
         $totalBurreo = (float) $totalBurreo;
 
@@ -158,5 +173,72 @@ class DashboardController extends Controller
             'filters' => $request->all(),
             'options' => $filterOptions
         ]);
+    }
+
+    /**
+     * Drill-down Level 1: Get tonnage by warehouse for a specific date
+     */
+    public function drillDownWarehouses(Request $request)
+    {
+        $vesselId = $request->input('vessel_id');
+        $date = $request->input('date');
+        $operationType = $request->input('operation_type', 'all');
+
+        $query = ShipmentOrder::query()
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->where('shipment_orders.vessel_id', $vesselId)
+            ->whereDate('weight_tickets.weigh_out_at', $date)
+            ->where('shipment_orders.status', 'completed');
+
+        if ($operationType === 'scale') {
+            $query->whereIn('shipment_orders.operation_type', ['scale', null]);
+        } elseif ($operationType === 'burreo') {
+            $query->where('shipment_orders.operation_type', 'burreo');
+        }
+
+        $data = $query->selectRaw('COALESCE(shipment_orders.warehouse, "S/A") as warehouse, SUM(weight_tickets.net_weight) as total')
+            ->groupBy('warehouse')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json($data);
+    }
+
+    /**
+     * Drill-down Level 2: Get detailed units for a warehouse/date
+     */
+    public function drillDownUnits(Request $request)
+    {
+        $vesselId = $request->input('vessel_id');
+        $date = $request->input('date');
+        $warehouse = $request->input('warehouse');
+        $operationType = $request->input('operation_type', 'all');
+
+        $query = ShipmentOrder::query()
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->where('shipment_orders.vessel_id', $vesselId)
+            ->whereDate('weight_tickets.weigh_out_at', $date)
+            ->where('shipment_orders.warehouse', $warehouse)
+            ->where('shipment_orders.status', 'completed');
+
+        if ($operationType === 'scale') {
+            $query->whereIn('shipment_orders.operation_type', ['scale', null]);
+        } elseif ($operationType === 'burreo') {
+            $query->where('shipment_orders.operation_type', 'burreo');
+        }
+
+        $data = $query->select([
+            'shipment_orders.id',
+            'shipment_orders.folio',
+            'shipment_orders.operator_name',
+            'shipment_orders.tractor_plate',
+            'shipment_orders.cubicle',
+            'weight_tickets.net_weight',
+            'weight_tickets.weigh_out_at'
+        ])
+            ->orderBy('weight_tickets.weigh_out_at', 'desc')
+            ->get();
+
+        return response()->json($data);
     }
 }

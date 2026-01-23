@@ -1,8 +1,9 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { BarChart, DonutChart, Legend, Title } from "@tremor/react";
-import { Activity, Truck, Scale, Filter, Calendar, Warehouse, Box, User as UserIcon, RefreshCw, Anchor, ChevronDown } from 'lucide-react';
+import { Activity, Truck, Scale, Filter, Calendar, Warehouse, Box, User as UserIcon, RefreshCw, Anchor, ChevronDown, ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from "@/Components/ui/card";
+import axios from 'axios';
 import { useState, useEffect } from 'react';
 
 export default function Dashboard({ auth, stats, charts, options, filters, vessel, vessels_list }: any) {
@@ -23,26 +24,90 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         router.get(route('dashboard'), newFilters, { preserveState: true, replace: true, preserveScroll: true });
     };
 
+    const handleViewModeChange = (mode: 'all' | 'scale' | 'burreo') => {
+        const newFilters = { ...localFilters, operation_type: mode };
+        setLocalFilters(newFilters);
+        router.get(route('dashboard'), newFilters, { preserveState: true, replace: true, preserveScroll: true });
+    };
+
     const refreshData = () => {
         setIsRefreshing(true);
         router.reload({ onFinish: () => setIsRefreshing(false) });
     };
 
-    // Calculate chart value formatting
-    const formatTonnes = (val: number) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(val / 1000);
+    // --- HELPERS ---
+    const formatTonnes = (val: number | any) =>
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format((val || 0) / 1000);
 
-    const formatNumber = (val: number) =>
-        new Intl.NumberFormat('en-US').format(val);
+    const formatNumber = (val: number | any) =>
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(val || 0);
 
-    const [viewMode, setViewMode] = useState<'all' | 'scale' | 'burreo'>('all');
+    const viewMode = localFilters.operation_type || 'all';
 
-    // Calculate effective stats based on View Mode
+    // Calculate effective total for the sidebar/visuals
     const effectiveTotal = viewMode === 'scale'
         ? (stats.total_scale || 0)
         : viewMode === 'burreo'
             ? (stats.total_burreo || 0)
             : (stats.total_tonnage || 0);
+
+
+    // --- DRILL-DOWN LOGIC ---
+    const [drillLevel, setDrillLevel] = useState<0 | 1 | 2>(0); // 0: Main, 1: Warehouses, 2: Units
+    const [drillData, setDrillData] = useState<any[]>([]);
+    const [drillLoading, setDrillLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [selectedWarehouse, setSelectedWarehouse] = useState<string | null>(null);
+
+    const handleBarClick = async (data: any) => {
+        if (!data || !data.date) return;
+        const date = data.date;
+        setSelectedDate(date);
+        setDrillLevel(1);
+        setDrillLoading(true);
+
+        try {
+            const response = await axios.get(route('dashboard.drilldown.warehouses'), {
+                params: { vessel_id: vessel?.id, date, operation_type: viewMode }
+            });
+            setDrillData(response.data);
+        } catch (error) {
+            console.error("Drill-down error:", error);
+        } finally {
+            setDrillLoading(false);
+        }
+    };
+
+    const handleWarehouseClick = async (warehouse: string) => {
+        setSelectedWarehouse(warehouse);
+        setDrillLevel(2);
+        setDrillLoading(true);
+
+        try {
+            const response = await axios.get(route('dashboard.drilldown.units'), {
+                params: { vessel_id: vessel?.id, date: selectedDate, warehouse, operation_type: viewMode }
+            });
+            setDrillData(response.data);
+        } catch (error) {
+            console.error("Drill-down error:", error);
+        } finally {
+            setDrillLoading(false);
+        }
+    };
+
+    const resetDrill = () => {
+        setDrillLevel(0);
+        setDrillData([]);
+        setSelectedDate(null);
+        setSelectedWarehouse(null);
+    };
+
+    const backToWarehouses = () => {
+        setDrillLevel(1);
+        setSelectedWarehouse(null);
+        // Re-fetch warehouses for the same date
+        if (selectedDate) handleBarClick({ date: selectedDate });
+    };
 
     const categories = viewMode === 'scale'
         ? ["scale"]
@@ -54,7 +119,8 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         ? ["blue"]
         : viewMode === 'burreo'
             ? ["amber"]
-            : ["slate"];
+            : ["blue"]; // Let's use blue for total as well or indigo
+
 
     return (
         <DashboardLayout user={auth.user} header="Centro de Mando Operativo">
@@ -82,21 +148,21 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         {/* Unicorn Mode Toggle */}
                         <div className="bg-white/10 p-1 rounded-xl flex items-center border border-white/10">
                             <button
-                                onClick={() => setViewMode('all')}
+                                onClick={() => handleViewModeChange('all')}
                                 className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === 'all' ? 'bg-white text-[#1e3a8a] shadow-lg scale-105' : 'text-blue-200 hover:text-white'
                                     }`}
                             >
                                 Total
                             </button>
                             <button
-                                onClick={() => setViewMode('scale')}
+                                onClick={() => handleViewModeChange('scale')}
                                 className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === 'scale' ? 'bg-blue-400 text-white shadow-lg scale-105' : 'text-blue-200 hover:text-white'
                                     }`}
                             >
                                 Báscula
                             </button>
                             <button
-                                onClick={() => setViewMode('burreo')}
+                                onClick={() => handleViewModeChange('burreo')}
                                 className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === 'burreo' ? 'bg-amber-400 text-amber-900 shadow-lg scale-105' : 'text-blue-200 hover:text-white'
                                     }`}
                             >
@@ -212,19 +278,38 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                         </div>
 
                         {/* Main Chart Area */}
-                        <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100">
-                            <div className="flex justify-between items-end mb-6">
+                        <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 min-h-[500px] flex flex-col">
+                            <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber(effectiveTotal / 1000)}</h2>
-                                        {viewMode !== 'all' && (
-                                            <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${viewMode === 'scale' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
-                                                }`}>
-                                                {viewMode === 'scale' ? 'Vía Báscula' : 'Vía Burreo'}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Toneladas Métricas Descargadas</p>
+                                    {drillLevel === 0 ? (
+                                        <>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber(effectiveTotal / 1000)}</h2>
+                                                {viewMode !== 'all' && (
+                                                    <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${viewMode === 'scale' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                                                        }`}>
+                                                        {viewMode === 'scale' ? 'Vía Báscula' : 'Vía Burreo'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Toneladas Métricas Descargadas</p>
+                                        </>
+                                    ) : (
+                                        <div className="flex items-center gap-4">
+                                            <button
+                                                onClick={drillLevel === 2 ? backToWarehouses : resetDrill}
+                                                className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                                            >
+                                                <ArrowLeft className="w-5 h-5 text-gray-600" />
+                                            </button>
+                                            <div>
+                                                <h2 className="text-2xl font-black text-slate-800 tracking-tight">
+                                                    {drillLevel === 1 ? `Detalle por Almacén - ${selectedDate}` : `Detalle Unidades - ${selectedWarehouse}`}
+                                                </h2>
+                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">{selectedDate}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="text-right">
                                     <span className="text-xs font-bold text-gray-400 uppercase block mb-1">Última actualización</span>
@@ -232,18 +317,84 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                 </div>
                             </div>
 
-                            <div className="h-64 md:h-80">
-                                <BarChart
-                                    className="h-full"
-                                    data={charts.daily_tonnage}
-                                    index="date"
-                                    categories={categories}
-                                    colors={colors}
-                                    valueFormatter={(val) => `${(val / 1000).toLocaleString()} TM`}
-                                    showAnimation={true}
-                                    showLegend={false}
-                                    yAxisWidth={50}
-                                />
+                            <div className="flex-1 relative">
+                                {drillLevel === 0 ? (
+                                    <div className="h-full">
+                                        <BarChart
+                                            className="h-80"
+                                            data={charts.daily_tonnage}
+                                            index="date"
+                                            categories={categories}
+                                            colors={colors}
+                                            valueFormatter={(val) => `${(val / 1000).toLocaleString()} TM`}
+                                            showAnimation={true}
+                                            showLegend={false}
+                                            yAxisWidth={50}
+                                            onValueChange={(v) => handleBarClick(v)}
+                                        />
+                                        <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4 animate-pulse">
+                                            💡 Haz clic en una barra para ver detalles
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        {drillLoading ? (
+                                            <div className="flex items-center justify-center h-80">
+                                                <RefreshCw className="w-10 h-10 text-blue-500 animate-spin" />
+                                            </div>
+                                        ) : drillLevel === 1 ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                {drillData.map((item, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => handleWarehouseClick(item.warehouse)}
+                                                        className="bg-slate-50 border border-slate-100 p-6 rounded-2xl hover:border-blue-300 hover:shadow-lg cursor-pointer transition-all group relative overflow-hidden"
+                                                    >
+                                                        <div className="flex justify-between items-center relative z-10">
+                                                            <div>
+                                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Almacén</h4>
+                                                                <p className="text-2xl font-black text-slate-800">{item.warehouse}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-xl font-black text-blue-600">{(item.total / 1000).toLocaleString()} TM</p>
+                                                                <p className="text-[10px] font-bold text-gray-400 uppercase">Descargado</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="absolute top-0 right-0 h-full w-1 bg-blue-500 transform translate-x-full group-hover:translate-x-0 transition-transform"></div>
+                                                    </div>
+                                                ))}
+                                                {drillData.length === 0 && (
+                                                    <div className="col-span-2 text-center py-20 text-gray-400 font-bold">No hay datos para esta fecha</div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="overflow-x-auto mt-4 rounded-2xl border border-gray-100 shadow-inner bg-gray-50/50">
+                                                <table className="min-w-full divide-y divide-gray-200">
+                                                    <thead>
+                                                        <tr className="bg-slate-800 text-white">
+                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Folio</th>
+                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Conductor</th>
+                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Placas</th>
+                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Cubículo</th>
+                                                            <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-wider">Peso Neto (TM)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {drillData.map((unit, idx) => (
+                                                            <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-700">{unit.folio}</td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">{unit.operator_name}</td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">{unit.tractor_plate}</td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-bold">{unit.cubicle || '---'}</td>
+                                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-black text-gray-900">{(unit.net_weight / 1000).toFixed(3)}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
