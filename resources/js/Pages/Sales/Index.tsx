@@ -197,7 +197,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                                             {new Date(order.created_at).toLocaleDateString()}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                            <Link href={route('sales.show', order.id)} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
+                                                            <Link href={route('sales.show', { id: order.id, module: 'sales' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
 
                                                             {order.status === 'created' && (
                                                                 <>

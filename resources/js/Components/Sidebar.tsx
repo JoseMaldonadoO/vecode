@@ -16,29 +16,23 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
 
     // Remove baseUrl for root deployment
     const allLinks = [
-        { name: 'Inicio', href: `/dashboard`, icon: LayoutDashboard, show: true },
-        { name: 'Comercialización', href: `/sales`, icon: ClipboardList, permission: 'view commercialization' },
-        { name: 'Tráfico', href: `/traffic`, icon: Truck, permission: 'view traffic', role: 'Admin' },
-        { name: 'Vigilancia', icon: Search, href: `/surveillance`, permission: 'view surveillance' },
-        { name: 'Documentación', icon: FileText, href: `/documentation`, permission: 'view documentation' },
-        { name: 'Báscula', href: `/scale`, icon: Scale, permission: 'view scale' },
-        { name: 'Muelle', href: `/dock`, icon: Ship, permission: 'view dock' },
-        { name: 'APT', href: `/apt`, icon: Box, permission: 'view apt' },
-        { name: 'Administración', href: `/admin/users`, icon: Users, role: 'Admin' },
+        { name: 'Inicio', href: `/dashboard`, icon: LayoutDashboard, show: true, module: 'dashboard' },
+        { name: 'Comercialización', href: `/sales`, icon: ClipboardList, permission: 'view commercialization', module: 'sales' },
+        { name: 'Tráfico', href: `/traffic`, icon: Truck, permission: 'view traffic', role: 'Admin', module: 'traffic' },
+        { name: 'Vigilancia', icon: Search, href: `/surveillance`, permission: 'view surveillance', module: 'surveillance' },
+        { name: 'Documentación', icon: FileText, href: `/documentation`, permission: 'view documentation', module: 'documentation' },
+        { name: 'Báscula', href: `/scale`, icon: Scale, permission: 'view scale', module: 'scale' },
+        { name: 'Muelle', href: `/dock`, icon: Ship, permission: 'view dock', module: 'dock' },
+        { name: 'APT', href: `/apt`, icon: Box, permission: 'view apt', module: 'apt' },
+        { name: 'Administración', href: `/admin/users`, icon: Users, role: 'Admin', module: 'admin' },
     ];
+
+    const currentModule = props.module as string;
 
     const visibleLinks = allLinks.filter(link => {
         if (link.show) return true;
         if (link.role && roles.includes(link.role)) return true;
         if (link.permission && permissions.includes(link.permission)) return true;
-
-        // If no specific permission/role is required (and not explicitly 'show' true), maybe show it? 
-        // For now, implicit hide if not matched.
-        // However, Traffic doesn't have a specific permission in my Seeder list yet?
-        // Seeder had: 'view dashboard', 'manage users', 'manage roles', 'view dock', 'view documentation', 'view apt', 'view commercialization', 'view surveillance', 'view surveillance operators', 'view scale', 'access admin panel'
-        // Traffic was not in the Seeder explicit list. I should check logic.
-        // For now I will assume some links are open or I need to add 'view traffic'.
-        // Let's add 'view traffic' to admin/default or just leave it for now.
         return false;
     });
 
@@ -68,7 +62,9 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                 <div className="px-4">
                     <div className="space-y-1">
                         {visibleLinks.map((link) => {
-                            const isActive = url.startsWith(link.href) || (link.href === '/dashboard' && url === '/');
+                            const isActive = currentModule
+                                ? currentModule === link.module
+                                : (url.startsWith(link.href) || (link.href === '/dashboard' && url === '/'));
                             return (
                                 <Link
                                     key={link.href}

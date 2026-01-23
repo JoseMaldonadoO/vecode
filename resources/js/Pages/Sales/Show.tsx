@@ -2,16 +2,20 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Package, User, Truck, FileText, Calendar, MapPin, Scale } from 'lucide-react';
 
-export default function Show({ auth, order }: { auth: any, order: any }) {
+export default function Show({ auth, order, module }: { auth: any, order: any, module?: string }) {
+    const isDocumentation = module === 'documentation';
+    const backLink = isDocumentation ? route('documentation.orders.index') : route('sales.index');
+    const backLabel = isDocumentation ? 'Volver al reporte de embarque' : 'Volver al listado';
+
     return (
         <DashboardLayout user={auth.user} header={`Orden ${order.folio}`}>
             <Head title={`Orden ${order.folio}`} />
 
             <div className="max-w-7xl mx-auto">
                 <div className="mb-6 flex justify-between items-center">
-                    <Link href={route('sales.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                    <Link href={backLink} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-1" />
-                        Volver al listado
+                        {backLabel}
                     </Link>
                     <a
                         href={route('documents.cp', order.id)}

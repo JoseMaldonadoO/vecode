@@ -104,13 +104,14 @@ class SalesController extends Controller
         }
     }
 
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $order = ShipmentOrder::with(['client', 'items.product', 'transporter', 'driver', 'vehicle', 'weight_ticket'])
             ->findOrFail($id);
 
         return Inertia::render('Sales/Show', [
-            'order' => $order
+            'order' => $order,
+            'module' => $request->input('module', 'sales')
         ]);
     }
 
