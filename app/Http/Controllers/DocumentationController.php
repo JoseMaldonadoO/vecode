@@ -224,4 +224,36 @@ class DocumentationController extends Controller
 
         return redirect()->route('documentation.operators.index')->with('success', 'Operador actualizado correctamente.');
     }
+
+    /**
+     * Display a report of shipment orders (OB).
+     */
+    public function shipmentOrdersIndex(Request $request)
+    {
+        $query = ShipmentOrder::query()
+            ->with(['client', 'vessel'])
+            ->whereIn('operation_type', ['scale', 'burreo']);
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('folio', 'like', "%{$search}%")
+                    ->orWhere('sale_order', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($cq) use ($search) {
+                        $cq->where('business_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->has('type') && in_array($request->input('type'), ['scale', 'burreo'])) {
+            $query->where('operation_type', $request->input('type'));
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        return Inertia::render('Documentation/Orders/Index', [
+            'orders' => $orders,
+            'filters' => $request->only(['search', 'type']),
+        ]);
+    }
 }

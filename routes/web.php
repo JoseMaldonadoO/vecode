@@ -86,6 +86,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/documentation/operators/{id}/edit', [\App\Http\Controllers\DocumentationController::class, 'editOperator'])->name('documentation.operators.edit');
     Route::put('/documentation/operators/{id}', [\App\Http\Controllers\DocumentationController::class, 'updateOperator'])->name('documentation.operators.update');
 
+    // New Shipment Orders Report Route
+    Route::get('/documentation/shipment-orders', [\App\Http\Controllers\DocumentationController::class, 'shipmentOrdersIndex'])->name('documentation.orders.index');
+
     Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
 
     // APT Module

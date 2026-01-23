@@ -7,6 +7,7 @@ export default function Dock({ auth }: { auth: any }) {
         { name: 'Imprimir QR', icon: Printer, href: route('documentation.qr'), description: 'Buscar operador e imprimir tarjeta con código QR.', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500' },
         { name: 'Alta Operador', icon: UserPlus, href: route('documentation.operators.create'), description: 'Registrar nuevo operador en el sistema.', color: 'bg-green-50 text-green-600', hover: 'hover:border-green-500' },
         { name: 'Lista de Operadores', icon: Users, href: route('documentation.operators.index'), description: 'Ver, buscar y editar operadores registrados.', color: 'bg-blue-50 text-blue-600', hover: 'hover:border-blue-500' },
+        { name: 'REPORTES OB', icon: FileText, href: route('documentation.orders.index'), description: 'Ver historial de descargas (Báscula/Burreo).', color: 'bg-emerald-50 text-emerald-600', hover: 'hover:border-emerald-500' },
     ];
 
     return (

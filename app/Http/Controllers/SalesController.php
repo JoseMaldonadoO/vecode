@@ -11,6 +11,7 @@ class SalesController extends Controller
     public function index()
     {
         $orders = ShipmentOrder::with('client')
+            ->where('operation_type', 'sale')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -82,6 +83,7 @@ class SalesController extends Controller
                     'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                     'client_id' => $validated['client_id'],
                     'status' => 'created',
+                    'operation_type' => 'sale',
                     'destination' => $validated['destination'] ?? null,
                 ]);
 
