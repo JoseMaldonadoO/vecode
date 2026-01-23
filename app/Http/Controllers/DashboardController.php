@@ -205,7 +205,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Drill-down Level 2: Get detailed units for a warehouse/date
+     * Drill-down Level 2: Get aggregated units for a warehouse/date
      */
     public function drillDownUnits(Request $request)
     {
@@ -227,16 +227,63 @@ class DashboardController extends Controller
             $query->where('shipment_orders.operation_type', 'burreo');
         }
 
+        // Agregate by Unit (Operator + Economic Number)
+        // We take the latest cubicle and plates.
+        $data = $query->selectRaw('
+                shipment_orders.operator_name,
+                COALESCE(shipment_orders.economic_number, "S/N") as economic_number,
+                MAX(shipment_orders.tractor_plate) as tractor_plate,
+                MAX(shipment_orders.cubicle) as cubicle,
+                SUM(weight_tickets.net_weight) as total_net_weight,
+                COUNT(*) as trip_count
+            ')
+            ->groupBy('shipment_orders.operator_name', 'shipment_orders.economic_number')
+            ->orderByDesc('total_net_weight')
+            ->paginate(10);
+
+        return response()->json($data);
+    }
+
+    /**
+     * Drill-down Level 3: Get individual trips for a specific unit/warehouse/date
+     */
+    public function drillDownUnitTrips(Request $request)
+    {
+        $vesselId = $request->input('vessel_id');
+        $date = $request->input('date');
+        $warehouse = $request->input('warehouse');
+        $operatorName = $request->input('operator_name');
+        $economicNumber = $request->input('economic_number');
+        $operationType = $request->input('operation_type', 'all');
+
+        $query = ShipmentOrder::query()
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->where('shipment_orders.vessel_id', $vesselId)
+            ->whereDate('weight_tickets.weigh_out_at', $date)
+            ->where('shipment_orders.warehouse', $warehouse)
+            ->where('shipment_orders.operator_name', $operatorName)
+            ->where('shipment_orders.status', 'completed');
+
+        if ($economicNumber !== 'S/N') {
+            $query->where('shipment_orders.economic_number', $economicNumber);
+        } else {
+            $query->whereNull('shipment_orders.economic_number');
+        }
+
+        if ($operationType === 'scale') {
+            $query->whereIn('shipment_orders.operation_type', ['scale', null]);
+        } elseif ($operationType === 'burreo') {
+            $query->where('shipment_orders.operation_type', 'burreo');
+        }
+
         $data = $query->select([
             'shipment_orders.id',
             'shipment_orders.folio',
-            'shipment_orders.operator_name',
-            'shipment_orders.tractor_plate',
             'shipment_orders.cubicle',
             'weight_tickets.net_weight',
             'weight_tickets.weigh_out_at'
         ])
-            ->orderBy('weight_tickets.weigh_out_at', 'desc')
+            ->orderBy('weight_tickets.weigh_out_at', 'asc')
             ->get();
 
         return response()->json($data);

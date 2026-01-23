@@ -21,6 +21,10 @@ Route::get('/dashboard/drill-down/units', [\App\Http\Controllers\DashboardContro
     ->middleware(['auth', 'verified'])
     ->name('dashboard.drilldown.units');
 
+Route::get('/dashboard/drill-down/unit-trips', [\App\Http\Controllers\DashboardController::class, 'drillDownUnitTrips'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.drilldown.unit-trips');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

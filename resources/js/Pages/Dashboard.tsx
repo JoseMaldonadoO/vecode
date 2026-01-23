@@ -53,11 +53,13 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
 
 
     // --- DRILL-DOWN LOGIC ---
-    const [drillLevel, setDrillLevel] = useState<0 | 1 | 2>(0); // 0: Main, 1: Warehouses, 2: Units
-    const [drillData, setDrillData] = useState<any[]>([]);
+    const [drillLevel, setDrillLevel] = useState<0 | 1 | 2 | 3>(0); // 0: Main, 1: Warehouses, 2: Units, 3: Trips
+    const [drillData, setDrillData] = useState<any>([]); // For level 2 this will be the paginated object
+    const [tripsData, setTripsData] = useState<any[]>([]);
     const [drillLoading, setDrillLoading] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedWarehouse, setSelectedWarehouse] = useState<string | null>(null);
+    const [selectedUnit, setSelectedUnit] = useState<{ operator_name: string, economic_number: string } | null>(null);
 
     const handleBarClick = async (data: any) => {
         if (!data || !data.date) return;
@@ -78,14 +80,14 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         }
     };
 
-    const handleWarehouseClick = async (warehouse: string) => {
+    const handleWarehouseClick = async (warehouse: string, page: number = 1) => {
         setSelectedWarehouse(warehouse);
         setDrillLevel(2);
         setDrillLoading(true);
 
         try {
             const response = await axios.get(route('dashboard.drilldown.units'), {
-                params: { vessel_id: vessel?.id, date: selectedDate, warehouse, operation_type: viewMode }
+                params: { vessel_id: vessel?.id, date: selectedDate, warehouse, operation_type: viewMode, page }
             });
             setDrillData(response.data);
         } catch (error) {
@@ -95,18 +97,51 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         }
     };
 
+    const handleUnitClick = async (unit: any) => {
+        setSelectedUnit({ operator_name: unit.operator_name, economic_number: unit.economic_number });
+        setDrillLevel(3);
+        setDrillLoading(true);
+
+        try {
+            const response = await axios.get(route('dashboard.drilldown.unit-trips'), {
+                params: {
+                    vessel_id: vessel?.id,
+                    date: selectedDate,
+                    warehouse: selectedWarehouse,
+                    operator_name: unit.operator_name,
+                    economic_number: unit.economic_number,
+                    operation_type: viewMode
+                }
+            });
+            setTripsData(response.data);
+        } catch (error) {
+            console.error("Trips drill-down error:", error);
+        } finally {
+            setDrillLoading(false);
+        }
+    };
+
     const resetDrill = () => {
         setDrillLevel(0);
         setDrillData([]);
+        setTripsData([]);
         setSelectedDate(null);
         setSelectedWarehouse(null);
+        setSelectedUnit(null);
     };
 
     const backToWarehouses = () => {
         setDrillLevel(1);
         setSelectedWarehouse(null);
-        // Re-fetch warehouses for the same date
+        setTripsData([]);
         if (selectedDate) handleBarClick({ date: selectedDate });
+    };
+
+    const backToUnits = () => {
+        setDrillLevel(2);
+        setSelectedUnit(null);
+        setTripsData([]);
+        // We don't need to re-fetch if we preserve state, but drillData Level 2 is the paginated object
     };
 
     const categories = viewMode === 'scale'
@@ -297,16 +332,20 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                     ) : (
                                         <div className="flex items-center gap-4">
                                             <button
-                                                onClick={drillLevel === 2 ? backToWarehouses : resetDrill}
+                                                onClick={drillLevel === 3 ? backToUnits : (drillLevel === 2 ? backToWarehouses : resetDrill)}
                                                 className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
                                             >
                                                 <ArrowLeft className="w-5 h-5 text-gray-600" />
                                             </button>
                                             <div>
                                                 <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                                                    {drillLevel === 1 ? `Detalle por Almacén - ${selectedDate}` : `Detalle Unidades - ${selectedWarehouse}`}
+                                                    {drillLevel === 1 ? `Detalle por Almacén - ${selectedDate}` :
+                                                        drillLevel === 2 ? `Detalle Unidades - ${selectedWarehouse}` :
+                                                            `Detalle Viajes - ${selectedUnit?.operator_name}`}
                                                 </h2>
-                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">{selectedDate}</p>
+                                                <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">
+                                                    {selectedUnit ? `Económico: ${selectedUnit.economic_number}` : selectedDate}
+                                                </p>
                                             </div>
                                         </div>
                                     )}
@@ -367,30 +406,93 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                                     <div className="col-span-2 text-center py-20 text-gray-400 font-bold">No hay datos para esta fecha</div>
                                                 )}
                                             </div>
-                                        ) : (
-                                            <div className="overflow-x-auto mt-4 rounded-2xl border border-gray-100 shadow-inner bg-gray-50/50">
-                                                <table className="min-w-full divide-y divide-gray-200">
-                                                    <thead>
-                                                        <tr className="bg-slate-800 text-white">
-                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Folio</th>
-                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Conductor</th>
-                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Placas</th>
-                                                            <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Cubículo</th>
-                                                            <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-wider">Peso Neto (TM)</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-gray-100">
-                                                        {drillData.map((unit, idx) => (
-                                                            <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
-                                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-700">{unit.folio}</td>
-                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">{unit.operator_name}</td>
-                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">{unit.tractor_plate}</td>
-                                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-bold">{unit.cubicle || '---'}</td>
-                                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-black text-gray-900">{(unit.net_weight / 1000).toFixed(3)}</td>
+                                        ) : drillLevel === 2 ? (
+                                            <div className="flex flex-col gap-4">
+                                                <div className="overflow-x-auto mt-4 rounded-2xl border border-gray-100 shadow-inner bg-gray-50/50">
+                                                    <table className="min-w-full divide-y divide-gray-200">
+                                                        <thead>
+                                                            <tr className="bg-slate-800 text-white">
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Económico</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Conductor</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Placas</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-center">Viajes</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider text-center">Cubículo</th>
+                                                                <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-wider">Total TM</th>
                                                             </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-100">
+                                                            {drillData.data?.map((unit: any, idx: number) => (
+                                                                <tr
+                                                                    key={idx}
+                                                                    onClick={() => handleUnitClick(unit)}
+                                                                    className="hover:bg-blue-50/50 transition-colors cursor-pointer group"
+                                                                >
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-black text-blue-700">{unit.economic_number}</td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium group-hover:text-blue-600 transition-colors">{unit.operator_name}</td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">{unit.tractor_plate}</td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-bold text-slate-500">
+                                                                        <span className="bg-slate-200 px-2 py-0.5 rounded-full">{unit.trip_count}</span>
+                                                                    </td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-gray-600 font-bold">{unit.cubicle || '---'}</td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-black text-gray-900">{(unit.total_net_weight / 1000).toFixed(3)}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                {/* Level 2 Pagination */}
+                                                {drillData.last_page > 1 && (
+                                                    <div className="flex justify-center items-center gap-2 mt-2">
+                                                        <button
+                                                            disabled={drillData.current_page === 1}
+                                                            onClick={() => handleWarehouseClick(selectedWarehouse!, drillData.current_page - 1)}
+                                                            className="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-all font-bold text-xs uppercase"
+                                                        >
+                                                            Anterior
+                                                        </button>
+                                                        <span className="text-xs font-black text-slate-500">
+                                                            Página {drillData.current_page} de {drillData.last_page}
+                                                        </span>
+                                                        <button
+                                                            disabled={drillData.current_page === drillData.last_page}
+                                                            onClick={() => handleWarehouseClick(selectedWarehouse!, drillData.current_page + 1)}
+                                                            className="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-all font-bold text-xs uppercase"
+                                                        >
+                                                            Siguiente
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                                <div className="overflow-x-auto mt-4 rounded-2xl border border-gray-100 shadow-inner bg-gray-50/50">
+                                                    <table className="min-w-full divide-y divide-gray-200">
+                                                        <thead>
+                                                            <tr className="bg-blue-900 text-white">
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Folio</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Fecha / Hora</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Cubículo</th>
+                                                                <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-wider">Peso Neto (TM)</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-100">
+                                                            {tripsData.map((trip: any, idx: number) => (
+                                                                <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-700">{trip.folio}</td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">
+                                                                        {new Date(trip.weigh_out_at).toLocaleString()}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-bold">{trip.cubicle || '---'}</td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-black text-gray-900">{(trip.net_weight / 1000).toFixed(3)}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <p className="text-center text-[10px] text-gray-400 font-bold uppercase mt-4">
+                                                    * Desglose individual de vueltas realizadas el día {selectedDate}
+                                                </p>
                                             </div>
                                         )}
                                     </div>
