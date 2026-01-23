@@ -220,7 +220,7 @@ class AptController extends Controller
         $qr = $validated['qr'];
         $order = null;
 
-        if (str_starts_with($qr, 'OP ')) {
+        if (str_starts_with($qr, 'OP ') && $validated['operation_type'] !== 'burreo') {
             // Find active order for this operator
             $parts = explode('|', substr($qr, 3));
             $operatorId = $parts[0] ?? null;
@@ -403,7 +403,17 @@ class AptController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return redirect()->back()->with('success', 'Asignación de Almacén registrada correctamente.');
+        $successMessage = 'Asignación de Almacén registrada correctamente.';
+
+        if ($validated['operation_type'] === 'burreo') {
+            $dailyCount = \App\Models\ShipmentOrder::where('operator_name', $order->operator_name)
+                ->where('operation_type', 'burreo')
+                ->whereDate('created_at', now())
+                ->count();
+            $successMessage .= " (Descarga #{$dailyCount} del día para este operador)";
+        }
+
+        return redirect()->back()->with('success', $successMessage);
     }
 
     public function updateScan(Request $request, $id)
