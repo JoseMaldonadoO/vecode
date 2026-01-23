@@ -238,10 +238,3 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
         </DashboardLayout>
     );
 }
-
-
-
-
-        </DashboardLayout >
-    );
-}

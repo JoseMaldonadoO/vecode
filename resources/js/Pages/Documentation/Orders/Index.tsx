@@ -143,10 +143,10 @@ export default function Index({ auth, orders, filters }: PageProps) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-169:                                                             ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
-170:                                                             ${order.status === 'closed' ? 'bg-red-100 text-red-800' : ''}
-171:                                                             ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
-172:                                                         `}>
+                                                            ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
+                                                            ${order.status === 'closed' ? 'bg-red-100 text-red-800' : ''}
+                                                            ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
+                                                        `}>
                                                     {order.status === 'created' ? 'ABIERTA' :
                                                         order.status === 'closed' ? 'CERRADO' :
                                                             order.status.toUpperCase()}

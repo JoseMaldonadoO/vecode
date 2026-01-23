@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Printer, UserPlus, ArrowLeft, Users } from 'lucide-react';
+import { Printer, UserPlus, ArrowLeft, Users, FileText } from 'lucide-react';
 
 export default function Dock({ auth }: { auth: any }) {
     const menuItems = [
