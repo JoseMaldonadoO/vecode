@@ -2,8 +2,9 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft, Package, User, Truck, FileText, Calendar, MapPin, Scale } from 'lucide-react';
 
-export default function Show({ auth, order, module }: { auth: any, order: any, module?: string }) {
-    const isDocumentation = module === 'documentation';
+export default function Show({ auth, order, module, context_module }: { auth: any, order: any, module?: string, context_module?: string }) {
+    const currentModule = context_module || module;
+    const isDocumentation = currentModule === 'documentation';
     const backLink = isDocumentation ? route('documentation.orders.index') : route('sales.index');
     const backLabel = isDocumentation ? 'Volver al reporte de embarque' : 'Volver al listado';
 

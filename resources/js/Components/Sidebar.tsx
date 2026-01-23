@@ -27,7 +27,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
         { name: 'Administración', href: `/admin/users`, icon: Users, role: 'Admin', module: 'admin' },
     ];
 
-    const currentModule = props.module as string;
+    const currentModule = (props.context_module || props.module) as string;
 
     const visibleLinks = allLinks.filter(link => {
         if (link.show) return true;
@@ -62,9 +62,10 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                 <div className="px-4">
                     <div className="space-y-1">
                         {visibleLinks.map((link) => {
+                            // Accurate highlighting: prioritize context_module, then check URL sub-paths
                             const isActive = currentModule
                                 ? currentModule === link.module
-                                : (url.startsWith(link.href) || (link.href === '/dashboard' && url === '/'));
+                                : (url.startsWith(link.href) || (link.href === '/dashboard' && url === '/VECODE/dashboard'));
                             return (
                                 <Link
                                     key={link.href}

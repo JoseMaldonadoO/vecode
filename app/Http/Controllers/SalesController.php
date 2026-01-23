@@ -111,7 +111,7 @@ class SalesController extends Controller
 
         return Inertia::render('Sales/Show', [
             'order' => $order,
-            'module' => $request->input('module', 'sales')
+            'context_module' => $request->input('module', 'sales')
         ]);
     }
 
