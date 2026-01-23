@@ -64,6 +64,7 @@ Utilizado cuando se aligera un barco o se mueve carga desde una ubicación exter
     -   *Fase 1 (Provisional)*: `Peso Promedio Provisional - Tara`. Reflejado inmediatamente en el Dashboard.
     -   *Fase 2 (Final - Draft)*: Una vez finalizada la descarga total del barco, se ingresa el **Peso de Draft** (medición real por calado del barco).
     -   *Recálculo*: El sistema calcula el promedio real (`Peso Draft / Total de Unidades`) y actualiza automáticamente todos los tickets de Burreo de ese barco con este valor real.
+    *   **Regla de Múltiples Viajes**: Un operador en modo Burreo puede ser escaneado múltiples veces. Cada escaneo genera una **nueva Shipment Order** (descarga). El sistema alertará el número de descarga consecutivo para ese operador en el día.
 
 ---
 
