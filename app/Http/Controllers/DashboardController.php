@@ -64,8 +64,20 @@ class DashboardController extends Controller
 
         // --- KPIS ---
 
-        // Trips Completed (Total for this vessel, filtered by date if applied)
-        $tripsCompleted = (clone $baseQuery)->where('shipment_orders.status', 'completed')->count();
+        // Trips Completed:
+        // For Scale: only 'completed' (standard flow)
+        // For Burreo: any status that has a weight ticket should count if operation_type is filtered, 
+        // but for total charts we stick to completed OR we show everything that has net weight.
+        // Let's count anything with status 'completed' OR 'weighing_out' if it's Burreo.
+        $tripsCompleted = (clone $baseQuery)
+            ->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere(function ($sq) {
+                        $sq->where('shipment_orders.operation_type', 'burreo')
+                            ->whereIn('shipment_orders.status', ['weighing_out', 'loading']);
+                    });
+            })
+            ->count();
 
         // Units in Circuit (Live status, restricted to vessel but usually ignores date filter for current state)
         $liveQuery = ShipmentOrder::where('vessel_id', $vesselId);
@@ -76,9 +88,11 @@ class DashboardController extends Controller
         $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
 
         // Total Tonnes (Net Weight from Tickets in Kg)
-        // Respecting the GLOBAL operationType filter
         $totalTonnage = (clone $baseQuery)
-            ->where('shipment_orders.status', 'completed')
+            ->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            })
             ->sum('weight_tickets.net_weight');
 
         // Stats for the toggle buttons (always independent of the global operation_type filter)
@@ -91,7 +105,6 @@ class DashboardController extends Controller
             ->sum('weight_tickets.net_weight');
 
         $totalBurreo = (clone $baseQuery)
-            ->where('shipment_orders.status', 'completed')
             ->where('shipment_orders.operation_type', 'burreo')
             ->sum('weight_tickets.net_weight');
 

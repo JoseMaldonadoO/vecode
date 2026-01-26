@@ -40,7 +40,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format((val || 0) / 1000);
 
     const formatNumber = (val: number | any) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(val || 0);
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
 
     const viewMode = localFilters.operation_type || 'all';
 
