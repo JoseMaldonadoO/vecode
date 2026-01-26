@@ -20,7 +20,7 @@ interface PageProps {
 export default function Index({ auth, products }: PageProps) {
     const [search, setSearch] = useState('');
     const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
-    const { delete: destroy, processing } = useForm();
+    const { delete: destroy, processing } = useForm({});
 
     const isAdmin = auth.user.roles.includes('Admin');
 
