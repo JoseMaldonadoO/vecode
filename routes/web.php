@@ -71,6 +71,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/traffic/products', [\App\Http\Controllers\TrafficController::class, 'productsIndex'])->name('traffic.products.index');
     Route::get('/traffic/products/create', [\App\Http\Controllers\TrafficController::class, 'productsCreate'])->name('traffic.products.create');
     Route::post('/traffic/products', [\App\Http\Controllers\TrafficController::class, 'productsStore'])->name('traffic.products.store');
+    Route::get('/traffic/products/{id}/edit', [\App\Http\Controllers\TrafficController::class, 'productsEdit'])->name('traffic.products.edit');
+    Route::put('/traffic/products/{id}', [\App\Http\Controllers\TrafficController::class, 'productsUpdate'])->name('traffic.products.update');
+    Route::delete('/traffic/products/{id}', [\App\Http\Controllers\TrafficController::class, 'productsDestroy'])->name('traffic.products.destroy');
 
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
 

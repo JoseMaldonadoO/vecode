@@ -107,4 +107,34 @@ class TrafficController extends Controller
 
         return redirect()->route('traffic.products.index')->with('success', 'Producto registrado correctamente.');
     }
+
+    public function productsEdit(string $id)
+    {
+        return Inertia::render('Traffic/Products/Edit', [
+            'product' => Product::findOrFail($id)
+        ]);
+    }
+
+    public function productsUpdate(Request $request, string $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $validated = $request->validate([
+            'code' => 'required|string|unique:products,code,' . $id,
+            'name' => 'required|string|max:255',
+            'default_packaging' => 'required|string|max:255',
+        ]);
+
+        $product->update($validated);
+
+        return redirect()->route('traffic.products.index')->with('success', 'Producto actualizado correctamente.');
+    }
+
+    public function productsDestroy(string $id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return redirect()->route('traffic.products.index')->with('success', 'Producto eliminado correctamente.');
+    }
 }
