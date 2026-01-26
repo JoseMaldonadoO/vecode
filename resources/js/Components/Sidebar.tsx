@@ -65,7 +65,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                             // Accurate highlighting: prioritize context_module, then check URL sub-paths
                             const isActive = currentModule
                                 ? currentModule === link.module
-                                : (url.startsWith(link.href) || (link.href === '/dashboard' && url === '/VECODE/dashboard'));
+                                : (url.startsWith(link.href) || (link.href === '/dashboard' && url === '/dashboard'));
                             return (
                                 <Link
                                     key={link.href}

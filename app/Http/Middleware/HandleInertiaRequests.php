@@ -47,9 +47,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'ziggy' => [
                 'location' => $request->url(),
-                'base_url' => '/VECODE',
+                'base_url' => '',
             ],
-            'base_url' => '/VECODE',
+            'base_url' => '',
         ];
     }
 }
