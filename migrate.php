@@ -24,6 +24,10 @@ try {
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'RolesAndPermissionsSeeder', '--force' => true]);
     echo nl2br(\Illuminate\Support\Facades\Artisan::output());
 
+    echo "\nRunning Seeder (Legacy Shipment Migration)...\n";
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'MigrateLegacyShipmentsSeeder', '--force' => true]);
+    echo nl2br(\Illuminate\Support\Facades\Artisan::output());
+
     echo "\nRunning Seeder (Dock Status)...\n";
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'DockStatusSeeder', '--force' => true]);
     echo nl2br(\Illuminate\Support\Facades\Artisan::output());

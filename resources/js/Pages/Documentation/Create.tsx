@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { Save, ArrowLeft, Check, ChevronsUpDown, Search, Ship, Calendar, Hash, FileText, User, Truck, MapPin, Box, Scale } from 'lucide-react';
+import { Save, ArrowLeft, Check, ChevronsUpDown, Search, Ship, Calendar, Hash, FileText, User, Truck, MapPin, Box, Scale, ShoppingCart } from 'lucide-react';
 import { FormEventHandler, useState, Fragment } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 

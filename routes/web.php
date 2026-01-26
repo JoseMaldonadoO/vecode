@@ -128,6 +128,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);
+
+    // System Maintenance (Temporary)
+    Route::get('/system/deploy', [\App\Http\Controllers\SystemController::class, 'deployUpdates'])->name('system.deploy');
 });
 
 require __DIR__ . '/auth.php';
