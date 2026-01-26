@@ -156,8 +156,9 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                         <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                             <tr>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Folio</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Orden Venta (OV)</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cliente</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Producto</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cantidad</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Estatus</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Fecha</th>
                                                 <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
@@ -166,7 +167,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {filteredOrders.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                                                         <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
                                                         <p className="text-lg font-medium">No hay órdenes registradas</p>
                                                         <p className="text-sm">Comienza creando una nueva orden de venta.</p>
@@ -176,7 +177,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                                 filteredOrders.map((order) => (
                                                     <tr key={order.id} className="hover:bg-indigo-50 transition-colors duration-150">
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
-                                                            {order.folio}
+                                                            {order.folio || 'N/A'}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {order.client?.business_name}
@@ -184,7 +185,7 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {order.product?.name}
                                                         </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
                                                             {order.total_quantity} TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">

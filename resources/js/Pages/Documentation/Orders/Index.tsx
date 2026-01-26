@@ -9,6 +9,7 @@ interface Order {
     id: string;
     folio: string;
     sale_order?: string;
+    sales_order_id?: string;
     sales_order?: {
         folio: string;
     };
@@ -149,19 +150,25 @@ export default function Index({ auth, orders, filters }: PageProps) {
                                                             ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
                                                             ${order.status === 'closed' ? 'bg-red-100 text-red-800' : ''}
                                                             ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
+                                                            ${order.status === 'loading' ? 'bg-amber-100 text-amber-800' : ''}
                                                         `}>
                                                     {order.status === 'created' ? 'ABIERTA' :
                                                         order.status === 'closed' ? 'CERRADO' :
-                                                            order.status.toUpperCase()}
+                                                            order.status === 'loading' ? 'CARGANDO' :
+                                                                order.status.toUpperCase()}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {new Date(order.created_at).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <Link href={route('sales.show', { sale: order.id, module: 'documentation' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">
-                                                    Ver Detalle
-                                                </Link>
+                                                {order.sales_order_id ? (
+                                                    <Link href={route('sales.show', { sale: order.sales_order_id, module: 'documentation' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">
+                                                        Ver Detalle
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-gray-400 bg-gray-50 px-3 py-1.5 rounded-md text-xs">Sin OV</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
