@@ -271,17 +271,17 @@ class DashboardController extends Controller
             });
         }
 
-        // Agregate by Unit (Operator + Economic Number)
+        // Agregate by Unit (Operator + Economic Number/Unit Number)
         // We take the latest cubicle and plates.
         $data = $query->selectRaw('
                 shipment_orders.operator_name,
-                COALESCE(shipment_orders.economic_number, "S/N") as economic_number,
+                COALESCE(NULLIF(shipment_orders.unit_number, ""), NULLIF(shipment_orders.economic_number, ""), "S/N") as economic_number,
                 MAX(shipment_orders.tractor_plate) as tractor_plate,
                 MAX(shipment_orders.cubicle) as cubicle,
                 SUM(weight_tickets.net_weight) as total_net_weight,
                 COUNT(*) as trip_count
             ')
-            ->groupBy('shipment_orders.operator_name', 'shipment_orders.economic_number')
+            ->groupBy('shipment_orders.operator_name', 'shipment_orders.unit_number', 'shipment_orders.economic_number')
             ->orderByDesc('total_net_weight')
             ->paginate(10);
 
@@ -303,15 +303,33 @@ class DashboardController extends Controller
         $query = ShipmentOrder::query()
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->where('shipment_orders.vessel_id', $vesselId)
-            ->whereDate('weight_tickets.weigh_out_at', $date)
+            ->where(function ($q) use ($date) {
+                $q->whereDate('weight_tickets.weigh_out_at', $date)
+                    ->orWhere(function ($sq) use ($date) {
+                        $sq->whereNull('weight_tickets.weigh_out_at')
+                            ->whereDate('shipment_orders.entry_at', $date);
+                    });
+            })
             ->where('shipment_orders.warehouse', $warehouse)
             ->where('shipment_orders.operator_name', $operatorName)
-            ->where('shipment_orders.status', 'completed');
+            ->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            });
 
         if ($economicNumber !== 'S/N') {
-            $query->where('shipment_orders.economic_number', $economicNumber);
+            $query->where(function ($q) use ($economicNumber) {
+                $q->where('shipment_orders.unit_number', $economicNumber)
+                    ->orWhere('shipment_orders.economic_number', $economicNumber);
+            });
         } else {
-            $query->whereNull('shipment_orders.economic_number');
+            $query->where(function ($q) {
+                $q->where(function ($sq) {
+                    $sq->whereNull('shipment_orders.unit_number')->orWhere('shipment_orders.unit_number', '');
+                })->where(function ($sq) {
+                    $sq->whereNull('shipment_orders.economic_number')->orWhere('shipment_orders.economic_number', '');
+                });
+            });
         }
 
         if ($operationType === 'scale') {
