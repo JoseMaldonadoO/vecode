@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\Product;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -80,5 +81,30 @@ class TrafficController extends Controller
         ]);
 
         return redirect()->route('traffic.index')->with('success', 'Usuario registrado correctamente.');
+    }
+
+    public function productsIndex()
+    {
+        return Inertia::render('Traffic/Products/Index', [
+            'products' => Product::orderBy('name')->get()
+        ]);
+    }
+
+    public function productsCreate()
+    {
+        return Inertia::render('Traffic/Products/Create');
+    }
+
+    public function productsStore(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|unique:products',
+            'name' => 'required|string|max:255',
+            'default_packaging' => 'required|string|max:255',
+        ]);
+
+        Product::create($validated);
+
+        return redirect()->route('traffic.products.index')->with('success', 'Producto registrado correctamente.');
     }
 }

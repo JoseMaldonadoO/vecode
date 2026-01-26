@@ -67,6 +67,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/traffic/users/create', [\App\Http\Controllers\TrafficController::class, 'createUser'])->name('traffic.users.create');
     Route::post('/traffic/users', [\App\Http\Controllers\TrafficController::class, 'storeUser'])->name('traffic.users.store');
 
+    // Product Management in Traffic
+    Route::get('/traffic/products', [\App\Http\Controllers\TrafficController::class, 'productsIndex'])->name('traffic.products.index');
+    Route::get('/traffic/products/create', [\App\Http\Controllers\TrafficController::class, 'productsCreate'])->name('traffic.products.create');
+    Route::post('/traffic/products', [\App\Http\Controllers\TrafficController::class, 'productsStore'])->name('traffic.products.store');
+
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
 
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);

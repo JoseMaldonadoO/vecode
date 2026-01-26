@@ -30,15 +30,17 @@ El agente que mueve la carga.
     -   **Burreo**: "Aligerar carga". El barco puede estar en otro muelle o en bahía, y se traslada carga de forma interna o directa a almacén.
 3.  **Estado Inicial**: El barco se crea y queda disponible para vincular operadores.
 
-### B. Alta de Operador (Operator Registration)
-**Ubicación**: Módulo `Documentación` -> Botón `Muelle` -> `Alta Operador`.
-
-**Lógica del Proceso**:
-1.  **Requisito Previo**: Debe existir un Barco Activo.
-2.  **Registro**: Se capturan datos del chofer y la unidad (Placas, Económico, Tipo de Unidad).
-3.  **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
-
----
+39: - **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
+40: 
+41: ### C. Gestión de Productos (Product Management)
+42: **Ubicación**: Módulo `Tráfico` -> `Productos`.
+43: 
+44: **Lógica del Proceso**:
+45: 1.  **Administración**: Permite dar de alta y visualizar el catálogo de productos disponibles en el sistema.
+46: 2.  **Campos**: Requiere `Código` (Identificador único), `Nombre` (Descripción comercial) y `Presentación` (Tipo de empaque por defecto, ej: Granel, Saco).
+47: 3.  **Uso**: Estos productos son seleccionados al crear Órdenes de Venta (OV) o al configurar descargas de barcos (OB).
+48: 
+49: ---
 
 ## 3. Lógica de Descarga (Discharge Flows)
 
