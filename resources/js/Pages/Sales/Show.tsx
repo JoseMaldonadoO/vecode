@@ -74,106 +74,134 @@ export default function Show({ auth, order, module, context_module }: { auth: an
                             </div>
                         </div>
 
-                        {/* Items */}
-                        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                            <div className="bg-gray-50 px-6 py-4 border-b">
-                                <h3 className="font-bold text-gray-900 flex items-center">
-                                    <Package className="w-5 h-5 mr-2 text-gray-500" />
-                                    Productos Solicitados
-                                </h3>
-                            </div>
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Producto</th>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Presentación</th>
-                                        <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">Cantidad</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200">
-                                    {order.items?.map((item: any) => (
-                                        <tr key={item.id}>
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{item.product?.name} <span className="text-gray-400 text-xs ml-2">{item.product?.code}</span></td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">{item.packaging_type}</td>
-                                            <td className="px-6 py-4 text-sm font-bold text-gray-900 text-right">{item.requested_quantity} t</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <Package className="w-5 h-5 mr-2 text-gray-500" />
+                        Información del Producto
+                    </h3>
+                </div>
+                <div className="p-6 grid grid-cols-2 gap-6">
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">Producto</p>
+                        <p className="font-bold text-lg">{order.product?.name}</p>
+                        <p className="text-xs text-gray-400">Código: {order.product?.code}</p>
                     </div>
-
-                    {/* Sidebar: Logistics & Weights */}
-                    <div className="space-y-6">
-                        {/* Logistics Card */}
-                        <div className="bg-zinc-900 text-white rounded-xl shadow-lg p-6">
-                            <h3 className="font-bold mb-4 flex items-center text-zinc-300">
-                                <Truck className="w-5 h-5 mr-2" />
-                                Logística y Transporte
-                            </h3>
-
-                            {order.transporter ? (
-                                <div className="space-y-4">
-                                    <div className="pb-4 border-b border-zinc-700">
-                                        <p className="text-xs text-zinc-500 uppercase mb-1">Transportista</p>
-                                        <p className="font-bold text-lg">{order.transporter.name}</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-xs text-zinc-500 uppercase mb-1">Chofer</p>
-                                            <p className="font-medium text-zinc-200">{order.driver?.name}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-zinc-500 uppercase mb-1">Unidad</p>
-                                            <p className="font-medium text-amber-500 font-mono">{order.vehicle?.plate_number}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="text-center py-8 text-zinc-500">
-                                    <p className="mb-2">Sin asignar</p>
-                                    <Link href={route('traffic.index')} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Ir a Tráfico</Link>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Weights Card */}
-                        <div className="bg-white rounded-xl shadow-sm border p-6">
-                            <h3 className="font-bold mb-4 flex items-center text-gray-900">
-                                <Scale className="w-5 h-5 mr-2 text-gray-500" />
-                                Pesajes (Báscula)
-                            </h3>
-
-                            {order.weight_ticket ? (
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center pb-2 border-b border-dashed">
-                                        <span className="text-sm text-gray-500">Ticket #</span>
-                                        <span className="font-mono font-bold">{order.weight_ticket.ticket_number}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-500">Tara (Entrada)</span>
-                                        <span className="font-mono font-medium">{order.weight_ticket.tare_weight || '---'} kg</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-500">Bruto (Salida)</span>
-                                        <span className="font-mono font-medium">{order.weight_ticket.gross_weight || '---'} kg</span>
-                                    </div>
-                                    <div className="pt-2 border-t mt-2 flex justify-between items-center">
-                                        <span className="font-bold text-gray-900">Neto</span>
-                                        <span className="font-mono font-bold text-lg text-indigo-600">
-                                            {order.weight_ticket.net_weight ? `${order.weight_ticket.net_weight} kg` : '---'}
-                                        </span>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-400 text-sm">
-                                    Sin ticket de báscula
-                                </div>
-                            )}
-                        </div>
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">Cantidad Total Contratada</p>
+                        <p className="font-bold text-lg text-indigo-600">{order.total_quantity} TM</p>
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+
+            {/* Shipment Orders (Trips) */}
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b">
+                    <h3 className="font-bold text-gray-900 flex items-center">
+                        <Truck className="w-5 h-5 mr-2 text-gray-500" />
+                        Envíos Relacionados (Viajes OE/OB)
+                    </h3>
+                </div>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Folio OE</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Tipo</th>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Estatus</th>
+                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase">Peso Neto</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {order.shipments?.map((shipment: any) => (
+                            <tr key={shipment.id}>
+                                <td className="px-6 py-4 text-sm font-medium text-indigo-600">
+                                    <Link href={route('sales.show', { id: shipment.id, module: 'documentation' })}>{shipment.folio}</Link>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-500 uppercase">{shipment.operation_type}</td>
+                                <td className="px-6 py-4 text-sm text-gray-500">{shipment.status}</td>
+                                <td className="px-6 py-4 text-sm font-bold text-gray-900 text-right">
+                                    {shipment.weight_ticket?.net_weight ? `${shipment.weight_ticket.net_weight} kg` : '---'}
+                                </td>
+                            </tr>
+                        ))}
+                        {(!order.shipments || order.shipments.length === 0) && (
+                            <tr>
+                                <td colSpan={4} className="px-6 py-8 text-center text-gray-400 italic">No hay envíos registrados para esta OV</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+                    {/* Sidebar: Logistics & Weights */ }
+    <div className="space-y-6">
+        {/* Logistics Card */}
+        <div className="bg-zinc-900 text-white rounded-xl shadow-lg p-6">
+            <h3 className="font-bold mb-4 flex items-center text-zinc-300">
+                <Truck className="w-5 h-5 mr-2" />
+                Logística y Transporte
+            </h3>
+
+            {order.transporter ? (
+                <div className="space-y-4">
+                    <div className="pb-4 border-b border-zinc-700">
+                        <p className="text-xs text-zinc-500 uppercase mb-1">Transportista</p>
+                        <p className="font-bold text-lg">{order.transporter.name}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-xs text-zinc-500 uppercase mb-1">Chofer</p>
+                            <p className="font-medium text-zinc-200">{order.driver?.name}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-zinc-500 uppercase mb-1">Unidad</p>
+                            <p className="font-medium text-amber-500 font-mono">{order.vehicle?.plate_number}</p>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="text-center py-8 text-zinc-500">
+                    <p className="mb-2">Sin asignar</p>
+                    <Link href={route('traffic.index')} className="text-indigo-400 hover:text-indigo-300 text-sm underline">Ir a Tráfico</Link>
+                </div>
+            )}
+        </div>
+
+        {/* Weights Card */}
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+            <h3 className="font-bold mb-4 flex items-center text-gray-900">
+                <Scale className="w-5 h-5 mr-2 text-gray-500" />
+                Pesajes (Báscula)
+            </h3>
+
+            {order.weight_ticket ? (
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center pb-2 border-b border-dashed">
+                        <span className="text-sm text-gray-500">Ticket #</span>
+                        <span className="font-mono font-bold">{order.weight_ticket.ticket_number}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Tara (Entrada)</span>
+                        <span className="font-mono font-medium">{order.weight_ticket.tare_weight || '---'} kg</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-500">Bruto (Salida)</span>
+                        <span className="font-mono font-medium">{order.weight_ticket.gross_weight || '---'} kg</span>
+                    </div>
+                    <div className="pt-2 border-t mt-2 flex justify-between items-center">
+                        <span className="font-bold text-gray-900">Neto</span>
+                        <span className="font-mono font-bold text-lg text-indigo-600">
+                            {order.weight_ticket.net_weight ? `${order.weight_ticket.net_weight} kg` : '---'}
+                        </span>
+                    </div>
+                </div>
+            ) : (
+                <div className="text-center py-6 bg-gray-50 rounded-lg text-gray-400 text-sm">
+                    Sin ticket de báscula
+                </div>
+            )}
+        </div>
+    </div>
+                </div >
+            </div >
+        </DashboardLayout >
     );
 }

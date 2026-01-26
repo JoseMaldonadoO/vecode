@@ -37,6 +37,7 @@ class DocumentationController extends Controller
                 ];
             }),
             'products' => Product::all(),
+            'sales_orders' => \App\Models\SalesOrder::where('status', 'created')->orWhere('status', 'open')->get(),
             'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
         ]);
     }
@@ -51,6 +52,7 @@ class DocumentationController extends Controller
             'sale_order' => 'required|string',
             'date' => 'required|date',
             'client_id' => 'nullable|exists:clients,id',
+            'sales_order_id' => 'nullable|exists:sales_orders,id',
             // Snapshot fields
             'client_name' => 'nullable|string',
             'rfc' => 'nullable|string',
@@ -231,7 +233,7 @@ class DocumentationController extends Controller
     public function shipmentOrdersIndex(Request $request)
     {
         $query = ShipmentOrder::query()
-            ->with(['client', 'vessel'])
+            ->with(['client', 'vessel', 'sales_order'])
             ->whereIn('operation_type', ['scale', 'burreo']);
 
         if ($request->has('search')) {

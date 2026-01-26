@@ -32,7 +32,17 @@ El agente que mueve la carga.
 
 39: - **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
 40: 
-41: ### C. Gestión de Productos (Product Management)
+41: ### 📑 Orden de Venta (Sales Order - OV)
+Representa el compromiso comercial / contrato con el cliente.
+- **Registro**: Se realiza en el módulo **Comercialización**.
+- **Función**: Define el cliente, el producto y la cantidad total pactada. Una OV puede ser surtida por múltiples viajes (OE).
+
+### 🚛 Orden de Embarque (Shipment Order - OE)
+Representa un viaje físico particular de una unidad para surtir una OV o para descarga de barco.
+- **Relación**: Toda OE de surtido **DEBE** estar vinculada a una OV activa.
+- **Gestión**: Se registran los datos de transporte (Chofer, Placas, Transportista).
+
+### C. Gestión de Productos (Product Management)
 42: **Ubicación**: Módulo `Tráfico` -> `Productos`.
 43: 
 44: **Lógica del Proceso**:

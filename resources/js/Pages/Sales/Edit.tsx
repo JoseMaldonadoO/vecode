@@ -9,9 +9,8 @@ export default function Edit({ auth, order, clients, products }: { auth: any, or
         folio: order.folio,
         sale_order: order.sale_order,
         client_id: order.client_id,
-        // Assuming single item for now
-        product_id: order.items?.[0]?.product_id || '',
-        quantity: order.items?.[0]?.requested_quantity || '',
+        product_id: order.product_id || '',
+        quantity: order.total_quantity || '',
         destination: order.destination || ''
     });
 

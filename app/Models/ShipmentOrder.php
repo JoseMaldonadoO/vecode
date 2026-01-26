@@ -10,6 +10,11 @@ class ShipmentOrder extends Model
     use HasUuids;
     protected $guarded = [];
 
+    public function sales_order()
+    {
+        return $this->belongsTo(SalesOrder::class, 'sales_order_id');
+    }
+
     public function client()
     {
         return $this->belongsTo(Client::class);

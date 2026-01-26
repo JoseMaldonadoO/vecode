@@ -17,15 +17,12 @@ interface Client {
     address?: string;
 }
 
-interface Order {
-    id: string;
-    folio: string;
-    sale_order: string;
-    client: {
-        business_name: string;
-    };
-    status: string;
-    created_at: string;
+product: {
+    name: string;
+};
+total_quantity: number;
+status: string;
+created_at: string;
 }
 
 export default function Index({ auth, orders, clients }: { auth: any, orders: Order[], clients: Client[] }) {
@@ -176,11 +173,14 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
                                                             {order.folio}
                                                         </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 underline decoration-indigo-200">
-                                                            {order.sale_order || '-'}
-                                                        </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {order.client?.business_name}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                                            {order.product?.name}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                                                            {order.total_quantity} TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium

@@ -10,8 +10,7 @@ class SalesController extends Controller
 {
     public function index()
     {
-        $orders = ShipmentOrder::with('client')
-            ->where('operation_type', 'sale')
+        $orders = \App\Models\SalesOrder::with('client')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -23,8 +22,8 @@ class SalesController extends Controller
 
     public function create()
     {
-        // Get all existing folios
-        $folios = ShipmentOrder::pluck('folio')->toArray();
+        // Get all existing folios from SalesOrder
+        $folios = \App\Models\SalesOrder::pluck('folio')->toArray();
         $suggestedFolios = [];
         $patterns = [];
 
@@ -76,21 +75,16 @@ class SalesController extends Controller
             ]);
 
             $order = \Illuminate\Support\Facades\DB::transaction(function () use ($validated) {
-                $order = ShipmentOrder::create([
+                $order = \App\Models\SalesOrder::create([
                     'folio' => $validated['folio'],
                     'sale_order' => $validated['sale_order'],
                     'sale_conditions' => $validated['sale_conditions'] ?? null,
                     'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                     'client_id' => $validated['client_id'],
-                    'status' => 'created',
-                    'operation_type' => 'sale',
-                    'destination' => $validated['destination'] ?? null,
-                ]);
-
-                $order->items()->create([
                     'product_id' => $validated['product_id'],
-                    'requested_quantity' => $validated['quantity'],
-                    'packaging_type' => 'Granel'
+                    'total_quantity' => $validated['quantity'],
+                    'status' => 'created',
+                    'destination' => $validated['destination'] ?? null,
                 ]);
 
                 return $order;
@@ -106,7 +100,7 @@ class SalesController extends Controller
 
     public function show(Request $request, string $id)
     {
-        $order = ShipmentOrder::with(['client', 'items.product', 'transporter', 'driver', 'vehicle', 'weight_ticket'])
+        $order = \App\Models\SalesOrder::with(['client', 'product', 'shipments.weight_ticket'])
             ->findOrFail($id);
 
         return Inertia::render('Sales/Show', [
@@ -117,7 +111,7 @@ class SalesController extends Controller
 
     public function print(string $id)
     {
-        $order = ShipmentOrder::with(['client', 'items.product'])
+        $order = \App\Models\SalesOrder::with(['client', 'product'])
             ->findOrFail($id);
 
         return Inertia::render('Sales/Print', [
@@ -127,7 +121,7 @@ class SalesController extends Controller
 
     public function edit(string $id)
     {
-        $order = ShipmentOrder::with(['items', 'client'])->findOrFail($id);
+        $order = \App\Models\SalesOrder::with(['client', 'product'])->findOrFail($id);
 
         if ($order->status !== 'created') {
             return redirect()->route('sales.index')->withErrors(['message' => 'Solo se pueden editar órdenes en estatus CREADO.']);
@@ -142,7 +136,7 @@ class SalesController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $order = ShipmentOrder::findOrFail($id);
+        $order = \App\Models\SalesOrder::findOrFail($id);
 
         if ($order->status !== 'created') {
             return redirect()->back()->withErrors(['message' => 'No se puede editar una orden en proceso.']);
@@ -165,13 +159,9 @@ class SalesController extends Controller
                 'sale_conditions' => $validated['sale_conditions'] ?? null,
                 'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                 'client_id' => $validated['client_id'],
-                'destination' => $validated['destination'] ?? null,
-            ]);
-
-            // Assuming single item per order for this MVP
-            $order->items()->first()->update([
                 'product_id' => $validated['product_id'],
-                'requested_quantity' => $validated['quantity'],
+                'total_quantity' => $validated['quantity'],
+                'destination' => $validated['destination'] ?? null,
             ]);
         });
 
@@ -180,13 +170,12 @@ class SalesController extends Controller
 
     public function destroy(string $id)
     {
-        $order = ShipmentOrder::findOrFail($id);
+        $order = \App\Models\SalesOrder::findOrFail($id);
 
         if ($order->status !== 'created') {
             return redirect()->back()->withErrors(['message' => 'Solo se pueden cancelar órdenes en estatus CREADO.']);
         }
 
-        $order->items()->delete();
         $order->delete();
 
         return redirect()->route('sales.index')->with('success', 'Orden eliminada (cancelada) correctamente.');
@@ -194,7 +183,7 @@ class SalesController extends Controller
 
     public function toggleStatus(string $id)
     {
-        $order = ShipmentOrder::findOrFail($id);
+        $order = \App\Models\SalesOrder::findOrFail($id);
 
         if ($order->status === 'created') {
             $order->update(['status' => 'closed']);
