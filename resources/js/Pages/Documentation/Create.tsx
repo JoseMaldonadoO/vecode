@@ -75,7 +75,6 @@ export default function Create({ auth, clients, products, sales_orders, default_
             setData(data => ({
                 ...data,
                 sales_order_id: soId,
-                sale_order: so.folio,
                 client_id: so.client_id,
                 client_name: so.client?.business_name,
                 rfc: so.client?.rfc || '',

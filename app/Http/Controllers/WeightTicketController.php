@@ -95,8 +95,8 @@ class WeightTicketController extends Controller
                     'ticket_number' => $ticket->ticket_number,
                     'driver' => $ticket->shipmentOrder->operator_name ?? 'N/A',
                     'vehicle_plate' => $ticket->shipmentOrder->tractor_plate ?? 'N/A',
-                    'provider' => $ticket->shipmentOrder->client_name ?? ($ticket->shipmentOrder->client->name ?? ($ticket->shipmentOrder->vessel->client->name ?? 'N/A')),
                     'product' => is_string($ticket->shipmentOrder->product) ? $ticket->shipmentOrder->product : ($ticket->shipmentOrder->product->name ?? 'N/A'),
+                    'sale_order' => $ticket->shipmentOrder->sale_order_folio ?? 'S/A',
                     'status' => $ticket->weighing_status,
                     'entry_at' => $ticket->weigh_in_at,
                     'exit_at' => $ticket->weigh_out_at,
@@ -339,7 +339,8 @@ class WeightTicketController extends Controller
             // Mapped for UI consistency
             'transport_line' => $order->transporter->name ?? ($order->transport_company ?? ''),
             'withdrawal_letter' => $order->withdrawal_letter ?? '',
-            'reference' => $order->sale_order ?? '',
+            'withdrawal_letter' => $order->withdrawal_letter ?? '',
+            'reference' => $order->sale_order_folio, // Use virtual attribute
             'consignee' => $order->consignee ?? '',
             'vessel_etb' => $order->vessel->etb ?? null,
             'force_burreo' => false, // Decoupled from ETB as per user request
@@ -580,7 +581,8 @@ class WeightTicketController extends Controller
             'net_weight' => $ticket->net_weight,
 
             'client' => $order->client_name ?? ($order->client->name ?? ($order->vessel->client->name ?? 'N/A')),
-            'sale_order' => 'N/A',
+            'sale_order' => $order->sale_order_folio, // Use virtual attribute
+            'sale_order_reference' => $order->customer_reference, // Customer's internal OV
             'withdrawal_letter' => $order->bill_of_lading ?? ($order->withdrawal_letter ?? 'N/A'),
 
             'driver' => $order->operator_name ?? 'N/A',

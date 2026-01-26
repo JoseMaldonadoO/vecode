@@ -261,7 +261,6 @@ class AptController extends Controller
                         // Create new Order for this Burreo/Direct Trip
                         $order = \App\Models\ShipmentOrder::create([
                             'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999), // Unique Folio
-                            'sale_order' => 'N/A',
                             'entry_at' => now(), // Use entry_at instead of date
                             'client_id' => $operator->vessel->client_id,
                             'vessel_id' => $operator->vessel->id,

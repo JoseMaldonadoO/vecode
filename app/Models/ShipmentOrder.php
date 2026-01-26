@@ -61,4 +61,23 @@ class ShipmentOrder extends Model
     {
         return $this->belongsTo(Vessel::class);
     }
+
+    /**
+     * Get the folios of the associated Sales Order if it exists.
+     * This provides a safe fallback for the removed 'sale_order' column.
+     */
+    public function getSaleOrderFolioAttribute()
+    {
+        return $this->sales_order?->folio ?? 'S/A';
+    }
+
+    /**
+     * Get the customer reference from the Sales Order.
+     */
+    public function getCustomerReferenceAttribute()
+    {
+        return $this->sales_order?->sale_order ?? 'N/A';
+    }
+
+    protected $appends = ['sale_order_folio', 'customer_reference'];
 }
