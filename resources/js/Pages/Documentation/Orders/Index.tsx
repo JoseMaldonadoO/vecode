@@ -8,7 +8,10 @@ import { pickBy } from 'lodash';
 interface Order {
     id: string;
     folio: string;
-    sale_order: string;
+    sale_order?: string;
+    sales_order?: {
+        folio: string;
+    };
     operation_type: 'scale' | 'burreo';
     client: {
         business_name: string;
@@ -129,7 +132,7 @@ export default function Index({ auth, orders, filters }: PageProps) {
                                                 {order.folio}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 underline decoration-indigo-200">
-                                                {order.sale_order || '-'}
+                                                {order.sales_order?.folio || order.sale_order || '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.operation_type === 'burreo' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'

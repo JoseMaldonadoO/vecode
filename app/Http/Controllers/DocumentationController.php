@@ -49,10 +49,9 @@ class DocumentationController extends Controller
     {
         $validated = $request->validate([
             'folio' => 'required|unique:shipment_orders,folio',
-            'sale_order' => 'required|string',
             'date' => 'required|date',
-            'client_id' => 'nullable|exists:clients,id',
-            'sales_order_id' => 'nullable|exists:sales_orders,id',
+            'client_id' => 'required|exists:clients,id',
+            'sales_order_id' => 'required|exists:sales_orders,id',
             // Snapshot fields
             'client_name' => 'nullable|string',
             'rfc' => 'nullable|string',
@@ -240,7 +239,9 @@ class DocumentationController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('folio', 'like', "%{$search}%")
-                    ->orWhere('sale_order', 'like', "%{$search}%")
+                    ->orWhereHas('sales_order', function ($sq) use ($search) {
+                        $sq->where('folio', 'like', "%{$search}%");
+                    })
                     ->orWhereHas('client', function ($cq) use ($search) {
                         $cq->where('business_name', 'like', "%{$search}%");
                     });

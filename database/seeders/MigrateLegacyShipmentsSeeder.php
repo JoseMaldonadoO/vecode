@@ -11,22 +11,23 @@ class MigrateLegacyShipmentsSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Group legacy shipments by their 'sale_order' reference (folio)
-        $legacyShipments = ShipmentOrder::whereNull('sales_order_id')
-            ->whereNotNull('sale_order')
-            ->get();
+        // 1. Get all shipments not yet linked
+        $legacyShipments = ShipmentOrder::whereNull('sales_order_id')->get();
 
         foreach ($legacyShipments as $shipment) {
-            // Find or create a SalesOrder for this folio
+            // Determine the reference to use (try sale_order, then purchase_order, then fallback to its own folio)
+            $reference = $shipment->sale_order ?? $shipment->purchase_order ?? $shipment->reference ?? ('LEGACY-' . $shipment->folio);
+
+            // Find or create a SalesOrder for this reference
             $salesOrder = SalesOrder::firstOrCreate(
-                ['folio' => $shipment->sale_order],
+                ['folio' => $reference],
                 [
                     'client_id' => $shipment->client_id,
                     'product_id' => \App\Models\Product::where('name', $shipment->product)->first()?->id,
                     'total_quantity' => $shipment->programmed_tons ?? 0,
-                    'status' => 'closed', // Use 'closed' instead of 'completed' (invalid enum value)
+                    'status' => 'closed',
                     'destination' => $shipment->destination,
-                    'created_at' => $shipment->date, // Use shipment date as creation date
+                    'created_at' => $shipment->date ?? $shipment->created_at,
                 ]
             );
 

@@ -10,9 +10,7 @@ interface Product { id: number; name: string; code: string; }
 export default function Create({ auth, clients, products, sales_orders, default_folio }: { auth: any, clients: Client[], products: Product[], sales_orders: any[], default_folio: string }) {
     const { data, setData, post, processing, errors } = useForm({
         folio: default_folio || '',
-        sales_order_id: '', // New reference
-        sale_order: '', // Manual Ref for backwards compatibility
-        request_id: '', // Pedido
+        sales_order_id: '', // Reference to OV
         date: new Date().toISOString().split('T')[0],
 
         client_id: '',
@@ -157,48 +155,24 @@ export default function Create({ auth, clients, products, sales_orders, default_
                                             <Calendar className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1 italic">Vincular a Orden de Venta (OV)</label>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1 italic">Vincular a Orden de Venta (OV) <span className="text-red-500">*</span></label>
                                         <div className="relative">
                                             <select
+                                                required
                                                 value={data.sales_order_id}
                                                 onChange={handleSalesOrderSelect}
                                                 className="w-full rounded-lg border-indigo-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-indigo-50 font-bold"
                                             >
-                                                <option value="">-- Seleccionar OV Existente --</option>
+                                                <option value="">-- Seleccionar OV Obligatorio --</option>
                                                 {sales_orders.map(so => (
                                                     <option key={so.id} value={so.id}>{so.folio} - {so.client?.business_name} ({so.total_quantity} TM)</option>
                                                 ))}
                                             </select>
                                             <ShoppingCart className="w-5 h-5 text-indigo-400 absolute left-3 top-2.5" />
                                         </div>
-                                        <p className="text-[10px] text-indigo-400 mt-1">Al seleccionar una OV, se autocompletarán los datos del cliente y producto.</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Ref. Orden Venta (Manual)</label>
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                value={data.sale_order}
-                                                onChange={e => setData('sale_order', e.target.value)}
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                                placeholder="Ej. OV-12345"
-                                            />
-                                            <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                        </div>
-                                        {errors.sale_order && <span className="text-xs text-red-500 mt-1 block">{errors.sale_order}</span>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Pedido</label>
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                value={data.request_id}
-                                                onChange={e => setData('request_id', e.target.value)}
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            />
-                                            <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                        </div>
+                                        {errors.sales_order_id && <span className="text-xs text-red-500 mt-1 block">{errors.sales_order_id}</span>}
+                                        <p className="text-[10px] text-indigo-400 mt-1">Obligatorio: Los datos del cliente y producto se cargarán automáticamente.</p>
                                     </div>
                                 </div>
                             </div>
