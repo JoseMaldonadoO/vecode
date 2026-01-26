@@ -22,9 +22,9 @@ class MigrateLegacyShipmentsSeeder extends Seeder
                     'client_id' => $shipment->client_id,
                     'product_id' => \App\Models\Product::where('name', $shipment->product)->first()?->id,
                     'total_quantity' => $shipment->programmed_tons ?? 0,
-                    'status' => 'completed', // Existing shipments are likely done
-                    'date' => $shipment->date,
+                    'status' => 'closed', // Use 'closed' instead of 'completed' (invalid enum value)
                     'destination' => $shipment->destination,
+                    'created_at' => $shipment->date, // Use shipment date as creation date
                 ]
             );
 

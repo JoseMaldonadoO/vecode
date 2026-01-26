@@ -13,7 +13,6 @@ export default function Create({ auth, clients, products, suggested_folios, defa
         sale_order: '',
         sale_conditions: '',
         delivery_conditions: '',
-        date: new Date().toISOString().split('T')[0],
         client_id: '',
         product_id: '',
         quantity: '',
