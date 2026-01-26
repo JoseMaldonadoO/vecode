@@ -18,13 +18,24 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         return () => clearInterval(interval);
     }, []);
 
+    const resetDrill = () => {
+        setDrillLevel(0);
+        setDrillData([]);
+        setTripsData([]);
+        setSelectedDate(null);
+        setSelectedWarehouse(null);
+        setSelectedUnit(null);
+    };
+
     const handleFilterChange = (key: string, value: string) => {
+        resetDrill();
         const newFilters = { ...localFilters, [key]: value };
         setLocalFilters(newFilters);
         router.get(route('dashboard'), newFilters, { preserveState: true, replace: true, preserveScroll: true });
     };
 
     const handleViewModeChange = (mode: 'all' | 'scale' | 'burreo') => {
+        resetDrill();
         const newFilters = { ...localFilters, operation_type: mode };
         setLocalFilters(newFilters);
         router.get(route('dashboard'), newFilters, { preserveState: true, replace: true, preserveScroll: true });
@@ -121,14 +132,6 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
         }
     };
 
-    const resetDrill = () => {
-        setDrillLevel(0);
-        setDrillData([]);
-        setTripsData([]);
-        setSelectedDate(null);
-        setSelectedWarehouse(null);
-        setSelectedUnit(null);
-    };
 
     const backToWarehouses = () => {
         setDrillLevel(1);
