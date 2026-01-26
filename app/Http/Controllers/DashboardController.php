@@ -200,13 +200,18 @@ class DashboardController extends Controller
         $query = ShipmentOrder::query()
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->where('shipment_orders.vessel_id', $vesselId)
-            ->whereDate('weight_tickets.weigh_out_at', $date)
-            ->where('shipment_orders.status', 'completed');
+            ->whereDate('weight_tickets.weigh_out_at', $date);
 
         if ($operationType === 'scale') {
-            $query->whereIn('shipment_orders.operation_type', ['scale', null]);
+            $query->whereIn('shipment_orders.operation_type', ['scale', null])
+                ->where('shipment_orders.status', 'completed');
         } elseif ($operationType === 'burreo') {
             $query->where('shipment_orders.operation_type', 'burreo');
+        } else {
+            $query->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            });
         }
 
         $data = $query->selectRaw('COALESCE(shipment_orders.warehouse, "S/A") as warehouse, SUM(weight_tickets.net_weight) as total')
@@ -231,13 +236,18 @@ class DashboardController extends Controller
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->where('shipment_orders.vessel_id', $vesselId)
             ->whereDate('weight_tickets.weigh_out_at', $date)
-            ->where('shipment_orders.warehouse', $warehouse)
-            ->where('shipment_orders.status', 'completed');
+            ->where('shipment_orders.warehouse', $warehouse);
 
         if ($operationType === 'scale') {
-            $query->whereIn('shipment_orders.operation_type', ['scale', null]);
+            $query->whereIn('shipment_orders.operation_type', ['scale', null])
+                ->where('shipment_orders.status', 'completed');
         } elseif ($operationType === 'burreo') {
             $query->where('shipment_orders.operation_type', 'burreo');
+        } else {
+            $query->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            });
         }
 
         // Agregate by Unit (Operator + Economic Number)
