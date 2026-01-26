@@ -9,20 +9,17 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { useState, FormEventHandler } from 'react';
 
-interface Client {
-    id: number;
-    business_name: string;
-    rfc: string;
-    contact_info: string;
-    address?: string;
-}
-
-product: {
-    name: string;
-};
-total_quantity: number;
-status: string;
-created_at: string;
+interface Order {
+    id: string;
+    folio: string;
+    sale_order: string;
+    client: Client;
+    product: {
+        name: string;
+    };
+    total_quantity: number;
+    status: string;
+    created_at: string;
 }
 
 export default function Index({ auth, orders, clients }: { auth: any, orders: Order[], clients: Client[] }) {
