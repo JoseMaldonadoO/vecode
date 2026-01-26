@@ -12,7 +12,9 @@ class MigrateLegacyShipmentsSeeder extends Seeder
     public function run()
     {
         // 1. Group legacy shipments by their 'sale_order' reference (folio)
-        $legacyShipments = ShipmentOrder::whereNull('sales_order_id')->get();
+        $legacyShipments = ShipmentOrder::whereNull('sales_order_id')
+            ->whereNotNull('sale_order')
+            ->get();
 
         foreach ($legacyShipments as $shipment) {
             // Find or create a SalesOrder for this folio
