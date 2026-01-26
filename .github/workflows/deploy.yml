@@ -67,6 +67,7 @@ jobs:
           cp fix_perms.php delivery/
           cp debug_final.php delivery/
           cp migrate.php delivery/
+          cp cleanup_dummy_sales_orders.php delivery/
           cp .htaccess delivery/
           # Delete state file from delivery directory to force full upload
           rm -f delivery/.ftp-deploy-zip-state.json
