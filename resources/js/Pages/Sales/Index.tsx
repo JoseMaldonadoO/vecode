@@ -9,6 +9,14 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { useState, FormEventHandler } from 'react';
 
+interface Client {
+    id: number;
+    business_name: string;
+    rfc: string;
+    contact_info: string;
+    address?: string;
+}
+
 interface Order {
     id: string;
     folio: string;
