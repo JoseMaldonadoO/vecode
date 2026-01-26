@@ -116,9 +116,12 @@ class DashboardController extends Controller
 
         // 1. Daily Tonnage (Split keys)
         $dailyTonnage = (clone $baseQuery)
-            ->where('shipment_orders.status', 'completed')
+            ->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            })
             ->selectRaw('
-                DATE(weight_tickets.weigh_out_at) as date, 
+                COALESCE(DATE(weight_tickets.weigh_out_at), DATE(shipment_orders.entry_at)) as date, 
                 SUM(weight_tickets.net_weight) as total,
                 SUM(CASE WHEN shipment_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo,
                 SUM(CASE WHEN shipment_orders.operation_type != "burreo" OR shipment_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale
@@ -137,7 +140,10 @@ class DashboardController extends Controller
 
         // 2. Storage Breakdown (By Warehouse/Cubicle)
         $byCubicle = (clone $baseQuery)
-            ->where('shipment_orders.status', 'completed')
+            ->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            })
             ->selectRaw('CONCAT(COALESCE(shipment_orders.warehouse, "Almacén ??"), " - ", COALESCE(shipment_orders.cubicle, "General")) as label, SUM(weight_tickets.net_weight) as total')
             ->whereNotNull('shipment_orders.warehouse')
             ->groupBy('shipment_orders.warehouse', 'shipment_orders.cubicle')
@@ -146,7 +152,10 @@ class DashboardController extends Controller
 
         // 3. Operator Breakdown
         $byOperator = (clone $baseQuery)
-            ->where('shipment_orders.status', 'completed')
+            ->where(function ($q) {
+                $q->where('shipment_orders.status', 'completed')
+                    ->orWhere('shipment_orders.operation_type', 'burreo');
+            })
             ->selectRaw('shipment_orders.operator_name as label, SUM(weight_tickets.net_weight) as total')
             ->groupBy('shipment_orders.operator_name')
             ->orderByDesc('total')
@@ -200,7 +209,13 @@ class DashboardController extends Controller
         $query = ShipmentOrder::query()
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->where('shipment_orders.vessel_id', $vesselId)
-            ->whereDate('weight_tickets.weigh_out_at', $date);
+            ->where(function ($q) use ($date) {
+                $q->whereDate('weight_tickets.weigh_out_at', $date)
+                    ->orWhere(function ($sq) use ($date) {
+                        $sq->whereNull('weight_tickets.weigh_out_at')
+                            ->whereDate('shipment_orders.entry_at', $date);
+                    });
+            });
 
         if ($operationType === 'scale') {
             $query->whereIn('shipment_orders.operation_type', ['scale', null])
@@ -235,7 +250,13 @@ class DashboardController extends Controller
         $query = ShipmentOrder::query()
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->where('shipment_orders.vessel_id', $vesselId)
-            ->whereDate('weight_tickets.weigh_out_at', $date)
+            ->where(function ($q) use ($date) {
+                $q->whereDate('weight_tickets.weigh_out_at', $date)
+                    ->orWhere(function ($sq) use ($date) {
+                        $sq->whereNull('weight_tickets.weigh_out_at')
+                            ->whereDate('shipment_orders.entry_at', $date);
+                    });
+            })
             ->where('shipment_orders.warehouse', $warehouse);
 
         if ($operationType === 'scale') {
