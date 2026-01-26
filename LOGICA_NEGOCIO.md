@@ -59,14 +59,15 @@ El procedimiento normal para camiones que entran y salen del recinto fiscalizado
 Utilizado cuando se aligera un barco o se mueve carga desde una ubicación externa directa sin pesaje de entrada tradicional.
 
 1.  **Entrada Directa**: La unidad ingresa o se carga directamente (ej. desde chalana o muelle alterno).
-2.  **Peso Provisional (Opcional)**: El módulo de **Tráfico** puede asignar un **Peso Promedio Provisional** a las unidades de este barco. Esto permite que el sistema genere un registro de peso aunque la unidad no haya pasado por la báscula de entrada.
-3.  **Descarga**: Va a Almacén (APT) y descarga producto.
-4.  **Pesaje de Destare (Weigh Out)**: La unidad pasa por báscula al salir. Se registra la Tara.
-5.  **Cálculo de Peso Neto**: 
-    -   *Fase 1 (Provisional)*: `Peso Promedio Provisional - Tara`. Reflejado inmediatamente en el Dashboard.
-    -   *Fase 2 (Final - Draft)*: Una vez finalizada la descarga total del barco, se ingresa el **Peso de Draft** (medición real por calado del barco).
-    -   *Recálculo*: El sistema calcula el promedio real (`Peso Draft / Total de Unidades`) y actualiza automáticamente todos los tickets de Burreo de ese barco con este valor real.
-    *   **Regla de Múltiples Viajes**: Un operador en modo Burreo puede ser escaneado múltiples veces. Cada escaneo genera una **nueva Shipment Order** (descarga). El sistema alertará el número de descarga consecutivo para ese operador en el día.
+2.  **Peso Provisional (Módulo Tráfico)**: Se asigna un **Peso Promedio Provisional en Toneladas Métricas (TM)** al barco. 
+    -   *Nota*: Este valor es dinámico. Si se cambia el peso provisional en Tráfico, todos los viajes anteriores de ese barco se actualizan automáticamente con el nuevo valor (siempre que no se haya aplicado el Draft).
+3.  **Descarga (Escaneo APT)**: La unidad va a Almacén (APT) y se escanea el QR.
+    -   *Cálculo Inmediato*: El sistema genera el registro con el peso neto equivalente al **Peso Provisional** actual del barco.
+4.  **No requiere Báscula**: Las unidades de Burreo **NO** pasan por la báscula de salida (Destare). El flujo se completa al momento del escaneo en almacén.
+5.  **Cálculo de Peso Final (Draft)**:
+    -   *Cierre de Operación*: Una vez finalizada la descarga total, se ingresa el **Peso de Draft** total (en TM) en el módulo de Tráfico.
+    -   *Recálculo Final*: El sistema calcula el promedio real (`Peso Draft / Total de Unidades`) y actualiza automáticamente todos los tickets de Burreo de ese barco con este valor final, sobreescribiendo el provisional.
+    *   **Regla de Múltives Viajes**: Cada escaneo genera una nueva Shipment Order. El sistema alerta el número de descarga consecutivo.
 
 ---
 

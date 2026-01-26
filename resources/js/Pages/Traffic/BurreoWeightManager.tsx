@@ -30,8 +30,8 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
 
     const handleSelectVessel = (vessel: Vessel) => {
         setSelectedVessel(vessel);
-        provisionalForm.setData('provisional_burreo_weight', vessel.provisional_burreo_weight || 0);
-        draftForm.setData('draft_weight', vessel.draft_weight || 0);
+        provisionalForm.setData('provisional_burreo_weight', (vessel.provisional_burreo_weight || 0) / 1000);
+        draftForm.setData('draft_weight', (vessel.draft_weight || 0) / 1000);
     };
 
     const submitProvisional = (e: React.FormEvent) => {
@@ -91,7 +91,7 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                             <div className="flex mt-2 gap-2">
                                                 {v.provisional_burreo_weight ? (
                                                     <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                                                        Prov: {v.provisional_burreo_weight}kg
+                                                        Prov: {(v.provisional_burreo_weight || 0) / 1000} TM
                                                     </span>
                                                 ) : (
                                                     <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
@@ -100,7 +100,7 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                 )}
                                                 {v.draft_weight && (
                                                     <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                                                        Draft: {v.draft_weight}kg
+                                                        Draft: {(v.draft_weight || 0) / 1000} TM
                                                     </span>
                                                 )}
                                             </div>
@@ -133,7 +133,7 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                         </div>
                                         <form onSubmit={submitProvisional} className="p-8">
                                             <div className="max-w-md">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Peso Promedio (kg)</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Peso Promedio (TM)</label>
                                                 <div className="relative">
                                                     <input
                                                         type="number"
@@ -145,7 +145,7 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                         required
                                                     />
                                                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400 font-medium">
-                                                        KG
+                                                        TM
                                                     </div>
                                                 </div>
                                                 {provisionalForm.errors.provisional_burreo_weight && (
@@ -177,7 +177,7 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                         </div>
                                         <form onSubmit={submitDraft} className="p-8">
                                             <div className="max-w-md">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Peso Total de Calado (kg)</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Peso Total de Calado (TM)</label>
                                                 <div className="relative">
                                                     <input
                                                         type="number"
@@ -189,7 +189,7 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                         required
                                                     />
                                                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400 font-medium">
-                                                        KG
+                                                        TM
                                                     </div>
                                                 </div>
                                                 {draftForm.errors.draft_weight && (
