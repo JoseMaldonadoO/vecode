@@ -22,10 +22,25 @@ class DashboardController extends Controller
         $operator = $request->input('operator');
         $operationType = $request->input('operation_type', 'all'); // 'all', 'scale', 'burreo'
 
-        // 1. Resolve Vessel (Default to latest active if not provided)
+        // 1. Fetch prioritized vessel list
+        // Prioritize vessels with:
+        // - shipments in 'loading' status (active descarga)
+        // - most recent shipment activity
+        $vesselsList = \App\Models\Vessel::withCount([
+            'shipments as active_loading_count' => function ($q) {
+                $q->where('status', 'loading');
+            }
+        ])
+            ->withMax('shipments', 'created_at')
+            ->orderByDesc('active_loading_count')
+            ->orderByDesc('shipments_max_created_at')
+            ->orderByDesc('created_at')
+            ->take(15)
+            ->get(['id', 'name']);
+
+        // 2. Resolve Vessel (Default to top of prioritized list if not provided)
         if (!$vesselId) {
-            $latestVessel = \App\Models\Vessel::latest('created_at')->first();
-            $vesselId = $latestVessel ? $latestVessel->id : null;
+            $vesselId = $vesselsList->first()?->id;
         }
 
         $selectedVessel = $vesselId ? \App\Models\Vessel::find($vesselId) : null;
@@ -163,7 +178,8 @@ class DashboardController extends Controller
 
 
         // Options for Selectors
-        $vessels = \App\Models\Vessel::orderBy('created_at', 'desc')->take(20)->get(['id', 'name']);
+        // Send the prioritized list to the frontend
+        $vessels = $vesselsList;
 
         // Filter options based on the CURRENT vessel context
         $filterOptions = [
