@@ -271,22 +271,28 @@ class DockController extends Controller
 
         try {
             DB::transaction(function () use ($vessel, $id) {
-                // 1. Delete Weight Tickets and Scans associated with ShipmentOrders of this vessel
+                // 1. Get related IDs
                 $orderIds = ShipmentOrder::where('vessel_id', $id)->pluck('id');
+                $operatorIds = VesselOperator::where('vessel_id', $id)->pluck('id');
 
+                // 2. Delete scans (linked to orders OR operators)
+                \App\Models\AptScan::whereIn('shipment_order_id', $orderIds)
+                    ->orWhereIn('operator_id', $operatorIds)
+                    ->delete();
+
+                // 3. Delete other order-related data
                 if ($orderIds->isNotEmpty()) {
-                    \App\Models\AptScan::whereIn('shipment_order_id', $orderIds)->delete();
                     \App\Models\WeightTicket::whereIn('shipment_order_id', $orderIds)->delete();
                     \App\Models\ShipmentItem::whereIn('shipment_order_id', $orderIds)->delete();
-
-                    // 2. Delete ShipmentOrders
-                    ShipmentOrder::where('vessel_id', $id)->delete();
                 }
 
-                // 3. Delete VesselOperators
+                // 4. Delete ShipmentOrders
+                ShipmentOrder::where('vessel_id', $id)->delete();
+
+                // 5. Delete VesselOperators
                 VesselOperator::where('vessel_id', $id)->delete();
 
-                // 4. Delete the Vessel
+                // 6. Delete the Vessel
                 $vessel->delete();
             });
 
