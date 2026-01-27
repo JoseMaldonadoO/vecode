@@ -7,7 +7,19 @@ import { pickBy } from 'lodash';
 import { QrReader } from 'react-qr-reader';
 import Modal from '@/Components/Modal';
 
-export default function Scanner({ auth, recentScans, occupiedFlat = [], occupiedCubicles = [], filters = { date: '' } }: { auth: any, recentScans: { data: any[], links: any[], from: number, to: number, total: number }, occupiedFlat?: string[], occupiedCubicles?: string[], filters?: { date?: string } }) {
+export default function Scanner({
+    auth,
+    recentScans,
+    activeVessels = [],
+    inactiveVessels = [],
+    filters = { date: '', vessel_id: '' }
+}: {
+    auth: any,
+    recentScans: { data: any[], links: any[], from: number, to: number, total: number },
+    activeVessels?: any[],
+    inactiveVessels?: any[],
+    filters?: { date?: string, vessel_id?: string }
+}) {
     const [scanInput, setScanInput] = useState('');
     const [isScanning, setIsScanning] = useState(true);
     const [scanResult, setScanResult] = useState<any>(null);
@@ -21,11 +33,27 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
 
     // Filter State
     const [dateFilter, setDateFilter] = useState(filters.date || '');
+    const [vesselFilter, setVesselFilter] = useState(filters.vessel_id || '');
+    const [vesselSearch, setVesselSearch] = useState('');
+    const [showInactiveVessels, setShowInactiveVessels] = useState(false);
+
+    const handleFilterChange = (newFilters: any) => {
+        const mergedFilters = pickBy({
+            ...filters,
+            ...newFilters
+        });
+        router.get(route('apt.scanner'), mergedFilters, { preserveState: true, preserveScroll: true });
+    };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setDateFilter(val);
-        router.get(route('apt.scanner'), pickBy({ date: val }), { preserveState: true, preserveScroll: true });
+        handleFilterChange({ date: val });
+    };
+
+    const handleVesselChange = (id: string) => {
+        setVesselFilter(id);
+        handleFilterChange({ vessel_id: id });
     };
 
     const { data, setData, post, processing, reset, errors, clearErrors } = useForm({
@@ -540,27 +568,73 @@ export default function Scanner({ auth, recentScans, occupiedFlat = [], occupied
                     </div>
 
                     {/* Date Filter */}
-                    <div className="px-6 py-2 bg-gray-50 border-b border-gray-100 flex justify-end">
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 font-medium">Filtrar por fecha:</span>
-                            <input
-                                type="date"
-                                value={dateFilter}
-                                onChange={handleDateChange}
-                                className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"
-                            />
-                            {dateFilter && (
-                                <button
-                                    onClick={() => {
-                                        setDateFilter('');
-                                        router.get(route('apt.scanner'), {}, { preserveState: true, preserveScroll: true });
-                                    }}
-                                    className="text-gray-400 hover:text-gray-600"
-                                    title="Limpiar filtro"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
-                            )}
+                    {/* Filters Area */}
+                    <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex flex-col md:flex-row gap-4 items-end">
+                        {/* Vessel Filter */}
+                        <div className="flex-1 w-full">
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5 ml-1">Barco / Vapor</label>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <select
+                                        value={vesselFilter}
+                                        onChange={e => handleVesselChange(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 bg-white border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg text-sm transition-all"
+                                    >
+                                        <option value="">-- Todos los barcos --</option>
+                                        <optgroup label="Barcos Activos (En Muelle)">
+                                            {activeVessels.map((v: any) => (
+                                                <option key={v.id} value={v.id}>{v.name}</option>
+                                            ))}
+                                        </optgroup>
+                                        <optgroup label="Histórico (Inactivos)">
+                                            {inactiveVessels
+                                                .filter((v: any) => v.name.toLowerCase().includes(vesselSearch.toLowerCase()))
+                                                .map((v: any) => (
+                                                    <option key={v.id} value={v.id}>{v.name}</option>
+                                                ))
+                                            }
+                                        </optgroup>
+                                    </select>
+                                    <Warehouse className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                                </div>
+
+                                <div className="relative w-48 hidden md:block">
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar barco..."
+                                        value={vesselSearch}
+                                        onChange={e => setVesselSearch(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg text-sm bg-indigo-50/50"
+                                    />
+                                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Date Filter */}
+                        <div className="w-full md:w-auto">
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5 ml-1">Fecha</label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="date"
+                                    value={dateFilter}
+                                    onChange={handleDateChange}
+                                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm"
+                                />
+                                {(dateFilter || vesselFilter) && (
+                                    <button
+                                        onClick={() => {
+                                            setDateFilter('');
+                                            setVesselFilter('');
+                                            router.get(route('apt.scanner'), {}, { preserveState: true, preserveScroll: true });
+                                        }}
+                                        className="p-2 text-gray-400 hover:text-red-600 bg-white border border-gray-200 rounded-lg hover:shadow-sm"
+                                        title="Limpiar filtros"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="overflow-x-auto">
