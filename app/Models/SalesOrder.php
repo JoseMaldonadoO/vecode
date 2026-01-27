@@ -25,4 +25,18 @@ class SalesOrder extends Model
     {
         return $this->hasMany(ShipmentOrder::class);
     }
+
+    public function getLoadedQuantityAttribute()
+    {
+        return $this->shipments()
+            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+            ->sum('weight_tickets.net_weight') ?: 0;
+    }
+
+    public function getBalanceAttribute()
+    {
+        return max(0, $this->total_quantity - $this->loaded_quantity);
+    }
+
+    protected $appends = ['loaded_quantity', 'balance'];
 }

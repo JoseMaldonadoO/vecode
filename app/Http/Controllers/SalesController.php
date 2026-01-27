@@ -11,8 +11,20 @@ class SalesController extends Controller
     public function index(Request $request)
     {
         $orders = \App\Models\SalesOrder::with(['client', 'product'])
+            ->withSum([
+                'shipments as loaded_quantity' => function ($query) {
+                    $query->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
+                        ->select(\Illuminate\Support\Facades\DB::raw('COALESCE(SUM(weight_tickets.net_weight), 0)'));
+                }
+            ], 'weight_tickets.net_weight')
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Add balance calculated attribute if needed or just handle in frontend
+        $orders->each(function ($order) {
+            $order->loaded_quantity = $order->loaded_quantity ?? 0;
+            $order->balance = max(0, $order->total_quantity - $order->loaded_quantity);
+        });
 
         return Inertia::render('Sales/Index', [
             'orders' => $orders,

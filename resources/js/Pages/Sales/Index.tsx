@@ -26,6 +26,8 @@ interface Order {
         name: string;
     };
     total_quantity: number;
+    loaded_quantity: number;
+    balance: number;
     status: string;
     created_at: string;
 }
@@ -155,12 +157,12 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                             <tr>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Folio</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Orden de Venta</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cliente</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Producto</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cantidad</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Estatus</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Fecha</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Solicitado</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cargado</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Saldo</th>
                                                 <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                                             </tr>
                                         </thead>
@@ -182,12 +184,6 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                                                             {order.client?.business_name}
                                                         </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {order.product?.name}
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
-                                                            {order.total_quantity} TM
-                                                        </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                                             ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
@@ -195,12 +191,18 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                                             ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
                                                         `}>
                                                                 {order.status === 'created' ? 'ABIERTA' :
-                                                                    order.status === 'closed' ? 'CERRADO' :
+                                                                    order.status === 'closed' ? 'CERRADA' :
                                                                         order.status.toUpperCase()}
                                                             </span>
                                                         </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            {new Date(order.created_at).toLocaleDateString()}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
+                                                            {Number(order.total_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })} TM
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
+                                                            {Number(order.loaded_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })} TM
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
+                                                            {Number(order.balance).toLocaleString(undefined, { minimumFractionDigits: 3 })} TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                             <Link href={route('sales.show', { sale: order.id, module: 'sales_report' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
