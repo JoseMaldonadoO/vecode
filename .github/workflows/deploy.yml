@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   web-deploy:
@@ -22,10 +22,15 @@ jobs:
         with:
           node-version: '20'
 
-      - name: 📦 Install JS dependencies & Build
+      - name: 📦 Build Assets
         run: |
           npm install --legacy-peer-deps
           npm run build
+          # Ensure manifest is in the right place
+          if [ -f public/build/.vite/manifest.json ]; then
+            cp public/build/.vite/manifest.json public/build/manifest.json
+            echo "Moved .vite/manifest.json to root"
+          fi
 
       - name: 🛠️ Setup PHP
         uses: shivammathur/setup-php@v2
@@ -35,22 +40,6 @@ jobs:
 
       - name: 📦 Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
-
-      - name: 🛠️ Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: 📦 Install JS dependencies & Build
-        run: |
-          npm install --legacy-peer-deps
-          npm run build
-          ls -R public/build
-          # HACK: Force manifest to root if it is in .vite
-          if [ -f public/build/.vite/manifest.json ]; then
-            cp public/build/.vite/manifest.json public/build/manifest.json
-            echo "Moved .vite/manifest.json to root"
-          fi
 
       - name: 🤐 Prepare Delivery Directory
         run: |
