@@ -32,4 +32,9 @@ class Vessel extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function shipments()
+    {
+        return $this->hasMany(ShipmentOrder::class);
+    }
 }
