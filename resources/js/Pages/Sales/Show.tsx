@@ -83,8 +83,8 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                 </table>
                                 <div className="mt-2 text-right">
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${order.status === 'created' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                            order.status === 'closed' ? 'bg-red-50 text-red-700 border-red-200' :
-                                                'bg-green-50 text-green-700 border-green-200'
+                                        order.status === 'closed' ? 'bg-red-50 text-red-700 border-red-200' :
+                                            'bg-green-50 text-green-700 border-green-200'
                                         }`}>
                                         {order.status === 'created' ? 'ABIERTA' : order.status === 'closed' ? 'CERRADA' : order.status}
                                     </span>
@@ -138,7 +138,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                             TONELADAS
                                         </td>
                                         <td className="border border-black px-2 py-1 font-black text-[15px]">
-                                            {Number(order.total_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })}
+                                            {Number(order.total_quantity).toLocaleString('en-US', { maximumFractionDigits: 3 })}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -209,7 +209,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                             {shipment.transporter?.name} | {shipment.vehicle?.plate_number}
                                         </td>
                                         <td className="px-6 py-3 text-right font-black text-emerald-400">
-                                            {shipment.weight_ticket?.net_weight ? (Number(shipment.weight_ticket.net_weight) / 1000).toFixed(3) : '0.000'}
+                                            {shipment.weight_ticket?.net_weight ? (Number(shipment.weight_ticket.net_weight) / 1000).toLocaleString('en-US', { maximumFractionDigits: 3 }) : '0'}
                                         </td>
                                     </tr>
                                 ))}

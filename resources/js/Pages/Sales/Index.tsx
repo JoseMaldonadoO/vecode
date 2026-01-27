@@ -196,13 +196,13 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
-                                                            {Number(order.total_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })} TM
+                                                            {Number(order.total_quantity).toLocaleString('en-US', { maximumFractionDigits: 3 })} TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
-                                                            {Number(order.loaded_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })} TM
+                                                            {Number(order.loaded_quantity).toLocaleString('en-US', { maximumFractionDigits: 3 })} TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
-                                                            {Number(order.balance).toLocaleString(undefined, { minimumFractionDigits: 3 })} TM
+                                                            {Number(order.balance).toLocaleString('en-US', { maximumFractionDigits: 3 })} TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                             <Link href={route('sales.show', { sale: order.id, module: 'sales_report' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
