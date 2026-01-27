@@ -8,15 +8,16 @@ use Inertia\Inertia;
 
 class SalesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $orders = \App\Models\SalesOrder::with('client')
+        $orders = \App\Models\SalesOrder::with(['client', 'product'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         return Inertia::render('Sales/Index', [
             'orders' => $orders,
-            'clients' => \App\Models\Client::all()
+            'clients' => \App\Models\Client::all(),
+            'initialView' => $request->input('view', 'menu')
         ]);
     }
 
@@ -119,7 +120,7 @@ class SalesController extends Controller
         ]);
     }
 
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
         $order = \App\Models\SalesOrder::with(['client', 'product'])->findOrFail($id);
 
@@ -130,7 +131,8 @@ class SalesController extends Controller
         return Inertia::render('Sales/Edit', [
             'order' => $order,
             'clients' => \App\Models\Client::all(),
-            'products' => \App\Models\Product::all()
+            'products' => \App\Models\Product::all(),
+            'context_module' => $request->input('module', 'sales')
         ]);
     }
 
