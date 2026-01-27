@@ -40,6 +40,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/dock/vessel', [\App\Http\Controllers\DockController::class, 'storeVessel'])->name('dock.vessel.store');
     Route::get('/dock/vessel/{id}/edit', [\App\Http\Controllers\DockController::class, 'editVessel'])->name('dock.vessel.edit');
     Route::put('/dock/vessel/{id}', [\App\Http\Controllers\DockController::class, 'updateVessel'])->name('dock.vessel.update');
+    Route::delete('/dock/vessel/{id}/purge', [\App\Http\Controllers\DockController::class, 'purge'])->name('dock.vessel.purge');
+    Route::delete('/dock/vessel/{id}', [\App\Http\Controllers\DockController::class, 'destroy'])->name('dock.vessel.destroy');
 
     // Operator Registration (Moved to APT)
     // Route::get('/dock/operator', [\App\Http\Controllers\VesselOperatorController::class, 'create'])->name('dock.operator.create');

@@ -259,9 +259,38 @@ class DockController extends Controller
         try {
             $vessel->delete();
             return redirect()->route('dock.index')->with('success', 'Barco eliminado correctamente.');
+        }
+    }
+
+    public function purge($id)
+    {
+        $vessel = Vessel::findOrFail($id);
+
+        try {
+            DB::transaction(function () use ($vessel, $id) {
+                // 1. Delete Weight Tickets and Scans associated with ShipmentOrders of this vessel
+                $orderIds = ShipmentOrder::where('vessel_id', $id)->pluck('id');
+
+                if ($orderIds->isNotEmpty()) {
+                    \App\Models\AptScan::whereIn('shipment_order_id', $orderIds)->delete();
+                    \App\Models\WeightTicket::whereIn('shipment_order_id', $orderIds)->delete();
+                    \App\Models\ShipmentItem::whereIn('shipment_order_id', $orderIds)->delete();
+
+                    // 2. Delete ShipmentOrders
+                    ShipmentOrder::where('vessel_id', $id)->delete();
+                }
+
+                // 3. Delete VesselOperators
+                VesselOperator::where('vessel_id', $id)->delete();
+
+                // 4. Delete the Vessel
+                $vessel->delete();
+            });
+
+            return redirect()->route('dock.index')->with('success', 'Barco y todos sus registros asociados han sido purgados correctamente.');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Vessel Delete Error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Error al eliminar barco: ' . $e->getMessage()]);
+            \Illuminate\Support\Facades\Log::error('Vessel Purge Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al purgar barco: ' . $e->getMessage()]);
         }
     }
 }

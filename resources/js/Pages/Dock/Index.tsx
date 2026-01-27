@@ -203,7 +203,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                                     if (confirm('¿Estás seguro de eliminar este barco? Esta acción solo se permitirá si no tiene registros asociados.')) {
                                                                         router.delete(route('dock.destroy', v.id), {
                                                                             preserveScroll: true,
-                                                                            onError: (errors) => {
+                                                                            onError: (errors: any) => {
                                                                                 alert(errors.error || 'Error al eliminar');
                                                                             }
                                                                         });
@@ -212,6 +212,24 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                                 className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors"
                                                             >
                                                                 Eliminar
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm('¡ADVERTENCIA CRÍTICA! Esta acción eliminará el barco Y TODOS sus registros asociados (Tickets, Órdenes, Escaneos). ¿Deseas continuar?')) {
+                                                                        if (confirm('Confirma por segunda vez: ¿Realmente deseas BORRAR TODO rastro de este barco?')) {
+                                                                            router.delete(route('dock.vessel.purge', v.id), {
+                                                                                preserveScroll: true,
+                                                                                onError: (errors: any) => {
+                                                                                    alert(errors.error || 'Error al purgar');
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                className="text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md transition-colors font-bold text-xs"
+                                                                title="BORRADO FORZADO (Solo para pruebas)"
+                                                            >
+                                                                PURGAR
                                                             </button>
                                                         </div>
                                                     </td>
@@ -294,6 +312,16 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                         className="text-red-600 font-bold text-sm hover:underline"
                                                     >
                                                         Eliminar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('¿BORRAR TODO rastro de este barco? (Tickets, Órdenes, etc)')) {
+                                                                router.delete(route('dock.vessel.purge', v.id));
+                                                            }
+                                                        }}
+                                                        className="text-red-800 font-bold text-sm bg-red-100 px-2 py-0.5 rounded"
+                                                    >
+                                                        PURGAR
                                                     </button>
                                                 </div>
                                             </div>
