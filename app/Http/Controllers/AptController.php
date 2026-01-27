@@ -189,6 +189,7 @@ class AptController extends Controller
 
     public function scanner(Request $request)
     {
+        // Filters for active and historical vessel movements
         $filters = $request->only(['date', 'vessel_id']);
         $now = now();
 
