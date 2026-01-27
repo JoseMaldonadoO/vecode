@@ -11,12 +11,7 @@ class SalesController extends Controller
     public function index(Request $request)
     {
         $orders = \App\Models\SalesOrder::with(['client', 'product'])
-            ->withSum([
-                'shipments as loaded_quantity' => function ($query) {
-                    $query->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-                        ->select(\Illuminate\Support\Facades\DB::raw('COALESCE(SUM(weight_tickets.net_weight), 0)'));
-                }
-            ], 'weight_tickets.net_weight')
+            ->withSum('weight_tickets as loaded_quantity', 'net_weight')
             ->orderBy('created_at', 'desc')
             ->get();
 

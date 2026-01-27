@@ -26,6 +26,18 @@ class SalesOrder extends Model
         return $this->hasMany(ShipmentOrder::class);
     }
 
+    public function weight_tickets()
+    {
+        return $this->hasManyThrough(
+            WeightTicket::class,
+            ShipmentOrder::class,
+            'sales_order_id', // Foreign key on shipment_orders table
+            'shipment_order_id', // Foreign key on weight_tickets table
+            'id', // Local key on sales_orders table
+            'id' // Local key on shipment_orders table
+        );
+    }
+
     public function getLoadedQuantityAttribute()
     {
         return $this->shipments()
