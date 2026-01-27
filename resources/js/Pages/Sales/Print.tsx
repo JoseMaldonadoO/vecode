@@ -139,7 +139,7 @@ export default function Print({ order }: { order: Order }) {
                                 </td>
                                 <td className="border-r border-black p-1 text-center">TONELADAS</td>
                                 <td className="p-1 text-center font-mono">
-                                    {item ? Number(item.requested_quantity).toLocaleString() : '0'}
+                                    {item ? Number(item.requested_quantity).toLocaleString('en-US', { maximumFractionDigits: 3 }) : '0'}
                                 </td>
                             </tr>
                         </tbody>
