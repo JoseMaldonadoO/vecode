@@ -257,6 +257,11 @@ class AptController extends Controller
                 $operator = VesselOperator::with('vessel.product')->find($operatorId);
 
                 if ($operator && $operator->vessel) {
+                    // STRICT CHECK: If vessel requires scale, do not allow auto-creation of Burreo
+                    if (($operator->vessel->apt_operation_type ?? 'scale') === 'scale') {
+                        return back()->withErrors(['qr' => 'ALERTA: Este barco requiere registro en Báscula de entrada antes de asignar ubicación.']);
+                    }
+
                     try {
                         // Create new Order for this Burreo/Direct Trip
                         $order = \App\Models\ShipmentOrder::create([

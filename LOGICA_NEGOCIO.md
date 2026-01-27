@@ -84,4 +84,6 @@ Utilizado cuando se aligera un barco o se mueve carga desde una ubicación exter
 ## 4. Puntos de Control (Checkpoints)
 
 -   **Dashboard Operativo**: Muestra el acumulado de ambos flujos. Es la vista unificada para la toma de decisiones.
--   **Scanner APT**: Punto de control físico en almacén. Valida que la unidad que llega a descargar esté activa y vinculada al barco correcto. Detecta si es flujo Scale o Burreo según la configuración del barco.
+-   **Scanner APT**: Punto de control físico en almacén. Valida que la unidad que llega a descargar esté activa y vinculada al barco correcto.
+    -   **Validación de Flujo**: Si el barco es tipo `scale`, el sistema **RECHAZARA** el escaneo si no hay una OE con ticket de entrada.
+    -   **Protección de Datos**: Evita la auto-creación accidental de registros de "Burreo" para unidades que deben ser pesadas obligatoriamente.
