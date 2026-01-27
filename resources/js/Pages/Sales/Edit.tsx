@@ -1,25 +1,45 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { Save, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Save, ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
+import { FormEventHandler, useState, Fragment } from 'react';
+import { Combobox, Transition } from '@headlessui/react';
 
-export default function Edit({ auth, order, clients, products, context_module }: { auth: any, order: any, clients: any[], products: any[], context_module?: string }) {
+interface Client { id: number; business_name: string; rfc?: string; }
+interface Product { id: number; name: string; code: string; default_packaging: string; }
+
+export default function Edit({ auth, order, clients, products, context_module }: { auth: any, order: any, clients: Client[], products: Product[], context_module?: string }) {
 
     const isSalesReport = context_module === 'sales_report';
     const backLink = isSalesReport ? route('sales.index', { view: 'report' }) : route('sales.index');
 
-    // Pre-fill form with existing order data
     const { data, setData, put, processing, errors } = useForm({
         folio: order.folio,
         sale_order: order.sale_order,
-        client_id: order.client_id,
-        product_id: order.product_id || '',
-        quantity: order.total_quantity || '',
-        destination: order.destination || '',
         sale_conditions: order.sale_conditions || '',
-        delivery_conditions: order.delivery_conditions || ''
+        delivery_conditions: order.delivery_conditions || '',
+        client_id: order.client_id.toString(),
+        product_id: order.product_id?.toString() || '',
+        quantity: order.total_quantity || '',
+        packaging: order.packaging || 'Granel',
+        destination: order.destination || ''
     });
 
-    const submit = (e: React.FormEvent) => {
+    const [query, setQuery] = useState('');
+
+    const filteredClients =
+        query === ''
+            ? clients
+            : clients.filter((client) =>
+                client.business_name
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .includes(query.toLowerCase().replace(/\s+/g, '')) ||
+                client.id.toString().includes(query)
+            );
+
+    const selectedClient = clients.find(c => c.id.toString() === data.client_id) || null;
+
+    const submit: FormEventHandler = (e) => {
         e.preventDefault();
         put(route('sales.update', order.id));
     };
@@ -28,196 +48,268 @@ export default function Edit({ auth, order, clients, products, context_module }:
         <DashboardLayout user={auth.user} header={`Editar Orden: ${order.folio}`}>
             <Head title="Editar Orden" />
 
-            <div className="max-w-7xl mx-auto pb-12">
+            <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="mb-6 flex justify-between items-center">
                     <Link href={backLink} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-1" />
-                        Cancelar y volver
+                        Volver al listado
                     </Link>
                 </div>
 
-                {/* Form Container */}
-                <form onSubmit={submit} className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-[21.5cm] mx-auto">
-                    <div className="p-8 md:p-12 text-black font-sans">
-                        {/* Header with Folio/Order Info */}
-                        <div className="flex justify-between items-start mb-10 pb-6 border-b-2 border-gray-100">
-                            <div className="w-1/2">
-                                <div className="mb-4">
-                                    <img src="/img/Proagro2.png" alt="Logo Proagroindustria" className="h-16 object-contain" />
-                                </div>
-                                <div className="text-sm text-gray-800 space-y-0.5">
-                                    <p className="font-extrabold text-blue-900 text-base">Proagroindustria S.A. de C.V.</p>
-                                    <p>Edición de Documento Interno</p>
+                <form onSubmit={submit} className="bg-white shadow-2xl rounded-sm border border-gray-300 overflow-hidden max-w-[21.5cm] mx-auto overflow-x-auto">
+                    <div className="p-8 md:p-10 text-black font-sans min-w-[19cm]">
+                        {/* Header Section */}
+                        <div className="flex justify-between items-start mb-8">
+                            <div className="flex flex-col">
+                                <img src="/img/Proagro2.png" alt="Proagro" className="h-16 w-auto object-contain mb-2 self-start" />
+                                <div className="text-[11px] leading-tight text-gray-700">
+                                    <p className="font-bold text-black text-[13px]">Proagroindustria S.A. de C.V.</p>
+                                    <p>Carretera Coatzacoalcos-villahermosa Km 5</p>
+                                    <p>interior complejo petroquimico pajaritos</p>
+                                    <p>Coatzacoalcos, Veracruz</p>
                                 </div>
                             </div>
 
-                            <div className="w-1/2 flex flex-col items-end">
-                                <div className="w-64 border-2 border-indigo-900 rounded-lg overflow-hidden shadow-sm bg-indigo-50/30">
-                                    <div className="bg-indigo-900 text-white text-center font-bold py-2 text-sm uppercase tracking-wider">
-                                        Datos de Control
-                                    </div>
-                                    <div className="p-4 space-y-4">
-                                        <div>
-                                            <label className="block text-[10px] font-black text-indigo-900 uppercase tracking-tighter mb-1">Folio (Internal)</label>
-                                            <input
-                                                type="text"
-                                                value={data.folio}
-                                                onChange={e => setData('folio', e.target.value)}
-                                                className="w-full text-sm font-black text-indigo-700 bg-white border-indigo-200 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                            />
-                                            {errors.folio && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.folio}</p>}
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-black text-indigo-900 uppercase tracking-tighter mb-1">O. Compra (Ref)</label>
-                                            <input
-                                                type="text"
-                                                value={data.sale_order}
-                                                onChange={e => setData('sale_order', e.target.value)}
-                                                className="w-full text-sm font-bold bg-white border-indigo-200 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                            />
-                                            {errors.sale_order && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.sale_order}</p>}
-                                        </div>
-                                    </div>
+                            <div className="w-72">
+                                <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase tracking-wide">
+                                    Orden de venta
                                 </div>
+                                <table className="w-full border-collapse border border-black text-xs">
+                                    <tbody>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium w-1/3">Folio:</td>
+                                            <td className="border border-black p-0 relative">
+                                                <input
+                                                    type="text"
+                                                    value={data.folio}
+                                                    onChange={e => setData('folio', e.target.value)}
+                                                    className="w-full border-0 focus:ring-0 p-1 text-[13px] font-bold"
+                                                    required
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">Fecha:</td>
+                                            <td className="border border-black px-2 py-1 text-gray-500 italic">
+                                                {new Date(order.created_at).toLocaleDateString('es-MX')}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">No. Cliente:</td>
+                                            <td className="border border-black p-0 text-[13px] font-bold">
+                                                <input
+                                                    type="text"
+                                                    value={selectedClient?.id || ''}
+                                                    readOnly
+                                                    className="w-full border-0 focus:ring-0 p-1 bg-gray-50 cursor-not-allowed"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">Orden de compra:</td>
+                                            <td className="border border-black p-0">
+                                                <input
+                                                    type="text"
+                                                    value={data.sale_order}
+                                                    onChange={e => setData('sale_order', e.target.value)}
+                                                    className="w-full border-0 focus:ring-0 p-1 text-[13px] font-bold"
+                                                    required
+                                                />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
-                        {/* Client Sector */}
-                        <div className="mb-8">
-                            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Selección del Cliente y Condiciones
+                        {/* Datos del Cliente Section */}
+                        <div className="mb-6">
+                            <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                                Datos del cliente
                             </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-6 bg-gray-50/30 space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Cliente Destinatario</label>
-                                        <select
-                                            value={data.client_id}
-                                            onChange={e => setData('client_id', e.target.value)}
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm font-medium focus:ring-indigo-500 focus:border-indigo-500 h-11"
-                                        >
-                                            <option value="">Seleccione un cliente...</option>
-                                            {clients.map((client) => (
-                                                <option key={client.id} value={client.id}>
-                                                    {client.business_name} ({client.rfc})
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.client_id && <p className="text-red-500 text-xs mt-1 font-medium">{errors.client_id}</p>}
+                            <div className="border border-black">
+                                <div className="flex border-b border-black">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Cliente:</div>
+                                    <div className="w-3/4 p-0">
+                                        <Combobox value={selectedClient} onChange={(client: Client | null) => setData('client_id', client?.id.toString() || '')}>
+                                            <div className="relative">
+                                                <div className="relative w-full cursor-default overflow-hidden text-left sm:text-sm">
+                                                    <Combobox.Input
+                                                        className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 font-bold"
+                                                        displayValue={(client: Client | null) => client ? client.business_name : ''}
+                                                        onChange={(event) => setQuery(event.target.value)}
+                                                        placeholder="Seleccione cliente..."
+                                                    />
+                                                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                        <ChevronsUpDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                                                    </Combobox.Button>
+                                                </div>
+                                                <Transition
+                                                    as={Fragment}
+                                                    leave="transition ease-in duration-100"
+                                                    leaveFrom="opacity-100"
+                                                    leaveTo="opacity-0"
+                                                    afterLeave={() => setQuery('')}
+                                                >
+                                                    <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm border border-gray-300">
+                                                        {filteredClients.length === 0 && query !== '' ? (
+                                                            <div className="relative cursor-default select-none py-2 px-4 text-gray-700 italic">
+                                                                No se encontraron resultados
+                                                            </div>
+                                                        ) : (
+                                                            filteredClients.map((client) => (
+                                                                <Combobox.Option
+                                                                    key={client.id}
+                                                                    className={({ active }) =>
+                                                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-gray-100 text-black' : 'text-gray-900'}`
+                                                                    }
+                                                                    value={client}
+                                                                >
+                                                                    {({ selected, active }) => (
+                                                                        <>
+                                                                            <span className={`block truncate ${selected ? 'font-bold' : 'font-normal'}`}>
+                                                                                {client.business_name}
+                                                                            </span>
+                                                                            {selected ? (
+                                                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-black">
+                                                                                    <Check className="h-4 w-4" aria-hidden="true" />
+                                                                                </span>
+                                                                            ) : null}
+                                                                        </>
+                                                                    )}
+                                                                </Combobox.Option>
+                                                            ))
+                                                        )}
+                                                    </Combobox.Options>
+                                                </Transition>
+                                            </div>
+                                        </Combobox>
                                     </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Condiciones de Venta</label>
+                                </div>
+                                <div className="flex border-b border-black">
+                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de venta:</div>
+                                    <div className="w-[55%] p-0">
                                         <input
                                             type="text"
                                             value={data.sale_conditions}
                                             onChange={e => setData('sale_conditions', e.target.value)}
-                                            placeholder="Ej. CONTADO, 30 DÍAS"
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                            className="w-full border-0 focus:ring-0 p-2 text-sm font-bold"
                                         />
                                     </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Condiciones de Entrega</label>
+                                </div>
+                                <div className="flex">
+                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de entrega:</div>
+                                    <div className="w-[55%] p-0">
                                         <input
                                             type="text"
                                             value={data.delivery_conditions}
                                             onChange={e => setData('delivery_conditions', e.target.value)}
-                                            placeholder="Ej. LAB PLANTA, DESTINO"
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                            className="w-full border-0 focus:ring-0 p-2 text-sm font-bold"
                                         />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Product Selection */}
-                        <div className="mb-8">
-                            <div className="bg-indigo-900 text-white font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Producto y Volumen
-                            </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-6 bg-indigo-50/10">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Descripción del Producto</label>
-                                        <select
-                                            value={data.product_id}
-                                            onChange={e => setData('product_id', e.target.value)}
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm font-bold text-gray-800 focus:ring-indigo-500 focus:border-indigo-500 h-11"
-                                        >
-                                            <option value="">Seleccione un producto...</option>
-                                            {products.map((product) => (
-                                                <option key={product.id} value={product.id}>
-                                                    {product.code} - {product.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.product_id && <p className="text-red-500 text-xs mt-1 font-medium">{errors.product_id}</p>}
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Toneladas Solicitadas (TM)</label>
-                                        <div className="relative">
+                        {/* Product Selection Section */}
+                        <div className="mb-6">
+                            <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
+                                <thead className="bg-gray-500 text-white text-center">
+                                    <tr>
+                                        <th className="border border-black py-1 w-[60%]">Descripción</th>
+                                        <th className="border border-black py-1 w-[20%]">Unidad</th>
+                                        <th className="border border-black py-1 w-[20%]">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr className="h-10">
+                                        <td className="border border-black p-0">
+                                            <select
+                                                value={data.product_id}
+                                                onChange={e => setData('product_id', e.target.value)}
+                                                className="w-full border-0 focus:ring-0 h-full px-2 text-[13px] bg-transparent font-bold appearance-none text-center"
+                                                required
+                                            >
+                                                <option value="">Seleccione</option>
+                                                {products.map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                                ))}
+                                            </select>
+                                        </td>
+                                        <td className="border border-black text-center bg-gray-50 py-1 flex items-center justify-center h-10">
+                                            TONELADAS
+                                        </td>
+                                        <td className="border border-black p-0">
                                             <input
                                                 type="number"
                                                 step="0.001"
                                                 value={data.quantity}
                                                 onChange={e => setData('quantity', e.target.value)}
-                                                className="w-full bg-white border-gray-200 rounded-lg text-lg font-black text-indigo-700 focus:ring-indigo-500 focus:border-indigo-500 pr-12 h-11"
+                                                className="w-full border-0 focus:ring-0 h-full p-1 text-center font-bold text-[13px]"
+                                                required
                                             />
-                                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400 font-bold text-xs uppercase">
-                                                TM
-                                            </div>
-                                        </div>
-                                        {errors.quantity && <p className="text-red-500 text-xs mt-1 font-medium">{errors.quantity}</p>}
-                                    </div>
-                                </div>
-                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
-                        {/* Observations / Destination */}
-                        <div className="mb-12">
-                            <div className="bg-gray-100 text-gray-700 font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Observaciones Adicionales / Destino
+                        {/* Observations Section */}
+                        <div className="mb-10">
+                            <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                                Observaciones
                             </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-2 bg-white">
+                            <div className="border border-black h-24">
                                 <textarea
                                     value={data.destination}
                                     onChange={e => setData('destination', e.target.value)}
-                                    rows={4}
-                                    placeholder="Ingrese destino detallado u observaciones relevantes para la carga..."
-                                    className="w-full border-0 focus:ring-0 text-sm text-gray-700 placeholder-gray-400 resize-none"
+                                    className="w-full h-full border-0 focus:ring-0 p-2 text-[13px] resize-none font-bold"
+                                    placeholder="..."
                                 />
                             </div>
                         </div>
 
-                        {/* Status Guard Info */}
-                        <div className="mb-8 p-4 bg-amber-50 rounded-xl border-2 border-amber-100 flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                            <div>
-                                <h4 className="text-sm font-bold text-amber-800 uppercase tracking-tight">Aviso de Restricción</h4>
-                                <p className="text-xs text-amber-700 leading-relaxed">
-                                    Esta orden de venta podrá ser editada mientras mantenga el estatus <span className="font-bold">ABIERTA</span>. Una vez generados embarques o cerrada la orden, cualquier modificación deberá ser autorizada por dirección.
-                                </p>
+                        {/* Signatures & Footer Section */}
+                        <div className="mt-20">
+                            <div className="flex flex-col items-center mb-16">
+                                <div className="w-64 border-b border-black mb-1"></div>
+                                <p className="text-sm font-medium">Oscar Méndez Torres</p>
+                                <p className="text-[12px] text-gray-500">Comercialización</p>
+                            </div>
+
+                            <div className="text-center mb-8">
+                                <p className="text-indigo-900 font-bold text-[13px]">www.proagroindustria.com</p>
+                            </div>
+
+                            <div className="flex justify-between items-end border-t border-gray-100 pt-6">
+                                <div className="text-[10px] text-gray-500 space-y-0.5">
+                                    <p><span className="font-bold text-black">Venta y cobranza:</span> oscar.mendez@proagroindustria.com</p>
+                                    <p><span className="font-bold text-black">Asst. Adtvo.:</span> jorge.robles@proagroindustria.com</p>
+                                    <p><span className="font-bold text-black">Comercialización:</span> ventas.comercializacion@proagroindustria.com</p>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                    <img src="/img/Proagro2.png" alt="Logo" className="h-8 opacity-50 mb-1" />
+                                    <p className="text-[10px] text-gray-400 font-mono italic">DCM-FO-001</p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col md:flex-row gap-4 pt-10 border-t border-gray-100">
+                        {/* Final Form Actions (Non-printable) */}
+                        <div className="mt-12 pt-8 border-t border-gray-100 flex justify-end gap-3 print:hidden">
+                            <Link
+                                href={backLink}
+                                className="px-6 py-3 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition-all uppercase text-xs tracking-wider"
+                            >
+                                Cancelar
+                            </Link>
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="flex-1 inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-black rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50"
+                                className="px-10 py-3 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition-all flex items-center uppercase text-xs tracking-widest shadow-lg disabled:opacity-50"
                             >
-                                <Save className="w-5 h-5 mr-3" />
-                                Guardar Cambios en la Orden
+                                <Save className="w-4 h-4 mr-2" />
+                                {processing ? 'Guardando...' : 'Actualizar Orden'}
                             </button>
-                            <Link
-                                href={backLink}
-                                className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-200 text-base font-bold rounded-xl text-gray-600 bg-white hover:bg-gray-50 transition-all"
-                            >
-                                Cancelar Cambios
-                            </Link>
                         </div>
                     </div>
                 </form>

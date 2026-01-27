@@ -1,6 +1,6 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Printer, FileText, ChevronRight } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Printer, ChevronRight } from 'lucide-react';
 
 export default function Show({ auth, order, context_module }: { auth: any, order: any, context_module?: string }) {
     const isDocumentation = context_module === 'documentation';
@@ -15,12 +15,12 @@ export default function Show({ auth, order, context_module }: { auth: any, order
         : (isSalesReport ? 'Volver al reporte de ventas' : 'Volver al listado');
 
     return (
-        <DashboardLayout user={auth.user} header={`Detalle de Orden: ${order.folio}`}>
+        <DashboardLayout user={auth.user} header={`Orden: ${order.folio}`}>
             <Head title={`Orden ${order.folio}`} />
 
-            <div className="max-w-7xl mx-auto pb-12">
+            <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Navigation Header */}
-                <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="mb-6 flex justify-between items-center print:hidden">
                     <Link href={backLink} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         {backLabel}
@@ -28,119 +28,116 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                     <div className="flex gap-3">
                         <button
                             onClick={() => window.print()}
-                            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all"
+                            className="inline-flex items-center px-6 py-2.5 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-all font-sans uppercase tracking-widest"
                         >
                             <Printer className="w-4 h-4 mr-2" />
-                            Reimprimir OV
+                            Imprimir OV
                         </button>
                     </div>
                 </div>
 
                 {/* Print Preview Container */}
-                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-8 max-w-[21.5cm] mx-auto overflow-x-auto">
-                    <div className="p-8 md:p-12 text-black font-sans min-w-[19cm]">
-                        {/* Header */}
-                        <div className="flex justify-between items-start mb-10 pb-6 border-b-2 border-gray-100">
-                            <div className="w-1/2">
-                                <div className="mb-4">
-                                    <img src="/img/Proagro2.png" alt="Logo Proagroindustria" className="h-16 object-contain" />
-                                </div>
-                                <div className="text-sm text-gray-800 space-y-0.5">
-                                    <p className="font-extrabold text-blue-900 text-base">Proagroindustria S.A. de C.V.</p>
+                <div className="bg-white shadow-2xl rounded-sm border border-gray-300 overflow-hidden max-w-[21.5cm] mx-auto overflow-x-auto mb-10">
+                    <div className="p-8 md:p-10 text-black font-sans min-w-[19cm]">
+                        {/* Header Section */}
+                        <div className="flex justify-between items-start mb-8">
+                            <div className="flex flex-col">
+                                <img src="/img/Proagro2.png" alt="Proagro" className="h-16 w-auto object-contain mb-2 self-start" />
+                                <div className="text-[11px] leading-tight text-gray-700">
+                                    <p className="font-bold text-black text-[13px]">Proagroindustria S.A. de C.V.</p>
                                     <p>Carretera Coatzacoalcos-villahermosa Km 5</p>
-                                    <p>Interior complejo petroquimico pajaritos</p>
+                                    <p>interior complejo petroquimico pajaritos</p>
                                     <p>Coatzacoalcos, Veracruz</p>
                                 </div>
                             </div>
 
-                            <div className="w-1/2 flex flex-col items-end">
-                                <div className="w-64 border-2 border-indigo-900 rounded-lg overflow-hidden shadow-sm">
-                                    <div className="bg-indigo-900 text-white text-center font-bold py-2 text-sm uppercase tracking-wider">
-                                        Orden de Venta
-                                    </div>
-                                    <table className="w-full text-xs md:text-sm border-collapse">
-                                        <tbody>
-                                            <tr className="border-b border-indigo-100">
-                                                <td className="p-2 bg-indigo-50 font-bold text-indigo-900 w-1/3">Folio:</td>
-                                                <td className="p-2 text-center font-black text-indigo-700">{order.folio}</td>
-                                            </tr>
-                                            <tr className="border-b border-indigo-100">
-                                                <td className="p-2 bg-indigo-50 font-bold text-indigo-900">Fecha:</td>
-                                                <td className="p-2 text-center">
-                                                    {new Date(order.created_at).toLocaleDateString("es-ES", { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                                                </td>
-                                            </tr>
-                                            <tr className="border-b border-indigo-100">
-                                                <td className="p-2 bg-indigo-50 font-bold text-indigo-900">No. Cliente</td>
-                                                <td className="p-2 text-center font-medium">{order.client?.id}</td>
-                                            </tr>
-                                            <tr>
-                                                <td className="p-2 bg-indigo-50 font-bold text-indigo-900">O. Compra:</td>
-                                                <td className="p-2 text-center font-bold">{order.sale_order}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                            <div className="w-72">
+                                <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase tracking-wide">
+                                    Orden de venta
                                 </div>
-                                <div className="mt-4">
-                                    <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border-2
-                                        ${order.status === 'created' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                                        ${order.status === 'closed' ? 'bg-red-50 text-red-700 border-red-200' : ''}
-                                        ${order.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                                    `}>
+                                <table className="w-full border-collapse border border-black text-xs">
+                                    <tbody>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium w-1/3">Folio:</td>
+                                            <td className="border border-black px-2 py-1 font-bold text-[13px]">{order.folio}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">Fecha:</td>
+                                            <td className="border border-black px-2 py-1 text-gray-700">
+                                                {new Date(order.created_at).toLocaleDateString('es-MX')}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">No. Cliente:</td>
+                                            <td className="border border-black px-2 py-1 font-bold text-[13px]">
+                                                {order.client?.id}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">Orden de compra:</td>
+                                            <td className="border border-black px-2 py-1 font-bold text-[13px] uppercase">
+                                                {order.sale_order}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div className="mt-2 text-right">
+                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${order.status === 'created' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                            order.status === 'closed' ? 'bg-red-50 text-red-700 border-red-200' :
+                                                'bg-green-50 text-green-700 border-green-200'
+                                        }`}>
                                         {order.status === 'created' ? 'ABIERTA' : order.status === 'closed' ? 'CERRADA' : order.status}
                                     </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Client Sector */}
-                        <div className="mb-8">
-                            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Datos del Cliente
+                        {/* Datos del Cliente Section */}
+                        <div className="mb-6">
+                            <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                                Datos del cliente
                             </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg text-xs md:text-sm overflow-hidden">
-                                <div className="grid grid-cols-1 md:grid-cols-2">
-                                    <div className="flex border-b border-gray-100">
-                                        <div className="w-28 bg-gray-50 p-2 border-r border-gray-100 font-bold text-gray-600">Nombre:</div>
-                                        <div className="flex-1 p-2 font-medium uppercase">{order.client?.business_name}</div>
+                            <div className="border border-black">
+                                <div className="flex border-b border-black">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Cliente:</div>
+                                    <div className="w-3/4 px-3 py-2 text-sm font-bold uppercase">
+                                        {order.client?.business_name}
                                     </div>
-                                    <div className="flex border-b border-gray-100">
-                                        <div className="w-28 bg-gray-50 p-2 border-r border-gray-100 font-bold text-gray-600">RFC:</div>
-                                        <div className="flex-1 p-2 uppercase">{order.client?.rfc}</div>
+                                </div>
+                                <div className="flex border-b border-black">
+                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de venta:</div>
+                                    <div className="w-[55%] px-3 py-2 text-sm font-bold uppercase">
+                                        {order.sale_conditions || 'CONTADO'}
                                     </div>
-                                    <div className="flex border-b border-gray-100 md:col-span-2">
-                                        <div className="w-28 bg-gray-50 p-2 border-r border-gray-100 font-bold text-gray-600">Dirección:</div>
-                                        <div className="flex-1 p-2 uppercase">{order.client?.address || 'SIN DIRECCIÓN REGISTRADA'}</div>
-                                    </div>
-                                    <div className="flex border-b border-gray-100">
-                                        <div className="w-28 bg-gray-50 p-2 border-r border-gray-100 font-bold text-gray-600">Condiciones Venta:</div>
-                                        <div className="flex-1 p-2 uppercase">{order.sale_conditions || 'CONTADO'}</div>
-                                    </div>
-                                    <div className="flex border-b border-gray-100">
-                                        <div className="w-28 bg-gray-50 p-2 border-r border-gray-100 font-bold text-gray-600">Condiciones Entrega:</div>
-                                        <div className="flex-1 p-2 uppercase">{order.delivery_conditions || 'LAB PLANTA'}</div>
+                                </div>
+                                <div className="flex">
+                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de entrega:</div>
+                                    <div className="w-[55%] px-3 py-2 text-sm font-bold uppercase">
+                                        {order.delivery_conditions || 'LAB PLANTA'}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Product Table */}
-                        <div className="mb-8 overflow-hidden rounded-lg border-2 border-gray-100">
-                            <table className="w-full text-xs md:text-sm text-left">
-                                <thead className="bg-indigo-900 text-white uppercase tracking-wider font-bold">
+                        <div className="mb-6">
+                            <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
+                                <thead className="bg-gray-500 text-white text-center">
                                     <tr>
-                                        <th className="p-3 w-3/5">Descripción del producto</th>
-                                        <th className="p-3 text-center w-1/5 border-l border-indigo-800">Unidad</th>
-                                        <th className="p-3 text-center w-1/5 border-l border-indigo-800">Cantidad</th>
+                                        <th className="border border-black py-1 w-[60%]">Descripción</th>
+                                        <th className="border border-black py-1 w-[20%]">Unidad</th>
+                                        <th className="border border-black py-1 w-[20%]">Cantidad</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    <tr className="bg-white">
-                                        <td className="p-4 font-bold text-gray-900">
-                                            {order.product ? `${order.product.code} - ${order.product.name}` : 'N/A'}
+                                <tbody>
+                                    <tr className="h-10 text-center">
+                                        <td className="border border-black px-2 py-1 text-[13px] font-bold">
+                                            {order.product?.name}
                                         </td>
-                                        <td className="p-4 text-center text-gray-600 font-medium">TONELADAS</td>
-                                        <td className="p-4 text-center font-black text-indigo-700 text-base">
+                                        <td className="border border-black py-1 h-10">
+                                            TONELADAS
+                                        </td>
+                                        <td className="border border-black px-2 py-1 font-black text-[15px]">
                                             {Number(order.total_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })}
                                         </td>
                                     </tr>
@@ -148,101 +145,77 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             </table>
                         </div>
 
-                        {/* Loaded Totals (Cargado / Saldo) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div className="border-2 border-emerald-100 bg-emerald-50 rounded-xl p-4 flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Total Cargado</p>
-                                    <p className="text-2xl font-black text-emerald-800">{Number(order.loaded_quantity || 0).toLocaleString(undefined, { minimumFractionDigits: 3 })} <span className="text-sm font-bold">TM</span></p>
-                                </div>
-                                <div className="h-12 w-12 bg-emerald-200 rounded-full flex items-center justify-center text-emerald-700">
-                                    <Printer className="w-6 h-6" />
-                                </div>
+                        {/* Observations Section */}
+                        <div className="mb-10">
+                            <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                                Observaciones
                             </div>
-                            <div className="border-2 border-amber-100 bg-amber-50 rounded-xl p-4 flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Saldo Pendiente</p>
-                                    <p className="text-2xl font-black text-amber-800">{Number(order.balance || order.total_quantity).toLocaleString(undefined, { minimumFractionDigits: 3 })} <span className="text-sm font-bold">TM</span></p>
-                                </div>
-                                <div className="h-12 w-12 bg-amber-200 rounded-full flex items-center justify-center text-amber-700">
-                                    <FileText className="w-6 h-6" />
-                                </div>
+                            <div className="border border-black min-h-[6rem] p-3 text-[13px] font-bold whitespace-pre-line">
+                                {order.destination || '...'}
                             </div>
                         </div>
 
-                        {/* Observations */}
-                        <div className="mb-12">
-                            <div className="bg-gray-100 text-gray-700 font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Observaciones / Destino
+                        {/* Signatures & Footer Section */}
+                        <div className="mt-20">
+                            <div className="flex flex-col items-center mb-16">
+                                <div className="w-64 border-b border-black mb-1"></div>
+                                <p className="text-sm font-medium">Oscar Méndez Torres</p>
+                                <p className="text-[12px] text-gray-500">Comercialización</p>
                             </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-4 text-sm text-gray-700 min-h-[4rem] bg-gray-50/50">
-                                {order.destination || 'SIN OBSERVACIONES REGISTRADAS'}
-                            </div>
-                        </div>
 
-                        {/* Footer Signatures */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center pt-8 border-t border-gray-100">
-                            <div className="space-y-2">
-                                <div className="h-20 flex items-end justify-center">
-                                    <div className="w-48 border-b-2 border-gray-300 pb-1"></div>
-                                </div>
-                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Elaboró</p>
-                                <p className="text-xs font-medium text-gray-400">Comercialización</p>
+                            <div className="text-center mb-8">
+                                <p className="text-indigo-900 font-bold text-[13px]">www.proagroindustria.com</p>
                             </div>
-                            <div className="flex flex-col items-center justify-center space-y-2">
-                                <img src="/img/Proagro2.png" alt="Logo Footer" className="h-10 opacity-30 object-contain grayscale" />
-                                <p className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">www.proagroindustria.com</p>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="h-20 flex items-end justify-center">
-                                    <div className="w-48 border-b-2 border-gray-300 pb-1"></div>
+
+                            <div className="flex justify-between items-end border-t border-gray-100 pt-6">
+                                <div className="text-[10px] text-gray-500 space-y-0.5">
+                                    <p><span className="font-bold text-black">Venta y cobranza:</span> oscar.mendez@proagroindustria.com</p>
+                                    <p><span className="font-bold text-black">Asst. Adtvo.:</span> jorge.robles@proagroindustria.com</p>
+                                    <p><span className="font-bold text-black">Comercialización:</span> ventas.comercializacion@proagroindustria.com</p>
                                 </div>
-                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Autorizó Cliente</p>
-                                <p className="text-xs font-medium text-gray-400">Recibo de Conformidad</p>
+                                <div className="flex flex-col items-end">
+                                    <img src="/img/Proagro2.png" alt="Logo" className="h-8 opacity-50 mb-1" />
+                                    <p className="text-[10px] text-gray-400 font-mono italic">DCM-FO-001</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Related Shipments Tab (Summary only) */}
-                <div className="bg-zinc-900 rounded-2xl shadow-xl overflow-hidden text-white border border-zinc-800">
-                    <div className="p-6 border-b border-zinc-800 flex items-center">
-                        <Printer className="w-6 h-6 mr-3 text-indigo-400" />
-                        <h3 className="font-bold text-xl uppercase tracking-wider">Historial de Embarques Vinculados</h3>
+                {/* History Section (Screen only) */}
+                <div className="bg-zinc-900 rounded-lg shadow-xl overflow-hidden text-white border border-zinc-800 print:hidden mb-12">
+                    <div className="p-4 border-b border-zinc-800 bg-zinc-800/50">
+                        <h3 className="font-bold text-sm uppercase tracking-wider flex items-center">
+                            <ChevronRight className="w-4 h-4 mr-2 text-indigo-400" />
+                            Historial de Embarques
+                        </h3>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-zinc-800/50 text-zinc-400 text-xs font-bold uppercase">
+                        <table className="w-full text-left text-xs">
+                            <thead className="bg-zinc-800/30 text-zinc-500 font-bold uppercase">
                                 <tr>
-                                    <th className="px-6 py-4">Folio Shipment</th>
-                                    <th className="px-6 py-4">Fecha</th>
-                                    <th className="px-6 py-4">Transporte</th>
-                                    <th className="px-6 py-4 text-right">Peso Neto (TM)</th>
-                                    <th className="px-6 py-4"></th>
+                                    <th className="px-6 py-3">Folio Shipment</th>
+                                    <th className="px-6 py-3">Fecha</th>
+                                    <th className="px-6 py-3">Transporte / Unidada</th>
+                                    <th className="px-6 py-3 text-right">Peso Neto (TM)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-800">
                                 {order.shipments?.map((shipment: any) => (
-                                    <tr key={shipment.id} className="hover:bg-zinc-800/30 transition-colors">
-                                        <td className="px-6 py-4 font-black text-indigo-400">{shipment.folio}</td>
-                                        <td className="px-6 py-4 text-sm text-zinc-300">{new Date(shipment.created_at).toLocaleDateString()}</td>
-                                        <td className="px-6 py-4 text-xs text-zinc-400">
-                                            {shipment.transporter?.name} <br />
-                                            <span className="text-[10px] font-mono">{shipment.vehicle?.plate_number}</span>
+                                    <tr key={shipment.id} className="hover:bg-zinc-800/20 transition-colors">
+                                        <td className="px-6 py-3 font-bold text-indigo-400">{shipment.folio}</td>
+                                        <td className="px-6 py-3 text-zinc-400">{new Date(shipment.created_at).toLocaleDateString()}</td>
+                                        <td className="px-6 py-3 text-zinc-500 italic">
+                                            {shipment.transporter?.name} | {shipment.vehicle?.plate_number}
                                         </td>
-                                        <td className="px-6 py-4 text-right font-bold text-emerald-400">
+                                        <td className="px-6 py-3 text-right font-black text-emerald-400">
                                             {shipment.weight_ticket?.net_weight ? (Number(shipment.weight_ticket.net_weight) / 1000).toFixed(3) : '0.000'}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <Link href={route('sales.show', { sale: shipment.id, module: 'documentation' })} className="text-zinc-500 hover:text-white">
-                                                <ChevronRight className="w-5 h-5" />
-                                            </Link>
                                         </td>
                                     </tr>
                                 ))}
                                 {(!order.shipments || order.shipments.length === 0) && (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-zinc-500 italic font-medium">No se han registrado embarques para esta orden de venta.</td>
+                                        <td colSpan={4} className="px-6 py-8 text-center text-zinc-600 italic">Sin embarques registrados</td>
                                     </tr>
                                 )}
                             </tbody>
@@ -253,26 +226,19 @@ export default function Show({ auth, order, context_module }: { auth: any, order
 
             <style>{`
                 @media print {
-                    @page { margin: 1cm; size: letter; }
-                    body * { visibility: hidden; }
-                    .max-w-[21.5cm], .max-w-[21.5cm] * { visibility: visible; }
-                    .max-w-[21.5cm] {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
+                    @page { margin: 0.5cm; size: letter; }
+                    body { background: white !important; }
+                    nav, header, footer, .print\\:hidden { display: none !important; }
+                    main { padding: 0 !important; margin: 0 !important; }
+                    .max-w-[21.5cm] { 
+                        box-shadow: none !important; 
+                        border: none !important;
                         width: 100% !important;
                         max-width: none !important;
                         margin: 0 !important;
-                        padding: 0 !important;
-                        box-shadow: none !important;
-                        border: none !important;
                     }
-                    .print\\:hidden { display: none !important; }
-                    .bg-indigo-900 { background-color: #312e81 !important; color: white !important; -webkit-print-color-adjust: exact; }
-                    .bg-indigo-50 { background-color: #eef2ff !important; -webkit-print-color-adjust: exact; }
-                    .bg-gray-700 { background-color: #374151 !important; color: white !important; -webkit-print-color-adjust: exact; }
-                    .bg-emerald-50 { background-color: #ecfdf5 !important; -webkit-print-color-adjust: exact; }
-                    .bg-amber-50 { background-color: #fffbeb !important; -webkit-print-color-adjust: exact; }
+                    .bg-gray-500 { background-color: #6b7280 !important; -webkit-print-color-adjust: exact; }
+                    .bg-gray-100 { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; }
                 }
             `}</style>
         </DashboardLayout>
