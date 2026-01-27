@@ -32,6 +32,11 @@ export default function Print({ order }: { order: Order }) {
         // window.print();
     }, []);
 
+    const formatter = new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 3,
+        minimumFractionDigits: 0,
+    });
+
     const item = order.items && order.items.length > 0 ? order.items[0] : null;
 
     return (
@@ -139,7 +144,7 @@ export default function Print({ order }: { order: Order }) {
                                 </td>
                                 <td className="border-r border-black p-1 text-center">TONELADAS</td>
                                 <td className="p-1 text-center font-mono">
-                                    {item ? Number(item.requested_quantity).toLocaleString('en-US', { maximumFractionDigits: 3 }) : '0'}
+                                    {item ? formatter.format(Number(item.requested_quantity)) : '0'}
                                 </td>
                             </tr>
                         </tbody>

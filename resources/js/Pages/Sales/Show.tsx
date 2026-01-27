@@ -14,6 +14,11 @@ export default function Show({ auth, order, context_module }: { auth: any, order
         ? 'Volver al reporte de embarque'
         : (isSalesReport ? 'Volver al reporte de ventas' : 'Volver al listado');
 
+    const formatter = new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 3,
+        minimumFractionDigits: 0,
+    });
+
     return (
         <DashboardLayout user={auth.user} header={`Orden: ${order.folio}`}>
             <Head title={`Orden ${order.folio}`} />
@@ -138,7 +143,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                             TONELADAS
                                         </td>
                                         <td className="border border-black px-2 py-1 font-black text-[15px]">
-                                            {Number(order.total_quantity).toLocaleString('en-US', { maximumFractionDigits: 3 })}
+                                            {formatter.format(Number(order.total_quantity))}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -209,7 +214,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                             {shipment.transporter?.name} | {shipment.vehicle?.plate_number}
                                         </td>
                                         <td className="px-6 py-3 text-right font-black text-emerald-400">
-                                            {shipment.weight_ticket?.net_weight ? (Number(shipment.weight_ticket.net_weight) / 1000).toLocaleString('en-US', { maximumFractionDigits: 3 }) : '0'}
+                                            {shipment.weight_ticket?.net_weight ? formatter.format(Number(shipment.weight_ticket.net_weight) / 1000) : '0'}
                                         </td>
                                     </tr>
                                 ))}
