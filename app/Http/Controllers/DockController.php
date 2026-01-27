@@ -271,7 +271,10 @@ class DockController extends Controller
 
         try {
             DB::transaction(function () use ($vessel, $id) {
-                // 1. Get related IDs
+                // Temporarily disable foreign key checks for a clean purge
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+                // 1. Get related IDs for manual cleanup (extra safety)
                 $orderIds = ShipmentOrder::where('vessel_id', $id)->pluck('id');
                 $operatorIds = VesselOperator::where('vessel_id', $id)->pluck('id');
 
@@ -284,6 +287,7 @@ class DockController extends Controller
                 if ($orderIds->isNotEmpty()) {
                     \App\Models\WeightTicket::whereIn('shipment_order_id', $orderIds)->delete();
                     \App\Models\ShipmentItem::whereIn('shipment_order_id', $orderIds)->delete();
+                    \App\Models\LoadingOperation::whereIn('shipment_order_id', $orderIds)->delete();
                 }
 
                 // 4. Delete ShipmentOrders
@@ -294,10 +298,15 @@ class DockController extends Controller
 
                 // 6. Delete the Vessel
                 $vessel->delete();
+
+                // Re-enable foreign key checks
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             });
 
             return redirect()->route('dock.index')->with('success', 'Barco y todos sus registros asociados han sido purgados correctamente.');
         } catch (\Exception $e) {
+            // Ensure checks are re-enabled even on failure
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             \Illuminate\Support\Facades\Log::error('Vessel Purge Error: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Error al purgar barco: ' . $e->getMessage()]);
         }
