@@ -189,13 +189,30 @@ class AptController extends Controller
 
     public function scanner(Request $request)
     {
-        $filters = $request->only(['date']);
+        $filters = $request->only(['date', 'vessel_id']);
+        $now = now();
 
-        $query = \App\Models\AptScan::with(['operator', 'shipmentOrder'])
+        // Categorize Vessels
+        $allVessels = Vessel::orderBy('created_at', 'desc')->get();
+        $activeVessels = $allVessels->filter(function ($v) use ($now) {
+            return !empty($v->berthal_datetime) && $v->berthal_datetime <= $now && empty($v->departure_date);
+        })->values();
+
+        $inactiveVessels = $allVessels->filter(function ($v) use ($now) {
+            return empty($v->berthal_datetime) || $v->berthal_datetime > $now || !empty($v->departure_date);
+        })->values();
+
+        $query = \App\Models\AptScan::with(['operator', 'shipmentOrder.vessel'])
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
+        }
+
+        if ($request->filled('vessel_id')) {
+            $query->whereHas('shipmentOrder', function ($q) use ($request) {
+                $q->where('vessel_id', $request->vessel_id);
+            });
         }
 
         $recentScans = $query->paginate(10)
@@ -204,6 +221,8 @@ class AptController extends Controller
         return Inertia::render('APT/Scanner', [
             'recentScans' => $recentScans,
             'filters' => $filters,
+            'activeVessels' => $activeVessels,
+            'inactiveVessels' => $inactiveVessels,
         ]);
     }
 
