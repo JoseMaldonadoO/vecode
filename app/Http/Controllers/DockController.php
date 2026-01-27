@@ -259,6 +259,9 @@ class DockController extends Controller
         try {
             $vessel->delete();
             return redirect()->route('dock.index')->with('success', 'Barco eliminado correctamente.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Vessel Delete Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al eliminar barco: ' . $e->getMessage()]);
         }
     }
 
