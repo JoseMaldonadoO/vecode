@@ -2,7 +2,10 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Save, ArrowLeft } from 'lucide-react';
 
-export default function Edit({ auth, order, clients, products }: { auth: any, order: any, clients: any[], products: any[] }) {
+export default function Edit({ auth, order, clients, products, context_module }: { auth: any, order: any, clients: any[], products: any[], context_module?: string }) {
+
+    const isSalesReport = context_module === 'sales_report';
+    const backLink = isSalesReport ? route('sales.index', { view: 'report' }) : route('sales.index');
 
     // Pre-fill form with existing order data
     const { data, setData, put, processing, errors } = useForm({
@@ -25,7 +28,7 @@ export default function Edit({ auth, order, clients, products }: { auth: any, or
 
             <div className="max-w-7xl mx-auto">
                 <div className="mb-6">
-                    <Link href={route('sales.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
+                    <Link href={backLink} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium">
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Cancelar y volver
                     </Link>
@@ -114,13 +117,12 @@ export default function Edit({ auth, order, clients, products }: { auth: any, or
                         </div>
 
                         <div className="flex justify-end pt-4">
-                            <button
-                                type="button"
-                                onClick={() => window.history.back()}
+                            <Link
+                                href={backLink}
                                 className="mr-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                             >
                                 Cancelar
-                            </button>
+                            </Link>
                             <button
                                 type="submit"
                                 disabled={processing}

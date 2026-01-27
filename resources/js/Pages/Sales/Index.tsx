@@ -30,8 +30,8 @@ interface Order {
     created_at: string;
 }
 
-export default function Index({ auth, orders, clients }: { auth: any, orders: Order[], clients: Client[] }) {
-    const [viewMode, setViewMode] = useState<'menu' | 'report'>('menu');
+export default function Index({ auth, orders, clients, initialView = 'menu' }: { auth: any, orders: Order[], clients: Client[], initialView?: 'menu' | 'report' }) {
+    const [viewMode, setViewMode] = useState<'menu' | 'report'>(initialView);
     const [search, setSearch] = useState('');
 
     const toggleStatus = (id: string) => {
@@ -203,12 +203,12 @@ export default function Index({ auth, orders, clients }: { auth: any, orders: Or
                                                             {new Date(order.created_at).toLocaleDateString()}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                            <Link href={route('sales.show', { sale: order.id, module: 'sales' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
+                                                            <Link href={route('sales.show', { sale: order.id, module: 'sales_report' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
 
                                                             {order.status === 'created' && (
                                                                 <>
                                                                     <Link
-                                                                        href={route('sales.edit', order.id)}
+                                                                        href={route('sales.edit', { sale: order.id, module: 'sales_report' })}
                                                                         className="text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1.5 rounded-md hover:bg-amber-100 transition-colors"
                                                                     >
                                                                         Editar

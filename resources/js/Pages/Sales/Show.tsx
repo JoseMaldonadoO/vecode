@@ -5,8 +5,15 @@ import { ArrowLeft, Package, User, Truck, FileText, Calendar, MapPin, Scale } fr
 export default function Show({ auth, order, module, context_module }: { auth: any, order: any, module?: string, context_module?: string }) {
     const currentModule = context_module || module;
     const isDocumentation = currentModule === 'documentation';
-    const backLink = isDocumentation ? route('documentation.orders.index') : route('sales.index');
-    const backLabel = isDocumentation ? 'Volver al reporte de embarque' : 'Volver al listado';
+    const isSalesReport = currentModule === 'sales_report';
+
+    const backLink = isDocumentation
+        ? route('documentation.orders.index')
+        : (isSalesReport ? route('sales.index', { view: 'report' }) : route('sales.index'));
+
+    const backLabel = isDocumentation
+        ? 'Volver al reporte de embarque'
+        : (isSalesReport ? 'Volver al reporte de ventas' : 'Volver al listado');
 
     return (
         <DashboardLayout user={auth.user} header={`Orden ${order.folio}`}>
