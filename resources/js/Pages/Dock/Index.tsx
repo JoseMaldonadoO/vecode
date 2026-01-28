@@ -70,9 +70,9 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                 <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 text-teal-600">
                                     <List className="w-10 h-10" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-800 break-words w-full">Barcos Activos</h3>
+                                <h3 className="text-xl font-bold text-gray-800 break-words w-full">Archivo de Barcos</h3>
                                 <p className="text-gray-500 mt-2 text-sm">
-                                    {vesselList.length} barcos registrados
+                                    {vesselList.length} barcos en el histórico
                                 </p>
                             </button>
                         </div>
@@ -92,7 +92,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                     </button>
                                     <h3 className="text-xl font-bold text-gray-900 flex items-center border-l-2 border-gray-200 pl-4">
                                         <Ship className="w-6 h-6 mr-3 text-indigo-600" />
-                                        Barcos Activos
+                                        Archivo de Barcos
                                     </h3>
                                 </div>
 
@@ -149,6 +149,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">ETC</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">F. Salida</th>
                                             <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Operación</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Estado</th>
                                             <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                                         </tr>
                                     </thead>
@@ -189,6 +190,11 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                                 {v.product.name}
                                                             </div>
                                                         )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${v.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                            {v.isActive ? 'Activo' : 'Archivado'}
+                                                        </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         <div className="flex justify-end gap-2">
@@ -265,6 +271,9 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                 </div>
                                                 <span className={`px-2 py-1 rounded text-xs font-bold ${v.operation_type === 'Descarga' ? 'bg-indigo-50 text-indigo-700' : 'bg-green-50 text-green-700'}`}>
                                                     {v.operation_type}
+                                                </span>
+                                                <span className={`ml-2 px-2 py-1 rounded text-xs font-bold ${v.isActive ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                    {v.isActive ? 'Activo' : 'Archivado'}
                                                 </span>
                                             </div>
 

@@ -92,12 +92,28 @@ class DockController extends Controller
         $validated['etb'] = $etb;
         $validated['berthal_datetime'] = $etb;
 
+        // Validation for Dock Occupancy
+        if ($validated['berthal_datetime'] && $validated['dock']) {
+            $now = now();
+            $occupied = Vessel::active()
+                ->where('dock', $validated['dock'])
+                ->where('berthal_datetime', '<=', $now)
+                ->first();
+
+            if ($occupied) {
+                return back()->withErrors([
+                    'error' => "El muelle {$validated['dock']} está ocupado por el buque {$occupied->name}. " .
+                        "Por favor, asigne una fecha de salida al buque activo antes de asignar este muelle."
+                ])->withInput();
+            }
+        }
+
         try {
             Vessel::create($validated);
             return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Vessel Create Error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Error al guardar barco: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Error al guardar barco: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -173,12 +189,29 @@ class DockController extends Controller
             $validated['stay_days'] = 0;
         }
 
+        // Validation for Dock Occupancy
+        if ($validated['berthal_datetime'] && $validated['dock']) {
+            $now = now();
+            $occupied = Vessel::active()
+                ->where('dock', $validated['dock'])
+                ->where('berthal_datetime', '<=', $now)
+                ->where('id', '!=', $id) // Exclude self
+                ->first();
+
+            if ($occupied) {
+                return back()->withErrors([
+                    'error' => "El muelle {$validated['dock']} está ocupado por el buque {$occupied->name}. " .
+                        "Por favor, asigne una fecha de salida al buque activo antes de asignar este muelle."
+                ])->withInput();
+            }
+        }
+
         try {
             $vessel->update($validated);
             return redirect()->route('dock.index')->with('success', 'Barco actualizado correctamente.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Vessel Update Error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Error al actualizar barco: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Error al actualizar barco: ' . $e->getMessage()])->withInput();
         }
     }
     public function status()
