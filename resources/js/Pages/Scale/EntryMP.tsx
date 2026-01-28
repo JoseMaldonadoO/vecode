@@ -174,10 +174,21 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     bill_of_lading: res.carta_porte || '',
                 }));
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Search error:", error);
-            alert("No encontrado.");
+            const errorMessage = error.response?.data?.error || "No encontrado.";
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Operación Restringida',
+                text: errorMessage,
+                confirmButtonColor: '#4f46e5',
+                confirmButtonText: 'Entendido'
+            });
+
             setOrderDetails(null);
+            setQrValue('');
+            reset();
         } finally {
             setIsLoading(false);
         }

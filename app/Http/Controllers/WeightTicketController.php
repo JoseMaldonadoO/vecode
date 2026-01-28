@@ -284,6 +284,13 @@ class WeightTicketController extends Controller
                     }
                     $suggestedWithdrawal = str_pad($nextFolio, 5, '0', STR_PAD_LEFT);
 
+                    if ($operator->vessel->apt_operation_type === 'burreo') {
+                        return response()->json([
+                            'error' => 'ALERTA: Este operador NO puede ingresar por Báscula. El barco (' . $operator->vessel->name . ') está marcado para operación de BURREO.',
+                            'blocked' => true
+                        ], 403);
+                    }
+
                     return response()->json([
                         'type' => 'vessel_operator',
                         'id' => null, // No Order ID yet
@@ -318,6 +325,13 @@ class WeightTicketController extends Controller
 
         if (!$order) {
             return response()->json(['error' => 'Orden no encontrada'], 404);
+        }
+
+        if ($order->vessel && $order->vessel->apt_operation_type === 'burreo') {
+            return response()->json([
+                'error' => 'ALERTA: Esta orden NO puede ser procesada en Báscula. El barco asignado está en operación de BURREO.',
+                'blocked' => true
+            ], 403);
         }
 
         return response()->json([
@@ -395,6 +409,11 @@ class WeightTicketController extends Controller
                 $scaleId = !empty($validated['scale_id']) ? $validated['scale_id'] : null;
 
                 $vessel = $vesselId ? Vessel::find($vesselId) : null;
+
+                if ($vessel && $vessel->apt_operation_type === 'burreo') {
+                    throw new \Exception("Este barco está en operación de BURREO y no puede registrar entrada por Báscula.");
+                }
+
                 $isBurreo = $vessel && $vessel->apt_operation_type === 'burreo';
                 $tareWeight = $validated['tare_weight'];
 
