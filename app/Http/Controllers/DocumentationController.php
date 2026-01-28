@@ -196,17 +196,15 @@ class DocumentationController extends Controller
             $query->where('vessel_id', $request->input('vessel_id'));
         }
 
-        if ($request->has('status')) {
-            $status = $request->input('status');
-            if ($status === 'active') {
-                $query->whereHas('vessel', function ($q) {
-                    $q->active();
-                });
-            } elseif ($status === 'archived') {
-                $query->whereHas('vessel', function ($q) {
-                    $q->inactive();
-                });
-            }
+        $status = $request->input('status', 'active');
+        if ($status === 'active') {
+            $query->whereHas('vessel', function ($q) {
+                $q->active();
+            });
+        } elseif ($status === 'archived') {
+            $query->whereHas('vessel', function ($q) {
+                $q->inactive();
+            });
         }
 
         $operators = $query->orderBy('created_at', 'desc')->paginate(10);

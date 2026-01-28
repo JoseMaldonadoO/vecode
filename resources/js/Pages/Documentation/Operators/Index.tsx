@@ -44,7 +44,7 @@ interface PageProps {
 export default function Index({ auth, operators, filters, vessels }: PageProps) {
     const [search, setSearch] = useState(filters.search || '');
     const [vesselId, setVesselId] = useState(filters.vessel_id || '');
-    const [status, setStatus] = useState(filters.status || '');
+    const [status, setStatus] = useState(filters.status || 'active');
 
     const applyFilters = (newParams: Partial<PageProps['filters']>) => {
         const params = pickBy({ search, vessel_id: vesselId, status, ...newParams });
@@ -116,7 +116,6 @@ export default function Index({ auth, operators, filters, vessels }: PageProps) 
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterChange('status', e.target.value)}
                             className="block w-full sm:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
                         >
-                            <option value="">Cualquier estado</option>
                             <option value="active">Activos</option>
                             <option value="archived">Archivados (Zarpado)</option>
                         </select>
