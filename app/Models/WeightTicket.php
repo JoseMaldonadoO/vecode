@@ -14,6 +14,11 @@ class WeightTicket extends Model
         'is_burreo' => 'boolean',
     ];
 
+    public function loadingOrder()
+    {
+        return $this->belongsTo(LoadingOrder::class);
+    }
+
     public function shipmentOrder()
     {
         return $this->belongsTo(ShipmentOrder::class);

@@ -62,6 +62,11 @@ class ShipmentOrder extends Model
         return $this->belongsTo(Vessel::class);
     }
 
+    public function loadingOrders()
+    {
+        return $this->hasMany(LoadingOrder::class);
+    }
+
     /**
      * Get the folios of the associated Sales Order if it exists.
      * This provides a safe fallback for the removed 'sale_order' column.

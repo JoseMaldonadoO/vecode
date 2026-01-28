@@ -59,4 +59,9 @@ class Vessel extends Model
     {
         return $this->hasMany(ShipmentOrder::class);
     }
+
+    public function loadingOrders()
+    {
+        return $this->hasMany(LoadingOrder::class);
+    }
 }

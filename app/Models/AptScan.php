@@ -15,6 +15,7 @@ class AptScan extends Model
         'warehouse',
         'cubicle',
         'user_id',
+        'loading_order_id',
     ];
 
     public function operator()
@@ -25,6 +26,11 @@ class AptScan extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function loadingOrder()
+    {
+        return $this->belongsTo(LoadingOrder::class);
     }
 
     public function shipmentOrder()

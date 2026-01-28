@@ -154,11 +154,12 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     bill_of_lading: '',
                 }));
             } else {
-                // Existing Shipment Order
+                // Existing Loading Order (Refactored from Shipment Order)
                 setData(prev => ({
                     ...prev,
-                    shipment_order_id: res.id,
-                    provider: res.provider,
+                    shipment_order_id: res.id, // Maps to LoadingOrder ID
+                    provider: res.provider || '',
+                    driver: res.driver || '',
                     product: res.product,
                     origin: res.origin,
                     transport_line: res.transporter,

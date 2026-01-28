@@ -95,7 +95,7 @@ export default function ExitMP({ auth, order, active_scale_id = 1 }: { auth: any
             const response = await axios.get(route('scale.search-qr'), { params: { qr: query } });
             const res = response.data;
 
-            if (res && res.type === 'shipment_order') {
+            if (res && res.type === 'loading_order') {
                 // Navigate to Exit with ID
                 // We could just set state, but full page reload is safer for state reset
                 router.visit(route('scale.exit', res.id) + `?scale_id=${active_scale_id}`);

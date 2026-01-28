@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Vessel;
 use App\Models\VesselOperator;
-use App\Models\ShipmentOrder;
+use App\Models\LoadingOrder;
 use App\Models\AptScan;
 use App\Models\WeightTicket;
 use Inertia\Inertia;
@@ -104,7 +104,12 @@ class AptController extends Controller
         //    But for "Current Status", we usually want "What is here NOW".
         //    The user asked for "lo que entró ayer", so it's a log view.
 
-        $query = \App\Models\ShipmentOrder::with(['weight_ticket'])
+        //    Let's stick to the Date Filter on `created_at` or `entry_at`.
+        // 139:
+
+        // HOWEVER, to be safe: filtering by `entry_at` is the most "Logbook" style.
+
+        $query = \App\Models\LoadingOrder::with(['weight_ticket'])
             ->whereNotNull('warehouse');
 
         // Filter: 
@@ -218,7 +223,7 @@ class AptController extends Controller
             $filters['vessel_id'] = (string) $activeVessels->first()->id;
         }
 
-        $query = \App\Models\AptScan::with(['operator', 'shipmentOrder.vessel'])
+        $query = \App\Models\AptScan::with(['operator', 'loadingOrder.vessel'])
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('date')) {
@@ -226,7 +231,7 @@ class AptController extends Controller
         }
 
         if (isset($filters['vessel_id'])) {
-            $query->whereHas('shipmentOrder', function ($q) use ($filters) {
+            $query->whereHas('loadingOrder', function ($q) use ($filters) {
                 $q->where('vessel_id', $filters['vessel_id']);
             });
         }
@@ -264,10 +269,14 @@ class AptController extends Controller
                 // We need to find the LATEST active order for this operator
                 // This is a bit loose, ideally we scan the Order Folio or Ticket.
                 // But if they use the same Badge (Operator QR):
-                $order = \App\Models\ShipmentOrder::with('weight_ticket')->where('status', 'loading')
+            if ($operatorId) {
+                // We need to find the LATEST active order for this operator
+                // This is a bit loose, ideally we scan the Order Folio or Ticket.
+                // But if they use the same Badge (Operator QR):
+                $order = \App\Models\LoadingOrder::with('weight_ticket')->where('status', 'loading')
                     ->where(function ($q) use ($operatorId) {
                         // This assumes we stored Operator ID or can link back.
-                        // Our ShipmentOrder has driver/vehicle snapshots.
+                        // Our LoadingOrder has driver/vehicle snapshots.
                         // We might need to look up VesselOperator and match?
                         // For simplicity, let's assume we search by Order ID if possible,
                         // or if they scan Operator QR, we find the order created today for this driver.
@@ -281,7 +290,7 @@ class AptController extends Controller
             }
         } else {
             // Assume UUID or Folio
-            $order = \App\Models\ShipmentOrder::with('weight_ticket')->where('id', $qr)->orWhere('folio', $qr)->first();
+            $order = \App\Models\LoadingOrder::with('weight_ticket')->where('id', $qr)->orWhere('folio', $qr)->first();
         }
 
         if (!$order) {
@@ -304,7 +313,8 @@ class AptController extends Controller
 
                     try {
                         // Create new Order for this Burreo/Direct Trip
-                        $order = \App\Models\ShipmentOrder::create([
+                        $order = \App\Models\LoadingOrder::create([
+                            'id' => (string) \Illuminate\Support\Str::uuid(),
                             'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999), // Unique Folio
                             'entry_at' => now(), // Use entry_at instead of date
                             'client_id' => $operator->vessel->client_id,
@@ -317,7 +327,7 @@ class AptController extends Controller
                             'trailer_plate' => $operator->trailer_plate,
                             'unit_type' => $operator->unit_type,
                             'transport_company' => $operator->transporter_line,
-                            'product' => $operator->vessel->product->name ?? 'N/A',
+                            // 'product' => $operator->vessel->product->name ?? 'N/A', // Removed legacy text field
                             'operation_type' => 'burreo',
                             'warehouse' => $validated['warehouse'], // Assign immediately
                             'cubicle' => $validated['cubicle'],     // Assign immediately
@@ -326,7 +336,8 @@ class AptController extends Controller
                         // Auto-create Weight Ticket for Burreo
                         // Mark as COMPLETED immediately as per user request (skip scale exit)
                         \App\Models\WeightTicket::create([
-                            'shipment_order_id' => $order->id,
+                            'loading_order_id' => $order->id,
+                            'shipment_order_id' => null, // Burreo has no commercial doc usually
                             'ticket_number' => 'B-' . $order->folio,
                             'weighing_status' => 'completed',
                             'is_burreo' => true,
@@ -420,7 +431,8 @@ class AptController extends Controller
 
             if (!$ticket) {
                 $ticket = \App\Models\WeightTicket::create([
-                    'shipment_order_id' => $order->id,
+                    'loading_order_id' => $order->id,
+                    'shipment_order_id' => null,
                     'ticket_number' => 'B-' . $order->folio,
                     'weighing_status' => 'completed',
                     'is_burreo' => true,
@@ -445,7 +457,8 @@ class AptController extends Controller
 
         // Log Scan
         \App\Models\AptScan::create([
-            'shipment_order_id' => $order->id,
+            'loading_order_id' => $order->id,
+            'shipment_order_id' => null, // Prefer keeping it clean or linking if available, but here $order is LoadingOrder
             'operator_id' => $operatorId,
             'warehouse' => $validated['warehouse'],
             'cubicle' => $finalCubicle,
@@ -455,7 +468,7 @@ class AptController extends Controller
         $successMessage = 'Asignación de Almacén registrada correctamente.';
 
         if ($validated['operation_type'] === 'burreo') {
-            $dailyCount = \App\Models\ShipmentOrder::where('operator_name', $order->operator_name)
+            $dailyCount = \App\Models\LoadingOrder::where('operator_name', $order->operator_name)
                 ->where('operation_type', 'burreo')
                 ->whereDate('created_at', now())
                 ->count();
@@ -496,9 +509,9 @@ class AptController extends Controller
             'cubicle' => $validated['cubicle'],
         ]);
 
-        // Update Linked Shipment Order
-        if ($scan->shipment_order_id) {
-            \App\Models\ShipmentOrder::where('id', $scan->shipment_order_id)->update([
+        // Update Linked Loading Order
+        if ($scan->loading_order_id) {
+            \App\Models\LoadingOrder::where('id', $scan->loading_order_id)->update([
                 'warehouse' => $validated['warehouse'],
                 'cubicle' => $validated['cubicle'],
             ]);

@@ -250,7 +250,7 @@ export default function Scanner({
                             <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
                                 <span className="block text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Operadora Logística</span>
                                 <div className="text-lg font-black text-indigo-900">
-                                    {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.operator_name || viewingUnit.operator?.operator_name || 'N/A'}
+                                    {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.operator_name || viewingUnit.operator?.operator_name || 'N/A'}
                                 </div>
                             </div>
 
@@ -258,15 +258,15 @@ export default function Scanner({
                                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                     <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">No. Económico</span>
                                     <div className="font-bold text-gray-800">
-                                        {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.unit_number ||
-                                            (viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.economic_number ||
+                                        {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.unit_number ||
+                                            (viewingUnit.loading_order || viewingUnit.loadingOrder)?.economic_number ||
                                             viewingUnit.operator?.economic_number || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                     <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Tipo de Unidad</span>
                                     <div className="font-bold text-gray-800">
-                                        {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.unit_type || viewingUnit.operator?.unit_type || 'N/A'}
+                                        {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.unit_type || viewingUnit.operator?.unit_type || 'N/A'}
                                     </div>
                                 </div>
                             </div>
@@ -275,13 +275,13 @@ export default function Scanner({
                                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                     <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Placas Tractor</span>
                                     <div className="font-bold text-gray-800">
-                                        {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.tractor_plate || viewingUnit.operator?.tractor_plate || 'N/A'}
+                                        {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.tractor_plate || viewingUnit.operator?.tractor_plate || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                     <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Placas Remolque</span>
                                     <div className="font-bold text-gray-800">
-                                        {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.trailer_plate || viewingUnit.operator?.trailer_plate || 'N/A'}
+                                        {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.trailer_plate || viewingUnit.operator?.trailer_plate || 'N/A'}
                                     </div>
                                 </div>
                             </div>
@@ -289,12 +289,12 @@ export default function Scanner({
                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
                                 <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Línea Transportista</span>
                                 <div className="font-bold text-gray-800">
-                                    {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.transport_company || viewingUnit.operator?.transporter_line || 'N/A'}
+                                    {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.transport_company || viewingUnit.operator?.transporter_line || 'N/A'}
                                 </div>
                             </div>
 
                             <div className="pt-4 flex items-center justify-between text-xs text-gray-400 italic">
-                                <span>Folio: {(viewingUnit.shipment_order || viewingUnit.shipmentOrder)?.folio || 'DIRECTO'}</span>
+                                <span>Folio: {(viewingUnit.loading_order || viewingUnit.loadingOrder)?.folio || 'DIRECTO'}</span>
                                 <span>ID Escaneo: {viewingUnit.id}</span>
                             </div>
                         </div>
@@ -658,8 +658,8 @@ export default function Scanner({
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
-                                            {(scan.shipment_order || scan.shipmentOrder)?.unit_number ||
-                                                (scan.shipment_order || scan.shipmentOrder)?.economic_number ||
+                                            {(scan.loading_order || scan.loadingOrder)?.unit_number ||
+                                                (scan.loading_order || scan.loadingOrder)?.economic_number ||
                                                 scan.operator?.economic_number || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

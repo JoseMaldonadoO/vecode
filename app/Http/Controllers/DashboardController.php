@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ShipmentOrder;
+use App\Models\LoadingOrder;
 use App\Models\WeightTicket;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -27,13 +27,13 @@ class DashboardController extends Controller
         // - shipments in 'loading' status (active descarga)
         // - most recent shipment activity
         $vesselsList = \App\Models\Vessel::withCount([
-            'shipments as active_loading_count' => function ($q) {
+            'loadingOrders as active_loading_count' => function ($q) {
                 $q->where('status', 'loading');
             }
         ])
-            ->withMax('shipments', 'created_at')
+            ->withMax('loadingOrders', 'created_at')
             ->orderByDesc('active_loading_count')
-            ->orderByDesc('shipments_max_created_at')
+            ->orderByDesc('loading_orders_max_created_at')
             ->orderByDesc('created_at')
             ->take(15)
             ->get(['id', 'name']);
@@ -47,11 +47,11 @@ class DashboardController extends Controller
 
         // Base query linked to the specific vessel and ALWAYS joined with weight_tickets
         // since the dashboard focuses on tonnages and operational dates (weigh_out_at).
-        $baseQuery = ShipmentOrder::query()
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id');
+        $baseQuery = LoadingOrder::query()
+            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id');
 
         if ($vesselId) {
-            $baseQuery->where('shipment_orders.vessel_id', $vesselId);
+            $baseQuery->where('loading_orders.vessel_id', $vesselId);
         }
 
         // Apply filters
@@ -62,19 +62,19 @@ class DashboardController extends Controller
         }
 
         if ($warehouse)
-            $baseQuery->where('shipment_orders.warehouse', $warehouse);
+            $baseQuery->where('loading_orders.warehouse', $warehouse);
         if ($cubicle)
-            $baseQuery->where('shipment_orders.cubicle', $cubicle);
+            $baseQuery->where('loading_orders.cubicle', $cubicle);
         if ($operator)
-            $baseQuery->where('shipment_orders.operator_name', $operator);
+            $baseQuery->where('loading_orders.operator_name', $operator);
 
         if ($operationType === 'scale') {
             $baseQuery->where(function ($q) {
-                $q->where('shipment_orders.operation_type', 'scale')
-                    ->orWhereNull('shipment_orders.operation_type');
+                $q->where('loading_orders.operation_type', 'scale')
+                    ->orWhereNull('loading_orders.operation_type');
             });
         } elseif ($operationType === 'burreo') {
-            $baseQuery->where('shipment_orders.operation_type', 'burreo');
+            $baseQuery->where('loading_orders.operation_type', 'burreo');
         }
 
         // --- KPIS ---
@@ -86,16 +86,16 @@ class DashboardController extends Controller
         // Let's count anything with status 'completed' OR 'weighing_out' if it's Burreo.
         $tripsCompleted = (clone $baseQuery)
             ->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
+                $q->where('loading_orders.status', 'completed')
                     ->orWhere(function ($sq) {
-                        $sq->where('shipment_orders.operation_type', 'burreo')
-                            ->whereIn('shipment_orders.status', ['weighing_out', 'loading']);
+                        $sq->where('loading_orders.operation_type', 'burreo')
+                            ->whereIn('loading_orders.status', ['weighing_out', 'loading']);
                     });
             })
             ->count();
 
         // Units in Circuit (Live status, restricted to vessel but usually ignores date filter for current state)
-        $liveQuery = ShipmentOrder::where('vessel_id', $vesselId);
+        $liveQuery = LoadingOrder::where('vessel_id', $vesselId);
         if ($warehouse)
             $liveQuery->where('warehouse', $warehouse);
 
@@ -105,22 +105,22 @@ class DashboardController extends Controller
         // Total Tonnes (Net Weight from Tickets in Kg)
         $totalTonnage = (clone $baseQuery)
             ->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             })
             ->sum('weight_tickets.net_weight');
 
         // Stats for the toggle buttons (always independent of the global operation_type filter)
         $totalScale = (clone $baseQuery)
-            ->where('shipment_orders.status', 'completed')
+            ->where('loading_orders.status', 'completed')
             ->where(function ($q) {
-                $q->where('shipment_orders.operation_type', 'scale')
-                    ->orWhereNull('shipment_orders.operation_type');
+                $q->where('loading_orders.operation_type', 'scale')
+                    ->orWhereNull('loading_orders.operation_type');
             })
             ->sum('weight_tickets.net_weight');
 
         $totalBurreo = (clone $baseQuery)
-            ->where('shipment_orders.operation_type', 'burreo')
+            ->where('loading_orders.operation_type', 'burreo')
             ->sum('weight_tickets.net_weight');
 
         $totalTonnage = (float) $totalTonnage;
@@ -132,14 +132,14 @@ class DashboardController extends Controller
         // 1. Daily Tonnage (Split keys)
         $dailyTonnage = (clone $baseQuery)
             ->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             })
             ->selectRaw('
-                COALESCE(DATE(weight_tickets.weigh_out_at), DATE(shipment_orders.entry_at)) as date, 
+                COALESCE(DATE(weight_tickets.weigh_out_at), DATE(loading_orders.entry_at)) as date, 
                 SUM(weight_tickets.net_weight) as total,
-                SUM(CASE WHEN shipment_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo,
-                SUM(CASE WHEN shipment_orders.operation_type != "burreo" OR shipment_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale
+                SUM(CASE WHEN loading_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo,
+                SUM(CASE WHEN loading_orders.operation_type != "burreo" OR loading_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale
             ')
             ->groupBy('date')
             ->orderBy('date')
@@ -156,23 +156,23 @@ class DashboardController extends Controller
         // 2. Storage Breakdown (By Warehouse/Cubicle)
         $byCubicle = (clone $baseQuery)
             ->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             })
-            ->selectRaw('CONCAT(COALESCE(shipment_orders.warehouse, "Almacén ??"), " - ", COALESCE(shipment_orders.cubicle, "General")) as label, SUM(weight_tickets.net_weight) as total')
-            ->whereNotNull('shipment_orders.warehouse')
-            ->groupBy('shipment_orders.warehouse', 'shipment_orders.cubicle')
+            ->selectRaw('CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General")) as label, SUM(weight_tickets.net_weight) as total')
+            ->whereNotNull('loading_orders.warehouse')
+            ->groupBy('loading_orders.warehouse', 'loading_orders.cubicle')
             ->orderByDesc('total')
             ->get();
 
         // 3. Operator Breakdown
         $byOperator = (clone $baseQuery)
             ->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             })
-            ->selectRaw('shipment_orders.operator_name as label, SUM(weight_tickets.net_weight) as total')
-            ->groupBy('shipment_orders.operator_name')
+            ->selectRaw('loading_orders.operator_name as label, SUM(weight_tickets.net_weight) as total')
+            ->groupBy('loading_orders.operator_name')
             ->orderByDesc('total')
             ->get();
 
@@ -183,9 +183,9 @@ class DashboardController extends Controller
 
         // Filter options based on the CURRENT vessel context
         $filterOptions = [
-            'warehouses' => ShipmentOrder::where('vessel_id', $vesselId)->whereNotNull('warehouse')->distinct()->pluck('warehouse'),
-            'cubicles' => ShipmentOrder::where('vessel_id', $vesselId)->whereNotNull('cubicle')->distinct()->pluck('cubicle'),
-            'operators' => ShipmentOrder::where('vessel_id', $vesselId)->whereNotNull('operator_name')->distinct()->pluck('operator_name'),
+            'warehouses' => LoadingOrder::where('vessel_id', $vesselId)->whereNotNull('warehouse')->distinct()->pluck('warehouse'),
+            'cubicles' => LoadingOrder::where('vessel_id', $vesselId)->whereNotNull('cubicle')->distinct()->pluck('cubicle'),
+            'operators' => LoadingOrder::where('vessel_id', $vesselId)->whereNotNull('operator_name')->distinct()->pluck('operator_name'),
         ];
 
         return Inertia::render('Dashboard', [
@@ -222,30 +222,30 @@ class DashboardController extends Controller
         $date = $request->input('date');
         $operationType = $request->input('operation_type', 'all');
 
-        $query = ShipmentOrder::query()
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->where('shipment_orders.vessel_id', $vesselId)
+        $query = LoadingOrder::query()
+            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            ->where('loading_orders.vessel_id', $vesselId)
             ->where(function ($q) use ($date) {
                 $q->whereDate('weight_tickets.weigh_out_at', $date)
                     ->orWhere(function ($sq) use ($date) {
                         $sq->whereNull('weight_tickets.weigh_out_at')
-                            ->whereDate('shipment_orders.entry_at', $date);
+                            ->whereDate('loading_orders.entry_at', $date);
                     });
             });
 
         if ($operationType === 'scale') {
-            $query->whereIn('shipment_orders.operation_type', ['scale', null])
-                ->where('shipment_orders.status', 'completed');
+            $query->whereIn('loading_orders.operation_type', ['scale', null])
+                ->where('loading_orders.status', 'completed');
         } elseif ($operationType === 'burreo') {
-            $query->where('shipment_orders.operation_type', 'burreo');
+            $query->where('loading_orders.operation_type', 'burreo');
         } else {
             $query->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             });
         }
 
-        $data = $query->selectRaw('COALESCE(shipment_orders.warehouse, "S/A") as warehouse, SUM(weight_tickets.net_weight) as total')
+        $data = $query->selectRaw('COALESCE(loading_orders.warehouse, "S/A") as warehouse, SUM(weight_tickets.net_weight) as total')
             ->groupBy('warehouse')
             ->orderByDesc('total')
             ->get();
@@ -263,41 +263,41 @@ class DashboardController extends Controller
         $warehouse = $request->input('warehouse');
         $operationType = $request->input('operation_type', 'all');
 
-        $query = ShipmentOrder::query()
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->where('shipment_orders.vessel_id', $vesselId)
+        $query = LoadingOrder::query()
+            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            ->where('loading_orders.vessel_id', $vesselId)
             ->where(function ($q) use ($date) {
                 $q->whereDate('weight_tickets.weigh_out_at', $date)
                     ->orWhere(function ($sq) use ($date) {
                         $sq->whereNull('weight_tickets.weigh_out_at')
-                            ->whereDate('shipment_orders.entry_at', $date);
+                            ->whereDate('loading_orders.entry_at', $date);
                     });
             })
-            ->where('shipment_orders.warehouse', $warehouse);
+            ->where('loading_orders.warehouse', $warehouse);
 
         if ($operationType === 'scale') {
-            $query->whereIn('shipment_orders.operation_type', ['scale', null])
-                ->where('shipment_orders.status', 'completed');
+            $query->whereIn('loading_orders.operation_type', ['scale', null])
+                ->where('loading_orders.status', 'completed');
         } elseif ($operationType === 'burreo') {
-            $query->where('shipment_orders.operation_type', 'burreo');
+            $query->where('loading_orders.operation_type', 'burreo');
         } else {
             $query->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             });
         }
 
         // Agregate by Unit (Operator + Economic Number/Unit Number)
         // We take the latest cubicle and plates.
         $data = $query->selectRaw('
-                shipment_orders.operator_name,
-                COALESCE(NULLIF(shipment_orders.unit_number, ""), NULLIF(shipment_orders.economic_number, ""), "S/N") as economic_number,
-                MAX(shipment_orders.tractor_plate) as tractor_plate,
-                MAX(shipment_orders.cubicle) as cubicle,
+                loading_orders.operator_name,
+                COALESCE(NULLIF(loading_orders.unit_number, ""), NULLIF(loading_orders.economic_number, ""), "S/N") as economic_number,
+                MAX(loading_orders.tractor_plate) as tractor_plate,
+                MAX(loading_orders.cubicle) as cubicle,
                 SUM(weight_tickets.net_weight) as total_net_weight,
                 COUNT(*) as trip_count
             ')
-            ->groupBy('shipment_orders.operator_name', 'shipment_orders.unit_number', 'shipment_orders.economic_number')
+            ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
             ->orderByDesc('total_net_weight')
             ->paginate(10);
 
@@ -316,48 +316,48 @@ class DashboardController extends Controller
         $economicNumber = $request->input('economic_number');
         $operationType = $request->input('operation_type', 'all');
 
-        $query = ShipmentOrder::query()
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->where('shipment_orders.vessel_id', $vesselId)
+        $query = LoadingOrder::query()
+            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            ->where('loading_orders.vessel_id', $vesselId)
             ->where(function ($q) use ($date) {
                 $q->whereDate('weight_tickets.weigh_out_at', $date)
                     ->orWhere(function ($sq) use ($date) {
                         $sq->whereNull('weight_tickets.weigh_out_at')
-                            ->whereDate('shipment_orders.entry_at', $date);
+                            ->whereDate('loading_orders.entry_at', $date);
                     });
             })
-            ->where('shipment_orders.warehouse', $warehouse)
-            ->where('shipment_orders.operator_name', $operatorName)
+            ->where('loading_orders.warehouse', $warehouse)
+            ->where('loading_orders.operator_name', $operatorName)
             ->where(function ($q) {
-                $q->where('shipment_orders.status', 'completed')
-                    ->orWhere('shipment_orders.operation_type', 'burreo');
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
             });
 
         if ($economicNumber !== 'S/N') {
             $query->where(function ($q) use ($economicNumber) {
-                $q->where('shipment_orders.unit_number', $economicNumber)
-                    ->orWhere('shipment_orders.economic_number', $economicNumber);
+                $q->where('loading_orders.unit_number', $economicNumber)
+                    ->orWhere('loading_orders.economic_number', $economicNumber);
             });
         } else {
             $query->where(function ($q) {
                 $q->where(function ($sq) {
-                    $sq->whereNull('shipment_orders.unit_number')->orWhere('shipment_orders.unit_number', '');
+                    $sq->whereNull('loading_orders.unit_number')->orWhere('loading_orders.unit_number', '');
                 })->where(function ($sq) {
-                    $sq->whereNull('shipment_orders.economic_number')->orWhere('shipment_orders.economic_number', '');
+                    $sq->whereNull('loading_orders.economic_number')->orWhere('loading_orders.economic_number', '');
                 });
             });
         }
 
         if ($operationType === 'scale') {
-            $query->whereIn('shipment_orders.operation_type', ['scale', null]);
+            $query->whereIn('loading_orders.operation_type', ['scale', null]);
         } elseif ($operationType === 'burreo') {
-            $query->where('shipment_orders.operation_type', 'burreo');
+            $query->where('loading_orders.operation_type', 'burreo');
         }
 
         $data = $query->select([
-            'shipment_orders.id',
-            'shipment_orders.folio',
-            'shipment_orders.cubicle',
+            'loading_orders.id',
+            'loading_orders.folio',
+            'loading_orders.cubicle',
             'weight_tickets.net_weight',
             'weight_tickets.weigh_out_at'
         ])

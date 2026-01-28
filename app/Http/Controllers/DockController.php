@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShipmentOrder;
+use App\Models\LoadingOrder;
 use App\Models\Vessel;
 use App\Models\VesselOperator; // Import new model
 use Illuminate\Http\Request;
@@ -282,6 +283,10 @@ class DockController extends Controller
             return back()->withErrors(['error' => 'No se puede eliminar: El barco tiene Órdenes de Embarque asociadas.']);
         }
 
+        if (LoadingOrder::where('vessel_id', $id)->exists()) {
+            return back()->withErrors(['error' => 'No se puede eliminar: El barco tiene Órdenes de Carga (Operativas) asociadas.']);
+        }
+
         if (VesselOperator::where('vessel_id', $id)->exists()) {
             return back()->withErrors(['error' => 'No se puede eliminar: El barco tiene Operadores registrados.']);
         }
@@ -308,22 +313,31 @@ class DockController extends Controller
                 DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
                 // 1. Get related IDs for manual cleanup (extra safety)
-                $orderIds = ShipmentOrder::where('vessel_id', $id)->pluck('id');
+                $shipmentOrderIds = ShipmentOrder::where('vessel_id', $id)->pluck('id');
+                $loadingOrderIds = LoadingOrder::where('vessel_id', $id)->pluck('id');
                 $operatorIds = VesselOperator::where('vessel_id', $id)->pluck('id');
 
                 // 2. Delete scans (linked to orders OR operators)
-                \App\Models\AptScan::whereIn('shipment_order_id', $orderIds)
+                // Note: AptScan now links to loading_order_id too
+                \App\Models\AptScan::whereIn('shipment_order_id', $shipmentOrderIds)
+                    ->orWhereIn('loading_order_id', $loadingOrderIds)
                     ->orWhereIn('operator_id', $operatorIds)
                     ->delete();
 
                 // 3. Delete other order-related data
-                if ($orderIds->isNotEmpty()) {
-                    \App\Models\WeightTicket::whereIn('shipment_order_id', $orderIds)->delete();
-                    \App\Models\ShipmentItem::whereIn('shipment_order_id', $orderIds)->delete();
-                    \App\Models\LoadingOperation::whereIn('shipment_order_id', $orderIds)->delete();
+                if ($loadingOrderIds->isNotEmpty()) {
+                    \App\Models\WeightTicket::whereIn('loading_order_id', $loadingOrderIds)->delete();
+                    \App\Models\LoadingOperation::whereIn('loading_order_id', $loadingOrderIds)->delete();
                 }
 
-                // 4. Delete ShipmentOrders
+                // Legacy cleanup for ShipmentOrders
+                if ($shipmentOrderIds->isNotEmpty()) {
+                    \App\Models\WeightTicket::whereIn('shipment_order_id', $shipmentOrderIds)->delete(); // legacy link
+                    \App\Models\ShipmentItem::whereIn('shipment_order_id', $shipmentOrderIds)->delete();
+                }
+
+                // 4. Delete Orders
+                LoadingOrder::where('vessel_id', $id)->delete();
                 ShipmentOrder::where('vessel_id', $id)->delete();
 
                 // 5. Delete VesselOperators
