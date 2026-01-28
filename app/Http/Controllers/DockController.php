@@ -65,13 +65,13 @@ class DockController extends Controller
             'apt_operation_type' => 'required|string|in:scale,burreo',
 
             // Conditional
-            'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
-            'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
+            'product_id' => 'required_if:operation_type,Descarga,Carga|nullable|exists:products,id',
+            'programmed_tonnage' => 'required_if:operation_type,Descarga,Carga|nullable|numeric|min:0',
             // Carga
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
             // Descarga
-            'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
-            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'origin_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
         ]);
 
         // Fix for legacy service_type column if migration didn't run
@@ -142,13 +142,13 @@ class DockController extends Controller
             'apt_operation_type' => 'required|string|in:scale,burreo',
 
             // Conditional
-            'product_id' => 'required_if:operation_type,Descarga|nullable|exists:products,id',
-            'programmed_tonnage' => 'required_if:operation_type,Descarga|nullable|numeric|min:0',
+            'product_id' => 'required_if:operation_type,Descarga,Carga|nullable|exists:products,id',
+            'programmed_tonnage' => 'required_if:operation_type,Descarga,Carga|nullable|numeric|min:0',
             // Carga
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
             // Descarga
-            'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
-            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'origin_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
         ]);
 
         // Fix for legacy service_type column if migration didn't run

@@ -40,9 +40,9 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
         apt_operation_type: vessel.apt_operation_type || 'scale'
     });
 
-    // Reset product/tons if opertion type changes from Descarga
+    // Reset product/tons if opertion type changes from Descarga or Carga
     useEffect(() => {
-        if (data.operation_type !== 'Descarga') {
+        if (data.operation_type !== 'Descarga' && data.operation_type !== 'Carga') {
             setData(data => ({ ...data, product_id: '', programmed_tonnage: '' }));
         }
     }, [data.operation_type]);
@@ -349,10 +349,27 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                             )}
 
                             {data.operation_type === 'Carga' && (
-                                <div className="bg-orange-50 p-4 rounded-lg border border-orange-100 mb-6">
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Puerto de Destino</label>
-                                    <input type="text" value={data.destination_port} onChange={e => setData('destination_port', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
-                                    {errors.destination_port && <p className="text-red-500 text-xs mt-1">{errors.destination_port}</p>}
+                                <div className="bg-orange-50 p-4 rounded-lg border border-orange-100 mb-6 space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Puerto de Destino</label>
+                                        <input type="text" value={data.destination_port} onChange={e => setData('destination_port', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                        {errors.destination_port && <p className="text-red-500 text-xs mt-1">{errors.destination_port}</p>}
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Producto</label>
+                                            <select value={data.product_id} onChange={e => setData('product_id', e.target.value)} className="w-full rounded-md border-gray-300 py-2">
+                                                <option value="">Seleccione...</option>
+                                                {products.map((p: any) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                            </select>
+                                            {errors.product_id && <p className="text-red-500 text-xs mt-1">{errors.product_id}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Toneladas Programadas</label>
+                                            <input type="number" step="0.01" value={data.programmed_tonnage} onChange={e => setData('programmed_tonnage', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                            {errors.programmed_tonnage && <p className="text-red-500 text-xs mt-1">{errors.programmed_tonnage}</p>}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
