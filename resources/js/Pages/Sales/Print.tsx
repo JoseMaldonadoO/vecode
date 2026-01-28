@@ -176,14 +176,14 @@ export default function Print({ order }: { order: Order }) {
                     </div>
 
                     <div className="mb-4 font-bold">
-                        www.proagroindustria.com
+                        www.pro-agroindustria.com
                     </div>
 
                     <div className="text-xs text-gray-700 flex justify-between items-end">
                         <div className="text-left space-y-1">
-                            <div>Venta y cobranza: <span className="ml-2">oscar.mendez@proagroindustria.com</span></div>
-                            <div>Asst. Adtvo.: <span className="ml-2">jorge.robles@proagroindustria.com</span></div>
-                            <div>Comercialización: <span className="ml-2">ventas.comercializacion@proagroindustria.com</span></div>
+                            <div>Venta y cobranza: <span className="ml-2">oscar.mendez@pro-agroindustria.com</span></div>
+                            <div>Asst. Adtvo.: <span className="ml-2">jorge.robles@pro-agroindustria.com</span></div>
+                            <div>Comercialización: <span className="ml-2">ventas.comercializacion@pro-agroindustria.com</span></div>
                         </div>
 
                         <div className="flex flex-col items-end">

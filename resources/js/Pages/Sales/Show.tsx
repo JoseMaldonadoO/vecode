@@ -187,14 +187,14 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             </div>
 
                             <div className="text-center mb-8">
-                                <p className="text-indigo-900 font-bold text-[13px]">www.proagroindustria.com</p>
+                                <p className="text-indigo-900 font-bold text-[13px]">www.pro-agroindustria.com</p>
                             </div>
 
                             <div className="flex justify-between items-end border-t border-gray-100 pt-6">
                                 <div className="text-[10px] text-gray-500 space-y-0.5">
-                                    <p><span className="font-bold text-black">Venta y cobranza:</span> oscar.mendez@proagroindustria.com</p>
-                                    <p><span className="font-bold text-black">Asst. Adtvo.:</span> jorge.robles@proagroindustria.com</p>
-                                    <p><span className="font-bold text-black">Comercialización:</span> ventas.comercializacion@proagroindustria.com</p>
+                                    <p><span className="font-bold text-black">Venta y cobranza:</span> oscar.mendez@pro-agroindustria.com</p>
+                                    <p><span className="font-bold text-black">Asst. Adtvo.:</span> jorge.robles@pro-agroindustria.com</p>
+                                    <p><span className="font-bold text-black">Comercialización:</span> ventas.comercializacion@pro-agroindustria.com</p>
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <img src="/img/Proagro2.png" alt="Logo" className="h-8 opacity-50 mb-1" />
