@@ -104,38 +104,38 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             </div>
                             <div className="border border-black">
                                 <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Nombre:</div>
-                                    <div className="w-3/4 px-3 py-2 text-sm font-bold uppercase">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Nombre:</div>
+                                    <div className="w-3/4 px-3 py-2 text-sm font-normal uppercase">
                                         {order.client?.business_name}
                                     </div>
                                 </div>
                                 <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">RFC:</div>
-                                    <div className="w-3/4 px-3 py-1 text-xs font-bold uppercase">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">RFC:</div>
+                                    <div className="w-3/4 px-3 py-1 text-xs font-normal uppercase">
                                         {order.client?.rfc || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">Dirección:</div>
-                                    <div className="w-3/4 px-3 py-1 text-[11px] font-bold uppercase leading-tight">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">Dirección:</div>
+                                    <div className="w-3/4 px-3 py-1 text-[11px] font-normal uppercase leading-tight">
                                         {order.client?.address || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">Contacto:</div>
-                                    <div className="w-3/4 px-3 py-1 text-xs font-bold uppercase">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">Contacto:</div>
+                                    <div className="w-3/4 px-3 py-1 text-xs font-normal uppercase">
                                         {order.client?.contact_info || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="flex border-b border-black">
-                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de venta:</div>
-                                    <div className="w-[55%] px-3 py-2 text-sm font-bold uppercase">
+                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Condiciones de venta:</div>
+                                    <div className="w-[55%] px-3 py-2 text-sm font-normal uppercase">
                                         {order.sale_conditions || 'CONTADO'}
                                     </div>
                                 </div>
                                 <div className="flex">
-                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de entrega:</div>
-                                    <div className="w-[55%] px-3 py-2 text-sm font-bold uppercase">
+                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Condiciones de entrega:</div>
+                                    <div className="w-[55%] px-3 py-2 text-sm font-normal uppercase">
                                         {order.delivery_conditions || 'LAB PLANTA'}
                                     </div>
                                 </div>
@@ -155,7 +155,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                 <tbody>
                                     <tr className="h-10 text-center">
                                         <td className="border border-black px-2 py-1 text-[13px] font-normal">
-                                            {order.product?.name}
+                                            {order.product?.code ? `${order.product.code} - ${order.product.name}` : order.product?.name}
                                         </td>
                                         <td className="border border-black py-1 h-10 font-normal">
                                             TONELADAS
@@ -173,7 +173,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                                 Observaciones
                             </div>
-                            <div className="border border-black min-h-[6rem] p-3 text-[13px] font-bold whitespace-pre-line">
+                            <div className="border border-black min-h-[6rem] p-3 text-[13px] font-normal whitespace-pre-line">
                                 {order.destination || '...'}
                             </div>
                         </div>
