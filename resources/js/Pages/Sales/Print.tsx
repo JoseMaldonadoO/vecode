@@ -127,12 +127,9 @@ export default function Print({ order }: { order: Order }) {
                             </div>
                         </div>
                         <div className="flex">
-                                <div className="w-1/2 bg-gray-50 p-1 border-r border-gray-300 text-right pr-2 font-medium">Condiciones de venta:</div>
-                                <div className="w-1/2 p-1 uppercase pl-2">{order.sale_conditions}</div>
-                            </div>
-                            <div className="w-1/2 flex">
-                                <div className="w-1/2 bg-gray-50 p-1 border-r border-gray-300 text-right pr-2 font-medium">Condiciones de entrega:</div>
-                                <div className="w-1/2 p-1 uppercase pl-2">{order.delivery_conditions}</div>
+                            <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de entrega:</div>
+                            <div className="w-[55%] px-3 py-2 text-sm font-bold uppercase">
+                                {order.delivery_conditions || 'LAB PLANTA'}
                             </div>
                         </div>
                     </div>
