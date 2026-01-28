@@ -3,7 +3,6 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { Save, ArrowLeft, Check, ChevronsUpDown, FileText, User, Box, Calendar, Hash, Truck, ShoppingCart } from 'lucide-react';
 import { FormEventHandler, useState, Fragment } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
-import { formatter } from '@/Utils/formatters'; // Assuming or creating a formatter utility later, or using inline for now
 
 interface Client {
     id: number;
