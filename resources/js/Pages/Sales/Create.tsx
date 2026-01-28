@@ -66,7 +66,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                                 <ShoppingCart className="w-6 h-6 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-white font-bold text-xl">Nueva Orden de Venta</h3>
+                                <h3 className="text-white font-normal text-xl">Nueva Orden de Venta</h3>
                                 <p className="text-indigo-200 text-sm">Registre los detalles de la venta y cliente</p>
                             </div>
                         </div>
@@ -93,13 +93,13 @@ export default function Create({ auth, clients, products, suggested_folios, defa
 
                         {/* Section: Orden de Venta */}
                         <div className="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
-                            <h4 className="text-indigo-800 font-bold mb-4 flex items-center text-lg">
+                            <h4 className="text-indigo-800 font-normal mb-4 flex items-center text-lg">
                                 <FileText className="w-5 h-5 mr-2" />
                                 Datos Generales
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="relative">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Folio <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Folio <span className="text-red-500">*</span></label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -136,7 +136,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
 
 
                                 <div className="col-span-1 md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Orden de Compra / Referencia</label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Orden de Compra / Referencia</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -156,13 +156,13 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                         {/* Section: Datos del Cliente */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                             <div className="space-y-6">
-                                <h4 className="text-gray-800 font-bold text-lg border-b pb-2 mb-4 flex items-center">
+                                <h4 className="text-gray-800 font-normal text-lg border-b pb-2 mb-4 flex items-center">
                                     <User className="w-5 h-5 mr-2 text-indigo-600" />
                                     Información del Cliente
                                 </h4>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Cliente <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Cliente <span className="text-red-500">*</span></label>
                                     <Combobox value={selectedClient} onChange={(client: Client | null) => setData('client_id', client?.id.toString() || '')}>
                                         <div className="relative mt-1">
                                             <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-300 sm:text-sm">
@@ -207,10 +207,10 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                                                                 {({ selected, active }) => (
                                                                     <>
                                                                         <span
-                                                                            className={`block truncate ${selected ? 'font-medium' : 'font-normal'
+                                                                            className={`block truncate ${selected ? 'font-normal' : 'font-normal'
                                                                                 }`}
                                                                         >
-                                                                            <span className="font-bold mr-2">{client.id}</span>
+                                                                            <span className="font-normal mr-2">{client.id}</span>
                                                                             - {client.business_name}
                                                                         </span>
                                                                         {selected ? (
@@ -232,16 +232,9 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                                     </Combobox>
                                 </div>
 
-                                {selectedClient && (
-                                    <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs space-y-2">
-                                        <p className="font-bold text-gray-700 uppercase">Detalles del Cliente:</p>
-                                        <p><span className="font-medium">RFC:</span> {selectedClient.rfc || 'N/A'}</p>
-                                        <p><span className="font-medium">Dirección:</span> {selectedClient.address || 'N/A'}</p>
-                                    </div>
-                                )}
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Condiciones de Venta</label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Condiciones de Venta</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -255,7 +248,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Condiciones de Entrega</label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Condiciones de Entrega</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -271,18 +264,18 @@ export default function Create({ auth, clients, products, suggested_folios, defa
 
                             {/* Right Column: Detalle */}
                             <div className="space-y-6">
-                                <h4 className="text-gray-800 font-bold text-lg border-b pb-2 mb-4 flex items-center">
+                                <h4 className="text-gray-800 font-normal text-lg border-b pb-2 mb-4 flex items-center">
                                     <Box className="w-5 h-5 mr-2 text-indigo-600" />
                                     Detalle del Producto
                                 </h4>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Producto <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Producto <span className="text-red-500">*</span></label>
                                     <div className="relative">
                                         <select
                                             value={data.product_id}
                                             onChange={e => setData('product_id', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white font-bold"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white font-normal"
                                             required
                                         >
                                             <option value="">Seleccione producto...</option>
@@ -295,25 +288,25 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad (Toneladas) <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Cantidad (Toneladas) <span className="text-red-500">*</span></label>
                                     <div className="relative">
                                         <input
                                             type="number"
                                             step="0.001"
                                             value={data.quantity}
                                             onChange={e => setData('quantity', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-14"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-14 font-normal"
                                             placeholder="0.00"
                                             required
                                         />
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span className="text-gray-500 font-bold bg-gray-100 px-2 py-0.5 rounded text-xs">TON</span>
+                                            <span className="text-gray-500 font-normal bg-gray-100 px-2 py-0.5 rounded text-xs">TON</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Observaciones</label>
                                     <textarea
                                         value={data.destination}
                                         onChange={e => setData('destination', e.target.value)}
@@ -329,7 +322,7 @@ export default function Create({ auth, clients, products, suggested_folios, defa
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
+                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-normal rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
                             >
                                 <Save className="w-6 h-6 mr-2" />
                                 {processing ? 'Guardando...' : 'GUARDAR ORDEN DE VENTA'}

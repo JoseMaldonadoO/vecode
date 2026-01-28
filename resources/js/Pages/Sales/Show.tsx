@@ -154,13 +154,13 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                 </thead>
                                 <tbody>
                                     <tr className="h-10 text-center">
-                                        <td className="border border-black px-2 py-1 text-[13px] font-bold">
+                                        <td className="border border-black px-2 py-1 text-[13px] font-normal">
                                             {order.product?.name}
                                         </td>
-                                        <td className="border border-black py-1 h-10">
+                                        <td className="border border-black py-1 h-10 font-normal">
                                             TONELADAS
                                         </td>
-                                        <td className="border border-black px-2 py-1 font-black text-[15px]">
+                                        <td className="border border-black px-2 py-1 font-normal text-[15px]">
                                             {formatter.format(Number(order.total_quantity))}
                                         </td>
                                     </tr>

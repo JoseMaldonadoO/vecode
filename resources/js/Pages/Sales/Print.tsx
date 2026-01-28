@@ -15,13 +15,11 @@ interface Order {
         address: string;
         contact_info: string;
     };
-    items: Array<{
-        product: {
-            name: string;
-            code: string;
-        };
-        requested_quantity: number;
-    }>;
+    product: {
+        name: string;
+        code: string;
+    };
+    total_quantity: number;
     destination: string; // Observaciones
 }
 
@@ -37,7 +35,6 @@ export default function Print({ order }: { order: Order }) {
         minimumFractionDigits: 0,
     });
 
-    const item = order.items && order.items.length > 0 ? order.items[0] : null;
 
     return (
         <div className="bg-white min-h-screen p-8 text-black font-sans">
@@ -148,11 +145,11 @@ export default function Print({ order }: { order: Order }) {
                         <tbody>
                             <tr>
                                 <td className="border-r border-black p-1 h-8">
-                                    {item ? `${item.product.code} - ${item.product.name}` : 'N/A'}
+                                    {order.product ? `${order.product.code} - ${order.product.name}` : 'N/A'}
                                 </td>
-                                <td className="border-r border-black p-1 text-center">TONELADAS</td>
-                                <td className="p-1 text-center font-mono">
-                                    {item ? formatter.format(Number(item.requested_quantity)) : '0'}
+                                <td className="border-r border-black p-1 text-center font-normal uppercase">TONELADAS</td>
+                                <td className="p-1 text-center font-normal">
+                                    {formatter.format(Number(order.total_quantity))}
                                 </td>
                             </tr>
                         </tbody>
