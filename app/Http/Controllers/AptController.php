@@ -269,10 +269,6 @@ class AptController extends Controller
                 // We need to find the LATEST active order for this operator
                 // This is a bit loose, ideally we scan the Order Folio or Ticket.
                 // But if they use the same Badge (Operator QR):
-            if ($operatorId) {
-                // We need to find the LATEST active order for this operator
-                // This is a bit loose, ideally we scan the Order Folio or Ticket.
-                // But if they use the same Badge (Operator QR):
                 $order = \App\Models\LoadingOrder::with('weight_ticket')->where('status', 'loading')
                     ->where(function ($q) use ($operatorId) {
                         // This assumes we stored Operator ID or can link back.
