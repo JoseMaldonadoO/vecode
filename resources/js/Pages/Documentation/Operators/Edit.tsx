@@ -3,7 +3,35 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { UserPlus, ArrowLeft, Save, Truck, FileText, User, Hash, CreditCard, Box } from 'lucide-react';
 import { useEffect } from 'react';
 
-export default function Edit({ auth, operator, vessels }: { auth: any, operator: any, vessels: any[] }) {
+interface Vessel {
+    id: string;
+    name: string;
+    origin?: string;
+    is_active: boolean;
+}
+
+interface Operator {
+    id: number;
+    vessel_id: string;
+    operator_name: string;
+    transporter_line: string;
+    unit_type: string;
+    brand_model?: string;
+    trailer_plate?: string;
+    economic_number: string;
+    tractor_plate: string;
+    vessel: Vessel;
+}
+
+interface PageProps {
+    auth: {
+        user: any;
+    };
+    operator: Operator;
+    vessels: Vessel[];
+}
+
+export default function Edit({ auth, operator, vessels }: PageProps) {
     const { data, setData, put, processing, errors } = useForm({
         vessel_id: operator.vessel_id,
         operator_name: operator.operator_name,
@@ -14,6 +42,8 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
         economic_number: operator.economic_number,
         tractor_plate: operator.tractor_plate
     });
+
+    const isVesselInactive = operator.vessel && !operator.vessel.is_active;
 
     useEffect(() => {
         if (data.unit_type === 'Volteo') {
@@ -52,6 +82,24 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                         </div>
                     </div>
 
+                    {isVesselInactive && (
+                        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.514 2.625H3.72c-1.347 0-2.187-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-bold text-yellow-800">BARCO ARCHIVADO / ZARPADO</h3>
+                                    <div className="mt-2 text-sm text-yellow-700">
+                                        <p>Este barco ya ha zarpado. No se permite editar la información de sus operadores para mantener la integridad de los datos históricos.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <form onSubmit={submit} className="p-8">
 
                         {/* Section: Vinculación - Indigo Theme */}
@@ -70,7 +118,7 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                                         required
                                     >
                                         <option value="">-- Seleccione un barco --</option>
-                                        {vessels.map((v: any) => (
+                                        {vessels.map((v: Vessel) => (
                                             <option key={v.id} value={v.id}>
                                                 {v.name} {v.origin ? `(${v.origin})` : ''}
                                             </option>
@@ -223,8 +271,11 @@ export default function Edit({ auth, operator, vessels }: { auth: any, operator:
                             {/* Button: Green Theme */}
                             <button
                                 type="submit"
-                                disabled={processing}
-                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
+                                disabled={processing || isVesselInactive}
+                                className={`inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white transition-all transform ${(processing || isVesselInactive)
+                                    ? 'bg-gray-400 cursor-not-allowed opacity-60'
+                                    : 'bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-green-200'
+                                    }`}
                             >
                                 <Save className="w-6 h-6 mr-2" />
                                 {processing ? 'Guardando...' : 'GUARDAR CAMBIOS'}

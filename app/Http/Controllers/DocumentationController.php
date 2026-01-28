@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Product;
 use App\Models\Vessel;
 use App\Models\VesselOperator;
+use App\Models\SalesOrder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -37,7 +38,7 @@ class DocumentationController extends Controller
                 ];
             }),
             'products' => Product::all(),
-            'sales_orders' => \App\Models\SalesOrder::where('status', 'created')->orWhere('status', 'open')->get(),
+            'sales_orders' => SalesOrder::where('status', 'created')->orWhere('status', 'open')->get(),
             'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
         ]);
     }
@@ -106,8 +107,9 @@ class DocumentationController extends Controller
     // Operator Registration (Alta Operador)
     public function createOperator()
     {
-        // Strict filter: Only allowed vessels, and UNIQUE by name
+        // Strict filter: Only active vessels
         $vessels = Vessel::with('product')
+            ->active()
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -160,8 +162,13 @@ class DocumentationController extends Controller
     public function searchOperators(Request $request)
     {
         $query = $request->input('q');
-        $operators = VesselOperator::where('operator_name', 'like', "%{$query}%")
-            ->orWhere('id', $query)
+        $operators = VesselOperator::where(function ($q) use ($query) {
+            $q->where('operator_name', 'like', "%{$query}%")
+                ->orWhere('id', $query);
+        })
+            ->whereHas('vessel', function ($q) {
+                $q->active();
+            })
             ->orderBy('operator_name')
             ->limit(20)
             ->get();
@@ -173,7 +180,7 @@ class DocumentationController extends Controller
 
     public function operatorsIndex(Request $request)
     {
-        $query = VesselOperator::query();
+        $query = VesselOperator::query()->with('vessel');
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -185,11 +192,35 @@ class DocumentationController extends Controller
             });
         }
 
-        $operators = $query->with('vessel')->orderBy('created_at', 'desc')->paginate(10);
+        if ($request->has('vessel_id')) {
+            $query->where('vessel_id', $request->input('vessel_id'));
+        }
+
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->whereHas('vessel', function ($q) {
+                    $q->active();
+                });
+            } elseif ($status === 'archived') {
+                $query->whereHas('vessel', function ($q) {
+                    $q->inactive();
+                });
+            }
+        }
+
+        $operators = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // Append is_active to each operator
+        $operators->getCollection()->transform(function ($operator) {
+            $operator->is_active = $operator->vessel ? $operator->vessel->is_active : false;
+            return $operator;
+        });
 
         return Inertia::render('Documentation/Operators/Index', [
             'operators' => $operators,
-            'filters' => $request->only(['search']),
+            'vessels' => Vessel::orderBy('created_at', 'desc')->get(),
+            'filters' => $request->only(['search', 'vessel_id', 'status']),
         ]);
     }
 
@@ -209,6 +240,12 @@ class DocumentationController extends Controller
 
     public function updateOperator(Request $request, $id)
     {
+        $operator = VesselOperator::with('vessel')->findOrFail($id);
+
+        if ($operator->vessel && !$operator->vessel->is_active) {
+            return back()->withErrors(['error' => 'No se puede editar un operador de un barco que ya ha zarpado (Archivado).']);
+        }
+
         $validated = $request->validate([
             'vessel_id' => 'required|exists:vessels,id',
             'operator_name' => 'required|string|max:255',
@@ -220,7 +257,6 @@ class DocumentationController extends Controller
             'brand_model' => 'nullable|string',
         ]);
 
-        $operator = VesselOperator::findOrFail($id);
         $operator->update($validated);
 
         return redirect()->route('documentation.operators.index')->with('success', 'Operador actualizado correctamente.');

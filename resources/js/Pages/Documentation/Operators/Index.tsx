@@ -13,8 +13,11 @@ interface Operator {
     economic_number: string;
     tractor_plate: string;
     vessel?: {
+        id: string;
         name: string;
+        is_active: boolean;
     };
+    is_active?: boolean;
 }
 
 interface PageProps {
@@ -29,16 +32,34 @@ interface PageProps {
     };
     filters: {
         search?: string;
+        vessel_id?: string;
+        status?: string;
     };
-    auth: any;
+    vessels: Array<{ id: string; name: string }>;
+    auth: {
+        user: any;
+    };
 }
 
-export default function Index({ auth, operators, filters }: PageProps) {
+export default function Index({ auth, operators, filters, vessels }: PageProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const [vesselId, setVesselId] = useState(filters.vessel_id || '');
+    const [status, setStatus] = useState(filters.status || '');
+
+    const applyFilters = (newParams: Partial<PageProps['filters']>) => {
+        const params = pickBy({ search, vessel_id: vesselId, status, ...newParams });
+        router.get(route('documentation.operators.index'), params as any, { preserveState: true });
+    };
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get(route('documentation.operators.index'), pickBy({ search }), { preserveState: true });
+        applyFilters({});
+    };
+
+    const handleFilterChange = (key: string, value: string) => {
+        if (key === 'vessel_id') setVesselId(value);
+        if (key === 'status') setStatus(value);
+        applyFilters({ [key]: value });
     };
 
     return (
@@ -64,8 +85,8 @@ export default function Index({ auth, operators, filters }: PageProps) {
                 </div>
 
                 {/* Filters & Actions */}
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <form onSubmit={handleSearch} className="relative w-full sm:w-96">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col lg:flex-row justify-between items-center gap-4">
+                    <form onSubmit={handleSearch} className="relative w-full lg:w-96">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search className="h-5 w-5 text-gray-400" />
                         </div>
@@ -74,11 +95,32 @@ export default function Index({ auth, operators, filters }: PageProps) {
                             className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow"
                             placeholder="Buscar por nombre, ID, línea..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
                         />
                     </form>
 
+                    <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                        <select
+                            value={vesselId}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterChange('vessel_id', e.target.value)}
+                            className="block w-full sm:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
+                        >
+                            <option value="">Todos los barcos</option>
+                            {vessels.map((v) => (
+                                <option key={v.id} value={v.id}>{v.name}</option>
+                            ))}
+                        </select>
 
+                        <select
+                            value={status}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleFilterChange('status', e.target.value)}
+                            className="block w-full sm:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
+                        >
+                            <option value="">Cualquier estado</option>
+                            <option value="active">Activos</option>
+                            <option value="archived">Archivados (Zarpado)</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* Table */}
@@ -91,7 +133,7 @@ export default function Index({ auth, operators, filters }: PageProps) {
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Operador</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Línea Trans.</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Unidad</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Barco</th>
+                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Barco / Estado</th>
                                     <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
@@ -115,17 +157,33 @@ export default function Index({ auth, operators, filters }: PageProps) {
                                                 <div className="text-sm text-gray-900">{operator.unit_type}</div>
                                                 <div className="text-xs text-gray-500">{operator.economic_number} - {operator.tractor_plate}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                {operator.vessel ? operator.vessel.name : <span className="text-red-400 italic">Sin Asignar</span>}
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-900">
+                                                    {operator.vessel ? operator.vessel.name : <span className="text-red-400 italic">Sin Asignar</span>}
+                                                </div>
+                                                <div className="mt-1">
+                                                    {operator.is_active ? (
+                                                        <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">Activo</span>
+                                                    ) : (
+                                                        <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 rounded-full italic">Archivado</span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <Link
-                                                    href={route('documentation.operators.edit', operator.id)}
-                                                    className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
-                                                >
-                                                    <Edit className="w-4 h-4 mr-1.5" />
-                                                    Editar
-                                                </Link>
+                                                {operator.is_active ? (
+                                                    <Link
+                                                        href={route('documentation.operators.edit', operator.id)}
+                                                        className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
+                                                    >
+                                                        <Edit className="w-4 h-4 mr-1.5" />
+                                                        Editar
+                                                    </Link>
+                                                ) : (
+                                                    <span className="inline-flex items-center text-gray-400 bg-gray-50 px-3 py-1.5 rounded-md cursor-not-allowed opacity-60 tooltip" title="Barco zarpado">
+                                                        <Edit className="w-4 h-4 mr-1.5" />
+                                                        Editar
+                                                    </span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))

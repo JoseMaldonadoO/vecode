@@ -23,6 +23,28 @@ class Vessel extends Model
         'draft_weight' => 'decimal:2',
     ];
 
+    public function getIsActiveAttribute()
+    {
+        if (!$this->departure_date) {
+            return true;
+        }
+        return $this->departure_date->isFuture();
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('departure_date')
+                ->orWhere('departure_date', '>', now());
+        });
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->whereNotNull('departure_date')
+            ->where('departure_date', '<=', now());
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class);

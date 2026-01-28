@@ -7,8 +7,12 @@ use Illuminate\Http\Request;
 
 use App\Models\Vessel;
 use App\Models\VesselOperator;
+use App\Models\ShipmentOrder;
+use App\Models\AptScan;
+use App\Models\WeightTicket;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class AptController extends Controller
 {
@@ -21,7 +25,7 @@ class AptController extends Controller
     public function createOperator()
     {
         return Inertia::render('APT/RegisterOperator', [
-            'vessels' => Vessel::with('product')->orderBy('created_at', 'desc')->get()
+            'vessels' => Vessel::active()->with('product')->orderBy('name')->get()
         ]);
     }
 
@@ -60,11 +64,18 @@ class AptController extends Controller
     public function searchOperators(Request $request)
     {
         $query = $request->input('q');
-        $operators = VesselOperator::where('operator_name', 'like', "%{$query}%")
-            ->orWhere('id', $query)
+        $operators = VesselOperator::with('vessel')
+            ->where(function ($q) use ($query) {
+                $q->where('operator_name', 'like', "%{$query}%")
+                    ->orWhere('id', $query);
+            })
             ->orderBy('operator_name')
             ->limit(20)
-            ->get();
+            ->get()
+            ->map(function ($op) {
+                $op->is_active = $op->vessel ? $op->vessel->is_active : false;
+                return $op;
+            });
 
         return response()->json($operators);
     }
@@ -277,6 +288,11 @@ class AptController extends Controller
                 $operator = VesselOperator::with('vessel.product')->find($operatorId);
 
                 if ($operator && $operator->vessel) {
+                    // ARCHIVE CHECK: If vessel is inactive, block all scans
+                    if (!$operator->vessel->is_active) {
+                        return back()->withErrors(['qr' => 'ALERTA: El barco ' . $operator->vessel->name . ' ya ha zarpado. No se pueden registrar nuevos movimientos en APT para este barco.']);
+                    }
+
                     // STRICT CHECK: If vessel requires scale, do not allow auto-creation of Burreo
                     if (($operator->vessel->apt_operation_type ?? 'scale') === 'scale') {
                         return back()->withErrors(['qr' => 'ALERTA: Este barco requiere registro en Báscula de entrada antes de asignar ubicación.']);
@@ -339,6 +355,11 @@ class AptController extends Controller
 
         // status check for Scale Flow
         if ($validated['operation_type'] === 'scale') {
+            // ARCHIVE CHECK: If vessel is inactive, block scans even for existing orders
+            if ($order->vessel && !$order->vessel->is_active) {
+                return back()->withErrors(['qr' => 'ALERTA: Este barco ya ha zarpado. No se pueden registrar nuevos movimientos.']);
+            }
+
             // Must be 'loading' AND have a Weight Ticket
             if ($order->status !== 'loading' || !$order->weight_ticket) {
                 return back()->withErrors(['qr' => 'ALERTA: El vehículo no ha pasado por báscula de entrada. No tiene ticket activo o estatus válido (Status: ' . $order->status . ').']);

@@ -75,14 +75,25 @@ export default function QrPrint({ auth }: { auth: any }) {
                             {results.map((op) => (
                                 <button
                                     key={op.id}
-                                    onClick={() => setSelectedOperator(op)}
-                                    className="w-full text-left p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors flex justify-between items-center border border-gray-100"
+                                    onClick={() => op.is_active && setSelectedOperator(op)}
+                                    disabled={!op.is_active}
+                                    className={`w-full text-left p-4 rounded-lg bg-gray-50 transition-colors flex justify-between items-center border border-gray-100 ${!op.is_active ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-100'
+                                        }`}
                                 >
                                     <div>
-                                        <p className="font-bold text-gray-900">{op.operator_name}</p>
+                                        <p className="font-bold text-gray-900 flex items-center">
+                                            {op.operator_name}
+                                            {!op.is_active && (
+                                                <span className="ml-2 px-2 py-0.5 text-[10px] bg-gray-200 text-gray-600 rounded-full font-bold uppercase">
+                                                    Zarpado / Archivado
+                                                </span>
+                                            )}
+                                        </p>
                                         <p className="text-sm text-gray-500">{op.transporter_line} - {op.economic_number}</p>
                                     </div>
-                                    <div className="text-indigo-600 text-sm font-medium">Seleccionar &rarr;</div>
+                                    <div className={`text-sm font-medium ${!op.is_active ? 'text-gray-400' : 'text-indigo-600'}`}>
+                                        {!op.is_active ? 'No disponible' : 'Seleccionar \u2192'}
+                                    </div>
                                 </button>
                             ))}
                             {query.length > 2 && results.length === 0 && (
