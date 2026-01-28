@@ -1,25 +1,50 @@
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import { Save, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Save, ArrowLeft, Check, ChevronsUpDown, FileText, User, Box, Hash, Truck, ShoppingCart, AlertCircle } from 'lucide-react';
+import { FormEventHandler, useState, Fragment } from 'react';
+import { Combobox, Transition } from '@headlessui/react';
 
-export default function Edit({ auth, order, clients, products, context_module }: { auth: any, order: any, clients: any[], products: any[], context_module?: string }) {
+interface Client {
+    id: number;
+    business_name: string;
+    rfc?: string;
+    address?: string;
+    contact_info?: string;
+}
+interface Product { id: number; name: string; code: string; }
+
+export default function Edit({ auth, order, clients, products, context_module }: { auth: any, order: any, clients: Client[], products: Product[], context_module?: string }) {
 
     const isSalesReport = context_module === 'sales_report';
     const backLink = isSalesReport ? route('sales.index', { view: 'report' }) : route('sales.index');
 
-    // Pre-fill form with existing order data
     const { data, setData, put, processing, errors } = useForm({
-        folio: order.folio,
-        sale_order: order.sale_order,
-        client_id: order.client_id,
-        product_id: order.product_id || '',
-        quantity: order.total_quantity || '',
-        destination: order.destination || '',
+        folio: order.folio || '',
+        sale_order: order.sale_order || '',
         sale_conditions: order.sale_conditions || '',
-        delivery_conditions: order.delivery_conditions || ''
+        delivery_conditions: order.delivery_conditions || '',
+        client_id: order.client_id?.toString() || '',
+        product_id: order.product_id?.toString() || '',
+        quantity: order.total_quantity || '',
+        destination: order.destination || ''
     });
 
-    const submit = (e: React.FormEvent) => {
+    const [query, setQuery] = useState('');
+
+    const filteredClients =
+        query === ''
+            ? clients
+            : clients.filter((client) =>
+                client.business_name
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .includes(query.toLowerCase().replace(/\s+/g, '')) ||
+                client.id.toString().includes(query)
+            );
+
+    const selectedClient = clients.find(c => c.id.toString() === data.client_id) || null;
+
+    const submit: FormEventHandler = (e) => {
         e.preventDefault();
         put(route('sales.update', order.id));
     };
@@ -28,199 +53,270 @@ export default function Edit({ auth, order, clients, products, context_module }:
         <DashboardLayout user={auth.user} header={`Editar Orden: ${order.folio}`}>
             <Head title="Editar Orden" />
 
-            <div className="max-w-7xl mx-auto pb-12">
-                <div className="mb-6 flex justify-between items-center">
+            <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                <div className="mb-6">
                     <Link href={backLink} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
                         <ArrowLeft className="w-4 h-4 mr-1" />
-                        Cancelar y volver
+                        Volver al listado
                     </Link>
                 </div>
 
-                {/* Form Container */}
-                <form onSubmit={submit} className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 max-w-[21.5cm] mx-auto">
-                    <div className="p-8 md:p-12 text-black font-sans">
-                        {/* Header with Folio/Order Info */}
-                        <div className="flex justify-between items-start mb-10 pb-6 border-b-2 border-gray-100">
-                            <div className="w-1/2">
-                                <div className="mb-4">
-                                    <img src="/img/Proagro2.png" alt="Logo Proagroindustria" className="h-16 object-contain" />
-                                </div>
-                                <div className="text-sm text-gray-800 space-y-0.5">
-                                    <p className="font-extrabold text-blue-900 text-base">Proagroindustria S.A. de C.V.</p>
-                                    <p>Edición de Documento Interno</p>
-                                </div>
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                    <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">
+                        <div className="flex items-center">
+                            <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
+                                <ShoppingCart className="w-6 h-6 text-white" />
                             </div>
+                            <div>
+                                <h3 className="text-white font-normal text-xl">Editar Orden de Venta</h3>
+                                <p className="text-indigo-200 text-sm">Modifique los detalles de la venta y cliente</p>
+                            </div>
+                        </div>
+                    </div>
 
-                            <div className="w-1/2 flex flex-col items-end">
-                                <div className="w-64 border-2 border-indigo-900 rounded-lg overflow-hidden shadow-sm bg-indigo-50/30">
-                                    <div className="bg-indigo-900 text-white text-center font-bold py-2 text-sm uppercase tracking-wider">
-                                        Datos de Control
+                    {/* Restricted Status Warning */}
+                    <div className="mx-8 mt-6 p-4 bg-amber-50 rounded-xl border border-amber-100 flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                            <h4 className="text-sm font-normal text-amber-800 uppercase tracking-tight">Aviso de Edición</h4>
+                            <p className="text-xs text-amber-700 leading-relaxed">
+                                Solo puede editar campos si la orden está <span className="font-bold">ABIERTA</span>.
+                                Al guardar, se mantendrá la trazabilidad del folio actual.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={submit} className="p-8">
+
+                        {/* Section: Orden de Venta */}
+                        <div className="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
+                            <h4 className="text-indigo-800 font-normal mb-4 flex items-center text-lg">
+                                <FileText className="w-5 h-5 mr-2" />
+                                Datos Generales
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="relative">
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Folio <span className="text-red-500">*</span></label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={data.folio}
+                                            onChange={e => setData('folio', e.target.value)}
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-50"
+                                            placeholder="Ej. OV-2025-01"
+                                            required
+                                            readOnly // Folio is usually not editable if it's already set, but user original had it as input. Keeping readOnly or not?
+                                        // User original code for Edit had it as input. I'll make it normal input but with normal font.
+                                        />
+                                        <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
-                                    <div className="p-4 space-y-4">
-                                        <div>
-                                            <label className="block text-[10px] font-black text-indigo-900 uppercase tracking-tighter mb-1">Folio (Internal)</label>
-                                            <input
-                                                type="text"
-                                                value={data.folio}
-                                                onChange={e => setData('folio', e.target.value)}
-                                                className="w-full text-sm font-black text-indigo-700 bg-white border-indigo-200 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                            />
-                                            {errors.folio && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.folio}</p>}
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-black text-indigo-900 uppercase tracking-tighter mb-1">O. Compra (Ref)</label>
-                                            <input
-                                                type="text"
-                                                value={data.sale_order}
-                                                onChange={e => setData('sale_order', e.target.value)}
-                                                className="w-full text-sm font-bold bg-white border-indigo-200 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                            />
-                                            {errors.sale_order && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.sale_order}</p>}
-                                        </div>
+                                    {errors.folio && <div className="text-red-500 text-xs mt-1">{errors.folio}</div>}
+                                </div>
+
+
+                                <div className="col-span-1 md:col-span-2">
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Orden de Compra / Referencia</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={data.sale_order}
+                                            onChange={e => setData('sale_order', e.target.value)}
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                            placeholder="Referencia del cliente"
+                                            required
+                                        />
+                                        <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
+                                    {errors.sale_order && <div className="text-red-500 text-xs mt-1">{errors.sale_order}</div>}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Client Sector */}
-                        <div className="mb-8">
-                            <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Selección del Cliente y Condiciones
-                            </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-6 bg-gray-50/30 space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Cliente Destinatario</label>
-                                        <select
-                                            value={data.client_id}
-                                            onChange={e => setData('client_id', e.target.value)}
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm font-medium focus:ring-indigo-500 focus:border-indigo-500 h-11"
-                                        >
-                                            <option value="">Seleccione un cliente...</option>
-                                            {clients.map((client) => (
-                                                <option key={client.id} value={client.id}>
-                                                    {client.business_name} ({client.rfc})
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.client_id && <p className="text-red-500 text-xs mt-1 font-medium">{errors.client_id}</p>}
-                                    </div>
+                        {/* Section: Datos del Cliente */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                            <div className="space-y-6">
+                                <h4 className="text-gray-800 font-normal text-lg border-b pb-2 mb-4 flex items-center">
+                                    <User className="w-5 h-5 mr-2 text-indigo-600" />
+                                    Información del Cliente
+                                </h4>
 
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Condiciones de Venta</label>
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Cliente <span className="text-red-500">*</span></label>
+                                    <Combobox value={selectedClient} onChange={(client: Client | null) => setData('client_id', client?.id.toString() || '')}>
+                                        <div className="relative mt-1">
+                                            <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-indigo-300 sm:text-sm">
+                                                <Combobox.Input
+                                                    className="w-full border-none py-2.5 pl-10 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                                                    displayValue={(client: Client | null) => client ? `${client.id} - ${client.business_name}` : ''}
+                                                    onChange={(event) => setQuery(event.target.value)}
+                                                    placeholder="Buscar por ID o Nombre..."
+                                                />
+                                                <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                                    <User className="w-5 h-5 text-gray-400" />
+                                                </div>
+                                                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                    <ChevronsUpDown
+                                                        className="h-5 w-5 text-gray-400"
+                                                        aria-hidden="true"
+                                                    />
+                                                </Combobox.Button>
+                                            </div>
+                                            <Transition
+                                                as={Fragment}
+                                                leave="transition ease-in duration-100"
+                                                leaveFrom="opacity-100"
+                                                leaveTo="opacity-0"
+                                                afterLeave={() => setQuery('')}
+                                            >
+                                                <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                    {filteredClients.length === 0 && query !== '' ? (
+                                                        <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                                                            No se encontraron resultados.
+                                                        </div>
+                                                    ) : (
+                                                        filteredClients.map((client) => (
+                                                            <Combobox.Option
+                                                                key={client.id}
+                                                                className={({ active }) =>
+                                                                    `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'
+                                                                    }`
+                                                                }
+                                                                value={client}
+                                                            >
+                                                                {({ selected, active }) => (
+                                                                    <>
+                                                                        <span
+                                                                            className={`block truncate ${selected ? 'font-normal' : 'font-normal'
+                                                                                }`}
+                                                                        >
+                                                                            <span className="font-normal mr-2">{client.id}</span>
+                                                                            - {client.business_name}
+                                                                        </span>
+                                                                        {selected ? (
+                                                                            <span
+                                                                                className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? 'text-white' : 'text-indigo-600'
+                                                                                    }`}
+                                                                            >
+                                                                                <Check className="h-5 w-5" aria-hidden="true" />
+                                                                            </span>
+                                                                        ) : null}
+                                                                    </>
+                                                                )}
+                                                            </Combobox.Option>
+                                                        ))
+                                                    )}
+                                                </Combobox.Options>
+                                            </Transition>
+                                        </div>
+                                    </Combobox>
+                                    {errors.client_id && <div className="text-red-500 text-xs mt-1">{errors.client_id}</div>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Condiciones de Venta</label>
+                                    <div className="relative">
                                         <input
                                             type="text"
                                             value={data.sale_conditions}
                                             onChange={e => setData('sale_conditions', e.target.value)}
-                                            placeholder="Ej. CONTADO, 30 DÍAS"
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                            placeholder="Contado, Crédito 30 días..."
                                         />
+                                        <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
+                                </div>
 
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Condiciones de Entrega</label>
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Condiciones de Entrega</label>
+                                    <div className="relative">
                                         <input
                                             type="text"
                                             value={data.delivery_conditions}
                                             onChange={e => setData('delivery_conditions', e.target.value)}
-                                            placeholder="Ej. LAB PLANTA, DESTINO"
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                            placeholder="LAB, FOB..."
                                         />
+                                        <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Product Selection */}
-                        <div className="mb-8">
-                            <div className="bg-indigo-900 text-white font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Producto y Volumen
-                            </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-6 bg-indigo-50/10">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Descripción del Producto</label>
+                            {/* Right Column: Detalle */}
+                            <div className="space-y-6">
+                                <h4 className="text-gray-800 font-normal text-lg border-b pb-2 mb-4 flex items-center">
+                                    <Box className="w-5 h-5 mr-2 text-indigo-600" />
+                                    Detalle del Producto
+                                </h4>
+
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Producto <span className="text-red-500">*</span></label>
+                                    <div className="relative">
                                         <select
                                             value={data.product_id}
                                             onChange={e => setData('product_id', e.target.value)}
-                                            className="w-full bg-white border-gray-200 rounded-lg text-sm font-bold text-gray-800 focus:ring-indigo-500 focus:border-indigo-500 h-11"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white font-normal"
+                                            required
                                         >
-                                            <option value="">Seleccione un producto...</option>
-                                            {products.map((product) => (
-                                                <option key={product.id} value={product.id}>
-                                                    {product.code} - {product.name}
-                                                </option>
+                                            <option value="">Seleccione producto...</option>
+                                            {products.map(product => (
+                                                <option key={product.id} value={product.id}>{product.name}</option>
                                             ))}
                                         </select>
-                                        {errors.product_id && <p className="text-red-500 text-xs mt-1 font-medium">{errors.product_id}</p>}
+                                        <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
+                                    {errors.product_id && <div className="text-red-500 text-xs mt-1">{errors.product_id}</div>}
+                                </div>
 
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Toneladas Solicitadas (TM)</label>
-                                        <div className="relative">
-                                            <input
-                                                type="number"
-                                                step="0.001"
-                                                value={data.quantity}
-                                                onChange={e => setData('quantity', e.target.value)}
-                                                className="w-full bg-white border-gray-200 rounded-lg text-lg font-black text-indigo-700 focus:ring-indigo-500 focus:border-indigo-500 pr-12 h-11"
-                                            />
-                                            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400 font-bold text-xs uppercase">
-                                                TM
-                                            </div>
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Cantidad (Toneladas) <span className="text-red-500">*</span></label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            step="0.001"
+                                            value={data.quantity}
+                                            onChange={e => setData('quantity', e.target.value)}
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-14 font-normal"
+                                            placeholder="0.00"
+                                            required
+                                        />
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500 font-normal bg-gray-100 px-2 py-0.5 rounded text-xs">TON</span>
                                         </div>
-                                        {errors.quantity && <p className="text-red-500 text-xs mt-1 font-medium">{errors.quantity}</p>}
                                     </div>
+                                    {errors.quantity && <div className="text-red-500 text-xs mt-1">{errors.quantity}</div>}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">Observaciones</label>
+                                    <textarea
+                                        value={data.destination}
+                                        onChange={e => setData('destination', e.target.value)}
+                                        rows={4}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
+                                        placeholder="Destino, instrucciones especiales, etc."
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Observations / Destination */}
-                        <div className="mb-12">
-                            <div className="bg-gray-100 text-gray-700 font-bold px-4 py-1.5 text-xs uppercase tracking-widest rounded-t-lg">
-                                Observaciones Adicionales / Destino
-                            </div>
-                            <div className="border-2 border-t-0 border-gray-100 rounded-b-lg p-2 bg-white">
-                                <textarea
-                                    value={data.destination}
-                                    onChange={e => setData('destination', e.target.value)}
-                                    rows={4}
-                                    placeholder="Ingrese destino detallado u observaciones relevantes para la carga..."
-                                    className="w-full border-0 focus:ring-0 text-sm text-gray-700 placeholder-gray-400 resize-none"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Status Guard Info */}
-                        <div className="mb-8 p-4 bg-amber-50 rounded-xl border-2 border-amber-100 flex items-start gap-3">
-                            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                            <div>
-                                <h4 className="text-sm font-bold text-amber-800 uppercase tracking-tight">Aviso de Restricción</h4>
-                                <p className="text-xs text-amber-700 leading-relaxed">
-                                    Esta orden de venta podrá ser editada mientras mantenga el estatus <span className="font-bold">ABIERTA</span>. Una vez generados embarques o cerrada la orden, cualquier modificación deberá ser autorizada por dirección.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col md:flex-row gap-4 pt-10 border-t border-gray-100">
+                        <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end gap-4">
+                            <Link
+                                href={backLink}
+                                className="inline-flex items-center px-8 py-3.5 border border-gray-300 text-lg font-normal rounded-xl shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all transform hover:-translate-y-0.5"
+                            >
+                                Cancelar
+                            </Link>
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="flex-1 inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-black rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50"
+                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-normal rounded-xl shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 transition-all transform hover:-translate-y-0.5"
                             >
-                                <Save className="w-5 h-5 mr-3" />
-                                Guardar Cambios en la Orden
+                                <Save className="w-6 h-6 mr-2" />
+                                {processing ? 'Guardando...' : 'GUARDAR CAMBIOS'}
                             </button>
-                            <Link
-                                href={backLink}
-                                className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-200 text-base font-bold rounded-xl text-gray-600 bg-white hover:bg-gray-50 transition-all"
-                            >
-                                Cancelar Cambios
-                            </Link>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </DashboardLayout>
     );
