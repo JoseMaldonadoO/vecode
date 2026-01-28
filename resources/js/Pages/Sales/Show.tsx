@@ -104,9 +104,27 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             </div>
                             <div className="border border-black">
                                 <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Cliente:</div>
+                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Nombre:</div>
                                     <div className="w-3/4 px-3 py-2 text-sm font-bold uppercase">
                                         {order.client?.business_name}
+                                    </div>
+                                </div>
+                                <div className="flex border-b border-black">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">RFC:</div>
+                                    <div className="w-3/4 px-3 py-1 text-xs font-bold uppercase">
+                                        {order.client?.rfc || 'N/A'}
+                                    </div>
+                                </div>
+                                <div className="flex border-b border-black">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">Dirección:</div>
+                                    <div className="w-3/4 px-3 py-1 text-[11px] font-bold uppercase leading-tight">
+                                        {order.client?.address || 'N/A'}
+                                    </div>
+                                </div>
+                                <div className="flex border-b border-black">
+                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">Contacto:</div>
+                                    <div className="w-3/4 px-3 py-1 text-xs font-bold uppercase">
+                                        {order.client?.contact_info || 'N/A'}
                                     </div>
                                 </div>
                                 <div className="flex border-b border-black">

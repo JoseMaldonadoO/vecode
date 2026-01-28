@@ -90,32 +90,43 @@ export default function Print({ order }: { order: Order }) {
                     </div>
                 </div>
 
-                {/* Client Data */}
-                <div className="mb-4">
-                    <div className="bg-gray-600 text-white font-bold px-2 py-1 text-center mb-1">
+                {/* Datos del Cliente Section */}
+                <div className="mb-6">
+                    <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Datos del cliente
                     </div>
-                    <div className="border border-black text-sm">
+                    <div className="border border-black">
                         <div className="flex border-b border-black">
-                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">Nombre:</div>
-                            <div className="flex-1 p-1 uppercase whitespace-nowrap overflow-hidden text-ellipsis">{order.client.business_name}</div>
+                            <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Nombre:</div>
+                            <div className="w-3/4 px-3 py-2 text-sm font-bold uppercase">
+                                {order.client?.business_name}
+                            </div>
                         </div>
                         <div className="flex border-b border-black">
-                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">RFC:</div>
-                            <div className="flex-1 p-1 uppercase">{order.client.rfc}</div>
+                            <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">RFC:</div>
+                            <div className="w-3/4 px-3 py-1 text-xs font-bold uppercase">
+                                {order.client?.rfc || 'N/A'}
+                            </div>
                         </div>
                         <div className="flex border-b border-black">
-                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">Dirección:</div>
-                            <div className="flex-1 p-1 uppercase">{order.client.address}</div>
+                            <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">Dirección:</div>
+                            <div className="w-3/4 px-3 py-1 text-[11px] font-bold uppercase leading-tight">
+                                {order.client?.address || 'N/A'}
+                            </div>
                         </div>
                         <div className="flex border-b border-black">
-                            <div className="w-24 bg-gray-100 p-1 border-r border-black font-medium">Contacto:</div>
-                            <div className="flex-1 p-1 uppercase">{order.client.contact_info}</div>
+                            <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-medium text-xs flex items-center">Contacto:</div>
+                            <div className="w-3/4 px-3 py-1 text-xs font-bold uppercase">
+                                {order.client?.contact_info || 'N/A'}
+                            </div>
                         </div>
-
-                        {/* Split Row for Conditions */}
+                        <div className="flex border-b border-black">
+                            <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-medium text-xs flex items-center">Condiciones de venta:</div>
+                            <div className="w-[55%] px-3 py-2 text-sm font-bold uppercase">
+                                {order.sale_conditions || 'CONTADO'}
+                            </div>
+                        </div>
                         <div className="flex">
-                            <div className="w-1/2 flex border-r border-black">
                                 <div className="w-1/2 bg-gray-50 p-1 border-r border-gray-300 text-right pr-2 font-medium">Condiciones de venta:</div>
                                 <div className="w-1/2 p-1 uppercase pl-2">{order.sale_conditions}</div>
                             </div>
@@ -215,6 +226,6 @@ export default function Print({ order }: { order: Order }) {
                     body { -webkit-print-color-adjust: exact; }
                 }
             `}</style>
-        </div>
+        </div >
     );
 }
