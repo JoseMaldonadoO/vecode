@@ -26,43 +26,46 @@ try {
     DB::beginTransaction();
 
     // 1. Check/Create Loading Orders Table
-    if (!Schema::hasTable('loading_orders')) {
-        echo "Creating loading_orders table...<br>";
-        Schema::create('loading_orders', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('folio')->unique();
-            $table->enum('status', ['created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled'])->default('created');
-            $table->foreignId('vessel_id')->nullable();
-            $table->foreignId('client_id');
-            $table->foreignId('product_id')->nullable();
-            $table->foreignUuid('sales_order_id')->nullable();
-            $table->foreignUuid('shipment_order_id')->nullable();
-            $table->timestamp('entry_at')->nullable();
-            $table->string('operator_name')->nullable();
-            $table->string('tractor_plate')->nullable();
-            $table->string('trailer_plate')->nullable();
-            $table->string('economic_number')->nullable();
-            $table->string('transport_company')->nullable();
-            $table->string('unit_type')->nullable();
-            $table->string('warehouse')->nullable();
-            $table->string('cubicle')->nullable();
-            $table->string('origin')->nullable();
-            $table->string('destination')->nullable();
-            $table->string('withdrawal_letter')->nullable();
-            $table->string('bill_of_lading')->nullable();
-            $table->string('reference')->nullable();
-            $table->string('observations')->nullable();
-            $table->string('consignee')->nullable();
-            $table->enum('destare_status', ['pending', 'completed'])->default('pending');
-            $table->enum('operation_type', ['scale', 'burreo'])->default('scale');
-            $table->foreignId('transporter_id')->nullable();
-            $table->foreignId('driver_id')->nullable();
-            $table->foreignId('vehicle_id')->nullable();
-            $table->timestamps();
-        });
-    } else {
-        echo "loading_orders table already exists.<br>";
-    }
+    Schema::dropIfExists('loading_orders'); // FORCE DROP to ensure correct schema
+
+    echo "Creating loading_orders table...<br>";
+    Schema::create('loading_orders', function (Blueprint $table) {
+        $table->uuid('id')->primary();
+        $table->string('folio')->unique();
+        $table->enum('status', ['created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled'])->default('created');
+
+        $table->foreignUuid('vessel_id')->nullable(); // UUID
+        $table->foreignId('client_id'); // Integer
+        $table->foreignId('product_id')->nullable(); // Integer
+
+        $table->foreignUuid('sales_order_id')->nullable(); // UUID
+        $table->foreignUuid('shipment_order_id')->nullable(); // UUID (Legacy link)
+
+        $table->timestamp('entry_at')->nullable();
+        $table->string('operator_name')->nullable();
+        $table->string('tractor_plate')->nullable();
+        $table->string('trailer_plate')->nullable();
+        $table->string('economic_number')->nullable();
+        $table->string('transport_company')->nullable();
+        $table->string('unit_type')->nullable();
+        $table->string('warehouse')->nullable();
+        $table->string('cubicle')->nullable();
+        $table->string('origin')->nullable();
+        $table->string('destination')->nullable();
+        $table->string('withdrawal_letter')->nullable();
+        $table->string('bill_of_lading')->nullable();
+        $table->string('reference')->nullable();
+        $table->string('observations')->nullable();
+        $table->string('consignee')->nullable();
+        $table->enum('destare_status', ['pending', 'completed'])->default('pending');
+        $table->enum('operation_type', ['scale', 'burreo'])->default('scale');
+
+        $table->foreignId('transporter_id')->nullable();
+        $table->foreignId('driver_id')->nullable();
+        $table->foreignId('vehicle_id')->nullable();
+
+        $table->timestamps();
+    });
 
     // 2. Add columns to related tables if missing
     if (!Schema::hasColumn('weight_tickets', 'loading_order_id')) {
