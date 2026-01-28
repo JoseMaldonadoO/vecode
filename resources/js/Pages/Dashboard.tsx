@@ -48,7 +48,10 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
 
     // --- HELPERS ---
     const formatTonnes = (val: number | any) =>
-        new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format((val || 0) / 1000);
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format((val || 0) / 1000);
+
+    const formatMT = (val: number | any) =>
+        new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(val || 0);
 
     const formatNumber = (val: number | any) =>
         new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val || 0);
@@ -322,7 +325,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                     {drillLevel === 0 ? (
                                         <>
                                             <div className="flex items-center gap-2 mb-1">
-                                                <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatNumber(effectiveTotal / 1000)}</h2>
+                                                <h2 className="text-4xl font-black text-slate-800 tracking-tighter">Total: {formatMT(effectiveTotal / 1000)}</h2>
                                                 {viewMode !== 'all' && (
                                                     <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${viewMode === 'scale' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                                                         }`}>
@@ -368,7 +371,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                             index="date"
                                             categories={categories}
                                             colors={colors}
-                                            valueFormatter={(val: any) => `${(val / 1000).toLocaleString()} TM`}
+                                            valueFormatter={(val: any) => `${(val / 1000).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })} TM`}
                                             showAnimation={true}
                                             showLegend={false}
                                             yAxisWidth={50}
@@ -398,7 +401,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                                                 <p className="text-2xl font-black text-slate-800">{item.warehouse}</p>
                                                             </div>
                                                             <div className="text-right">
-                                                                <p className="text-xl font-black text-blue-600">{(item.total / 1000).toLocaleString()} TM</p>
+                                                                <p className="text-xl font-black text-blue-600">{formatMT(item.total / 1000)} TM</p>
                                                                 <p className="text-[10px] font-bold text-gray-400 uppercase">Descargado</p>
                                                             </div>
                                                         </div>
@@ -560,7 +563,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                             </div>
                             <div className="absolute inset-0 flex items-center justify-between px-4">
                                 <span className="text-xs font-bold text-blue-900/50 uppercase">Progreso</span>
-                                <span className="text-xs font-bold text-blue-900/50">{formatTonnes(stats.total_tonnage || 0)} / {formatNumber(vessel?.programmed_tonnage || 0)}</span>
+                                <span className="text-xs font-bold text-blue-900/50">{formatTonnes(stats.total_tonnage || 0)} / {formatMT(vessel?.programmed_tonnage || 0)}</span>
                             </div>
                         </div>
 
@@ -571,7 +574,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                             </div>
                             <div className="flex justify-between items-center">
                                 <span className="text-sm font-bold text-gray-400 uppercase">Total Programado:</span>
-                                <span className="text-sm font-bold text-gray-500 font-mono">{formatNumber(vessel?.programmed_tonnage || 0)} TM</span>
+                                <span className="text-sm font-bold text-gray-500 font-mono">{formatMT(vessel?.programmed_tonnage || 0)} TM</span>
                             </div>
                         </div>
                     </div>
