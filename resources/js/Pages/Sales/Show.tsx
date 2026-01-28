@@ -42,10 +42,10 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                 </div>
 
                 {/* Print Preview Container */}
-                <div className="bg-white shadow-2xl rounded-sm border border-gray-300 overflow-hidden max-w-[21.5cm] mx-auto overflow-x-auto mb-10">
-                    <div className="p-8 md:p-10 text-black font-sans min-w-[19cm]">
+                <div className="bg-white shadow-2xl rounded-sm border border-gray-300 overflow-hidden max-w-[21.5cm] mx-auto overflow-x-auto mb-10 print:mb-0 print:border-none print:shadow-none">
+                    <div className="p-8 md:p-10 print:p-4 text-black font-sans min-w-[19cm] print:w-full print:min-w-0">
                         {/* Header Section */}
-                        <div className="flex justify-between items-start mb-8">
+                        <div className="flex justify-between items-start mb-8 print:mb-4">
                             <div className="flex flex-col">
                                 <img src="/img/Proagro2.png" alt="Proagro" className="h-16 w-auto object-contain mb-2 self-start" />
                                 <div className="text-[11px] leading-tight text-gray-700">
@@ -98,7 +98,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                         </div>
 
                         {/* Datos del Cliente Section */}
-                        <div className="mb-6">
+                        <div className="mb-6 print:mb-4">
                             <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                                 Datos del cliente
                             </div>
@@ -143,7 +143,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                         </div>
 
                         {/* Product Table */}
-                        <div className="mb-6">
+                        <div className="mb-6 print:mb-4">
                             <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
                                 <thead className="bg-gray-500 text-white text-center">
                                     <tr>
@@ -169,7 +169,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                         </div>
 
                         {/* Observations Section */}
-                        <div className="mb-10">
+                        <div className="mb-10 print:mb-4">
                             <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                                 Observaciones
                             </div>
@@ -179,18 +179,18 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                         </div>
 
                         {/* Signatures & Footer Section */}
-                        <div className="mt-20">
-                            <div className="flex flex-col items-center mb-16">
+                        <div className="mt-20 print:mt-8">
+                            <div className="flex flex-col items-center mb-16 print:mb-8">
                                 <div className="w-64 border-b border-black mb-1"></div>
                                 <p className="text-sm font-medium">Oscar Méndez Torres</p>
                                 <p className="text-[12px] text-gray-500">Comercialización</p>
                             </div>
 
-                            <div className="text-center mb-8">
+                            <div className="text-center mb-8 print:mb-4">
                                 <p className="text-indigo-900 font-bold text-[13px]">www.pro-agroindustria.com</p>
                             </div>
 
-                            <div className="flex justify-between items-end border-t border-gray-100 pt-6">
+                            <div className="flex justify-between items-end border-t border-gray-100 pt-6 print:pt-4">
                                 <div className="text-[10px] text-gray-500 space-y-0.5">
                                     <p><span className="font-bold text-black">Venta y cobranza:</span> oscar.mendez@pro-agroindustria.com</p>
                                     <p><span className="font-bold text-black">Asst. Adtvo.:</span> jorge.robles@pro-agroindustria.com</p>
@@ -210,7 +210,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
 
             <style>{`
                 @media print {
-                    @page { margin: 0.5cm; size: letter; }
+                    @page { margin: 0.5cm; }
                     body { background: white !important; }
                     nav, header, footer, .print\\:hidden { display: none !important; }
                     main { padding: 0 !important; margin: 0 !important; }
