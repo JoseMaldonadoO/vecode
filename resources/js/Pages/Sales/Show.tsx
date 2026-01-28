@@ -205,46 +205,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                     </div>
                 </div>
 
-                {/* History Section (Screen only) */}
-                <div className="bg-zinc-900 rounded-lg shadow-xl overflow-hidden text-white border border-zinc-800 print:hidden mb-12">
-                    <div className="p-4 border-b border-zinc-800 bg-zinc-800/50">
-                        <h3 className="font-bold text-sm uppercase tracking-wider flex items-center">
-                            <ChevronRight className="w-4 h-4 mr-2 text-indigo-400" />
-                            Historial de Embarques
-                        </h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
-                            <thead className="bg-zinc-800/30 text-zinc-500 font-bold uppercase">
-                                <tr>
-                                    <th className="px-6 py-3">Folio Shipment</th>
-                                    <th className="px-6 py-3">Fecha</th>
-                                    <th className="px-6 py-3">Transporte / Unidada</th>
-                                    <th className="px-6 py-3 text-right">Peso Neto (TM)</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zinc-800">
-                                {order.shipments?.map((shipment: any) => (
-                                    <tr key={shipment.id} className="hover:bg-zinc-800/20 transition-colors">
-                                        <td className="px-6 py-3 font-bold text-indigo-400">{shipment.folio}</td>
-                                        <td className="px-6 py-3 text-zinc-400">{new Date(shipment.created_at).toLocaleDateString()}</td>
-                                        <td className="px-6 py-3 text-zinc-500 italic">
-                                            {shipment.transporter?.name} | {shipment.vehicle?.plate_number}
-                                        </td>
-                                        <td className="px-6 py-3 text-right font-black text-emerald-400">
-                                            {shipment.weight_ticket?.net_weight ? formatter.format(Number(shipment.weight_ticket.net_weight) / 1000) : '0'}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {(!order.shipments || order.shipments.length === 0) && (
-                                    <tr>
-                                        <td colSpan={4} className="px-6 py-8 text-center text-zinc-600 italic">Sin embarques registrados</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {/* History Section removed as requested */}
             </div>
 
             <style>{`
