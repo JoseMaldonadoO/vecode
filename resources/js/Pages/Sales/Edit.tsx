@@ -3,6 +3,7 @@ import { Head, useForm, Link } from '@inertiajs/react';
 import { Save, ArrowLeft, Check, ChevronsUpDown, FileText, User, Box, Hash, Truck, ShoppingCart, AlertCircle } from 'lucide-react';
 import { FormEventHandler, useState, Fragment } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
+import Swal from 'sweetalert2';
 
 interface Client {
     id: number;
@@ -48,7 +49,6 @@ export default function Edit({ auth, order, clients, products, context_module }:
         e.preventDefault();
         put(route('sales.update', order.id), {
             onSuccess: () => {
-                const Swal = (window as any).Swal || require('sweetalert2');
                 Swal.fire({
                     title: '<span style="color: #4f46e5; font-weight: 500;">¡Cambios Guardados!</span>',
                     html: `<p style="color: #6b7280;">La Orden de Venta <b>${data.folio}</b> ha sido actualizada exitosamente.</p>`,
