@@ -35,11 +35,19 @@ This document serves as a context transfer for the `vecode` project. It summariz
 - **Scale (`EntryMP.tsx`, `WeightTicketController.php`)**:
     -   Added restrictions for "Burreo" operations.
 
-## Deployment Mechanics
-- The deployment is triggered by a push to `main`.
-- The GitHub Action runs `npm run build`.
-- If the build fails, check for CommonJS (`require`) usage in TSX files.
+## Deployment Mechanics (Unicorn Level)
+- **Strategy**: "Anti-Cache Artifacts". GitHub Actions builds a unique zip (`release_${run_number}.zip`), and a server-side script (`extract_debug.php`) unzips it, overwrites files, and aggressively clears caches (Laravel + Opcache).
+- **Trigger**: Push to `main`.
+- **Environment**:
+    -   **DB**: Hostinger `u174025152_vecode` (User: `u174025152_admin`).
+    -   **Domain**: Root `pro-agroindustria.com`.
+    -   **Secrets**: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` must be set in GitHub.
+- **Troubleshooting**:
+    -   **Build Failures**: Check for `require` usage (must use `import`).
+    -   **Images Broken**: Regenerate symlink by creating `public/link.php` (see `GUIA_DESPLIEGUE.md`).
+    -   **Cache Issues**: The deployment script handles this, but you can manually trigger `php artisan optimize:clear` via SSH or a route if needed.
 
 ## Next Steps
 - Continue maintaining the "Premium" look and feel.
 - Ensure all new features follow the established patterns in `DashboardLayout`.
+- Refer to `GUIA_DESPLIEGUE.md` for full deployment details if needed.
