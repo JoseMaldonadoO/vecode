@@ -44,7 +44,33 @@ export default function Create({ auth, clients, products, suggested_folios, defa
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('sales.store'));
+        post(route('sales.store'), {
+            onSuccess: () => {
+                const Swal = (window as any).Swal || require('sweetalert2');
+                Swal.fire({
+                    title: '<span style="color: #4f46e5; font-weight: 500;">¡Orden Creada!</span>',
+                    html: `<p style="color: #6b7280;">La Orden de Venta <b>${data.folio}</b> ha sido registrada exitosamente en el sistema.</p>`,
+                    icon: 'success',
+                    iconColor: '#10b981',
+                    background: '#ffffff',
+                    showConfirmButton: true,
+                    confirmButtonText: 'Continuar',
+                    confirmButtonColor: '#4f46e5',
+                    timer: 5000,
+                    timerProgressBar: true,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInUp animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutDown animate__faster'
+                    },
+                    customClass: {
+                        popup: 'rounded-2xl shadow-2xl border border-gray-100',
+                        confirmButton: 'rounded-xl px-8 py-3 font-medium transition-all hover:scale-105 active:scale-95'
+                    }
+                });
+            }
+        });
     };
 
     return (
