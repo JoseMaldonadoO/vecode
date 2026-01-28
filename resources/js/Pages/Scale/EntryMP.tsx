@@ -163,7 +163,6 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     product: res.product,
                     origin: res.origin,
                     transport_line: res.transporter,
-                    driver: res.driver,
                     vehicle_plate: res.vehicle_plate,
                     trailer_plate: res.trailer_plate,
                     vehicle_type: res.vehicle_type,
