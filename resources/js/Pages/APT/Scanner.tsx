@@ -580,7 +580,6 @@ export default function Scanner({
                                         onChange={e => handleVesselChange(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 bg-white border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg text-sm transition-all"
                                     >
-                                        <option value="">-- Todos los barcos --</option>
                                         <optgroup label="Barcos Activos (En Muelle)">
                                             {activeVessels.map((v: any) => (
                                                 <option key={v.id} value={v.id}>{v.name}</option>

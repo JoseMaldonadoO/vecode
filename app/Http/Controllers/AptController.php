@@ -214,6 +214,10 @@ class AptController extends Controller
             return empty($v->berthal_datetime) || $v->berthal_datetime > $now || !empty($v->departure_date);
         })->values();
 
+        if (!$request->filled('vessel_id') && $activeVessels->isNotEmpty()) {
+            $filters['vessel_id'] = (string) $activeVessels->first()->id;
+        }
+
         $query = \App\Models\AptScan::with(['operator', 'shipmentOrder.vessel'])
             ->orderBy('created_at', 'desc');
 
@@ -221,9 +225,9 @@ class AptController extends Controller
             $query->whereDate('created_at', $request->date);
         }
 
-        if ($request->filled('vessel_id')) {
-            $query->whereHas('shipmentOrder', function ($q) use ($request) {
-                $q->where('vessel_id', $request->vessel_id);
+        if (isset($filters['vessel_id'])) {
+            $query->whereHas('shipmentOrder', function ($q) use ($filters) {
+                $q->where('vessel_id', $filters['vessel_id']);
             });
         }
 
