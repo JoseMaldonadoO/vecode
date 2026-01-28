@@ -136,14 +136,14 @@ export default function Print({ order }: { order: Order }) {
                 <div className="mb-4">
                     <table className="w-full border border-black text-sm">
                         <thead>
-                            <tr className="bg-gray-500 text-white">
-                                <th className="p-1 text-left w-3/5">Descripción</th>
+                            <tr className="bg-gray-500 text-white text-center">
+                                <th className="p-1 w-3/5">Descripción</th>
                                 <th className="p-1 text-center w-1/5 border-l border-gray-400">Unidad</th>
                                 <th className="p-1 text-center w-1/5 border-l border-gray-400">Cantidad</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr className="text-center">
                                 <td className="border-r border-black p-1 h-8">
                                     {order.product ? `${order.product.code} - ${order.product.name}` : 'N/A'}
                                 </td>
