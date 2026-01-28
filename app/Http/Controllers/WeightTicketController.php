@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Vessel; // Assuming we need this for origin/destination if related
 use App\Models\VesselOperator; // Legacy fallback?
+use App\Models\ShipmentOrder;
 
 class WeightTicketController extends Controller
 {
@@ -234,7 +235,7 @@ class WeightTicketController extends Controller
         ]);
     }
 
-    use App\Models\ShipmentOrder;
+
 
     public function searchQr(Request $request)
     {
