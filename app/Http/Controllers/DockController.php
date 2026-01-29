@@ -46,13 +46,11 @@ class DockController extends Controller
             'docking_date' => 'nullable|date',
             'docking_time' => 'nullable',
             'operation_type' => 'required|string',
-            'dock' => 'nullable|string', // Added validation for dock
-            'stay_days' => 'required|integer',
+            'dock' => 'nullable|string',
+            'stay_days' => 'nullable|numeric',
             'etc' => 'nullable|date',
             'departure_date' => 'nullable|date',
             'observations' => 'nullable|string',
-
-            // New Fields
             'length' => 'nullable|numeric|min:0',
             'beam' => 'nullable|numeric|min:0',
             'draft' => 'nullable|numeric|min:0',
@@ -63,14 +61,10 @@ class DockController extends Controller
             'consignee_agency' => 'nullable|string|max:255',
             'customs_agency' => 'nullable|string|max:255',
             'client_id' => 'required|exists:clients,id',
-            'apt_operation_type' => 'required|string|in:scale,burreo',
-
-            // Conditional
+            'apt_operation_type' => 'nullable|string|in:scale,burreo',
             'product_id' => 'required_if:operation_type,Descarga,Carga|nullable|exists:products,id',
             'programmed_tonnage' => 'required_if:operation_type,Descarga,Carga|nullable|numeric|min:0',
-            // Carga
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
-            // Descarga
             'origin_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
             'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
         ]);
@@ -78,37 +72,32 @@ class DockController extends Controller
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
 
-        if (!isset($validated['stay_days']) || $validated['stay_days'] === null) {
+        // Default stay_days if not provided
+        if (!isset($validated['stay_days']) || $validated['stay_days'] === null || $validated['stay_days'] === '') {
             $validated['stay_days'] = 0;
         }
 
-        // Create valid ETB Timestamp using Carbon to handle time formats
-        $etb = null;
+        // Parsing dates
         if ($request->filled('docking_date')) {
-            $timeString = $request->docking_time ?? '00:00:00';
             try {
-                // Combine date and time, let Carbon parse whatever format comes in (e.g. 1:00 p.m., 13:00)
+                $timeString = $request->docking_time ?? '00:00:00';
                 $etb = \Carbon\Carbon::parse($request->docking_date . ' ' . $timeString);
+                $validated['berthal_datetime'] = $etb;
+                $validated['etb'] = $etb;
             } catch (\Exception $e) {
-                // Fallback if parsing fails
-                $etb = \Carbon\Carbon::parse($request->docking_date);
+                \Illuminate\Support\Facades\Log::warning('Error parsing docking date/time: ' . $e->getMessage());
             }
         }
-        $validated['etb'] = $etb;
-        $validated['berthal_datetime'] = $etb;
 
-        // Validation for Dock Occupancy
-        if ($validated['berthal_datetime'] && $validated['dock']) {
-            $now = now();
+        // Validation for Dock Occupancy (Only if boat is active)
+        if (!empty($validated['dock'])) {
             $occupied = Vessel::active()
                 ->where('dock', $validated['dock'])
-                ->where('berthal_datetime', '<=', $now)
                 ->first();
 
             if ($occupied) {
                 return back()->withErrors([
-                    'error' => "El muelle {$validated['dock']} está ocupado por el buque {$occupied->name}. " .
-                        "Por favor, asigne una fecha de salida al buque activo antes de asignar este muelle."
+                    'dock' => "El muelle {$validated['dock']} ya está ocupado por el buque {$occupied->name}."
                 ])->withInput();
             }
         }

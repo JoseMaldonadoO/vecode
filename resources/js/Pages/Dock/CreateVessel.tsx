@@ -70,11 +70,28 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                         popup: 'rounded-2xl border border-gray-100 shadow-2xl',
                         confirmButton: 'rounded-xl px-8 py-3 font-bold transition-all hover:scale-105 active:scale-95'
                     },
-                    showClass: {
-                        popup: 'animate__animated animate__fadeInUp animate__faster'
-                    },
-                    hideClass: {
-                        popup: 'animate__animated animate__fadeOutDown animate__faster'
+                });
+            },
+            onError: (errors: any) => {
+                let errorMsg = 'Por favor, revisa los campos marcados en rojo.';
+
+                if (errors.dock) {
+                    errorMsg = errors.dock;
+                } else if (errors.error) {
+                    errorMsg = errors.error;
+                }
+
+                Swal.fire({
+                    title: '<span style="color: #ef4444; font-weight: 700;">Error en el Registro</span>',
+                    html: `<p style="color: #4b5563;">${errorMsg}</p>`,
+                    icon: 'error',
+                    iconColor: '#ef4444',
+                    confirmButtonColor: '#4f46e5',
+                    confirmButtonText: 'Corregir',
+                    background: '#ffffff',
+                    customClass: {
+                        popup: 'rounded-2xl border border-gray-100 shadow-2xl',
+                        confirmButton: 'rounded-xl px-8 py-3 font-bold transition-all hover:scale-105 active:scale-95'
                     }
                 });
             }
