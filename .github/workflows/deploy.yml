@@ -53,13 +53,13 @@ jobs:
           
           # Create ULTRA-LIGHT zip (Excluding vendor to prevent FTP timeouts)
           zip -r delivery/release_${{ github.run_number }}.zip . -x "vendor/*" ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "delivery/*"
+          # Copy support scripts to delivery root
           cp extract.php delivery/
           cp extract_debug.php delivery/
           cp index.php delivery/
           cp fix_perms.php delivery/
-          cp debug_final.php delivery/
           cp migrate.php delivery/
-          cp cleanup_dummy_sales_orders.php delivery/
+          cp deploy_health_check.php delivery/
           cp .htaccess delivery/
           # Delete state file from delivery directory to force full upload
           rm -f delivery/.ftp-deploy-zip-state.json
@@ -75,7 +75,6 @@ jobs:
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
           timeout: 120000
-          passive: true
 
       - name: 🚀 Extract and Fix permissions
         run: |
@@ -85,4 +84,6 @@ jobs:
           curl -v --max-time 30 https://pro-agroindustria.com/fix_perms.php
           echo "Ejecutando migraciones..."
           curl -v --max-time 60 https://pro-agroindustria.com/migrate.php
-          echo "Despliegue completado (Migration V3)."
+          echo "Chequeo de salud final..."
+          curl -v --max-time 30 https://pro-agroindustria.com/deploy_health_check.php
+          echo "Despliegue completado e inspeccionado."

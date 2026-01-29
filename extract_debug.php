@@ -6,7 +6,8 @@
 
 $logFile = 'deploy_debug_log.txt';
 
-function logMsg($msg) {
+function logMsg($msg)
+{
     global $logFile;
     $date = date('Y-m-d H:i:s');
     file_put_contents($logFile, "[$date] $msg" . PHP_EOL, FILE_APPEND);
@@ -63,7 +64,7 @@ $res = $zip->open($zipFile);
 
 if ($res === TRUE) {
     logMsg("ZIP abierto correctamente.");
-    
+
     // Intentar extraer al directorio PADRE (ROOT)
     try {
         $targetDir = dirname(__DIR__); // Sube un nivel
@@ -77,14 +78,14 @@ if ($res === TRUE) {
     } catch (Exception $e) {
         logMsg("EXCEPCION al extraer: " . $e->getMessage());
     }
-    
+
     $zip->close();
-    
+
     // 5. Post-Verificación (Checar si un archivo clave se actualizó)
     // Ejemplo: Sidebar.tsx fecha de modificación
     // Como es JS compilado, checamos public/build/manifest.webmanifest
-    if(file_exists('public/build/manifest.webmanifest')) {
-       logMsg("Manifest timestamp: " . date("Y-m-d H:i:s", filemtime('public/build/manifest.webmanifest')));
+    if (file_exists('public/build/manifest.webmanifest')) {
+        logMsg("Manifest timestamp: " . date("Y-m-d H:i:s", filemtime('public/build/manifest.webmanifest')));
     }
 
     // 6. LIMPIEZA DE CACHÉ LARAVEL (CRITICO PARA ACTUALIZACION UI)
@@ -93,7 +94,7 @@ if ($res === TRUE) {
         // NUKE MANUAL DE CACHÉ DE BOOTSTRAP (Vital si config.php tiene rutas viejas)
         $bootstrapCache = glob(__DIR__ . '/bootstrap/cache/*.php');
         foreach ($bootstrapCache as $file) {
-            if(is_file($file)) {
+            if (is_file($file)) {
                 unlink($file);
                 logMsg("🗑️ Cache eliminado: " . basename($file));
             }
@@ -124,7 +125,7 @@ if ($res === TRUE) {
 
             \Illuminate\Support\Facades\Artisan::call('view:clear');
             logMsg("✅ View Clear: " . trim(\Illuminate\Support\Facades\Artisan::output()));
-            
+
             \Illuminate\Support\Facades\Artisan::call('optimize:clear');
             logMsg("✅ Optimize Clear: " . trim(\Illuminate\Support\Facades\Artisan::output()));
         } else {
@@ -135,11 +136,13 @@ if ($res === TRUE) {
     }
 
     logMsg("Auto-eliminando ZIP...");
-    if(unlink($zipFile)) {
+    if (unlink($zipFile)) {
         logMsg("ZIP eliminado.");
     } else {
         logMsg("No se pudo eliminar el ZIP.");
     }
+
+    echo "DEPLOYMENT_EXTRACT_SUCCESS";
 
 } else {
     logMsg("ERROR al abrir ZIP. Código: $res");
