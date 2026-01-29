@@ -478,6 +478,7 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                                             <tr className="bg-blue-900 text-white">
                                                                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Folio</th>
                                                                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Fecha / Hora</th>
+                                                                <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Placas</th>
                                                                 <th className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-wider">Cubículo</th>
                                                                 <th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-wider">Peso Neto (TM)</th>
                                                             </tr>
@@ -488,6 +489,10 @@ export default function Dashboard({ auth, stats, charts, options, filters, vesse
                                                                     <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-700">{trip.folio}</td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 font-medium">
                                                                         {new Date(trip.weigh_out_at).toLocaleString()}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-mono font-bold">
+                                                                        {trip.tractor_plate || '---'}
+                                                                        {trip.trailer_plate ? <span className="text-gray-400"> / {trip.trailer_plate}</span> : ''}
                                                                     </td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 font-bold">{trip.cubicle || '---'}</td>
                                                                     <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-black text-gray-900">{(trip.net_weight / 1000).toFixed(3)}</td>

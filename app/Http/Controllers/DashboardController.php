@@ -361,7 +361,9 @@ class DashboardController extends Controller
             'loading_orders.folio',
             'loading_orders.cubicle',
             'weight_tickets.net_weight',
-            'weight_tickets.weigh_out_at'
+            'weight_tickets.weigh_out_at',
+            'loading_orders.tractor_plate',
+            'loading_orders.trailer_plate'
         ])
             ->orderBy('weight_tickets.weigh_out_at', 'asc')
             ->get();
