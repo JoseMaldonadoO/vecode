@@ -302,14 +302,14 @@ class DashboardController extends Controller
 
         // Agregate by Unit (Operator + Economic Number/Unit Number)
         // We take the latest cubicle and plates.
-        $data = $query->selectRaw('
+        $data = $query->selectRaw("
                 loading_orders.operator_name,
-                COALESCE(NULLIF(loading_orders.unit_number, ""), NULLIF(loading_orders.economic_number, ""), "S/N") as economic_number,
-                COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate), "---") as tractor_plate,
+                COALESCE(NULLIF(loading_orders.unit_number, ''), NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
+                COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate), '---') as tractor_plate,
                 MAX(loading_orders.cubicle) as cubicle,
                 SUM(weight_tickets.net_weight) as total_net_weight,
                 COUNT(*) as trip_count
-            ')
+            ")
             ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
             ->orderByDesc('total_net_weight')
             ->paginate(10);
