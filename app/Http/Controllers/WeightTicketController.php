@@ -406,7 +406,7 @@ class WeightTicketController extends Controller
                         'id' => (string) \Illuminate\Support\Str::uuid(),
                         'folio' => $folio,
                         'client_id' => $clientId,
-                        'client_name' => $validated['provider'] ?? null,
+                        // 'client_name' => $validated['provider'] ?? null, // Removed: Relation based
                         'product_id' => $productId,
                         'vessel_id' => $vesselId,
                         'status' => 'loading',
