@@ -204,21 +204,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                             >
                                                                 Editar
                                                             </Link>
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (confirm('¿Estás seguro de eliminar este barco? Esta acción solo se permitirá si no tiene registros asociados.')) {
-                                                                        router.delete(route('dock.destroy', v.id), {
-                                                                            preserveScroll: true,
-                                                                            onError: (errors: any) => {
-                                                                                alert(errors.error || 'Error al eliminar');
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                }}
-                                                                className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition-colors"
-                                                            >
-                                                                Eliminar
-                                                            </button>
+
                                                             <button
                                                                 onClick={() => {
                                                                     if (confirm('¡ADVERTENCIA CRÍTICA! Esta acción eliminará el barco Y TODOS sus registros asociados (Tickets, Órdenes, Escaneos). ¿Deseas continuar?')) {
@@ -312,16 +298,7 @@ export default function Index({ auth, vessels, filters }: { auth: any, vessels: 
                                                     >
                                                         Editar
                                                     </Link>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm('¿Estás seguro de eliminar este barco?')) {
-                                                                router.delete(route('dock.destroy', v.id));
-                                                            }
-                                                        }}
-                                                        className="text-red-600 font-bold text-sm hover:underline"
-                                                    >
-                                                        Eliminar
-                                                    </button>
+
                                                     <button
                                                         onClick={() => {
                                                             if (confirm('¿BORRAR TODO rastro de este barco? (Tickets, Órdenes, etc)')) {
