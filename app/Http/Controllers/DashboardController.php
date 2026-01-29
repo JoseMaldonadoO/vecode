@@ -385,7 +385,7 @@ class DashboardController extends Controller
             'weight_tickets.net_weight',
             'weight_tickets.weigh_out_at',
             // Fallback to Vehicle Plate if Snapshot is NULL
-            \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate, "---") as tractor_plate'),
+            \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate, \'---\') as tractor_plate'),
             'loading_orders.trailer_plate'
         ])
             ->orderBy('weight_tickets.weigh_out_at', 'asc')
