@@ -70,9 +70,27 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
             onError: (errors: any) => {
                 let errorDetails = '';
 
+                // Mapa de traducción
+                const fieldNames: { [key: string]: string } = {
+                    name: 'Nombre del Buque',
+                    client_id: 'Cliente',
+                    product_id: 'Producto',
+                    operation_type: 'Tipo de Operación',
+                    origin_port: 'Puerto de Origen',
+                    loading_port: 'Puerto de Carga',
+                    destination_port: 'Puerto de Destino',
+                    programmed_tonnage: 'Tonelaje Programado',
+                    eta: 'ETA',
+                    dock: 'Muelle',
+                    vessel_type: 'Tipo de Buque',
+                    stay_days: 'Días de Estadía',
+                    error: 'Error General'
+                };
+
                 // Concatenar todos los errores encontrados
                 Object.keys(errors).forEach((key) => {
-                    errorDetails += `<li><b>${key.replace('_', ' ')}:</b> ${errors[key]}</li>`;
+                    const translatedKey = fieldNames[key] || key.replace('_', ' ');
+                    errorDetails += `<li><b>${translatedKey}:</b> ${errors[key]}</li>`;
                 });
 
                 Swal.fire({
