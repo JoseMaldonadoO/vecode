@@ -74,7 +74,7 @@ jobs:
           local-dir: ./delivery/
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
-          timeout: 120000
+          timeout: 600000
 
       - name: 🚀 Extract and Fix permissions
         run: |
