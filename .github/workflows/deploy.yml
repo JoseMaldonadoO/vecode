@@ -51,8 +51,8 @@ jobs:
           cp cleanup_dummy_sales_orders.php delivery/public/cleanup_dummy_sales_orders.php
           cp public/final_junk_cleanup.php delivery/public/final_junk_cleanup.php
           
-          # Create UNIQUE zip filename to prevent FTP caching/skipping
-          zip -r delivery/release_${{ github.run_number }}.zip . -x ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "delivery/*"
+          # Create ULTRA-LIGHT zip (Excluding vendor to prevent FTP timeouts)
+          zip -r delivery/release_${{ github.run_number }}.zip . -x "vendor/*" ".git*" "node_modules/*" "storage/*" "tests/*" "*.env*" "phpunit.xml" "package.json" "package-lock.json" "vite.config.js" "tsconfig.json" "tailwind.config.js" "postcss.config.js" "README.md" "delivery/*"
           cp extract.php delivery/
           cp extract_debug.php delivery/
           cp index.php delivery/
@@ -74,7 +74,7 @@ jobs:
           local-dir: ./delivery/
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
-          timeout: 1200000
+          timeout: 120000
           passive: true
 
       - name: 🚀 Extract and Fix permissions
