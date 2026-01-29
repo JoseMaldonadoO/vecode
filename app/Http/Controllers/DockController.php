@@ -39,7 +39,7 @@ class DockController extends Controller
 
     public function storeVessel(Request $request)
     {
-        $validated = $request->validate([
+        $rules = [
             'vessel_type' => 'required|string',
             'name' => 'required|string|max:255',
             'eta' => 'required|date',
@@ -65,9 +65,32 @@ class DockController extends Controller
             'product_id' => 'required_if:operation_type,Descarga,Carga|nullable|exists:products,id',
             'programmed_tonnage' => 'required_if:operation_type,Descarga,Carga|nullable|numeric|min:0',
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
-            'origin_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
-            'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
-        ]);
+            'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+        ];
+
+        $messages = [
+            'required' => 'El campo :attribute es obligatorio.',
+            'required_if' => 'El campo :attribute es obligatorio para este tipo de operación.',
+            'exists' => 'El :attribute seleccionado no es válido.',
+            'numeric' => 'El campo :attribute debe ser un número.',
+            'date' => 'El campo :attribute debe ser una fecha válida.',
+        ];
+
+        $attributes = [
+            'name' => 'nombre del buque',
+            'client_id' => 'cliente',
+            'product_id' => 'producto',
+            'operation_type' => 'tipo de operación',
+            'origin_port' => 'puerto de origen',
+            'loading_port' => 'puerto de carga',
+            'destination_port' => 'puerto de destino',
+            'programmed_tonnage' => 'tonelaje programado',
+            'eta' => 'ETA (Fecha y Hora)',
+            'dock' => 'muelle',
+        ];
+
+        $validated = $request->validate($rules, $messages, $attributes);
 
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
