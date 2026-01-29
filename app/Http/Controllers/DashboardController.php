@@ -309,38 +309,31 @@ class DashboardController extends Controller
     /**
      * Drill-down Level 3: Get individual trips for a specific unit/warehouse/date
      */
+    /**
+     * Drill-down Level 3: Get individual trips for a specific unit/warehouse/date
+     */
     public function drillDownUnitTrips(Request $request)
     {
+        // Level 3: Trips for a specific Unit (Unit ID or Plate/Economic)
+        // We receive 'unit_id' which is likely 'economic_number' from Level 2 grouping.
+        $unitId = $request->input('unit_id'); // This is the economic_number
+        $operator = $request->input('operator');
         $vesselId = $request->input('vessel_id');
-        $date = $request->input('date');
-        $warehouse = $request->input('warehouse');
-        $operatorName = $request->input('operator_name');
-        $economicNumber = $request->input('economic_number');
-        $operationType = $request->input('operation_type', 'all');
 
         $query = LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
-            ->where('loading_orders.vessel_id', $vesselId)
-            ->where(function ($q) use ($date) {
-                $q->whereDate('weight_tickets.weigh_out_at', $date)
-                    ->orWhere(function ($sq) use ($date) {
-                        $sq->whereNull('weight_tickets.weigh_out_at')
-                            ->whereDate('loading_orders.entry_at', $date);
-                    });
-            })
-            ->where('loading_orders.warehouse', $warehouse)
-            ->where('loading_orders.operator_name', $operatorName)
-            ->where(function ($q) {
-                $q->where('loading_orders.status', 'completed')
-                    ->orWhere('loading_orders.operation_type', 'burreo');
-            });
+            ->leftJoin('vehicles', 'loading_orders.vehicle_id', '=', 'vehicles.id') // Fallback for plates
+            ->where('weight_tickets.weighing_status', 'completed') // Only completed trips
+            ->where('loading_orders.vessel_id', $vesselId); // Filter by vessel_id
 
-        if ($economicNumber !== 'S/N') {
-            $query->where(function ($q) use ($economicNumber) {
-                $q->where('loading_orders.unit_number', $economicNumber)
-                    ->orWhere('loading_orders.economic_number', $economicNumber);
+        // Filter by Unit (Economic Number)
+        if ($unitId && $unitId !== 'S/N') {
+            $query->where(function ($q) use ($unitId) {
+                $q->where('loading_orders.economic_number', $unitId)
+                    ->orWhere('loading_orders.unit_number', $unitId);
             });
         } else {
+            // Handle 'S/N' case for units without economic_number/unit_number
             $query->where(function ($q) {
                 $q->where(function ($sq) {
                     $sq->whereNull('loading_orders.unit_number')->orWhere('loading_orders.unit_number', '');
@@ -350,10 +343,28 @@ class DashboardController extends Controller
             });
         }
 
+        // Filter by Operator
+        if ($operator) {
+            $query->where('loading_orders.operator_name', $operator);
+        }
+
+        // Date Filter (Global)
+        if ($request->has('date') && $request->date) {
+            $query->whereDate('weight_tickets.weigh_out_at', $request->date);
+        }
+
+        // Operation filters
+        $operationType = $request->input('operation_type', 'all');
         if ($operationType === 'scale') {
-            $query->whereIn('loading_orders.operation_type', ['scale', null]);
+            $query->whereIn('loading_orders.operation_type', ['scale', null])
+                ->where('loading_orders.status', 'completed');
         } elseif ($operationType === 'burreo') {
             $query->where('loading_orders.operation_type', 'burreo');
+        } else {
+            $query->where(function ($q) {
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
+            });
         }
 
         $data = $query->select([
@@ -362,7 +373,8 @@ class DashboardController extends Controller
             'loading_orders.cubicle',
             'weight_tickets.net_weight',
             'weight_tickets.weigh_out_at',
-            'loading_orders.tractor_plate',
+            // Fallback to Vehicle Plate if Snapshot is NULL
+            \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate, "---") as tractor_plate'),
             'loading_orders.trailer_plate'
         ])
             ->orderBy('weight_tickets.weigh_out_at', 'asc')
