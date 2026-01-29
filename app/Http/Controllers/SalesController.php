@@ -159,6 +159,7 @@ class SalesController extends Controller
             'client_id' => 'required|exists:clients,id',
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|numeric|min:0.1',
+            'destination' => 'nullable|string',
         ]);
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $order) {

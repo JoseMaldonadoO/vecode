@@ -95,43 +95,50 @@ export default function Print({ order }: { order: Order }) {
                     <table className="w-full border-collapse border border-black text-xs">
                         <tbody>
                             <tr>
-                                <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal flex-shrink-0">Nombre:</td>
+                                <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">Nombre:</td>
                                 <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
                                     {order.client?.business_name}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal flex-shrink-0">RFC:</td>
+                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal">RFC:</td>
                                 <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
                                     {order.client?.rfc || 'N/A'}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal flex-shrink-0">Dirección:</td>
+                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal">Dirección:</td>
                                 <td className="px-3 py-1 border border-black text-[11px] font-normal uppercase leading-tight">
                                     {order.client?.address || 'N/A'}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal flex-shrink-0">Contacto:</td>
+                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal">Contacto:</td>
                                 <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
                                     {order.client?.contact_info || 'N/A'}
                                 </td>
                             </tr>
-                            <tr>
-                                <td className="bg-gray-100 px-3 py-2 border border-black font-normal flex-shrink-0">Condiciones de venta:</td>
-                                <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
-                                    {order.sale_conditions || 'CONTADO'}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="bg-gray-100 px-3 py-2 border border-black font-normal flex-shrink-0">Condiciones de entrega:</td>
-                                <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
-                                    {order.delivery_conditions || 'LAB PLANTA'}
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
+
+                    <div className="mt-2">
+                        <table className="w-full border-collapse border border-black text-xs">
+                            <tbody>
+                                <tr>
+                                    <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de venta:</td>
+                                    <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
+                                        {order.sale_conditions || 'CONTADO'}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de entrega:</td>
+                                    <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
+                                        {order.delivery_conditions || 'LAB PLANTA'}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* Product Table */}

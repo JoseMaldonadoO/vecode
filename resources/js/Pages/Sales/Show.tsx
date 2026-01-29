@@ -128,20 +128,27 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                             {order.client?.contact_info || 'N/A'}
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de venta:</td>
-                                        <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
-                                            {order.sale_conditions || 'CONTADO'}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de entrega:</td>
-                                        <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
-                                            {order.delivery_conditions || 'LAB PLANTA'}
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
+
+                            <div className="mt-2">
+                                <table className="w-full border-collapse border border-black text-xs">
+                                    <tbody>
+                                        <tr>
+                                            <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de venta:</td>
+                                            <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
+                                                {order.sale_conditions || 'CONTADO'}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de entrega:</td>
+                                            <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
+                                                {order.delivery_conditions || 'LAB PLANTA'}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         {/* Product Table */}
