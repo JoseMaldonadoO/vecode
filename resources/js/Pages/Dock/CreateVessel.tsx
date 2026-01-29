@@ -73,21 +73,27 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                 });
             },
             onError: (errors: any) => {
-                let errorMsg = 'Por favor, revisa los campos marcados en rojo.';
+                let errorDetails = '';
 
-                if (errors.dock) {
-                    errorMsg = errors.dock;
-                } else if (errors.error) {
-                    errorMsg = errors.error;
-                }
+                // Concatenar todos los errores encontrados
+                Object.keys(errors).forEach((key) => {
+                    errorDetails += `<li><b>${key.replace('_', ' ')}:</b> ${errors[key]}</li>`;
+                });
 
                 Swal.fire({
                     title: '<span style="color: #ef4444; font-weight: 700;">Error en el Registro</span>',
-                    html: `<p style="color: #4b5563;">${errorMsg}</p>`,
+                    html: `
+                        <div style="text-align: left; margin-top: 10px;">
+                            <p style="color: #4b5563; margin-bottom: 10px;">No se pudo completar el registro debido a los siguientes motivos:</p>
+                            <ul style="color: #ef4444; font-size: 0.875rem; list-style-type: disc; padding-left: 20px;">
+                                ${errorDetails || '<li>Revisa los campos marcados en rojo.</li>'}
+                            </ul>
+                        </div>
+                    `,
                     icon: 'error',
                     iconColor: '#ef4444',
                     confirmButtonColor: '#4f46e5',
-                    confirmButtonText: 'Corregir',
+                    confirmButtonText: 'Corregir Datos',
                     background: '#ffffff',
                     customClass: {
                         popup: 'rounded-2xl border border-gray-100 shadow-2xl',
@@ -285,13 +291,14 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                     <select
                                         value={data.dock}
                                         onChange={e => setData('dock', e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 ${errors.dock ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                                     >
                                         <option value="">Seleccione...</option>
                                         <option value="ECO">ECO</option>
                                         <option value="WHISKY">WHISKY</option>
                                     </select>
                                     <p className="text-xs text-gray-500 mt-1">Requerido para Status</p>
+                                    {errors.dock && <p className="text-red-500 text-xs mt-1 font-bold">{errors.dock}</p>}
                                 </div>
                             </div>
 
