@@ -267,6 +267,7 @@ class DashboardController extends Controller
 
         $query = LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            ->leftJoin('vehicles', 'loading_orders.vehicle_id', '=', 'vehicles.id') // Fallback for plates
             ->where('loading_orders.vessel_id', $vesselId)
             ->where(function ($q) use ($date) {
                 $q->whereDate('weight_tickets.weigh_out_at', $date)
@@ -274,8 +275,18 @@ class DashboardController extends Controller
                         $sq->whereNull('weight_tickets.weigh_out_at')
                             ->whereDate('loading_orders.entry_at', $date);
                     });
-            })
-            ->where('loading_orders.warehouse', $warehouse);
+            });
+
+        // Robust Warehouse Filter
+        if ($warehouse === 'S/A' || $warehouse === 'Sin Asignar' || empty($warehouse)) {
+            $query->where(function ($q) {
+                $q->whereNull('loading_orders.warehouse')
+                    ->orWhere('loading_orders.warehouse', '')
+                    ->orWhere('loading_orders.warehouse', 'S/A');
+            });
+        } else {
+            $query->where('loading_orders.warehouse', $warehouse);
+        }
 
         if ($operationType === 'scale') {
             $query->whereIn('loading_orders.operation_type', ['scale', null])
@@ -294,7 +305,7 @@ class DashboardController extends Controller
         $data = $query->selectRaw('
                 loading_orders.operator_name,
                 COALESCE(NULLIF(loading_orders.unit_number, ""), NULLIF(loading_orders.economic_number, ""), "S/N") as economic_number,
-                MAX(loading_orders.tractor_plate) as tractor_plate,
+                COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate), "---") as tractor_plate,
                 MAX(loading_orders.cubicle) as cubicle,
                 SUM(weight_tickets.net_weight) as total_net_weight,
                 COUNT(*) as trip_count
