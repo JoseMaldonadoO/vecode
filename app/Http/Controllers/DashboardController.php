@@ -26,11 +26,13 @@ class DashboardController extends Controller
         // Prioritize vessels with:
         // - shipments in 'loading' status (active descarga)
         // - most recent shipment activity
-        $vesselsList = \App\Models\Vessel::withCount([
-            'loadingOrders as active_loading_count' => function ($q) {
-                $q->where('status', 'loading');
-            }
-        ])
+        // STRICT FILTER: Only show ACTIVE vessels (not departed)
+        $vesselsList = \App\Models\Vessel::active()
+            ->withCount([
+                'loadingOrders as active_loading_count' => function ($q) {
+                    $q->where('status', 'loading');
+                }
+            ])
             ->withMax('loadingOrders', 'created_at')
             ->orderByDesc('active_loading_count')
             ->orderByDesc('loading_orders_max_created_at')
