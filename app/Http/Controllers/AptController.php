@@ -318,7 +318,7 @@ class AptController extends Controller
                             'product_id' => $operator->vessel->product_id,
                             'status' => 'loading',
                             'operator_name' => $operator->operator_name,
-                            'unit_number' => $operator->economic_number,
+                            'economic_number' => $operator->economic_number,
                             'tractor_plate' => $operator->tractor_plate,
                             'trailer_plate' => $operator->trailer_plate,
                             'unit_type' => $operator->unit_type,

@@ -54,7 +54,7 @@ class DocumentationController extends Controller
             'client_id' => 'required|exists:clients,id',
             'sales_order_id' => 'required|exists:sales_orders,id',
             // Snapshot fields
-            'client_name' => 'nullable|string',
+            // 'client_name' => 'nullable|string', // Removed: Relation based
             'rfc' => 'nullable|string',
             'address' => 'nullable|string',
             'consigned_to' => 'nullable|string',
