@@ -265,7 +265,7 @@ class WeightTicketController extends Controller
                             'provider' => $activeOrder->client_name ?? ($activeOrder->client->name ?? ($operator->vessel->client->name ?? 'N/A')),
                             'driver' => $activeOrder->operator_name ?? 'N/A',
                             'vehicle_plate' => $activeOrder->tractor_plate ?? 'N/A',
-                            'product' => $activeOrder->product ?? ($activeOrder->product->name ?? ($operator->vessel->product->name ?? 'N/A')),
+                            'product' => $activeOrder->product?->name ?? ($operator->vessel->product->name ?? 'N/A'),
                             'origin' => $activeOrder->origin ?? ($operator->vessel->origin ?? 'N/A'),
                             'status' => $activeOrder->status,
                             'warehouse' => $activeOrder->warehouse,
