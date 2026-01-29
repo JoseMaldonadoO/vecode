@@ -92,63 +92,67 @@ export default function Print({ order }: { order: Order }) {
                     <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Datos del cliente
                     </div>
-                    <div className="border border-black">
-                        <div className="flex border-b border-black">
-                            <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Nombre:</div>
-                            <div className="w-3/4 px-3 py-2 text-sm font-normal uppercase">
-                                {order.client?.business_name}
-                            </div>
-                        </div>
-                        <div className="flex border-b border-black">
-                            <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">RFC:</div>
-                            <div className="w-3/4 px-3 py-1 text-xs font-normal uppercase">
-                                {order.client?.rfc || 'N/A'}
-                            </div>
-                        </div>
-                        <div className="flex border-b border-black">
-                            <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">Dirección:</div>
-                            <div className="w-3/4 px-3 py-1 text-[11px] font-normal uppercase leading-tight">
-                                {order.client?.address || 'N/A'}
-                            </div>
-                        </div>
-                        <div className="flex border-b border-black">
-                            <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">Contacto:</div>
-                            <div className="w-3/4 px-3 py-1 text-xs font-normal uppercase">
-                                {order.client?.contact_info || 'N/A'}
-                            </div>
-                        </div>
-                        <div className="flex border-b border-black">
-                            <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Condiciones de venta:</div>
-                            <div className="w-[55%] px-3 py-2 text-sm font-normal uppercase">
-                                {order.sale_conditions || 'CONTADO'}
-                            </div>
-                        </div>
-                        <div className="flex">
-                            <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Condiciones de entrega:</div>
-                            <div className="w-[55%] px-3 py-2 text-sm font-normal uppercase">
-                                {order.delivery_conditions || 'LAB PLANTA'}
-                            </div>
-                        </div>
-                    </div>
+                    <table className="w-full border-collapse border border-black text-xs">
+                        <tbody>
+                            <tr>
+                                <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal flex-shrink-0">Nombre:</td>
+                                <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
+                                    {order.client?.business_name}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal flex-shrink-0">RFC:</td>
+                                <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
+                                    {order.client?.rfc || 'N/A'}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal flex-shrink-0">Dirección:</td>
+                                <td className="px-3 py-1 border border-black text-[11px] font-normal uppercase leading-tight">
+                                    {order.client?.address || 'N/A'}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="bg-gray-100 px-3 py-1 border border-black font-normal flex-shrink-0">Contacto:</td>
+                                <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
+                                    {order.client?.contact_info || 'N/A'}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="bg-gray-100 px-3 py-2 border border-black font-normal flex-shrink-0">Condiciones de venta:</td>
+                                <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
+                                    {order.sale_conditions || 'CONTADO'}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="bg-gray-100 px-3 py-2 border border-black font-normal flex-shrink-0">Condiciones de entrega:</td>
+                                <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
+                                    {order.delivery_conditions || 'LAB PLANTA'}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 {/* Product Table */}
-                <div className="mb-4">
-                    <table className="w-full border border-black text-sm">
-                        <thead>
-                            <tr className="bg-gray-500 text-white text-center">
-                                <th className="p-1 w-3/5">Descripción</th>
-                                <th className="p-1 text-center w-1/5 border-l border-gray-400">Unidad</th>
-                                <th className="p-1 text-center w-1/5 border-l border-gray-400">Cantidad</th>
+                <div className="mb-6 print:mb-4">
+                    <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
+                        <thead className="bg-gray-500 text-white text-center">
+                            <tr>
+                                <th className="border border-black py-1 w-[60%]">Descripción</th>
+                                <th className="border border-black py-1 w-[20%]">Unidad</th>
+                                <th className="border border-black py-1 w-[20%]">Cantidad</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="text-center">
-                                <td className="border-r border-black p-1 h-8">
-                                    {order.product ? `${order.product.code} - ${order.product.name}` : 'N/A'}
+                            <tr className="h-10 text-center">
+                                <td className="border border-black px-2 py-1 text-[13px] font-normal leading-tight">
+                                    {order.product?.code ? `${order.product.code} - ${order.product.name}` : order.product?.name}
                                 </td>
-                                <td className="border-r border-black p-1 text-center font-normal uppercase">TONELADAS</td>
-                                <td className="p-1 text-center font-normal">
+                                <td className="border border-black py-1 h-10 font-normal">
+                                    TONELADAS
+                                </td>
+                                <td className="border border-black px-2 py-1 font-normal text-[15px]">
                                     {formatter.format(Number(order.total_quantity))}
                                 </td>
                             </tr>
@@ -157,11 +161,11 @@ export default function Print({ order }: { order: Order }) {
                 </div>
 
                 {/* Observations */}
-                <div className="mb-12">
-                    <div className="bg-gray-600 text-white font-bold px-2 py-1 text-center mb-1">
+                <div className="mb-10">
+                    <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Observaciones
                     </div>
-                    <div className="border border-black min-h-[4rem] p-2 text-sm whitespace-pre-wrap">
+                    <div className="border border-black min-h-[6rem] p-3 text-[13px] font-normal whitespace-pre-line">
                         {order.destination}
                     </div>
                 </div>

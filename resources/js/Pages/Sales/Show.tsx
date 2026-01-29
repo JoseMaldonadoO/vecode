@@ -102,44 +102,46 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                                 Datos del cliente
                             </div>
-                            <div className="border border-black">
-                                <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Nombre:</div>
-                                    <div className="w-3/4 px-3 py-2 text-sm font-normal uppercase">
-                                        {order.client?.business_name}
-                                    </div>
-                                </div>
-                                <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">RFC:</div>
-                                    <div className="w-3/4 px-3 py-1 text-xs font-normal uppercase">
-                                        {order.client?.rfc || 'N/A'}
-                                    </div>
-                                </div>
-                                <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">Dirección:</div>
-                                    <div className="w-3/4 px-3 py-1 text-[11px] font-normal uppercase leading-tight">
-                                        {order.client?.address || 'N/A'}
-                                    </div>
-                                </div>
-                                <div className="flex border-b border-black">
-                                    <div className="w-1/4 bg-gray-100 px-3 py-1 border-r border-black font-normal text-xs flex items-center">Contacto:</div>
-                                    <div className="w-3/4 px-3 py-1 text-xs font-normal uppercase">
-                                        {order.client?.contact_info || 'N/A'}
-                                    </div>
-                                </div>
-                                <div className="flex border-b border-black">
-                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Condiciones de venta:</div>
-                                    <div className="w-[55%] px-3 py-2 text-sm font-normal uppercase">
-                                        {order.sale_conditions || 'CONTADO'}
-                                    </div>
-                                </div>
-                                <div className="flex">
-                                    <div className="w-[45%] bg-gray-100 px-3 py-2 border-r border-black font-normal text-xs flex items-center">Condiciones de entrega:</div>
-                                    <div className="w-[55%] px-3 py-2 text-sm font-normal uppercase">
-                                        {order.delivery_conditions || 'LAB PLANTA'}
-                                    </div>
-                                </div>
-                            </div>
+                            <table className="w-full border-collapse border border-black text-xs">
+                                <tbody>
+                                    <tr>
+                                        <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">Nombre:</td>
+                                        <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
+                                            {order.client?.business_name}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">RFC:</td>
+                                        <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
+                                            {order.client?.rfc || 'N/A'}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">Dirección:</td>
+                                        <td className="px-3 py-1 border border-black text-[11px] font-normal uppercase leading-tight">
+                                            {order.client?.address || 'N/A'}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">Contacto:</td>
+                                        <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
+                                            {order.client?.contact_info || 'N/A'}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de venta:</td>
+                                        <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
+                                            {order.sale_conditions || 'CONTADO'}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de entrega:</td>
+                                        <td className="px-3 py-2 border border-black text-sm font-normal uppercase">
+                                            {order.delivery_conditions || 'LAB PLANTA'}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
 
                         {/* Product Table */}
