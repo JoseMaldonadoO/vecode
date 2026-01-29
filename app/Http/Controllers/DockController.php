@@ -277,7 +277,8 @@ class DockController extends Controller
             // Dynamic calculation: Day 1 starts on arrival date
             $actualStay = 0;
             if ($v->berthal_datetime) {
-                $actualStay = $v->berthal_datetime->diffInDays($now) + 1;
+                // Force integer to remove decimals
+                $actualStay = (int) $v->berthal_datetime->diffInDays($now) + 1;
             }
 
             return [
