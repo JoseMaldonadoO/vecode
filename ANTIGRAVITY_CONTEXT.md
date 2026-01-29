@@ -47,7 +47,20 @@ This document serves as a context transfer for the `vecode` project. It summariz
     -   **Images Broken**: Regenerate symlink by creating `public/link.php` (see `GUIA_DESPLIEGUE.md`).
     -   **Cache Issues**: The deployment script handles this, but you can manually trigger `php artisan optimize:clear` via SSH or a route if needed.
 
+## Architectural Shift (Jan 28, 2026)
+- **Problem**: Mixing physical operations (truck trips) with commercial documents (Shipment Orders) caused folio conflicts and data noise.
+- **Solution**: Separated **Commercial** data into `ShipmentOrder` and **Operational** data into `LoadingOrder`.
+- **Logic**:
+    - `ShipmentOrder`: Acts as the commercial reference/instruction.
+    - `LoadingOrder`: Represents a physical trip (One truck, One load).
+    - All operational tables (`WeightTicket`, `AptScan`, `LoadingOperation`) now reference `loading_order_id` primarily.
+    - For legacy compatibility, many fields are snapshotted from the parent order at creation time.
+
 ## Next Steps
-- Continue maintaining the "Premium" look and feel.
-- Ensure all new features follow the established patterns in `DashboardLayout`.
-- Refer to `GUIA_DESPLIEGUE.md` for full deployment details if needed.
+- **Maintain Premium Design**: Ensure all new views (especially those for `LoadingOrder`) follow the established gradients and "Unicorn" aesthetic.
+- **Data Cleanup**: Refer to `public/cleanup_data.php` if legacy `shipment_order` records need to be purged after migration.
+- **Verify Restrictions**: Ensure the "Burreo vs Scale" logic correctly applies to the NEW `LoadingOrder` creation flow in `WeightTicketController`.
+
+## Synchronization
+- All recent changes (Sales design fixes, print layout optimization, domain correction, and Scale/Burreo restrictions) have been merged into `main`.
+- Deployment to `pro-agroindustria.com` is active.
