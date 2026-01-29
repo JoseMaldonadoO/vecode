@@ -270,14 +270,22 @@ class DockController extends Controller
             });
 
         // Format Active Vessels
-        $formatVessel = function ($v) {
+        $formatVessel = function ($v) use ($now) {
             if (!$v)
                 return ['name' => '-'];
+
+            // Dynamic calculation: Day 1 starts on arrival date
+            $actualStay = 0;
+            if ($v->berthal_datetime) {
+                $actualStay = $v->berthal_datetime->diffInDays($now) + 1;
+            }
+
             return [
                 'name' => $v->name,
                 'type' => $v->vessel_type ?? 'B/T',
                 'operation_type' => $v->operation_type,
-                'stay_days' => $v->stay_days,
+                'stay_days' => $actualStay,
+                'programmed_days' => $v->stay_days,
                 'etb' => $v->berthal_datetime ? (is_string($v->berthal_datetime) ? date('d/m/Y H:i', strtotime($v->berthal_datetime)) : $v->berthal_datetime->format('d/m/Y H:i')) : '-',
             ];
         };
