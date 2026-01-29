@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
+import Swal from 'sweetalert2';
 
 export default function CreateVessel({ auth, products, clients }: { auth: any, products: any[], clients: any[] }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -55,7 +56,29 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('dock.vessel.store'));
+        post(route('dock.vessel.store'), {
+            onSuccess: () => {
+                Swal.fire({
+                    title: '<span style="color: #4f46e5; font-weight: 700;">¡Registro Exitoso!</span>',
+                    html: `<p style="color: #4b5563;">El buque <b>${data.name}</b> ha sido registrado correctamente.</p>`,
+                    icon: 'success',
+                    iconColor: '#10b981',
+                    confirmButtonColor: '#4f46e5',
+                    confirmButtonText: 'Entendido',
+                    background: '#ffffff',
+                    customClass: {
+                        popup: 'rounded-2xl border border-gray-100 shadow-2xl',
+                        confirmButton: 'rounded-xl px-8 py-3 font-bold transition-all hover:scale-105 active:scale-95'
+                    },
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInUp animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutDown animate__faster'
+                    }
+                });
+            }
+        });
     };
 
     return (
@@ -168,6 +191,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         type="number" step="0.01"
                                         value={data.length}
                                         onChange={e => setData('length', e.target.value)}
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                         className="w-full mt-1"
                                         placeholder="0.00"
                                     />
@@ -179,6 +203,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         type="number" step="0.01"
                                         value={data.beam}
                                         onChange={e => setData('beam', e.target.value)}
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                         className="w-full mt-1"
                                         placeholder="0.00"
                                     />
@@ -190,6 +215,7 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         type="number" step="0.01"
                                         value={data.draft}
                                         onChange={e => setData('draft', e.target.value)}
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                         className="w-full mt-1"
                                         placeholder="0.00"
                                     />
@@ -351,7 +377,14 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                     </div>
                                     <div>
                                         <InputLabel value="Toneladas Programadas" />
-                                        <TextInput type="number" step="0.01" value={data.programmed_tonnage} onChange={e => setData('programmed_tonnage', e.target.value)} className="w-full mt-1" />
+                                        <TextInput
+                                            type="number"
+                                            step="0.01"
+                                            value={data.programmed_tonnage}
+                                            onChange={e => setData('programmed_tonnage', e.target.value)}
+                                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                            className="w-full mt-1"
+                                        />
                                         {errors.programmed_tonnage && <p className="text-red-500 text-xs mt-1">{errors.programmed_tonnage}</p>}
                                     </div>
                                 </div>
@@ -375,7 +408,14 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         </div>
                                         <div>
                                             <InputLabel value="Toneladas Programadas" />
-                                            <TextInput type="number" step="0.01" value={data.programmed_tonnage} onChange={e => setData('programmed_tonnage', e.target.value)} className="w-full mt-1" />
+                                            <TextInput
+                                                type="number"
+                                                step="0.01"
+                                                value={data.programmed_tonnage}
+                                                onChange={e => setData('programmed_tonnage', e.target.value)}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                className="w-full mt-1"
+                                            />
                                             {errors.programmed_tonnage && <p className="text-red-500 text-xs mt-1">{errors.programmed_tonnage}</p>}
                                         </div>
                                     </div>
@@ -419,8 +459,10 @@ export default function CreateVessel({ auth, products, clients }: { auth: any, p
                                         type="number"
                                         value={data.stay_days}
                                         onChange={e => setData('stay_days', e.target.value)}
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                         className="w-full mt-1"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">Días de estadía programados</p>
                                     {errors.stay_days && <p className="text-red-500 text-xs mt-1">{errors.stay_days}</p>}
                                 </div>
                                 <div>

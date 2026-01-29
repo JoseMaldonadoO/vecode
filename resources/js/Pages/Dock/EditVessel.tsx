@@ -2,6 +2,8 @@ import DashboardLayout from '@/Layouts/DashboardLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Anchor, Save, ArrowLeft } from 'lucide-react';
 import { useEffect } from 'react';
+import TextInput from '@/Components/TextInput';
+import Swal from 'sweetalert2';
 
 export default function EditVessel({ auth, products, vessel, clients }: { auth: any, products: any[], vessel: any, clients: any[] }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -49,7 +51,23 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('dock.vessel.update', vessel.id));
+        put(route('dock.vessel.update', vessel.id), {
+            onSuccess: () => {
+                Swal.fire({
+                    title: '<span style="color: #4f46e5; font-weight: 700;">¡Actualización Exitosa!</span>',
+                    html: `<p style="color: #4b5563;">Los datos del buque <b>${data.name}</b> han sido actualizados.</p>`,
+                    icon: 'success',
+                    iconColor: '#10b981',
+                    confirmButtonColor: '#4f46e5',
+                    confirmButtonText: 'Entendido',
+                    background: '#ffffff',
+                    customClass: {
+                        popup: 'rounded-2xl border border-gray-100 shadow-2xl',
+                        confirmButton: 'rounded-xl px-8 py-3 font-bold transition-all hover:scale-105 active:scale-95'
+                    }
+                });
+            }
+        });
     };
 
     return (
@@ -157,33 +175,36 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Eslora (m)</label>
-                                    <input
+                                    <TextInput
                                         type="number" step="0.01"
                                         value={data.length}
                                         onChange={e => setData('length', e.target.value)}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                        className="w-full mt-1"
                                         placeholder="0.00"
                                     />
                                     {errors.length && <p className="text-red-500 text-xs mt-1">{errors.length}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Manga (m)</label>
-                                    <input
+                                    <TextInput
                                         type="number" step="0.01"
                                         value={data.beam}
                                         onChange={e => setData('beam', e.target.value)}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                        className="w-full mt-1"
                                         placeholder="0.00"
                                     />
                                     {errors.beam && <p className="text-red-500 text-xs mt-1">{errors.beam}</p>}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Calado (m)</label>
-                                    <input
+                                    <TextInput
                                         type="number" step="0.01"
                                         value={data.draft}
                                         onChange={e => setData('draft', e.target.value)}
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                        className="w-full mt-1"
                                         placeholder="0.00"
                                     />
                                     {errors.draft && <p className="text-red-500 text-xs mt-1">{errors.draft}</p>}
@@ -342,7 +363,14 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Toneladas Programadas</label>
-                                        <input type="number" step="0.01" value={data.programmed_tonnage} onChange={e => setData('programmed_tonnage', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                        <TextInput
+                                            type="number"
+                                            step="0.01"
+                                            value={data.programmed_tonnage}
+                                            onChange={e => setData('programmed_tonnage', e.target.value)}
+                                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                            className="w-full mt-1"
+                                        />
                                         {errors.programmed_tonnage && <p className="text-red-500 text-xs mt-1">{errors.programmed_tonnage}</p>}
                                     </div>
                                 </div>
@@ -366,7 +394,14 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                                         </div>
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-1">Toneladas Programadas</label>
-                                            <input type="number" step="0.01" value={data.programmed_tonnage} onChange={e => setData('programmed_tonnage', e.target.value)} className="w-full rounded-md border-gray-300 py-2" />
+                                            <TextInput
+                                                type="number"
+                                                step="0.01"
+                                                value={data.programmed_tonnage}
+                                                onChange={(e: any) => setData('programmed_tonnage', e.target.value)}
+                                                onWheel={(e: any) => e.target.blur()}
+                                                className="w-full mt-1"
+                                            />
                                             {errors.programmed_tonnage && <p className="text-red-500 text-xs mt-1">{errors.programmed_tonnage}</p>}
                                         </div>
                                     </div>
@@ -400,11 +435,12 @@ export default function EditVessel({ auth, products, vessel, clients }: { auth: 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Días de Estadía</label>
-                                <input
+                                <TextInput
                                     type="number"
                                     value={data.stay_days}
                                     onChange={e => setData('stay_days', e.target.value)}
-                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                    className="w-full mt-1"
                                 />
                                 {errors.stay_days && <p className="text-red-500 text-xs mt-1">{errors.stay_days}</p>}
                             </div>

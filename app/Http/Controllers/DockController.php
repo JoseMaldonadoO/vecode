@@ -78,6 +78,10 @@ class DockController extends Controller
         // Fix for legacy service_type column if migration didn't run
         $validated['service_type'] = $validated['operation_type'];
 
+        if (!isset($validated['stay_days']) || $validated['stay_days'] === null) {
+            $validated['stay_days'] = 0;
+        }
+
         // Create valid ETB Timestamp using Carbon to handle time formats
         $etb = null;
         if ($request->filled('docking_date')) {
