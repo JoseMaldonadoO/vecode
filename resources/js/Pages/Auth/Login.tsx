@@ -1,7 +1,8 @@
 import InputError from "@/Components/InputError";
 import TextInput from "@/Components/TextInput";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, useForm } from "@inertiajs/react";
 import { FormEventHandler, useState } from "react";
+import { User, Lock, ArrowRight, Loader2, Anchor } from "lucide-react";
 
 export default function Login({
     status,
@@ -27,138 +28,147 @@ export default function Login({
     };
 
     return (
-        <div
-            className="flex items-center justify-center p-4 min-h-screen bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: "url('/Fondo.jpg')" }}
-        >
-            <Head title="Log in" />
+        <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center">
+            <Head title="Acceso Seguro" />
 
+            {/* Background Image with Overlay */}
             <div
-                className="w-full max-w-md glass-panel rounded-2xl shadow-2xl overflow-hidden transform transition-all hover:scale-[1.01]"
-                style={{
-                    background: "rgba(255, 255, 255, 0.95)",
-                    backdropFilter: "blur(10px)",
-                }}
+                className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transform scale-105"
+                style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
             >
-                {/* Header / Logo */}
-                <div className="bg-white p-6 flex justify-center border-b border-gray-100">
-                    <img
-                        src="/images/Logo_vde.png"
-                        alt="Logo"
-                        className="h-16 object-contain"
-                    />
-                </div>
+                {/* Premium Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-900/20 to-indigo-900/40 backdrop-blur-[2px]"></div>
+            </div>
 
-                <div className="p-8">
-                    <div className="text-center mb-8">
-                        <img
-                            src="/images/Proagro2.png"
-                            alt="Proagro"
-                            className="h-20 mx-auto mb-4 object-contain"
-                        />
-                        <h2 className="text-2xl font-bold text-gray-800">
-                            Bienvenido al Sistema VECODE
+            {/* Glass Card */}
+            <div className="relative z-10 w-full max-w-md px-4 perspective-1000">
+                <div className="bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] rounded-3xl p-8 md:p-10 animate-in fade-in zoom-in duration-500 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.45)] transition-shadow">
+
+                    {/* Header */}
+                    <div className="text-center mb-10 space-y-2">
+                        <div className="flex justify-center mb-6">
+                            <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-4 rounded-2xl shadow-lg shadow-blue-500/30 transform transition-transform hover:scale-110 duration-300">
+                                <img
+                                    src="/images/Logo_vde.png"
+                                    alt="Vecode Logo"
+                                    className="h-10 w-auto brightness-0 invert"
+                                />
+                            </div>
+                        </div>
+                        <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                            Bienvenido a <span className="text-blue-600">VECODE</span>
                         </h2>
-                        <p className="text-gray-500 text-sm">
-                            Ingrese sus credenciales para continuar
+                        <p className="text-slate-500 font-medium text-sm">
+                            Gestión Portuaria Inteligente
                         </p>
                     </div>
 
-                    <form
-                        onSubmit={submit}
-                        className="space-y-6"
-                        autoComplete="off"
-                    >
-                        {/* Usuario */}
-                        <div>
+                    <form onSubmit={submit} className="space-y-6">
+                        {/* Username Field */}
+                        <div className="space-y-2 group">
                             <label
                                 htmlFor="username"
-                                className="block text-sm font-medium text-gray-700 mb-2"
+                                className="block text-xs font-bold uppercase tracking-widest text-slate-500 ml-1 group-focus-within:text-blue-600 transition-colors"
                             >
                                 Usuario
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i className="fas fa-user text-gray-400"></i>
+                            <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.02]">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <User className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                                 </div>
                                 <TextInput
                                     id="username"
                                     type="text"
                                     name="username"
                                     value={data.username}
-                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-gray-50 bg-opacity-50 placeholder-gray-400 text-gray-900"
-                                    placeholder="Ingrese su usuario"
+                                    className="block w-full pl-12 pr-4 py-3 bg-white/50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-semibold text-slate-700 placeholder:text-slate-400"
+                                    placeholder="Nombre de usuario"
                                     autoComplete="username"
                                     isFocused={true}
-                                    onChange={(e) =>
-                                        setData("username", e.target.value)
-                                    }
+                                    onChange={(e) => setData("username", e.target.value)}
                                 />
                             </div>
-                            <InputError
-                                message={errors.username}
-                                className="mt-2"
-                            />
+                            <InputError message={errors.username} className="text-xs font-semibold ml-1" />
                         </div>
 
-                        {/* Contraseña */}
-                        <div>
+                        {/* Password Field */}
+                        <div className="space-y-2 group">
                             <label
                                 htmlFor="password"
-                                className="block text-sm font-medium text-gray-700 mb-2"
+                                className="block text-xs font-bold uppercase tracking-widest text-slate-500 ml-1 group-focus-within:text-blue-600 transition-colors"
                             >
                                 Contraseña
                             </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i className="fas fa-lock text-gray-400"></i>
+                            <div className="relative transform transition-all duration-300 group-focus-within:scale-[1.02]">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                                 </div>
                                 <TextInput
                                     id="password"
                                     type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={data.password}
-                                    className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors bg-gray-50 bg-opacity-50 placeholder-gray-400 text-gray-900"
+                                    className="block w-full pl-12 pr-12 py-3 bg-white/50 border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-semibold text-slate-700 placeholder:text-slate-400"
                                     placeholder="••••••••"
                                     autoComplete="current-password"
-                                    onChange={(e) =>
-                                        setData("password", e.target.value)
-                                    }
+                                    onChange={(e) => setData("password", e.target.value)}
                                 />
-                                <div
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                                    onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    <i
-                                        className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} text-gray-400 hover:text-gray-600 transition-colors`}
-                                    ></i>
-                                </div>
+                                    {showPassword ? (
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Ocultar</span>
+                                    ) : (
+                                        <span className="text-[10px] font-bold uppercase tracking-wider">Ver</span>
+                                    )}
+                                </button>
                             </div>
-                            <InputError
-                                message={errors.password}
-                                className="mt-2"
-                            />
+                            <InputError message={errors.password} className="text-xs font-semibold ml-1" />
                         </div>
 
                         {status && (
-                            <div className="text-red-500 text-xs mt-1">
+                            <div className="p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-bold text-center">
                                 {status}
                             </div>
                         )}
 
-                        {/* Botón */}
-                        <button
-                            type="submit"
-                            disabled={processing}
-                            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all transform hover:-translate-y-0.5"
-                        >
-                            Entrar{" "}
-                            <i className="fas fa-arrow-right ml-2 mt-0.5"></i>
-                        </button>
+                        <div className="pt-2">
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="group w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                            >
+                                {processing ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Iniciando...
+                                    </>
+                                ) : (
+                                    <>
+                                        Ingresar al Sistema
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </form>
+
+                    {/* Footer */}
+                    <div className="mt-8 text-center text-xs text-slate-400 font-medium">
+                        <p>© 2026 Proagroindustria. Todos los derechos reservados.</p>
+                        <div className="mt-2 flex justify-center gap-2 opacity-60">
+                            <Anchor className="w-3 h-3" />
+                            <span>Sistema Integral de Operaciones Portuarias</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            {/* Credits overlay bottom right */}
+            <div className="absolute bottom-4 right-6 z-0 text-white/30 text-[10px] font-bold uppercase tracking-[0.2em] pointer-events-none">
+                Fotografía: Puerto Proagro
             </div>
         </div>
     );
