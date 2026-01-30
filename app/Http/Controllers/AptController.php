@@ -109,7 +109,7 @@ class AptController extends Controller
 
         // HOWEVER, to be safe: filtering by `entry_at` is the most "Logbook" style.
 
-        $query = \App\Models\LoadingOrder::with(['weight_ticket'])
+        $query = \App\Models\LoadingOrder::with(['weight_ticket', 'vessel'])
             ->whereNotNull('warehouse');
 
         // Filter: 
@@ -129,6 +129,22 @@ class AptController extends Controller
         $query->whereIn('status', ['loading', 'authorized', 'completed', 'closed', 'weighing_out']);
 
         $dailyOrders = $query->get();
+
+        // Patch for Burreo Weights: Use Provisional Weight from Vessel if applicable
+        foreach ($dailyOrders as $order) {
+            if ($order->operation_type === 'burreo' && $order->vessel) {
+                // Ensure weight_ticket object exists to avoid null prop errors in frontend/collection
+                if (!$order->weight_ticket) {
+                    $order->setRelation('weight_ticket', new \App\Models\WeightTicket([
+                        'net_weight' => 0
+                    ]));
+                }
+
+                // Override Net Weight with Provisional Burreo Weight
+                // NOTE: This modifies the object in memory for the response, does not save to DB.
+                $order->weight_ticket->net_weight = $order->vessel->provisional_burreo_weight ?? 0;
+            }
+        }
 
         // If Date is TODAY, we MIGHT also want to include "Leftovers" from previous days that are still Active?
         // If the view is "Inventory Status", yes. If it's "Daily Entry Log", no.
