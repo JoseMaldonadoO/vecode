@@ -109,7 +109,7 @@ export default function Scanner({
         const cleanCode = code.trim();
         try {
             const response = await axios.get(route("scale.search-qr"), {
-                params: { qr: cleanCode },
+                params: { qr: cleanCode, context: "apt" },
             });
             if (response.data) {
                 setScanResult(response.data);
@@ -244,40 +244,40 @@ export default function Scanner({
 
                             {(editForm.data.warehouse === "Almacén 4" ||
                                 editForm.data.warehouse === "Almacén 5") && (
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Cubículo
-                                    </label>
-                                    <select
-                                        value={editForm.data.cubicle}
-                                        onChange={(e) =>
-                                            editForm.setData(
-                                                "cubicle",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        required
-                                    >
-                                        <option value="">
-                                            -- Seleccionar --
-                                        </option>
-                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                                            <option
-                                                key={num}
-                                                value={num.toString()}
-                                            >
-                                                {num}
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Cubículo
+                                        </label>
+                                        <select
+                                            value={editForm.data.cubicle}
+                                            onChange={(e) =>
+                                                editForm.setData(
+                                                    "cubicle",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            required
+                                        >
+                                            <option value="">
+                                                -- Seleccionar --
                                             </option>
-                                        ))}
-                                    </select>
-                                    {editForm.errors.cubicle && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {editForm.errors.cubicle}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                                            {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                                                <option
+                                                    key={num}
+                                                    value={num.toString()}
+                                                >
+                                                    {num}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {editForm.errors.cubicle && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {editForm.errors.cubicle}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                             <div className="flex justify-end gap-3">
                                 <button
@@ -515,7 +515,7 @@ export default function Scanner({
                                         if (!!result) {
                                             const text =
                                                 typeof result.getText ===
-                                                "function"
+                                                    "function"
                                                     ? result.getText()
                                                     : result.text;
                                             handleCodeFound(text);
@@ -618,12 +618,11 @@ export default function Scanner({
                                                 Estado Actual
                                             </span>
                                             <div
-                                                className={`font-bold inline-block px-2 py-0.5 rounded text-sm ${
-                                                    scanResult.status ===
-                                                    "loading"
+                                                className={`font-bold inline-block px-2 py-0.5 rounded text-sm ${scanResult.status ===
+                                                        "loading"
                                                         ? "bg-green-100 text-green-700"
                                                         : "bg-amber-100 text-amber-700"
-                                                }`}
+                                                    }`}
                                             >
                                                 {scanResult.status === "loading"
                                                     ? "EN PROCESO (OK)"
@@ -631,7 +630,7 @@ export default function Scanner({
                                             </div>
                                             {scanResult.status !== "loading" &&
                                                 data.operation_type ===
-                                                    "scale" && (
+                                                "scale" && (
                                                     <p className="text-red-500 text-xs mt-1 font-bold">
                                                         <AlertTriangle className="w-3 h-3 inline mr-1" />
                                                         Precaución: No parece
@@ -651,67 +650,66 @@ export default function Scanner({
                                     {(scanResult.apt_operation_type ===
                                         "scale" ||
                                         !scanResult.apt_operation_type) && (
-                                        <label
-                                            className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${
-                                                data.operation_type === "scale"
-                                                    ? "bg-white shadow-sm text-indigo-700 font-bold"
-                                                    : scanResult.force_burreo
-                                                      ? "text-gray-300 cursor-not-allowed"
-                                                      : "text-gray-500"
-                                            }`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                className="hidden"
-                                                name="op_type"
-                                                checked={
-                                                    data.operation_type ===
-                                                    "scale"
-                                                }
-                                                onChange={() =>
-                                                    !scanResult.force_burreo &&
-                                                    setData(
-                                                        "operation_type",
-                                                        "scale",
-                                                    )
-                                                }
-                                                disabled={
-                                                    scanResult.force_burreo
-                                                }
-                                            />
-                                            {scanResult.force_burreo ? (
-                                                <span className="line-through decoration-2">
-                                                    Descarga Báscula
-                                                </span>
-                                            ) : (
-                                                "Descarga Báscula"
-                                            )}
-                                        </label>
-                                    )}
+                                            <label
+                                                className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === "scale"
+                                                        ? "bg-white shadow-sm text-indigo-700 font-bold"
+                                                        : scanResult.force_burreo
+                                                            ? "text-gray-300 cursor-not-allowed"
+                                                            : "text-gray-500"
+                                                    }`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    className="hidden"
+                                                    name="op_type"
+                                                    checked={
+                                                        data.operation_type ===
+                                                        "scale"
+                                                    }
+                                                    onChange={() =>
+                                                        !scanResult.force_burreo &&
+                                                        setData(
+                                                            "operation_type",
+                                                            "scale",
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        scanResult.force_burreo
+                                                    }
+                                                />
+                                                {scanResult.force_burreo ? (
+                                                    <span className="line-through decoration-2">
+                                                        Descarga Báscula
+                                                    </span>
+                                                ) : (
+                                                    "Descarga Báscula"
+                                                )}
+                                            </label>
+                                        )}
                                     {(scanResult.apt_operation_type ===
                                         "burreo" ||
                                         !scanResult.apt_operation_type) && (
-                                        <label
-                                            className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === "burreo" ? "bg-white shadow-sm text-indigo-700 font-bold" : "text-gray-500"}`}
-                                        >
-                                            <input
-                                                type="radio"
-                                                className="hidden"
-                                                name="op_type"
-                                                checked={
-                                                    data.operation_type ===
-                                                    "burreo"
-                                                }
-                                                onChange={() =>
-                                                    setData(
-                                                        "operation_type",
-                                                        "burreo",
-                                                    )
-                                                }
-                                            />
-                                            Burreo
-                                        </label>
-                                    )}
+                                            <label
+                                                className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === "burreo" ? "bg-white shadow-sm text-indigo-700 font-bold" : "text-gray-500"}`}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    className="hidden"
+                                                    name="op_type"
+                                                    checked={
+                                                        data.operation_type ===
+                                                        "burreo"
+                                                    }
+                                                    onChange={() =>
+                                                        setData(
+                                                            "operation_type",
+                                                            "burreo",
+                                                        )
+                                                    }
+                                                />
+                                                Burreo
+                                            </label>
+                                        )}
                                 </div>
                                 {scanResult.force_burreo && (
                                     <div className="text-amber-600 text-sm font-bold text-center -mt-4 mb-2">
@@ -733,7 +731,7 @@ export default function Scanner({
                                                 warehouse: val,
                                                 cubicle:
                                                     val === "Almacén 4" ||
-                                                    val === "Almacén 5"
+                                                        val === "Almacén 5"
                                                         ? data.cubicle
                                                         : "",
                                             }));
@@ -764,41 +762,41 @@ export default function Scanner({
                                 </div>
                                 {(data.warehouse === "Almacén 4" ||
                                     data.warehouse === "Almacén 5") && (
-                                    <div className="animate-fade-in-up">
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Asignar Cubículo
-                                        </label>
-                                        <select
-                                            value={data.cubicle}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "cubicle",
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
-                                            required
-                                        >
-                                            <option value="">
-                                                -- Seleccionar --
-                                            </option>
-                                            {[1, 2, 3, 4, 5, 6, 7, 8].map(
-                                                (num) => (
-                                                    <option
-                                                        key={num}
-                                                        value={num.toString()}
-                                                    >
-                                                        {num}
-                                                    </option>
-                                                ),
-                                            )}
-                                        </select>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Requerido para Almacén 4 y 5
-                                            (Opciones 1-8)
-                                        </p>
-                                    </div>
-                                )}
+                                        <div className="animate-fade-in-up">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Asignar Cubículo
+                                            </label>
+                                            <select
+                                                value={data.cubicle}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "cubicle",
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 text-lg"
+                                                required
+                                            >
+                                                <option value="">
+                                                    -- Seleccionar --
+                                                </option>
+                                                {[1, 2, 3, 4, 5, 6, 7, 8].map(
+                                                    (num) => (
+                                                        <option
+                                                            key={num}
+                                                            value={num.toString()}
+                                                        >
+                                                            {num}
+                                                        </option>
+                                                    ),
+                                                )}
+                                            </select>
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                Requerido para Almacén 4 y 5
+                                                (Opciones 1-8)
+                                            </p>
+                                        </div>
+                                    )}
                                 <button
                                     type="submit"
                                     disabled={processing}
@@ -958,8 +956,8 @@ export default function Scanner({
                                                 {(scan.warehouse ===
                                                     "Almacén 4" ||
                                                     scan.warehouse ===
-                                                        "Almacén 5") &&
-                                                scan.cubicle
+                                                    "Almacén 5") &&
+                                                    scan.cubicle
                                                     ? `- Cubículo ${scan.cubicle}`
                                                     : ""}
                                             </span>
@@ -1054,11 +1052,10 @@ export default function Scanner({
                                         <Link
                                             key={key}
                                             href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                                                link.active
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
                                                     ? "bg-indigo-600 text-white shadow-sm"
                                                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                            }`}
+                                                }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}

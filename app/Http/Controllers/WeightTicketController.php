@@ -287,7 +287,7 @@ class WeightTicketController extends Controller
                     }
                     $suggestedWithdrawal = str_pad($nextFolio, 5, '0', STR_PAD_LEFT);
 
-                    if ($operator->vessel->apt_operation_type === 'burreo') {
+                    if ($operator->vessel->apt_operation_type === 'burreo' && $request->input('context') !== 'apt') {
                         return response()->json([
                             'error' => 'ALERTA: Este operador NO puede ingresar por Báscula. El barco (' . $operator->vessel->name . ') está marcado para operación de BURREO.',
                             'blocked' => true
