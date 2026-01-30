@@ -300,9 +300,10 @@ class DashboardController extends Controller
             });
         }
 
-        // Agregate by Unit (Operator + Economic Number/Unit Number)
-        // We take the latest cubicle and plates.
-        $data = $query->selectRaw("
+        try {
+            // Agregate by Unit (Operator + Economic Number/Unit Number)
+            // We take the latest cubicle and plates.
+            $data = $query->selectRaw("
                 loading_orders.operator_name,
                 COALESCE(NULLIF(loading_orders.unit_number, ''), NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
                 COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate_number), '---') as tractor_plate,
@@ -310,23 +311,27 @@ class DashboardController extends Controller
                 SUM(weight_tickets.net_weight) as total_net_weight,
                 COUNT(*) as trip_count
             ")
-            ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
-            ->orderByDesc('total_net_weight')
-            ->get();
+                ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
+                ->orderByDesc('total_net_weight')
+                ->get();
 
-        // Manual Pagination to prevent GROUP BY SQL Error
-        $page = $request->input('page', 1);
-        $perPage = 10;
-        $total = $data->count();
-        $items = $data->skip(($page - 1) * $perPage)->take($perPage)->values();
+            // Manual Pagination to prevent GROUP BY SQL Error
+            $page = $request->input('page', 1);
+            $perPage = 10;
+            $total = $data->count();
+            $items = $data->skip(($page - 1) * $perPage)->take($perPage)->values();
 
-        return response()->json([
-            'current_page' => (int) $page,
-            'data' => $items,
-            'total' => $total,
-            'per_page' => $perPage,
-            'last_page' => ceil($total / $perPage)
-        ]);
+            return response()->json([
+                'current_page' => (int) $page,
+                'data' => $items,
+                'total' => $total,
+                'per_page' => $perPage,
+                'last_page' => ceil($total / $perPage)
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('DrillDownUnits Error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+        }
     }
 
     /**
