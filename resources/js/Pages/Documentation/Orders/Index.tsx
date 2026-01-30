@@ -75,11 +75,11 @@ export default function Index({ auth, orders, filters }: PageProps) {
                     <div className="flex-1 min-w-0">
                         <div className="mb-4">
                             <Link
-                                href={route("documentation.dock")}
+                                href={route("documentation.index")}
                                 className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-1" />
-                                Volver a Documentación (Muelle)
+                                Volver a Documentación
                             </Link>
                         </div>
                         <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
@@ -167,15 +167,14 @@ export default function Index({ auth, orders, filters }: PageProps) {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                                        order.operation_type ===
-                                                        "burreo"
+                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.operation_type ===
+                                                            "burreo"
                                                             ? "bg-amber-100 text-amber-800"
                                                             : "bg-blue-100 text-blue-800"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {order.operation_type ===
-                                                    "burreo"
+                                                        "burreo"
                                                         ? "BURREO"
                                                         : "BÁSCULA"}
                                                 </span>
@@ -204,11 +203,11 @@ export default function Index({ auth, orders, filters }: PageProps) {
                                                         ? "ABIERTA"
                                                         : order.status ===
                                                             "closed"
-                                                          ? "CERRADO"
-                                                          : order.status ===
-                                                              "loading"
-                                                            ? "CARGANDO"
-                                                            : order.status.toUpperCase()}
+                                                            ? "CERRADO"
+                                                            : order.status ===
+                                                                "loading"
+                                                                ? "CARGANDO"
+                                                                : order.status.toUpperCase()}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -282,11 +281,10 @@ export default function Index({ auth, orders, filters }: PageProps) {
                                         <Link
                                             key={key}
                                             href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                                                link.active
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
                                                     ? "bg-indigo-600 text-white shadow-sm"
                                                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                            }`}
+                                                }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}
