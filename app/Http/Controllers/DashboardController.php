@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\LoadingOrder;
 use App\Models\WeightTicket;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Exception;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -260,77 +264,83 @@ class DashboardController extends Controller
      */
     public function drillDownUnits(Request $request)
     {
-        $vesselId = $request->input('vessel_id');
-        $date = $request->input('date');
-        $warehouse = $request->input('warehouse');
-        $operationType = $request->input('operation_type', 'all');
-
-        $query = LoadingOrder::query()
-            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
-            ->leftJoin('vehicles', 'loading_orders.vehicle_id', '=', 'vehicles.id') // Fallback for plates
-            ->where('loading_orders.vessel_id', $vesselId)
-            ->where(function ($q) use ($date) {
-                $q->whereDate('weight_tickets.weigh_out_at', $date)
-                    ->orWhere(function ($sq) use ($date) {
-                        $sq->whereNull('weight_tickets.weigh_out_at')
-                            ->whereDate('loading_orders.entry_at', $date);
-                    });
-            });
-
-        // Robust Warehouse Filter
-        if ($warehouse === 'S/A' || $warehouse === 'Sin Asignar' || empty($warehouse)) {
-            $query->where(function ($q) {
-                $q->whereNull('loading_orders.warehouse')
-                    ->orWhere('loading_orders.warehouse', '')
-                    ->orWhere('loading_orders.warehouse', 'S/A');
-            });
-        } else {
-            $query->where('loading_orders.warehouse', $warehouse);
-        }
-
-        if ($operationType === 'scale') {
-            $query->whereIn('loading_orders.operation_type', ['scale', null])
-                ->where('loading_orders.status', 'completed');
-        } elseif ($operationType === 'burreo') {
-            $query->where('loading_orders.operation_type', 'burreo');
-        } else {
-            $query->where(function ($q) {
-                $q->where('loading_orders.status', 'completed')
-                    ->orWhere('loading_orders.operation_type', 'burreo');
-            });
-        }
-
         try {
+            $vesselId = $request->input('vessel_id');
+            $date = $request->input('date');
+            $warehouse = $request->input('warehouse');
+            $operationType = $request->input('operation_type', 'all');
+
+            $query = LoadingOrder::query()
+                ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+                ->leftJoin('vehicles', 'loading_orders.vehicle_id', '=', 'vehicles.id')
+                ->where('loading_orders.vessel_id', $vesselId)
+                ->where(function ($q) use ($date) {
+                    $q->whereDate('weight_tickets.weigh_out_at', $date)
+                        ->orWhere(function ($sq) use ($date) {
+                            $sq->whereNull('weight_tickets.weigh_out_at')
+                                ->whereDate('loading_orders.entry_at', $date);
+                        });
+                });
+
+            // Robust Warehouse Filter
+            if ($warehouse === 'S/A' || $warehouse === 'Sin Asignar' || empty($warehouse)) {
+                $query->where(function ($q) {
+                    $q->whereNull('loading_orders.warehouse')
+                        ->orWhere('loading_orders.warehouse', '')
+                        ->orWhere('loading_orders.warehouse', 'S/A');
+                });
+            } else {
+                $query->where('loading_orders.warehouse', $warehouse);
+            }
+
+            if ($operationType === 'scale') {
+                $query->whereIn('loading_orders.operation_type', ['scale', null])
+                    ->where('loading_orders.status', 'completed');
+            } elseif ($operationType === 'burreo') {
+                $query->where('loading_orders.operation_type', 'burreo');
+            } else {
+                $query->where(function ($q) {
+                    $q->where('loading_orders.status', 'completed')
+                        ->orWhere('loading_orders.operation_type', 'burreo');
+                });
+            }
+
             // Agregate by Unit (Operator + Economic Number/Unit Number)
-            // We take the latest cubicle and plates.
+            // Use Single Quotes for SQL compatibility
             $data = $query->selectRaw("
-                loading_orders.operator_name,
-                COALESCE(NULLIF(loading_orders.unit_number, ''), NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
-                COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate_number), '---') as tractor_plate,
-                MAX(loading_orders.cubicle) as cubicle,
-                SUM(weight_tickets.net_weight) as total_net_weight,
-                COUNT(*) as trip_count
-            ")
+                    loading_orders.operator_name,
+                    COALESCE(NULLIF(loading_orders.unit_number, ''), NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
+                    COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate_number), '---') as tractor_plate,
+                    MAX(loading_orders.cubicle) as cubicle,
+                    SUM(weight_tickets.net_weight) as total_net_weight,
+                    COUNT(*) as trip_count
+                ")
                 ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
                 ->orderByDesc('total_net_weight')
                 ->get();
 
-            // Manual Pagination to prevent GROUP BY SQL Error
-            $page = $request->input('page', 1);
+            // Manual Pagination
+            $page = (int) $request->input('page', 1);
             $perPage = 10;
             $total = $data->count();
             $items = $data->skip(($page - 1) * $perPage)->take($perPage)->values();
 
             return response()->json([
-                'current_page' => (int) $page,
+                'current_page' => $page,
                 'data' => $items,
                 'total' => $total,
                 'per_page' => $perPage,
                 'last_page' => ceil($total / $perPage)
             ]);
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('DrillDownUnits Error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+
+        } catch (Exception $e) {
+            Log::error('DrillDownUnits Critical Error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
         }
     }
 
