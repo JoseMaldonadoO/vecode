@@ -87,7 +87,7 @@ export default function EditVessel({
                 setData((prevData) => ({
                     ...prevData,
                     etc: etc,
-                    departure_date: etc, // Also suggest departure date
+                    // departure_date: etc, // REMOVED: Departure date is manual
                 }));
             }
         }

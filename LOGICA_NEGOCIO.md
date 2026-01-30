@@ -36,6 +36,7 @@ El agente que mueve la carga.
     -   Al ingresar los "Días de Estadía", el sistema debe calcular y pre-llenar automáticamente la Fecha Estimada de Finalización (ETC).
     -   *Fórmula*: `ETC = Fecha Atraco (ETA) + Días de Estadía`.
     -   Aplica para **TODOS** los tipos de operación (Descarga Báscula y Burreo).
+    -   *Nota*: NO debe llenar automáticamente la "Fecha Salida" (`departure_date`), ya que este campo se registra hasta que el barco zarpa realmente.
 
 39: - **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
 40: 
