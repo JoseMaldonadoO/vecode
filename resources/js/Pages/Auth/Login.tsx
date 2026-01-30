@@ -45,21 +45,32 @@ export default function Login({
                 <div className="bg-white/80 backdrop-blur-2xl border border-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)] rounded-3xl p-8 md:p-10 animate-in fade-in zoom-in duration-500 hover:shadow-[0_12px_40px_0_rgba(31,38,135,0.45)] transition-shadow">
 
                     {/* Header */}
-                    <div className="text-center mb-10 space-y-2">
-                        <div className="flex justify-center mb-6">
-                            <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-4 rounded-2xl shadow-lg shadow-blue-500/30 transform transition-transform hover:scale-110 duration-300">
+                    <div className="text-center mb-8 space-y-4">
+                        <div className="flex justify-center items-center gap-6 mb-6">
+                            {/* Logo VECODE */}
+                            <div className="p-2 rounded-xl">
                                 <img
                                     src="/images/Logo_vde.png"
                                     alt="Vecode Logo"
-                                    className="h-10 w-auto brightness-0 invert"
+                                    className="h-12 w-auto object-contain"
+                                />
+                            </div>
+                            {/* Divider */}
+                            <div className="h-8 w-px bg-slate-300/50"></div>
+                            {/* Logo Proagro */}
+                            <div className="p-2 rounded-xl">
+                                <img
+                                    src="/images/Proagro2.png"
+                                    alt="Proagro Logo"
+                                    className="h-12 w-auto object-contain"
                                 />
                             </div>
                         </div>
-                        <h2 className="text-3xl font-black text-slate-800 tracking-tight">
+                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">
                             Bienvenido a <span className="text-blue-600">VECODE</span>
                         </h2>
                         <p className="text-slate-500 font-medium text-sm">
-                            Gestión Portuaria Inteligente
+                            Sistema Integral de Operaciones Portuarias
                         </p>
                     </div>
 
