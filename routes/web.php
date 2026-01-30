@@ -13,6 +13,11 @@ Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'ind
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/dashboard/export', [\App\Http\Controllers\DashboardController::class, 'export'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.export');
+
+
 Route::get('/dashboard/drill-down/warehouses', [\App\Http\Controllers\DashboardController::class, 'drillDownWarehouses'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard.drilldown.warehouses');
