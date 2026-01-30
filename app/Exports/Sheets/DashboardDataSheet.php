@@ -21,16 +21,17 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
 
     public function query()
     {
-        $vesselId = $this->filters['vessel_id'];
-        $dateStart = $this->filters['start_date'];
-        $dateEnd = $this->filters['end_date'];
-        $warehouse = $this->filters['warehouse'];
-        $operator = $this->filters['operator'];
-        $operationType = $this->filters['operation_type'];
+        $vesselId = $this->filters['vessel_id'] ?? null;
+        $dateStart = $this->filters['start_date'] ?? null;
+        $dateEnd = $this->filters['end_date'] ?? null;
+        $specificDate = $this->filters['specific_date'] ?? null;
+        $warehouse = $this->filters['warehouse'] ?? null;
+        $operator = $this->filters['operator'] ?? null;
+        $operationType = $this->filters['operation_type'] ?? 'all';
 
         $query = LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
-            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number'); // Select specific columns to avoid collision
+            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number');
 
         if ($vesselId) {
             $query->where('loading_orders.vessel_id', $vesselId);
@@ -38,6 +39,8 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
 
         if ($dateStart && $dateEnd) {
             $query->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+        } elseif ($specificDate) {
+            $query->whereDate('weight_tickets.weigh_out_at', $specificDate);
         }
 
         if ($warehouse) {
@@ -47,6 +50,12 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         if ($operator) {
             $query->where('loading_orders.operator_name', $operator);
         }
+
+        // Apply same "Completed/Burreo" logic as Dashboard to match visuals
+        $query->where(function ($q) {
+            $q->where('loading_orders.status', 'completed')
+                ->orWhere('loading_orders.operation_type', 'burreo');
+        });
 
         if ($operationType === 'scale') {
             $query->where(function ($q) {
@@ -58,6 +67,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         }
 
         return $query->orderByDesc('weight_tickets.weigh_out_at');
+
     }
 
     public function headings(): array
