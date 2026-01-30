@@ -225,7 +225,7 @@ const TicketCopy: React.FC<{
                             <span>ENTRADA :</span>
                             <div className="flex flex-col items-end">
                                 <span>
-                                    {ticket.entry_weight.toLocaleString()} kg
+                                    {(ticket.entry_weight / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} T
                                 </span>
                                 <span className="text-[9px] opacity-70">
                                     {ticket.entry_at || ticket.date}
@@ -238,20 +238,20 @@ const TicketCopy: React.FC<{
                                 <div className="flex justify-between">
                                     <span>BRUTO :</span>
                                     <span>
-                                        {ticket.gross_weight.toLocaleString()}{" "}
-                                        kg
+                                        {(ticket.gross_weight / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                                        T
                                     </span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span>TARA :</span>
                                     <span>
-                                        {ticket.tare_weight.toLocaleString()} kg
+                                        {(ticket.tare_weight / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} T
                                     </span>
                                 </div>
                                 <div className="flex justify-between pt-1 border-t-2 border-black font-bold text-[18px]">
                                     <span>NETO :</span>
                                     <span>
-                                        {ticket.net_weight.toLocaleString()} kg
+                                        {(ticket.net_weight / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} T
                                     </span>
                                 </div>
                                 <div className="text-right text-[10px] opacity-70">
