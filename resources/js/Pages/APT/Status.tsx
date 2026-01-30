@@ -33,11 +33,10 @@ const WarehouseCard = ({
     return (
         <div
             className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 group h-full
-            ${
-                isOccupied
+            ${isOccupied
                     ? "border-indigo-500 bg-gradient-to-br from-indigo-900 to-slate-900 shadow-[0_0_30px_-1px_rgba(99,102,241,0.4)]"
                     : "border-slate-200 bg-white/50 border-dashed hover:border-indigo-300 hover:bg-white"
-            }`}
+                }`}
         >
             {/* Background Effects */}
             {isOccupied && (
@@ -87,7 +86,7 @@ const WarehouseCard = ({
                                         Peso Total
                                     </span>
                                     <span className="text-white font-black text-lg">
-                                        {(wh.total_net / 1000).toFixed(1)} TM
+                                        {(wh.total_net / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TM
                                     </span>
                                 </div>
                             </div>
@@ -169,10 +168,9 @@ const CubicleGrid = ({
                     <div
                         key={cubicle.id}
                         className={`relative rounded-xl p-4 border transition-all duration-300 group
-                            ${
-                                cubicle.occupied
-                                    ? "bg-white border-indigo-200 shadow-md ring-2 ring-indigo-500/20"
-                                    : "bg-slate-50 border-slate-200 border-dashed hover:border-slate-300 hover:bg-white"
+                            ${cubicle.occupied
+                                ? "bg-white border-indigo-200 shadow-md ring-2 ring-indigo-500/20"
+                                : "bg-slate-50 border-slate-200 border-dashed hover:border-slate-300 hover:bg-white"
                             }`}
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -205,9 +203,7 @@ const CubicleGrid = ({
                                             Peso
                                         </span>
                                         <span className="text-xs font-black text-gray-800">
-                                            {(cubicle.total_net / 1000).toFixed(
-                                                1,
-                                            )}{" "}
+                                            {(cubicle.total_net / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                                             T
                                         </span>
                                     </div>
@@ -426,7 +422,7 @@ export default function Status({
                                     <span className="text-lg font-black text-blue-900">
                                         {(
                                             viewingLocation.total_net / 1000
-                                        ).toLocaleString()}{" "}
+                                        ).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                                         TM
                                     </span>
                                 </div>
@@ -521,7 +517,10 @@ export default function Status({
                                                             (order.weight_ticket
                                                                 ?.net_weight ||
                                                                 0) / 1000
-                                                        ).toLocaleString()}{" "}
+                                                        ).toLocaleString("es-MX", {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        })}{" "}
                                                         TM
                                                     </span>
                                                 </td>
@@ -532,14 +531,14 @@ export default function Status({
                             </table>
                             {(!viewingLocation.orders ||
                                 viewingLocation.orders.length === 0) && (
-                                <div className="text-center py-12">
-                                    <Package className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                                    <p className="text-slate-400 font-bold">
-                                        No hay unidades activas en esta
-                                        ubicación.
-                                    </p>
-                                </div>
-                            )}
+                                    <div className="text-center py-12">
+                                        <Package className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                                        <p className="text-slate-400 font-bold">
+                                            No hay unidades activas en esta
+                                            ubicación.
+                                        </p>
+                                    </div>
+                                )}
                         </div>
 
                         {/* Modal Footer */}
