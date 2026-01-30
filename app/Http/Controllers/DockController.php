@@ -255,7 +255,10 @@ class DockController extends Controller
         // Active Vessels (Atracados y sin zarpar) - Logic: ETB passed and no departure
         $activeQuery = Vessel::whereNotNull('berthal_datetime')
             ->where('berthal_datetime', '<=', $now)
-            ->whereNull('departure_date');
+            ->where(function ($query) use ($now) {
+                $query->whereNull('departure_date')
+                    ->orWhere('departure_date', '>', $now);
+            });
 
         $activeVessels = $activeQuery->get();
 
