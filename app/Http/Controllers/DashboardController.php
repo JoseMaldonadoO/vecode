@@ -305,17 +305,17 @@ class DashboardController extends Controller
                 });
             }
 
-            // Agregate by Unit (Operator + Economic Number/Unit Number)
+            // Agregate by Unit (Operator + Economic Number)
             // Use Single Quotes for SQL compatibility
             $data = $query->selectRaw("
                     loading_orders.operator_name,
-                    COALESCE(NULLIF(loading_orders.unit_number, ''), NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
+                    COALESCE(NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
                     COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate_number), '---') as tractor_plate,
                     MAX(loading_orders.cubicle) as cubicle,
                     SUM(weight_tickets.net_weight) as total_net_weight,
                     COUNT(*) as trip_count
                 ")
-                ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
+                ->groupBy('loading_orders.operator_name', 'loading_orders.economic_number')
                 ->orderByDesc('total_net_weight')
                 ->get();
 
@@ -366,18 +366,11 @@ class DashboardController extends Controller
 
         // Filter by Unit (Economic Number)
         if ($unitId && $unitId !== 'S/N') {
-            $query->where(function ($q) use ($unitId) {
-                $q->where('loading_orders.economic_number', $unitId)
-                    ->orWhere('loading_orders.unit_number', $unitId);
-            });
+            $query->where('loading_orders.economic_number', $unitId);
         } else {
-            // Handle 'S/N' case for units without economic_number/unit_number
+            // Handle 'S/N' case for units without economic_number
             $query->where(function ($q) {
-                $q->where(function ($sq) {
-                    $sq->whereNull('loading_orders.unit_number')->orWhere('loading_orders.unit_number', '');
-                })->where(function ($sq) {
-                    $sq->whereNull('loading_orders.economic_number')->orWhere('loading_orders.economic_number', '');
-                });
+                $q->whereNull('loading_orders.economic_number')->orWhere('loading_orders.economic_number', '');
             });
         }
 
