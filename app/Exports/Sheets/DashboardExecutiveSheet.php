@@ -79,10 +79,7 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         $rows[] = ['', 'Generado por VECODE | ' . Carbon::now()->format('d/m/Y H:i'), '', '', '', ''];
 
         // Context Line
-        $context = 'Filtro: ' . ($this->filters['vessel_id'] ? 'Barco Seleccionado' : 'Global') .
-            ($this->filters['warehouse'] ? ' | Alm: ' . $this->filters['warehouse'] : '') .
-            ($this->filters['operator'] ? ' | Op: ' . $this->filters['operator'] : '');
-        $rows[] = ['', $context, '', '', '', ''];
+        $rows[] = ['', $this->getFilterContext(), '', '', '', ''];
 
         // --- KPI CARDS AREA ---
         $rows[] = ['', '', '', '', '', '']; // Spacer
@@ -131,10 +128,6 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         if ($rowCount === 0)
             return [];
 
-        $startRow = $this->dataStartRow + 1; // +1 because array is 0 indexed but excel rows are 1 indexed? No, dataStartRow is 28 (Table Header is 27)
-        // Check Array construction:
-        // Header(6) + Spacer(1) + KPI Header(1) + KPI Value(1) + Spacer(1) + ChartSpacer(16) + TableHeader(1) + TableCols(1) = 28 rows filled.
-        // So first data row is 29.
         $startRow = 29;
         $endRow = $startRow + $rowCount - 1;
 
@@ -248,8 +241,19 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
 
     private function getFilterContext()
     {
-        return ($this->filters['vessel_id'] ? 'Barco Seleccionado' : 'Global') .
-            ($this->filters['warehouse'] ? ' | Alm: ' . $this->filters['warehouse'] : '') .
-            ($this->filters['operator'] ? ' | Op: ' . $this->filters['operator'] : '');
+        $context = $this->filters['vessel_name'] ?? 'Global';
+
+        if (!empty($this->filters['specific_date'])) {
+            $context .= ' | Fecha: ' . $this->filters['specific_date'];
+        } elseif (!empty($this->filters['start_date']) && !empty($this->filters['end_date'])) {
+            $context .= ' | Rango: ' . $this->filters['start_date'] . ' al ' . $this->filters['end_date'];
+        }
+
+        if (!empty($this->filters['warehouse']))
+            $context .= ' | Alm: ' . $this->filters['warehouse'];
+        if (!empty($this->filters['operator']))
+            $context .= ' | Op: ' . $this->filters['operator'];
+
+        return $context;
     }
 }

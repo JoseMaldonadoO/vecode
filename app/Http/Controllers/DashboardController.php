@@ -22,9 +22,6 @@ class DashboardController extends Controller
      */
     public function export(Request $request)
     {
-        // Re-run the index logic to get the stats/charts data
-        // Ideally this should be refactored into a service, but for now we reuse the logic via private method or just copy-paste for speed as they are identical
-
         // 1. Fetch params
         $vesselId = $request->input('vessel_id');
         $dateStart = $request->input('start_date');
@@ -33,36 +30,51 @@ class DashboardController extends Controller
         $operator = $request->input('operator');
         $operationType = $request->input('operation_type', 'all');
 
-        // 2. Resolve Vessel (Same logic as index)
+        $vesselName = 'Todos';
+
+        // 2. Resolve Vessel
         if (!$vesselId) {
             $vesselsList = \App\Models\Vessel::active()
-                ->withCount(['loadingOrders as active_loading_count' => function ($q) {
-                    $q->where('status', 'loading'); }])
-                ->orderByDesc('active_loading_count')->orderByDesc('created_at')->take(1)->get(['id']);
-            $vesselId = $vesselsList->first()?->id;
+                ->withCount([
+                    'loadingOrders as active_loading_count' => function ($q) {
+                        $q->where('status', 'loading');
+                    }
+                ])
+                ->orderByDesc('active_loading_count')->orderByDesc('created_at')->take(1)->get(['id', 'name']);
+
+            $vessel = $vesselsList->first();
+            $vesselId = $vessel?->id;
+            $vesselName = $vessel?->name ?? '---';
+        } else {
+            $vessel = \App\Models\Vessel::find($vesselId);
+            $vesselName = $vessel ? $vessel->name : 'Desconocido';
         }
 
         // 3. Build Query
         $baseQuery = LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id');
 
-        if ($vesselId)
+        if ($vesselId) {
             $baseQuery->where('loading_orders.vessel_id', $vesselId);
+        }
 
         if ($dateStart && $dateEnd) {
             $baseQuery->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
-        } elseif ($request->has('date')) { // Handled drilldown date param if present
+        } elseif ($request->filled('date')) {
             $baseQuery->whereDate('weight_tickets.weigh_out_at', $request->date);
         }
 
-        if ($warehouse)
+        if ($warehouse) {
             $baseQuery->where('loading_orders.warehouse', $warehouse);
-        if ($operator)
+        }
+        if ($operator) {
             $baseQuery->where('loading_orders.operator_name', $operator);
+        }
 
         if ($operationType === 'scale') {
             $baseQuery->where(function ($q) {
-                $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type'); });
+                $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type');
+            });
         } elseif ($operationType === 'burreo') {
             $baseQuery->where('loading_orders.operation_type', 'burreo');
         }
@@ -70,10 +82,11 @@ class DashboardController extends Controller
         // 4. Calculate Stats for Export
         $stats = [
             'total_tonnage' => (clone $baseQuery)->sum('weight_tickets.net_weight'),
-            'trips_completed' => (clone $baseQuery)->count(), // Simplified count for export
+            'trips_completed' => (clone $baseQuery)->count(),
             'units_in_circuit' => LoadingOrder::where('vessel_id', $vesselId)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count(),
             'total_scale' => (clone $baseQuery)->where(function ($q) {
-                $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type'); })->sum('weight_tickets.net_weight'),
+                $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type');
+            })->sum('weight_tickets.net_weight'),
             'total_burreo' => (clone $baseQuery)->where('loading_orders.operation_type', 'burreo')->sum('weight_tickets.net_weight'),
         ];
 
@@ -88,14 +101,16 @@ class DashboardController extends Controller
 
         $filters = [
             'vessel_id' => $vesselId,
+            'vessel_name' => $vesselName,
             'start_date' => $dateStart,
             'end_date' => $dateEnd,
+            'specific_date' => $request->filled('date') ? $request->date : null,
             'warehouse' => $warehouse,
             'operator' => $operator,
             'operation_type' => $operationType
         ];
 
-        return Excel::download(new DashboardExport($filters, $stats, $charts), 'Reporte_Operaciones_' . Carbon::now()->format('Ymd_His') . '.xlsx');
+        return Excel::download(new DashboardExport($filters, $stats, $charts), 'Reporte_' . str_replace(' ', '', $vesselName) . '_' . Carbon::now()->format('Ymd_His') . '.xlsx');
     }
 
 
