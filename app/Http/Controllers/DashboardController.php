@@ -12,9 +12,93 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Exports\DashboardExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DashboardController extends Controller
 {
+    /**
+     * Export the Dashboard to Excel (Premium Report)
+     */
+    public function export(Request $request)
+    {
+        // Re-run the index logic to get the stats/charts data
+        // Ideally this should be refactored into a service, but for now we reuse the logic via private method or just copy-paste for speed as they are identical
+
+        // 1. Fetch params
+        $vesselId = $request->input('vessel_id');
+        $dateStart = $request->input('start_date');
+        $dateEnd = $request->input('end_date');
+        $warehouse = $request->input('warehouse');
+        $operator = $request->input('operator');
+        $operationType = $request->input('operation_type', 'all');
+
+        // 2. Resolve Vessel (Same logic as index)
+        if (!$vesselId) {
+            $vesselsList = \App\Models\Vessel::active()
+                ->withCount(['loadingOrders as active_loading_count' => function ($q) {
+                    $q->where('status', 'loading'); }])
+                ->orderByDesc('active_loading_count')->orderByDesc('created_at')->take(1)->get(['id']);
+            $vesselId = $vesselsList->first()?->id;
+        }
+
+        // 3. Build Query
+        $baseQuery = LoadingOrder::query()
+            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id');
+
+        if ($vesselId)
+            $baseQuery->where('loading_orders.vessel_id', $vesselId);
+
+        if ($dateStart && $dateEnd) {
+            $baseQuery->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+        } elseif ($request->has('date')) { // Handled drilldown date param if present
+            $baseQuery->whereDate('weight_tickets.weigh_out_at', $request->date);
+        }
+
+        if ($warehouse)
+            $baseQuery->where('loading_orders.warehouse', $warehouse);
+        if ($operator)
+            $baseQuery->where('loading_orders.operator_name', $operator);
+
+        if ($operationType === 'scale') {
+            $baseQuery->where(function ($q) {
+                $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type'); });
+        } elseif ($operationType === 'burreo') {
+            $baseQuery->where('loading_orders.operation_type', 'burreo');
+        }
+
+        // 4. Calculate Stats for Export
+        $stats = [
+            'total_tonnage' => (clone $baseQuery)->sum('weight_tickets.net_weight'),
+            'trips_completed' => (clone $baseQuery)->count(), // Simplified count for export
+            'units_in_circuit' => LoadingOrder::where('vessel_id', $vesselId)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count(),
+            'total_scale' => (clone $baseQuery)->where(function ($q) {
+                $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type'); })->sum('weight_tickets.net_weight'),
+            'total_burreo' => (clone $baseQuery)->where('loading_orders.operation_type', 'burreo')->sum('weight_tickets.net_weight'),
+        ];
+
+        // 5. Calculate Charts Data
+        $dailyTonnage = (clone $baseQuery)
+            ->selectRaw('DATE(weight_tickets.weigh_out_at) as date, SUM(weight_tickets.net_weight) as total, SUM(CASE WHEN loading_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo, SUM(CASE WHEN loading_orders.operation_type != "burreo" OR loading_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale')
+            ->groupBy('date')->orderBy('date')->get();
+
+        $charts = [
+            'daily_tonnage' => $dailyTonnage
+        ];
+
+        $filters = [
+            'vessel_id' => $vesselId,
+            'start_date' => $dateStart,
+            'end_date' => $dateEnd,
+            'warehouse' => $warehouse,
+            'operator' => $operator,
+            'operation_type' => $operationType
+        ];
+
+        return Excel::download(new DashboardExport($filters, $stats, $charts), 'Reporte_Operaciones_' . Carbon::now()->format('Ymd_His') . '.xlsx');
+    }
+
+
     public function index(Request $request)
     {
         $vesselId = $request->input('vessel_id');

@@ -101,8 +101,8 @@ export default function Dashboard({
         viewMode === "scale"
             ? stats.total_scale || 0
             : viewMode === "burreo"
-              ? stats.total_burreo || 0
-              : stats.total_tonnage || 0;
+                ? stats.total_burreo || 0
+                : stats.total_tonnage || 0;
 
     // --- DRILL-DOWN LOGIC ---
     const [drillLevel, setDrillLevel] = useState<0 | 1 | 2 | 3>(0); // 0: Main, 1: Warehouses, 2: Units, 3: Trips
@@ -221,15 +221,15 @@ export default function Dashboard({
         viewMode === "scale"
             ? ["scale"]
             : viewMode === "burreo"
-              ? ["burreo"]
-              : ["total"];
+                ? ["burreo"]
+                : ["total"];
 
     const colors =
         viewMode === "scale"
             ? ["blue"]
             : viewMode === "burreo"
-              ? ["amber"]
-              : ["blue"]; // Let's use blue for total as well or indigo
+                ? ["amber"]
+                : ["blue"]; // Let's use blue for total as well or indigo
 
     return (
         <DashboardLayout user={auth.user} header="Centro de Mando Operativo">
@@ -266,33 +266,44 @@ export default function Dashboard({
                         <div className="bg-white/10 p-1 rounded-xl flex items-center border border-white/10">
                             <button
                                 onClick={() => handleViewModeChange("all")}
-                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
-                                    viewMode === "all"
+                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === "all"
                                         ? "bg-white text-[#1e3a8a] shadow-lg scale-105"
                                         : "text-blue-200 hover:text-white"
-                                }`}
+                                    }`}
                             >
                                 Total
                             </button>
                             <button
                                 onClick={() => handleViewModeChange("scale")}
-                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
-                                    viewMode === "scale"
+                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === "scale"
                                         ? "bg-blue-400 text-white shadow-lg scale-105"
                                         : "text-blue-200 hover:text-white"
-                                }`}
+                                    }`}
                             >
                                 Báscula
                             </button>
                             <button
                                 onClick={() => handleViewModeChange("burreo")}
-                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
-                                    viewMode === "burreo"
+                                className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === "burreo"
                                         ? "bg-amber-400 text-amber-900 shadow-lg scale-105"
                                         : "text-blue-200 hover:text-white"
-                                }`}
+                                    }`}
                             >
                                 Burreo
+                            </button>
+                        </div>
+
+                        {/* Export Excel Button */}
+                        <div className="bg-white/10 p-1 rounded-xl flex items-center border border-white/10">
+                            <button
+                                onClick={() => {
+                                    const url = route("dashboard.export", localFilters);
+                                    window.location.href = url;
+                                }}
+                                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider shadow-lg shadow-green-900/20 transition-all flex items-center gap-2"
+                            >
+                                <span className="hidden md:inline">Exportar</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                             </button>
                         </div>
 
@@ -459,11 +470,10 @@ export default function Dashboard({
                                                 </h2>
                                                 {viewMode !== "all" && (
                                                     <span
-                                                        className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${
-                                                            viewMode === "scale"
+                                                        className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${viewMode === "scale"
                                                                 ? "bg-blue-100 text-blue-700"
                                                                 : "bg-amber-100 text-amber-700"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {viewMode === "scale"
                                                             ? "Vía Báscula"
@@ -482,8 +492,8 @@ export default function Dashboard({
                                                     drillLevel === 3
                                                         ? backToUnits
                                                         : drillLevel === 2
-                                                          ? backToWarehouses
-                                                          : resetDrill
+                                                            ? backToWarehouses
+                                                            : resetDrill
                                                 }
                                                 className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
                                             >
@@ -494,8 +504,8 @@ export default function Dashboard({
                                                     {drillLevel === 1
                                                         ? `Detalle por Almacén - ${selectedDate}`
                                                         : drillLevel === 2
-                                                          ? `Detalle Unidades - ${selectedWarehouse}`
-                                                          : `Detalle Viajes - ${selectedUnit?.operator_name}`}
+                                                            ? `Detalle Unidades - ${selectedWarehouse}`
+                                                            : `Detalle Viajes - ${selectedUnit?.operator_name}`}
                                                 </h2>
                                                 <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">
                                                     {selectedUnit
@@ -577,7 +587,7 @@ export default function Dashboard({
                                                                     <p className="text-xl font-black text-blue-600">
                                                                         {formatMT(
                                                                             item.total /
-                                                                                1000,
+                                                                            1000,
                                                                         )}{" "}
                                                                         TM
                                                                     </p>
@@ -693,7 +703,7 @@ export default function Dashboard({
                                                                 handleWarehouseClick(
                                                                     selectedWarehouse!,
                                                                     drillData.current_page -
-                                                                        1,
+                                                                    1,
                                                                 )
                                                             }
                                                             className="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-all font-bold text-xs uppercase"
@@ -719,7 +729,7 @@ export default function Dashboard({
                                                                 handleWarehouseClick(
                                                                     selectedWarehouse!,
                                                                     drillData.current_page +
-                                                                        1,
+                                                                    1,
                                                                 )
                                                             }
                                                             className="p-2 rounded-lg bg-white border border-gray-200 disabled:opacity-30 hover:bg-gray-50 transition-all font-bold text-xs uppercase"
