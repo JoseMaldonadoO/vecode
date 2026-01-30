@@ -46,23 +46,13 @@ export default function Login({
 
                     {/* Header */}
                     <div className="text-center mb-8 space-y-4">
-                        <div className="flex justify-center items-center gap-6 mb-6">
-                            {/* Logo VECODE */}
-                            <div className="p-2 rounded-xl">
-                                <img
-                                    src="/images/Logo_vde.png"
-                                    alt="Vecode Logo"
-                                    className="h-12 w-auto object-contain"
-                                />
-                            </div>
-                            {/* Divider */}
-                            <div className="h-8 w-px bg-slate-300/50"></div>
-                            {/* Logo Proagro */}
+                        <div className="flex justify-center items-center mb-6">
+                            {/* Logo Proagro - Enlarged */}
                             <div className="p-2 rounded-xl">
                                 <img
                                     src="/images/Proagro2.png"
                                     alt="Proagro Logo"
-                                    className="h-12 w-auto object-contain"
+                                    className="h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-300"
                                 />
                             </div>
                         </div>
