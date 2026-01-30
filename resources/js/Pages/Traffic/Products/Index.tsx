@@ -1,9 +1,18 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
-import { Box, Plus, ArrowLeft, Search, Edit, Trash2, AlertTriangle, X } from 'lucide-react';
-import { useState, Fragment } from 'react';
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, Link, useForm } from "@inertiajs/react";
+import {
+    Box,
+    Plus,
+    ArrowLeft,
+    Search,
+    Edit,
+    Trash2,
+    AlertTriangle,
+    X,
+} from "lucide-react";
+import { useState, Fragment } from "react";
 // @ts-ignore
-import { pickBy } from 'lodash';
+import { pickBy } from "lodash";
 
 interface Product {
     id: number;
@@ -18,20 +27,23 @@ interface PageProps {
 }
 
 export default function Index({ auth, products }: PageProps) {
-    const [search, setSearch] = useState('');
-    const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+    const [search, setSearch] = useState("");
+    const [deletingProduct, setDeletingProduct] = useState<Product | null>(
+        null,
+    );
     const { delete: destroy, processing } = useForm({});
 
-    const isAdmin = auth.user.roles.includes('Admin');
+    const isAdmin = auth.user.roles.includes("Admin");
 
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.code.toLowerCase().includes(search.toLowerCase())
+    const filteredProducts = products.filter(
+        (product) =>
+            product.name.toLowerCase().includes(search.toLowerCase()) ||
+            product.code.toLowerCase().includes(search.toLowerCase()),
     );
 
     const handleDelete = () => {
         if (deletingProduct) {
-            destroy(route('traffic.products.destroy', deletingProduct.id), {
+            destroy(route("traffic.products.destroy", deletingProduct.id), {
                 onSuccess: () => setDeletingProduct(null),
                 preserveScroll: true,
             });
@@ -43,12 +55,14 @@ export default function Index({ auth, products }: PageProps) {
             <Head title="Productos" />
 
             <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-
                 {/* Header Section */}
                 <div className="md:flex md:items-center md:justify-between mb-6">
                     <div className="flex-1 min-w-0">
                         <div className="mb-4">
-                            <Link href={route('traffic.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                            <Link
+                                href={route("traffic.index")}
+                                className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                            >
                                 <ArrowLeft className="w-4 h-4 mr-1" />
                                 Volver a Tráfico
                             </Link>
@@ -61,7 +75,7 @@ export default function Index({ auth, products }: PageProps) {
                     {isAdmin && (
                         <div className="mt-4 flex md:mt-0 md:ml-4">
                             <Link
-                                href={route('traffic.products.create')}
+                                href={route("traffic.products.create")}
                                 className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105"
                             >
                                 <Plus className="-ml-1 mr-2 h-5 w-5" />
@@ -93,26 +107,56 @@ export default function Index({ auth, products }: PageProps) {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Código</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Producto</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Presentación</th>
-                                    {isAdmin && <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>}
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Código
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Producto
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Presentación
+                                    </th>
+                                    {isAdmin && (
+                                        <th
+                                            scope="col"
+                                            className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider"
+                                        >
+                                            Acciones
+                                        </th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredProducts.length > 0 ? (
                                     filteredProducts.map((product) => (
-                                        <tr key={product.id} className="hover:bg-indigo-50 transition-colors duration-150">
+                                        <tr
+                                            key={product.id}
+                                            className="hover:bg-indigo-50 transition-colors duration-150"
+                                        >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700 uppercase tracking-tighter">
                                                 {product.code}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">
-                                                        {product.name.substring(0, 2)}
+                                                        {product.name.substring(
+                                                            0,
+                                                            2,
+                                                        )}
                                                     </div>
                                                     <div className="ml-4">
-                                                        <div className="text-sm font-medium text-gray-900 uppercase">{product.name}</div>
+                                                        <div className="text-sm font-medium text-gray-900 uppercase">
+                                                            {product.name}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -122,13 +166,20 @@ export default function Index({ auth, products }: PageProps) {
                                             {isAdmin && (
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                     <Link
-                                                        href={route('traffic.products.edit', product.id)}
+                                                        href={route(
+                                                            "traffic.products.edit",
+                                                            product.id,
+                                                        )}
                                                         className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-all transform hover:scale-105"
                                                     >
                                                         <Edit className="w-4 h-4" />
                                                     </Link>
                                                     <button
-                                                        onClick={() => setDeletingProduct(product)}
+                                                        onClick={() =>
+                                                            setDeletingProduct(
+                                                                product,
+                                                            )
+                                                        }
                                                         className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-all transform hover:scale-105"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
@@ -139,10 +190,18 @@ export default function Index({ auth, products }: PageProps) {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={isAdmin ? 4 : 3} className="px-6 py-12 text-center text-gray-500">
+                                        <td
+                                            colSpan={isAdmin ? 4 : 3}
+                                            className="px-6 py-12 text-center text-gray-500"
+                                        >
                                             <Box className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                            <p className="text-lg font-medium">No se encontraron productos</p>
-                                            <p className="text-sm">Intenta ajustar los filtros de búsqueda.</p>
+                                            <p className="text-lg font-medium">
+                                                No se encontraron productos
+                                            </p>
+                                            <p className="text-sm">
+                                                Intenta ajustar los filtros de
+                                                búsqueda.
+                                            </p>
                                         </td>
                                     </tr>
                                 )}
@@ -167,14 +226,22 @@ export default function Index({ auth, products }: PageProps) {
                             <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                 <div className="sm:flex sm:items-start">
                                     <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                        <AlertTriangle className="h-6 w-6 text-red-600" aria-hidden="true" />
+                                        <AlertTriangle
+                                            className="h-6 w-6 text-red-600"
+                                            aria-hidden="true"
+                                        />
                                     </div>
                                     <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                                         <h3 className="text-lg font-bold leading-6 text-gray-900 uppercase tracking-tight">
                                             Eliminar Producto
                                         </h3>
                                         <div className="mt-2 text-sm text-gray-500">
-                                            ¿Estás seguro de que deseas eliminar el producto <span className="font-bold text-gray-900">{deletingProduct.name}</span>? Esta acción no se puede deshacer.
+                                            ¿Estás seguro de que deseas eliminar
+                                            el producto{" "}
+                                            <span className="font-bold text-gray-900">
+                                                {deletingProduct.name}
+                                            </span>
+                                            ? Esta acción no se puede deshacer.
                                         </div>
                                     </div>
                                     <button
@@ -192,7 +259,9 @@ export default function Index({ auth, products }: PageProps) {
                                     className="inline-flex w-full justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-red-500 disabled:opacity-50 sm:w-auto transition-all transform hover:scale-105"
                                     onClick={handleDelete}
                                 >
-                                    {processing ? 'Eliminando...' : 'Sí, Eliminar'}
+                                    {processing
+                                        ? "Eliminando..."
+                                        : "Sí, Eliminar"}
                                 </button>
                                 <button
                                     type="button"

@@ -1,19 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
-import { Scale, Truck, Search, Save, Link as LinkIcon, Box, User, MapPin, Anchor, AlertCircle, FileText, Settings, Camera, X, ArrowLeft } from 'lucide-react';
-import { QrReader } from 'react-qr-reader';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
-import PrimaryButton from '@/Components/PrimaryButton';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect, useRef } from "react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, useForm, Link } from "@inertiajs/react";
+import {
+    Scale,
+    Truck,
+    Search,
+    Save,
+    Link as LinkIcon,
+    Box,
+    User,
+    MapPin,
+    Anchor,
+    AlertCircle,
+    FileText,
+    Settings,
+    Camera,
+    X,
+    ArrowLeft,
+} from "lucide-react";
+import { QrReader } from "react-qr-reader";
+import InputLabel from "@/Components/InputLabel";
+import TextInput from "@/Components/TextInput";
+import PrimaryButton from "@/Components/PrimaryButton";
+import axios from "axios";
+import Swal from "sweetalert2";
 
-export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, active_scale_id?: number }) {
+export default function EntryMP({
+    auth,
+    active_scale_id = 1,
+}: {
+    auth: any;
+    active_scale_id?: number;
+}) {
     const [weight, setWeight] = useState<number>(0);
     const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [qrValue, setQrValue] = useState('');
+    const [qrValue, setQrValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
     const [orderDetails, setOrderDetails] = useState<any>(null);
@@ -23,46 +45,46 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
     const readerRef = useRef<any>(null);
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        shipment_order_id: '',
-        vessel_id: '',
+        shipment_order_id: "",
+        vessel_id: "",
         scale_id: active_scale_id,
 
         // Manual / Derived
-        client_id: '',
-        product_id: '',
-        provider: '',
-        product: '',
+        client_id: "",
+        product_id: "",
+        provider: "",
+        product: "",
 
-        withdrawal_letter: '',
-        reference: '',
-        consignee: '',
-        destination: '',
-        origin: '',
-        bill_of_lading: '',
+        withdrawal_letter: "",
+        reference: "",
+        consignee: "",
+        destination: "",
+        origin: "",
+        bill_of_lading: "",
 
         // Transport (Snapshot)
-        driver: '',
-        vehicle_plate: '',
-        trailer_plate: '',
-        vehicle_type: '',
-        transport_line: '',
-        economic_number: '',
+        driver: "",
+        vehicle_plate: "",
+        trailer_plate: "",
+        vehicle_type: "",
+        transport_line: "",
+        economic_number: "",
 
         // Scale
-        tare_weight: '',
-        observations: '',
+        tare_weight: "",
+        observations: "",
     });
 
     useEffect(() => {
-        setData('scale_id', active_scale_id);
+        setData("scale_id", active_scale_id);
     }, [active_scale_id]);
 
     // Sync Weight to Form
     useEffect(() => {
         if (capturedWeight !== null) {
-            setData('tare_weight', capturedWeight.toString());
+            setData("tare_weight", capturedWeight.toString());
         } else {
-            setData('tare_weight', weight.toString());
+            setData("tare_weight", weight.toString());
         }
     }, [weight, capturedWeight]);
 
@@ -70,11 +92,13 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
             Swal.fire({
-                icon: 'error',
-                title: 'Atención',
-                html: Object.values(errors).map(e => `<div class="mb-1">${e}</div>`).join(''),
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Entendido'
+                icon: "error",
+                title: "Atención",
+                html: Object.values(errors)
+                    .map((e) => `<div class="mb-1">${e}</div>`)
+                    .join(""),
+                confirmButtonColor: "#d33",
+                confirmButtonText: "Entendido",
             });
         }
     }, [errors]);
@@ -84,26 +108,28 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
     };
 
     const handleSerialConnect = async () => {
-        if ('serial' in navigator) {
+        if ("serial" in navigator) {
             try {
                 const port = await (navigator as any).serial.requestPort();
                 await port.open({ baudRate: 9600 });
                 setIsConnected(true);
                 portRef.current = port;
                 const textDecoder = new TextDecoderStream();
-                const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+                const readableStreamClosed = port.readable.pipeTo(
+                    textDecoder.writable,
+                );
                 const reader = textDecoder.readable.getReader();
                 readerRef.current = reader;
-                let buffer = '';
+                let buffer = "";
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) break;
                     if (value) {
                         buffer += value;
-                        if (buffer.includes('\n') || buffer.includes('\r')) {
+                        if (buffer.includes("\n") || buffer.includes("\r")) {
                             const match = buffer.match(/(\d+(?:\.\d+)?)/);
                             if (match) setWeight(parseFloat(match[1]));
-                            buffer = '';
+                            buffer = "";
                         }
                     }
                 }
@@ -124,23 +150,25 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
         if (codeOverride) setQrValue(codeOverride);
 
         try {
-            const response = await axios.get(route('scale.search-qr'), { params: { qr: query } });
+            const response = await axios.get(route("scale.search-qr"), {
+                params: { qr: query },
+            });
             const res = response.data;
             setOrderDetails(res);
 
-            if (res.type === 'vessel_operator') {
+            if (res.type === "vessel_operator") {
                 // New Entry from Vessel Scan
-                setData(prev => ({
+                setData((prev) => ({
                     ...prev,
-                    shipment_order_id: '',
+                    shipment_order_id: "",
                     vessel_id: res.vessel_id,
-                    client_id: res.client_id || '',
-                    product_id: res.product_id || '',
+                    client_id: res.client_id || "",
+                    product_id: res.product_id || "",
                     provider: res.provider,
                     product: res.product,
 
-                    origin: res.origin || res.reference || '',
-                    reference: '',
+                    origin: res.origin || res.reference || "",
+                    reference: "",
                     transport_line: res.transport_line,
                     driver: res.driver,
                     vehicle_type: res.vehicle_type,
@@ -148,18 +176,18 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     trailer_plate: res.trailer_plate,
                     economic_number: res.economic_number,
 
-                    withdrawal_letter: '',
-                    consignee: '',
-                    destination: '',
-                    bill_of_lading: '',
+                    withdrawal_letter: "",
+                    consignee: "",
+                    destination: "",
+                    bill_of_lading: "",
                 }));
             } else {
                 // Existing Loading Order (Refactored from Shipment Order)
-                setData(prev => ({
+                setData((prev) => ({
                     ...prev,
                     shipment_order_id: res.id, // Maps to LoadingOrder ID
-                    provider: res.provider || '',
-                    driver: res.driver || '',
+                    provider: res.provider || "",
+                    driver: res.driver || "",
                     product: res.product,
                     origin: res.origin,
                     transport_line: res.transporter,
@@ -167,27 +195,28 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     trailer_plate: res.trailer_plate,
                     vehicle_type: res.vehicle_type,
 
-                    withdrawal_letter: res.withdrawal_letter || '',
-                    reference: res.reference || '',
-                    consignee: res.consignee || '',
-                    destination: res.destination || '',
-                    bill_of_lading: res.carta_porte || '',
+                    withdrawal_letter: res.withdrawal_letter || "",
+                    reference: res.reference || "",
+                    consignee: res.consignee || "",
+                    destination: res.destination || "",
+                    bill_of_lading: res.carta_porte || "",
                 }));
             }
         } catch (error: any) {
             console.error("Search error:", error);
-            const errorMessage = error.response?.data?.error || "No encontrado.";
+            const errorMessage =
+                error.response?.data?.error || "No encontrado.";
 
             Swal.fire({
-                icon: 'warning',
-                title: 'Operación Restringida',
+                icon: "warning",
+                title: "Operación Restringida",
                 text: errorMessage,
-                confirmButtonColor: '#4f46e5',
-                confirmButtonText: 'Entendido'
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "Entendido",
             });
 
             setOrderDetails(null);
-            setQrValue('');
+            setQrValue("");
             reset();
         } finally {
             setIsLoading(false);
@@ -196,12 +225,15 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!data.driver) { alert("Faltan datos de conductor."); return; }
-        post(route('scale.entry.store'), {
+        if (!data.driver) {
+            alert("Faltan datos de conductor.");
+            return;
+        }
+        post(route("scale.entry.store"), {
             onSuccess: () => {
                 reset();
                 setOrderDetails(null);
-                setQrValue('');
+                setQrValue("");
             },
         });
     };
@@ -211,9 +243,11 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
             <Head title="Entrada MI / MP" />
 
             <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
                 <div className="mb-6">
-                    <Link href={route('scale.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                    <Link
+                        href={route("scale.index")}
+                        className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                    >
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Volver al Panel
                     </Link>
@@ -227,16 +261,24 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                 <Scale className="w-8 h-8 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-white font-bold text-2xl">Nueva Entrada de Báscula</h2>
-                                <p className="text-indigo-200 text-sm">Registre el pesaje inicial del vehículo</p>
+                                <h2 className="text-white font-bold text-2xl">
+                                    Nueva Entrada de Báscula
+                                </h2>
+                                <p className="text-indigo-200 text-sm">
+                                    Registre el pesaje inicial del vehículo
+                                </p>
                             </div>
                         </div>
 
                         {/* Scale Badge */}
                         <div className="flex items-center bg-indigo-900/50 px-4 py-2 rounded-lg border border-indigo-700/50">
                             <Settings className="w-4 h-4 text-indigo-300 mr-2" />
-                            <span className="text-indigo-200 text-sm font-medium mr-2">Báscula Activa:</span>
-                            <span className="text-white font-bold text-lg">#{active_scale_id}</span>
+                            <span className="text-indigo-200 text-sm font-medium mr-2">
+                                Báscula Activa:
+                            </span>
+                            <span className="text-white font-bold text-lg">
+                                #{active_scale_id}
+                            </span>
                         </div>
                     </div>
 
@@ -244,34 +286,58 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                     <div className="p-6 bg-white border-b border-gray-100">
                         <div className="flex flex-col md:flex-row gap-4 items-center">
                             <div className="flex-1 w-full">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Búsqueda Rápida</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Búsqueda Rápida
+                                </label>
                                 <div className="flex gap-2">
                                     {/* Camera Toggle */}
                                     <button
                                         type="button"
-                                        onClick={() => setShowCamera(!showCamera)}
-                                        className={`p-2.5 rounded-lg border transition-colors ${showCamera ? 'bg-red-50 border-red-200 text-red-600' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'}`}
-                                        title={showCamera ? "Cerrar Cámara" : "Abrir Cámara"}
+                                        onClick={() =>
+                                            setShowCamera(!showCamera)
+                                        }
+                                        className={`p-2.5 rounded-lg border transition-colors ${showCamera ? "bg-red-50 border-red-200 text-red-600" : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"}`}
+                                        title={
+                                            showCamera
+                                                ? "Cerrar Cámara"
+                                                : "Abrir Cámara"
+                                        }
                                     >
-                                        {showCamera ? <X className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
+                                        {showCamera ? (
+                                            <X className="w-5 h-5" />
+                                        ) : (
+                                            <Camera className="w-5 h-5" />
+                                        )}
                                     </button>
 
                                     <div className="relative flex-1">
                                         <input
                                             type="text"
                                             value={qrValue}
-                                            onChange={(e) => setQrValue(e.target.value)}
-                                            onKeyDown={(e) => e.key === 'Enter' && searchOrder()}
+                                            onChange={(e) =>
+                                                setQrValue(e.target.value)
+                                            }
+                                            onKeyDown={(e) =>
+                                                e.key === "Enter" &&
+                                                searchOrder()
+                                            }
                                             className="block w-full rounded-lg border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500"
                                             placeholder="Escanee QR o ingrese Folio..."
                                             autoFocus={!showCamera}
                                         />
                                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                            <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                            <Search
+                                                className="h-5 w-5 text-gray-400"
+                                                aria-hidden="true"
+                                            />
                                         </div>
                                     </div>
-                                    <PrimaryButton onClick={() => searchOrder()} disabled={isLoading} className="bg-indigo-600 hover:bg-indigo-700 h-full">
-                                        {isLoading ? '...' : 'Buscar'}
+                                    <PrimaryButton
+                                        onClick={() => searchOrder()}
+                                        disabled={isLoading}
+                                        className="bg-indigo-600 hover:bg-indigo-700 h-full"
+                                    >
+                                        {isLoading ? "..." : "Buscar"}
                                     </PrimaryButton>
                                 </div>
                             </div>
@@ -283,7 +349,11 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                 <QrReader
                                     onResult={(result: any, error) => {
                                         if (!!result) {
-                                            const text = typeof result.getText === 'function' ? result.getText() : result.text;
+                                            const text =
+                                                typeof result.getText ===
+                                                "function"
+                                                    ? result.getText()
+                                                    : result.text;
                                             if (text) {
                                                 setQrValue(text);
                                                 setShowCamera(false);
@@ -291,80 +361,113 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                                             }
                                         }
                                     }}
-                                    constraints={{ facingMode: 'environment' }}
-                                    videoStyle={{ width: '100%' }}
+                                    constraints={{ facingMode: "environment" }}
+                                    videoStyle={{ width: "100%" }}
                                     className="w-full"
                                 />
-                                <p className="text-white text-center py-2 text-sm">Apunte al código QR...</p>
+                                <p className="text-white text-center py-2 text-sm">
+                                    Apunte al código QR...
+                                </p>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
+                <form
+                    onSubmit={submit}
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+                >
                     {/* LEFT COLUMN: Weight & Connection (4 cols) */}
                     <div className="lg:col-span-4 space-y-6">
-
                         {/* Weight Display Card */}
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
                             <div className="bg-gray-900 p-8 text-center relative">
-                                <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-2">Peso Bruto (Entrada)</h2>
+                                <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-2">
+                                    Peso Bruto (Entrada)
+                                </h2>
                                 <div className="text-6xl font-mono font-bold text-[#39ff33] tracking-tighter drop-shadow-[0_0_10px_rgba(57,255,51,0.5)]">
-                                    {weight > 0 ? weight : '0.00'} <span className="text-2xl text-gray-500">kg</span>
+                                    {weight > 0 ? weight : "0.00"}{" "}
+                                    <span className="text-2xl text-gray-500">
+                                        kg
+                                    </span>
                                 </div>
-                                {auth.user?.roles?.some((r: string) => r.toLowerCase().includes('admin')) && (
+                                {auth.user?.roles?.some((r: string) =>
+                                    r.toLowerCase().includes("admin"),
+                                ) && (
                                     <div className="mt-4 flex justify-center">
                                         <input
                                             type="number"
                                             className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm focus:ring-green-500 focus:border-green-500"
                                             placeholder="Manual Admin"
-                                            onChange={(e) => setWeight(parseFloat(e.target.value) || 0)}
+                                            onChange={(e) =>
+                                                setWeight(
+                                                    parseFloat(
+                                                        e.target.value,
+                                                    ) || 0,
+                                                )
+                                            }
                                         />
                                     </div>
                                 )}
                             </div>
                             <div className="bg-gray-800 p-3 text-center border-t border-gray-700 flex justify-between px-6 items-center">
-                                <span className="text-gray-400 text-xs uppercase font-semibold">Peso Capturado:</span>
-                                <span className={`text-xl font-bold font-mono ${capturedWeight ? 'text-yellow-400' : 'text-gray-600'}`}>
-                                    {capturedWeight ? capturedWeight.toFixed(2) : '---'} kg
+                                <span className="text-gray-400 text-xs uppercase font-semibold">
+                                    Peso Capturado:
+                                </span>
+                                <span
+                                    className={`text-xl font-bold font-mono ${capturedWeight ? "text-yellow-400" : "text-gray-600"}`}
+                                >
+                                    {capturedWeight
+                                        ? capturedWeight.toFixed(2)
+                                        : "---"}{" "}
+                                    kg
                                 </span>
                             </div>
                             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3">
                                 <button
                                     onClick={handleSerialConnect}
                                     type="button"
-                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all shadow-sm ${isConnected ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'}`}
+                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all shadow-sm ${isConnected ? "bg-green-100 text-green-700 border border-green-200" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200"}`}
                                 >
                                     <LinkIcon className="w-5 h-5 mr-2" />
-                                    {isConnected ? 'Conectado' : 'Conectar'}
+                                    {isConnected ? "Conectado" : "Conectar"}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={handleCapture}
-                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all ${capturedWeight ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 'bg-white text-gray-700 border-gray-200'}`}
+                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all ${capturedWeight ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-white text-gray-700 border-gray-200"}`}
                                 >
                                     <Scale className="w-5 h-5 mr-2" />
-                                    {capturedWeight ? 'Recapturar' : 'Capturar'}
+                                    {capturedWeight ? "Recapturar" : "Capturar"}
                                 </button>
                             </div>
                         </div>
 
                         {/* Status Card */}
-                        <div className={`rounded-2xl p-6 border shadow-sm ${orderDetails ? (orderDetails.type === 'vessel_operator' ? 'bg-blue-50 border-blue-200' : 'bg-green-50 border-green-200') : 'bg-gray-50 border-gray-200'}`}>
+                        <div
+                            className={`rounded-2xl p-6 border shadow-sm ${orderDetails ? (orderDetails.type === "vessel_operator" ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200") : "bg-gray-50 border-gray-200"}`}
+                        >
                             <h3 className="font-bold text-gray-800 flex items-center mb-2">
                                 <AlertCircle className="w-5 h-5 mr-2" />
                                 Estado del Registro
                             </h3>
                             <p className="text-sm text-gray-600">
-                                {orderDetails ? (
-                                    orderDetails.type === 'vessel_operator' ? 'Nueva Entrada (Barco detectado)' : 'Orden Existente (Precargada)'
-                                ) : 'Esperando lectura de QR...'}
+                                {orderDetails
+                                    ? orderDetails.type === "vessel_operator"
+                                        ? "Nueva Entrada (Barco detectado)"
+                                        : "Orden Existente (Precargada)"
+                                    : "Esperando lectura de QR..."}
                             </p>
                         </div>
 
                         <div className="pt-2">
-                            <PrimaryButton disabled={processing || (!data.shipment_order_id && !data.vessel_id)} className="w-full h-14 text-lg bg-green-600 hover:bg-green-700 shadow-xl transform transition hover:scale-[1.01] flex justify-center items-center rounded-xl">
+                            <PrimaryButton
+                                disabled={
+                                    processing ||
+                                    (!data.shipment_order_id && !data.vessel_id)
+                                }
+                                className="w-full h-14 text-lg bg-green-600 hover:bg-green-700 shadow-xl transform transition hover:scale-[1.01] flex justify-center items-center rounded-xl"
+                            >
                                 <Save className="w-6 h-6 mr-2" />
                                 GUARDAR ENTRADA
                             </PrimaryButton>
@@ -373,7 +476,6 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
 
                     {/* RIGHT COLUMN: Form Fields (8 cols) */}
                     <div className="lg:col-span-8 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-
                         {/* 1. Origen y Documentación */}
                         <div className="p-8 border-b border-gray-100">
                             <h4 className="text-indigo-800 font-bold mb-6 flex items-center bg-indigo-50 p-3 rounded-lg border border-indigo-100">
@@ -382,57 +484,81 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Proveedor / Cliente <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Proveedor / Cliente{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
-                                        value={data.provider || ''}
-                                        onChange={e => setData('provider', e.target.value)}
+                                        value={data.provider || ""}
+                                        onChange={(e) =>
+                                            setData("provider", e.target.value)
+                                        }
                                         readOnly={!!data.client_id}
-                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 ${data.client_id ? 'bg-gray-50 text-gray-500' : ''}`}
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 ${data.client_id ? "bg-gray-50 text-gray-500" : ""}`}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Producto <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Producto{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
-                                        value={data.product || ''}
-                                        onChange={e => setData('product', e.target.value)}
+                                        value={data.product || ""}
+                                        onChange={(e) =>
+                                            setData("product", e.target.value)
+                                        }
                                         readOnly={!!data.product_id}
-                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 ${data.product_id ? 'bg-gray-50 text-gray-500' : ''}`}
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 ${data.product_id ? "bg-gray-50 text-gray-500" : ""}`}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Origen</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Origen
+                                    </label>
                                     <input
                                         type="text"
                                         value={data.origin}
-                                        onChange={e => setData('origin', e.target.value)}
+                                        onChange={(e) =>
+                                            setData("origin", e.target.value)
+                                        }
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Carta Porte</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Carta Porte
+                                    </label>
                                     <input
                                         type="text"
                                         value={data.withdrawal_letter}
-                                        onChange={e => setData('withdrawal_letter', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                "withdrawal_letter",
+                                                e.target.value,
+                                            )
+                                        }
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                         placeholder=""
                                     />
                                 </div>
                                 {/* Force Origin if needed */}
                                 <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Referencia</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Referencia
+                                    </label>
                                     <input
                                         type="text"
                                         value={data.reference}
-                                        onChange={e => setData('reference', e.target.value)}
+                                        onChange={(e) =>
+                                            setData("reference", e.target.value)
+                                        }
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                     />
                                 </div>
                             </div>
                         </div>
-
 
                         {/* 3. Transporte (Read Only mostly) */}
                         <div className="p-8 border-b border-gray-100">
@@ -443,23 +569,38 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
 
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono bg-amber-50 p-6 rounded-xl border border-amber-100 mb-6">
                                 <div>
-                                    <span className="block text-gray-500 uppercase mb-1">Línea</span>
-                                    <span className="font-bold text-gray-800 text-sm">{data.transport_line || '-'}</span>
+                                    <span className="block text-gray-500 uppercase mb-1">
+                                        Línea
+                                    </span>
+                                    <span className="font-bold text-gray-800 text-sm">
+                                        {data.transport_line || "-"}
+                                    </span>
                                 </div>
                                 <div>
-                                    <span className="block text-gray-500 uppercase mb-1">Operador</span>
-                                    <span className="font-bold text-gray-800 text-sm">{data.driver || '-'}</span>
+                                    <span className="block text-gray-500 uppercase mb-1">
+                                        Operador
+                                    </span>
+                                    <span className="font-bold text-gray-800 text-sm">
+                                        {data.driver || "-"}
+                                    </span>
                                 </div>
                                 <div>
-                                    <span className="block text-gray-500 uppercase mb-1">Placa</span>
-                                    <span className="font-bold text-gray-800 text-sm">{data.vehicle_plate || '-'}</span>
+                                    <span className="block text-gray-500 uppercase mb-1">
+                                        Placa
+                                    </span>
+                                    <span className="font-bold text-gray-800 text-sm">
+                                        {data.vehicle_plate || "-"}
+                                    </span>
                                 </div>
                                 <div>
-                                    <span className="block text-gray-500 uppercase mb-1">Remolque</span>
-                                    <span className="font-bold text-gray-800 text-sm">{data.trailer_plate || '-'}</span>
+                                    <span className="block text-gray-500 uppercase mb-1">
+                                        Remolque
+                                    </span>
+                                    <span className="font-bold text-gray-800 text-sm">
+                                        {data.trailer_plate || "-"}
+                                    </span>
                                 </div>
                             </div>
-
                         </div>
 
                         {/* 4. Báscula (Simplified) */}
@@ -470,11 +611,18 @@ export default function EntryMP({ auth, active_scale_id = 1 }: { auth: any, acti
                             </h4>
                             <div className="grid grid-cols-1 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Observaciones</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Observaciones
+                                    </label>
                                     <input
                                         type="text"
                                         value={data.observations}
-                                        onChange={e => setData('observations', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                "observations",
+                                                e.target.value,
+                                            )
+                                        }
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
                                         placeholder="Comentarios adicionales..."
                                     />

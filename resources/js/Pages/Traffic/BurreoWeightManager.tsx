@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, useForm } from '@inertiajs/react';
-import { Anchor, Calculator, Save, Ship, AlertCircle, CheckCircle2 } from 'lucide-react';
+import React, { useState } from "react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, useForm } from "@inertiajs/react";
+import {
+    Anchor,
+    Calculator,
+    Save,
+    Ship,
+    AlertCircle,
+    CheckCircle2,
+} from "lucide-react";
 
 interface Vessel {
     id: string;
@@ -30,29 +37,35 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
 
     const handleSelectVessel = (vessel: Vessel) => {
         setSelectedVessel(vessel);
-        provisionalForm.setData('provisional_burreo_weight', (vessel.provisional_burreo_weight || 0) / 1000);
-        draftForm.setData('draft_weight', (vessel.draft_weight || 0) / 1000);
+        provisionalForm.setData(
+            "provisional_burreo_weight",
+            (vessel.provisional_burreo_weight || 0) / 1000,
+        );
+        draftForm.setData("draft_weight", (vessel.draft_weight || 0) / 1000);
     };
 
     const submitProvisional = (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedVessel) return;
 
-        provisionalForm.post(route('traffic.burreo.provisional', selectedVessel.id), {
-            onSuccess: () => {
-                // Update local state or just rely on Inertia reload
-            }
-        });
+        provisionalForm.post(
+            route("traffic.burreo.provisional", selectedVessel.id),
+            {
+                onSuccess: () => {
+                    // Update local state or just rely on Inertia reload
+                },
+            },
+        );
     };
 
     const submitDraft = (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedVessel) return;
 
-        draftForm.post(route('traffic.burreo.draft', selectedVessel.id), {
+        draftForm.post(route("traffic.burreo.draft", selectedVessel.id), {
             onSuccess: () => {
                 // Update local state or just rely on Inertia reload
-            }
+            },
         });
     };
 
@@ -63,7 +76,6 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
                         {/* Vessel List */}
                         <div className="lg:col-span-1 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 italic-text">
                             <div className="p-6 bg-indigo-600">
@@ -81,17 +93,28 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                     vessels.map((v) => (
                                         <button
                                             key={v.id}
-                                            onClick={() => handleSelectVessel(v)}
-                                            className={`w-full text-left p-4 hover:bg-indigo-50 transition-colors ${selectedVessel?.id === v.id ? 'bg-indigo-50 border-l-4 border-indigo-600' : ''}`}
+                                            onClick={() =>
+                                                handleSelectVessel(v)
+                                            }
+                                            className={`w-full text-left p-4 hover:bg-indigo-50 transition-colors ${selectedVessel?.id === v.id ? "bg-indigo-50 border-l-4 border-indigo-600" : ""}`}
                                         >
-                                            <div className="font-bold text-gray-800">{v.name}</div>
+                                            <div className="font-bold text-gray-800">
+                                                {v.name}
+                                            </div>
                                             <div className="text-xs text-gray-500 mt-1 uppercase">
-                                                {v.product?.name || 'Producto N/A'} | {v.client?.name || 'Cliente N/A'}
+                                                {v.product?.name ||
+                                                    "Producto N/A"}{" "}
+                                                |{" "}
+                                                {v.client?.name ||
+                                                    "Cliente N/A"}
                                             </div>
                                             <div className="flex mt-2 gap-2">
                                                 {v.provisional_burreo_weight ? (
                                                     <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                                                        Prov: {(v.provisional_burreo_weight || 0) / 1000} TM
+                                                        Prov:{" "}
+                                                        {(v.provisional_burreo_weight ||
+                                                            0) / 1000}{" "}
+                                                        TM
                                                     </span>
                                                 ) : (
                                                     <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">
@@ -100,7 +123,10 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                 )}
                                                 {v.draft_weight && (
                                                     <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                                                        Draft: {(v.draft_weight || 0) / 1000} TM
+                                                        Draft:{" "}
+                                                        {(v.draft_weight || 0) /
+                                                            1000}{" "}
+                                                        TM
                                                     </span>
                                                 )}
                                             </div>
@@ -115,7 +141,10 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                             {!selectedVessel ? (
                                 <div className="bg-white rounded-2xl shadow-lg p-12 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 h-full">
                                     <Anchor className="w-16 h-16 text-gray-200 mb-4" />
-                                    <h3 className="text-xl font-medium text-gray-400">Selecciona un buque para gestionar sus pesos</h3>
+                                    <h3 className="text-xl font-medium text-gray-400">
+                                        Selecciona un buque para gestionar sus
+                                        pesos
+                                    </h3>
                                 </div>
                             ) : (
                                 <>
@@ -127,18 +156,38 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                     <AlertCircle className="mr-2 w-5 h-5 text-amber-500" />
                                                     Peso Promedio Provisional
                                                 </h3>
-                                                <p className="text-amber-600 text-sm mt-1">Este peso se usará para los tickets que no pasen por báscula.</p>
+                                                <p className="text-amber-600 text-sm mt-1">
+                                                    Este peso se usará para los
+                                                    tickets que no pasen por
+                                                    báscula.
+                                                </p>
                                             </div>
                                             <Ship className="w-10 h-10 text-amber-200" />
                                         </div>
-                                        <form onSubmit={submitProvisional} className="p-8">
+                                        <form
+                                            onSubmit={submitProvisional}
+                                            className="p-8"
+                                        >
                                             <div className="max-w-md">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Peso Promedio (TM)</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Peso Promedio (TM)
+                                                </label>
                                                 <div className="relative">
                                                     <input
                                                         type="number"
-                                                        value={provisionalForm.data.provisional_burreo_weight}
-                                                        onChange={e => provisionalForm.setData('provisional_burreo_weight', parseFloat(e.target.value))}
+                                                        value={
+                                                            provisionalForm.data
+                                                                .provisional_burreo_weight
+                                                        }
+                                                        onChange={(e) =>
+                                                            provisionalForm.setData(
+                                                                "provisional_burreo_weight",
+                                                                parseFloat(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
+                                                            )
+                                                        }
                                                         className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg font-bold pl-4 pr-12 py-3"
                                                         placeholder="0.00"
                                                         step="0.01"
@@ -148,12 +197,21 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                         TM
                                                     </div>
                                                 </div>
-                                                {provisionalForm.errors.provisional_burreo_weight && (
-                                                    <p className="mt-2 text-sm text-red-600">{provisionalForm.errors.provisional_burreo_weight}</p>
+                                                {provisionalForm.errors
+                                                    .provisional_burreo_weight && (
+                                                    <p className="mt-2 text-sm text-red-600">
+                                                        {
+                                                            provisionalForm
+                                                                .errors
+                                                                .provisional_burreo_weight
+                                                        }
+                                                    </p>
                                                 )}
                                                 <button
                                                     type="submit"
-                                                    disabled={provisionalForm.processing}
+                                                    disabled={
+                                                        provisionalForm.processing
+                                                    }
                                                     className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50"
                                                 >
                                                     <Save className="mr-2 w-5 h-5" />
@@ -169,20 +227,41 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                             <div>
                                                 <h3 className="text-emerald-800 font-bold text-lg flex items-center">
                                                     <Calculator className="mr-2 w-5 h-5 text-emerald-500" />
-                                                    Cierre de Operación: Peso de Calado (Draft)
+                                                    Cierre de Operación: Peso de
+                                                    Calado (Draft)
                                                 </h3>
-                                                <p className="text-emerald-600 text-sm mt-1">Al ingresar este peso, se recalcularán todos los tickets "burreo".</p>
+                                                <p className="text-emerald-600 text-sm mt-1">
+                                                    Al ingresar este peso, se
+                                                    recalcularán todos los
+                                                    tickets "burreo".
+                                                </p>
                                             </div>
                                             <CheckCircle2 className="w-10 h-10 text-emerald-200" />
                                         </div>
-                                        <form onSubmit={submitDraft} className="p-8">
+                                        <form
+                                            onSubmit={submitDraft}
+                                            className="p-8"
+                                        >
                                             <div className="max-w-md">
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Peso Total de Calado (TM)</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    Peso Total de Calado (TM)
+                                                </label>
                                                 <div className="relative">
                                                     <input
                                                         type="number"
-                                                        value={draftForm.data.draft_weight}
-                                                        onChange={e => draftForm.setData('draft_weight', parseFloat(e.target.value))}
+                                                        value={
+                                                            draftForm.data
+                                                                .draft_weight
+                                                        }
+                                                        onChange={(e) =>
+                                                            draftForm.setData(
+                                                                "draft_weight",
+                                                                parseFloat(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
+                                                            )
+                                                        }
                                                         className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-lg font-bold pl-4 pr-12 py-3"
                                                         placeholder="0.00"
                                                         step="0.01"
@@ -192,8 +271,14 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                         TM
                                                     </div>
                                                 </div>
-                                                {draftForm.errors.draft_weight && (
-                                                    <p className="mt-2 text-sm text-red-600">{draftForm.errors.draft_weight}</p>
+                                                {draftForm.errors
+                                                    .draft_weight && (
+                                                    <p className="mt-2 text-sm text-red-600">
+                                                        {
+                                                            draftForm.errors
+                                                                .draft_weight
+                                                        }
+                                                    </p>
                                                 )}
 
                                                 <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-600">
@@ -201,12 +286,23 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                         <AlertCircle className="w-4 h-4 mr-2 text-indigo-500" />
                                                         Acción Crítica
                                                     </p>
-                                                    Esta acción tomará el peso total ingresado, lo dividirá entre el número de unidades de burreo del buque <strong>{selectedVessel.name}</strong>, y actualizará automáticamente el peso neto de sus tickets.
+                                                    Esta acción tomará el peso
+                                                    total ingresado, lo dividirá
+                                                    entre el número de unidades
+                                                    de burreo del buque{" "}
+                                                    <strong>
+                                                        {selectedVessel.name}
+                                                    </strong>
+                                                    , y actualizará
+                                                    automáticamente el peso neto
+                                                    de sus tickets.
                                                 </div>
 
                                                 <button
                                                     type="submit"
-                                                    disabled={draftForm.processing}
+                                                    disabled={
+                                                        draftForm.processing
+                                                    }
                                                     className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all disabled:opacity-50"
                                                 >
                                                     <Calculator className="mr-2 w-5 h-5" />

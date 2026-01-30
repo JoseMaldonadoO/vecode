@@ -1,9 +1,8 @@
-import { Head } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { Printer } from 'lucide-react';
+import { Head } from "@inertiajs/react";
+import { useEffect } from "react";
+import { Printer } from "lucide-react";
 
 export default function Ticket({ order }: { order: any }) {
-
     useEffect(() => {
         // Auto-print when loaded
         window.print();
@@ -16,7 +15,9 @@ export default function Ticket({ order }: { order: any }) {
             {/* Ticket Container */}
             <div className="w-[80mm] print:w-full">
                 <div className="text-center mb-4 border-b pb-4 border-dashed border-gray-400">
-                    <h1 className="text-xl font-bold uppercase mb-1">VECODE PLANT</h1>
+                    <h1 className="text-xl font-bold uppercase mb-1">
+                        VECODE PLANT
+                    </h1>
                     <p className="text-xs">Carretera Federal 45 Km 10</p>
                     <p className="text-xs">Celaya, Guanajuato</p>
                     <p className="text-xs mt-2 font-bold">TICKET DE BÁSCULA</p>
@@ -25,7 +26,9 @@ export default function Ticket({ order }: { order: any }) {
                 <div className="space-y-2 mb-4">
                     <div className="flex justify-between">
                         <span>FOLIO TICKET:</span>
-                        <span className="font-bold">{order.weight_ticket?.ticket_number}</span>
+                        <span className="font-bold">
+                            {order.weight_ticket?.ticket_number}
+                        </span>
                     </div>
                     <div className="flex justify-between">
                         <span>FOLIO ORDEN:</span>
@@ -33,27 +36,50 @@ export default function Ticket({ order }: { order: any }) {
                     </div>
                     <div className="flex justify-between">
                         <span>FECHA:</span>
-                        <span>{new Date(order.weight_ticket?.created_at).toLocaleString()}</span>
+                        <span>
+                            {new Date(
+                                order.weight_ticket?.created_at,
+                            ).toLocaleString()}
+                        </span>
                     </div>
                 </div>
 
                 <div className="mb-4 border-t border-b py-2 border-dashed border-gray-400 space-y-2">
                     <div>
-                        <span className="block text-xs text-gray-500">CLIENTE</span>
-                        <span className="font-bold block uppercase">{order.client?.business_name}</span>
+                        <span className="block text-xs text-gray-500">
+                            CLIENTE
+                        </span>
+                        <span className="font-bold block uppercase">
+                            {order.client?.business_name}
+                        </span>
                     </div>
                     <div>
-                        <span className="block text-xs text-gray-500">PRODUCTO</span>
-                        <span className="font-bold block uppercase">{order.product?.name || order.items?.[0]?.product?.name}</span>
+                        <span className="block text-xs text-gray-500">
+                            PRODUCTO
+                        </span>
+                        <span className="font-bold block uppercase">
+                            {order.product?.name ||
+                                order.items?.[0]?.product?.name}
+                        </span>
                     </div>
                     <div>
-                        <span className="block text-xs text-gray-500">TRANSPORTISTA / CHOFER</span>
-                        <span className="block uppercase">{order.transporter?.name}</span>
-                        <span className="block uppercase text-xs">{order.driver?.name}</span>
+                        <span className="block text-xs text-gray-500">
+                            TRANSPORTISTA / CHOFER
+                        </span>
+                        <span className="block uppercase">
+                            {order.transporter?.name}
+                        </span>
+                        <span className="block uppercase text-xs">
+                            {order.driver?.name}
+                        </span>
                     </div>
                     <div>
-                        <span className="block text-xs text-gray-500">UNIDAD / PLACAS</span>
-                        <span className="block uppercase">{order.vehicle?.plate_number}</span>
+                        <span className="block text-xs text-gray-500">
+                            UNIDAD / PLACAS
+                        </span>
+                        <span className="block uppercase">
+                            {order.vehicle?.plate_number}
+                        </span>
                     </div>
                 </div>
 
@@ -64,11 +90,15 @@ export default function Ticket({ order }: { order: any }) {
                     </div>
                     <div className="flex justify-between">
                         <span>BRUTO:</span>
-                        <span>{order.weight_ticket?.gross_weight || '---'} kg</span>
+                        <span>
+                            {order.weight_ticket?.gross_weight || "---"} kg
+                        </span>
                     </div>
                     <div className="border-t border-gray-900 pt-2 flex justify-between text-xl">
                         <span>NETO:</span>
-                        <span>{order.weight_ticket?.net_weight || '---'} kg</span>
+                        <span>
+                            {order.weight_ticket?.net_weight || "---"} kg
+                        </span>
                     </div>
                 </div>
 

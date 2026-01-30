@@ -1,22 +1,44 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link } from '@inertiajs/react';
-import { Warehouse, Box, Truck, CheckCircle, AlertTriangle, ArrowRight, Package, ArrowLeft, X, FileText, User as UserIcon, Scale, Calendar } from 'lucide-react';
-import { useState } from 'react';
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, Link } from "@inertiajs/react";
+import {
+    Warehouse,
+    Box,
+    Truck,
+    CheckCircle,
+    AlertTriangle,
+    ArrowRight,
+    Package,
+    ArrowLeft,
+    X,
+    FileText,
+    User as UserIcon,
+    Scale,
+    Calendar,
+} from "lucide-react";
+import { useState } from "react";
 
 // --- Unicorn Components ---
 
-const WarehouseCard = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location: any) => void }) => {
+const WarehouseCard = ({
+    wh,
+    onViewDetails,
+}: {
+    wh: any;
+    onViewDetails: (location: any) => void;
+}) => {
     // Almacén 1-3 (Flat)
     const isOccupied = wh.occupied;
     const unitCount = wh.orders?.length || 0;
 
     return (
-        <div className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 group h-full
-            ${isOccupied
-                ? 'border-indigo-500 bg-gradient-to-br from-indigo-900 to-slate-900 shadow-[0_0_30px_-1px_rgba(99,102,241,0.4)]'
-                : 'border-slate-200 bg-white/50 border-dashed hover:border-indigo-300 hover:bg-white'
-            }`}>
-
+        <div
+            className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 group h-full
+            ${
+                isOccupied
+                    ? "border-indigo-500 bg-gradient-to-br from-indigo-900 to-slate-900 shadow-[0_0_30px_-1px_rgba(99,102,241,0.4)]"
+                    : "border-slate-200 bg-white/50 border-dashed hover:border-indigo-300 hover:bg-white"
+            }`}
+        >
             {/* Background Effects */}
             {isOccupied && (
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl animate-pulse"></div>
@@ -26,14 +48,20 @@ const WarehouseCard = ({ wh, onViewDetails }: { wh: any, onViewDetails: (locatio
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <h3 className={`text-sm font-bold uppercase tracking-wider ${isOccupied ? 'text-indigo-200' : 'text-slate-500'}`}>
+                        <h3
+                            className={`text-sm font-bold uppercase tracking-wider ${isOccupied ? "text-indigo-200" : "text-slate-500"}`}
+                        >
                             Ubicación
                         </h3>
-                        <h2 className={`text-2xl font-extrabold ${isOccupied ? 'text-white' : 'text-slate-700'}`}>
+                        <h2
+                            className={`text-2xl font-extrabold ${isOccupied ? "text-white" : "text-slate-700"}`}
+                        >
                             {wh.name}
                         </h2>
                     </div>
-                    <div className={`p-2 rounded-xl ${isOccupied ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-100 text-slate-400'}`}>
+                    <div
+                        className={`p-2 rounded-xl ${isOccupied ? "bg-indigo-500/20 text-indigo-300" : "bg-slate-100 text-slate-400"}`}
+                    >
                         <Warehouse className="w-8 h-8" />
                     </div>
                 </div>
@@ -47,11 +75,20 @@ const WarehouseCard = ({ wh, onViewDetails }: { wh: any, onViewDetails: (locatio
                                     <div className="p-1.5 bg-blue-500/20 text-blue-300 rounded-lg">
                                         <Truck className="w-4 h-4" />
                                     </div>
-                                    <span className="text-white font-black text-sm">{unitCount} {unitCount === 1 ? 'Unidad' : 'Unidades'}</span>
+                                    <span className="text-white font-black text-sm">
+                                        {unitCount}{" "}
+                                        {unitCount === 1
+                                            ? "Unidad"
+                                            : "Unidades"}
+                                    </span>
                                 </div>
                                 <div className="text-right">
-                                    <span className="block text-[10px] font-black text-indigo-300 uppercase tracking-widest">Peso Total</span>
-                                    <span className="text-white font-black text-lg">{(wh.total_net / 1000).toFixed(1)} TM</span>
+                                    <span className="block text-[10px] font-black text-indigo-300 uppercase tracking-widest">
+                                        Peso Total
+                                    </span>
+                                    <span className="text-white font-black text-lg">
+                                        {(wh.total_net / 1000).toFixed(1)} TM
+                                    </span>
                                 </div>
                             </div>
 
@@ -81,15 +118,21 @@ const WarehouseCard = ({ wh, onViewDetails }: { wh: any, onViewDetails: (locatio
     );
 };
 
-const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location: any) => void }) => {
+const CubicleGrid = ({
+    wh,
+    onViewDetails,
+}: {
+    wh: any;
+    onViewDetails: (location: any) => void;
+}) => {
     // Almacén 4-5 (Cubicles)
     const occupancyRate = wh.occupancy_percentage;
 
     // Explicit Color Maps for Tailwind
     const getBadgeStyle = (rate: number) => {
-        if (rate > 80) return 'bg-red-100 text-red-700 border-red-200';
-        if (rate > 40) return 'bg-amber-100 text-amber-700 border-amber-200';
-        return 'bg-green-100 text-green-700 border-green-200';
+        if (rate > 80) return "bg-red-100 text-red-700 border-red-200";
+        if (rate > 40) return "bg-amber-100 text-amber-700 border-amber-200";
+        return "bg-green-100 text-green-700 border-green-200";
     };
 
     const getProgressStyle = (rate: number) => {
@@ -105,11 +148,15 @@ const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location:
                 <div>
                     <h2 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
                         {wh.name}
-                        <span className={`text-xs px-2 py-1 rounded-full border ${getBadgeStyle(occupancyRate)}`}>
+                        <span
+                            className={`text-xs px-2 py-1 rounded-full border ${getBadgeStyle(occupancyRate)}`}
+                        >
                             {occupancyRate}% Ocupado
                         </span>
                     </h2>
-                    <p className="text-slate-500 text-sm mt-1">Capacidad: 8 Cubículos (Divisiones Internas)</p>
+                    <p className="text-slate-500 text-sm mt-1">
+                        Capacidad: 8 Cubículos (Divisiones Internas)
+                    </p>
                 </div>
                 <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-200">
                     <Box className="w-6 h-6 text-indigo-600" />
@@ -122,13 +169,16 @@ const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location:
                     <div
                         key={cubicle.id}
                         className={`relative rounded-xl p-4 border transition-all duration-300 group
-                            ${cubicle.occupied
-                                ? 'bg-white border-indigo-200 shadow-md ring-2 ring-indigo-500/20'
-                                : 'bg-slate-50 border-slate-200 border-dashed hover:border-slate-300 hover:bg-white'
+                            ${
+                                cubicle.occupied
+                                    ? "bg-white border-indigo-200 shadow-md ring-2 ring-indigo-500/20"
+                                    : "bg-slate-50 border-slate-200 border-dashed hover:border-slate-300 hover:bg-white"
                             }`}
                     >
                         <div className="flex justify-between items-start mb-2">
-                            <span className={`text-xs font-bold px-2 py-1 rounded-md ${cubicle.occupied ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 text-slate-500'}`}>
+                            <span
+                                className={`text-xs font-bold px-2 py-1 rounded-md ${cubicle.occupied ? "bg-indigo-100 text-indigo-700" : "bg-slate-200 text-slate-500"}`}
+                            >
                                 C-{cubicle.id}
                             </span>
                             {cubicle.occupied ? (
@@ -143,11 +193,23 @@ const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location:
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-1.5 text-indigo-600">
                                         <Truck className="w-3.5 h-3.5" />
-                                        <span className="text-xs font-black">{cubicle.orders?.length} {cubicle.orders?.length === 1 ? 'Unidad' : 'Unidades'}</span>
+                                        <span className="text-xs font-black">
+                                            {cubicle.orders?.length}{" "}
+                                            {cubicle.orders?.length === 1
+                                                ? "Unidad"
+                                                : "Unidades"}
+                                        </span>
                                     </div>
                                     <div className="text-right">
-                                        <span className="block text-[9px] font-black text-gray-400 uppercase">Peso</span>
-                                        <span className="text-xs font-black text-gray-800">{(cubicle.total_net / 1000).toFixed(1)} T</span>
+                                        <span className="block text-[9px] font-black text-gray-400 uppercase">
+                                            Peso
+                                        </span>
+                                        <span className="text-xs font-black text-gray-800">
+                                            {(cubicle.total_net / 1000).toFixed(
+                                                1,
+                                            )}{" "}
+                                            T
+                                        </span>
                                     </div>
                                 </div>
 
@@ -178,25 +240,38 @@ const CubicleGrid = ({ wh, onViewDetails }: { wh: any, onViewDetails: (location:
     );
 };
 
-
-import { router } from '@inertiajs/react';
+import { router } from "@inertiajs/react";
 
 // ... (imports remain)
 
-export default function Status({ auth, warehouses, filters }: { auth: any, warehouses: any[], filters: any }) {
+export default function Status({
+    auth,
+    warehouses,
+    filters,
+}: {
+    auth: any;
+    warehouses: any[];
+    filters: any;
+}) {
     const [viewingLocation, setViewingLocation] = useState<any>(null);
-    const [date, setDate] = useState(filters.date || new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(
+        filters.date || new Date().toISOString().split("T")[0],
+    );
 
-    const flatWarehouses = warehouses.filter(w => w.type === 'flat');
-    const cubicledWarehouses = warehouses.filter(w => w.type === 'cubicles');
+    const flatWarehouses = warehouses.filter((w) => w.type === "flat");
+    const cubicledWarehouses = warehouses.filter((w) => w.type === "cubicles");
 
     const handleDateChange = (newDate: string) => {
         setDate(newDate);
-        router.get(route('apt.status'), { date: newDate }, {
-            preserveState: true,
-            replace: true,
-            preserveScroll: true
-        });
+        router.get(
+            route("apt.status"),
+            { date: newDate },
+            {
+                preserveState: true,
+                replace: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     return (
@@ -204,18 +279,24 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
             <Head title="Status APT" />
 
             <div className="max-w-7xl mx-auto py-8 px-4 space-y-8 animate-fade-in">
-
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                     <div>
                         <div className="mb-4">
-                            <Link href={route('apt.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                            <Link
+                                href={route("apt.index")}
+                                className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                            >
                                 <ArrowLeft className="w-4 h-4 mr-1" />
                                 Volver al menú
                             </Link>
                         </div>
-                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Celdas y Almacenes</h1>
-                        <p className="text-slate-500 mt-1">Gestión de unidades y pesajes acumulados por día.</p>
+                        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                            Celdas y Almacenes
+                        </h1>
+                        <p className="text-slate-500 mt-1">
+                            Gestión de unidades y pesajes acumulados por día.
+                        </p>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -225,18 +306,33 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                             <input
                                 type="date"
                                 value={date}
-                                onChange={(e) => handleDateChange(e.target.value)}
+                                onChange={(e) =>
+                                    handleDateChange(e.target.value)
+                                }
                                 className="pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold shadow-sm focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                             />
                         </div>
 
                         <div className="hidden md:flex flex-col items-end">
-                            <div className={`flex items-center gap-2 text-sm px-3 py-1 rounded-full border mb-2 ${date === new Date().toISOString().split('T')[0] ? 'text-slate-400 bg-slate-50' : 'text-indigo-500 bg-indigo-50 border-indigo-100'}`}>
-                                <div className={`w-2 h-2 rounded-full ${date === new Date().toISOString().split('T')[0] ? 'bg-green-500 animate-pulse' : 'bg-indigo-500'}`} />
-                                {date === new Date().toISOString().split('T')[0] ? 'LIVE' : 'HISTÓRICO'}
+                            <div
+                                className={`flex items-center gap-2 text-sm px-3 py-1 rounded-full border mb-2 ${date === new Date().toISOString().split("T")[0] ? "text-slate-400 bg-slate-50" : "text-indigo-500 bg-indigo-50 border-indigo-100"}`}
+                            >
+                                <div
+                                    className={`w-2 h-2 rounded-full ${date === new Date().toISOString().split("T")[0] ? "bg-green-500 animate-pulse" : "bg-indigo-500"}`}
+                                />
+                                {date === new Date().toISOString().split("T")[0]
+                                    ? "LIVE"
+                                    : "HISTÓRICO"}
                             </div>
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                                {new Date(date + 'T00:00:00').toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                {new Date(
+                                    date + "T00:00:00",
+                                ).toLocaleDateString("es-MX", {
+                                    weekday: "long",
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                })}
                             </span>
                         </div>
                     </div>
@@ -246,7 +342,10 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {flatWarehouses.map((wh, idx) => (
                         <div key={idx} className="h-64">
-                            <WarehouseCard wh={wh} onViewDetails={setViewingLocation} />
+                            <WarehouseCard
+                                wh={wh}
+                                onViewDetails={setViewingLocation}
+                            />
                         </div>
                     ))}
                 </div>
@@ -254,17 +353,27 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                 {/* Divider */}
                 <div className="flex items-center gap-4 text-slate-300">
                     <div className="h-px bg-slate-200 flex-1" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Almacenes Divisionados</span>
+                    <span className="text-xs font-bold uppercase tracking-widest">
+                        Almacenes Divisionados
+                    </span>
                     <div className="h-px bg-slate-200 flex-1" />
                 </div>
 
                 {/* Row 2: Cubicled Warehouses (4-5) */}
                 <div className="space-y-8">
                     {cubicledWarehouses.map((wh, idx) => (
-                        <CubicleGrid key={idx} wh={wh} onViewDetails={(cub) => setViewingLocation({ ...cub, name: `${wh.name} - Cubículo ${cub.id}` })} />
+                        <CubicleGrid
+                            key={idx}
+                            wh={wh}
+                            onViewDetails={(cub) =>
+                                setViewingLocation({
+                                    ...cub,
+                                    name: `${wh.name} - Cubículo ${cub.id}`,
+                                })
+                            }
+                        />
                     ))}
                 </div>
-
             </div>
 
             {/* MODAL: Detalle de Ubicación Multi-Unidad */}
@@ -275,8 +384,12 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                         <div className="p-8 bg-gradient-to-r from-indigo-900 via-blue-900 to-indigo-900 flex justify-between items-center relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                             <div className="relative z-10">
-                                <h3 className="text-white text-3xl font-black tracking-tight">{viewingLocation.name}</h3>
-                                <p className="text-indigo-200 font-bold uppercase tracking-widest text-xs mt-1">Unidades en ubicación</p>
+                                <h3 className="text-white text-3xl font-black tracking-tight">
+                                    {viewingLocation.name}
+                                </h3>
+                                <p className="text-indigo-200 font-bold uppercase tracking-widest text-xs mt-1">
+                                    Unidades en ubicación
+                                </p>
                             </div>
                             <button
                                 onClick={() => setViewingLocation(null)}
@@ -293,8 +406,12 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                                     <Truck className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Unidades</span>
-                                    <span className="text-lg font-black text-slate-800">{viewingLocation.orders?.length}</span>
+                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        Total Unidades
+                                    </span>
+                                    <span className="text-lg font-black text-slate-800">
+                                        {viewingLocation.orders?.length}
+                                    </span>
                                 </div>
                             </div>
                             <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
@@ -303,8 +420,15 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                                     <Scale className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonelaje Neto Acumulado</span>
-                                    <span className="text-lg font-black text-blue-900">{(viewingLocation.total_net / 1000).toLocaleString()} TM</span>
+                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        Tonelaje Neto Acumulado
+                                    </span>
+                                    <span className="text-lg font-black text-blue-900">
+                                        {(
+                                            viewingLocation.total_net / 1000
+                                        ).toLocaleString()}{" "}
+                                        TM
+                                    </span>
                                 </div>
                             </div>
                             <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
@@ -313,8 +437,16 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                                     <Package className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Tonelaje Programado</span>
-                                    <span className="text-lg font-black text-amber-900">{(viewingLocation.total_programmed / 1000).toLocaleString()} TM</span>
+                                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        Tonelaje Programado
+                                    </span>
+                                    <span className="text-lg font-black text-amber-900">
+                                        {(
+                                            viewingLocation.total_programmed /
+                                            1000
+                                        ).toLocaleString()}{" "}
+                                        TM
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -324,53 +456,88 @@ export default function Status({ auth, warehouses, filters }: { auth: any, wareh
                             <table className="w-full text-left border-separate border-spacing-y-3">
                                 <thead>
                                     <tr>
-                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Orden / Folio</th>
-                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Operador / Línea</th>
-                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Unidad</th>
-                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Peso Neto</th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Orden / Folio
+                                        </th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Operador / Línea
+                                        </th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Unidad
+                                        </th>
+                                        <th className="px-6 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">
+                                            Peso Neto
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {viewingLocation.orders?.map((order: any) => (
-                                        <tr key={order.id} className="group hover:scale-[1.01] transition-all">
-                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-l-2xl border-y border-l border-slate-100 transition-colors">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-white rounded-lg border border-slate-100 text-indigo-600">
-                                                        <FileText className="w-4 h-4" />
+                                    {viewingLocation.orders?.map(
+                                        (order: any) => (
+                                            <tr
+                                                key={order.id}
+                                                className="group hover:scale-[1.01] transition-all"
+                                            >
+                                                <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-l-2xl border-y border-l border-slate-100 transition-colors">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-white rounded-lg border border-slate-100 text-indigo-600">
+                                                            <FileText className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <span className="block font-black text-slate-800 text-sm">
+                                                                {order.folio}
+                                                            </span>
+                                                            <span className="text-[10px] text-slate-400 uppercase font-bold">
+                                                                {order.product}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <span className="block font-black text-slate-800 text-sm">{order.folio}</span>
-                                                        <span className="text-[10px] text-slate-400 uppercase font-bold">{order.product}</span>
+                                                </td>
+                                                <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
+                                                    <div className="flex items-center gap-2">
+                                                        <UserIcon className="w-3.5 h-3.5 text-slate-400" />
+                                                        <div>
+                                                            <span className="block font-bold text-slate-700 text-sm">
+                                                                {
+                                                                    order.operator_name
+                                                                }
+                                                            </span>
+                                                            <span className="text-[10px] text-slate-400 font-medium">
+                                                                {
+                                                                    order.transport_company
+                                                                }
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
-                                                <div className="flex items-center gap-2">
-                                                    <UserIcon className="w-3.5 h-3.5 text-slate-400" />
-                                                    <div>
-                                                        <span className="block font-bold text-slate-700 text-sm">{order.operator_name}</span>
-                                                        <span className="text-[10px] text-slate-400 font-medium">{order.transport_company}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
-                                                <span className="inline-flex items-center px-2 py-1 bg-white border rounded-md text-xs font-black text-slate-600">
-                                                    {order.unit_number || order.tractor_plate}
-                                                </span>
-                                            </td>
-                                            <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-r-2xl border-y border-r border-slate-100 text-right transition-colors">
-                                                <span className="text-sm font-black text-indigo-600">
-                                                    {((order.weight_ticket?.net_weight || 0) / 1000).toLocaleString()} TM
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 border-y border-slate-100 transition-colors">
+                                                    <span className="inline-flex items-center px-2 py-1 bg-white border rounded-md text-xs font-black text-slate-600">
+                                                        {order.unit_number ||
+                                                            order.tractor_plate}
+                                                    </span>
+                                                </td>
+                                                <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-r-2xl border-y border-r border-slate-100 text-right transition-colors">
+                                                    <span className="text-sm font-black text-indigo-600">
+                                                        {(
+                                                            (order.weight_ticket
+                                                                ?.net_weight ||
+                                                                0) / 1000
+                                                        ).toLocaleString()}{" "}
+                                                        TM
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ),
+                                    )}
                                 </tbody>
                             </table>
-                            {(!viewingLocation.orders || viewingLocation.orders.length === 0) && (
+                            {(!viewingLocation.orders ||
+                                viewingLocation.orders.length === 0) && (
                                 <div className="text-center py-12">
                                     <Package className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                                    <p className="text-slate-400 font-bold">No hay unidades activas en esta ubicación.</p>
+                                    <p className="text-slate-400 font-bold">
+                                        No hay unidades activas en esta
+                                        ubicación.
+                                    </p>
                                 </div>
                             )}
                         </div>

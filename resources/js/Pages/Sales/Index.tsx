@@ -1,13 +1,20 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link, useForm, router } from '@inertiajs/react';
-import { Plus, Search, FileText, UserPlus, Users, ArrowLeft } from 'lucide-react';
-import Modal from '@/Components/Modal';
-import InputLabel from '@/Components/InputLabel';
-import TextInput from '@/Components/TextInput';
-import InputError from '@/Components/InputError';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import { useState, FormEventHandler } from 'react';
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, Link, useForm, router } from "@inertiajs/react";
+import {
+    Plus,
+    Search,
+    FileText,
+    UserPlus,
+    Users,
+    ArrowLeft,
+} from "lucide-react";
+import Modal from "@/Components/Modal";
+import InputLabel from "@/Components/InputLabel";
+import TextInput from "@/Components/TextInput";
+import InputError from "@/Components/InputError";
+import PrimaryButton from "@/Components/PrimaryButton";
+import SecondaryButton from "@/Components/SecondaryButton";
+import { useState, FormEventHandler } from "react";
 
 interface Client {
     id: number;
@@ -32,67 +39,87 @@ interface Order {
     created_at: string;
 }
 
-export default function Index({ auth, orders, clients, initialView = 'menu' }: { auth: any, orders: Order[], clients: Client[], initialView?: 'menu' | 'report' }) {
-    const [viewMode, setViewMode] = useState<'menu' | 'report'>(initialView);
-    const [search, setSearch] = useState('');
+export default function Index({
+    auth,
+    orders,
+    clients,
+    initialView = "menu",
+}: {
+    auth: any;
+    orders: Order[];
+    clients: Client[];
+    initialView?: "menu" | "report";
+}) {
+    const [viewMode, setViewMode] = useState<"menu" | "report">(initialView);
+    const [search, setSearch] = useState("");
 
     // Define a consistent number formatter (US style: comma for thousands)
-    const formatter = new Intl.NumberFormat('en-US', {
+    const formatter = new Intl.NumberFormat("en-US", {
         maximumFractionDigits: 3,
         minimumFractionDigits: 0,
     });
 
     const toggleStatus = (id: string) => {
-        router.patch(route('sales.toggle-status', id), {}, {
-            preserveScroll: true,
-            onError: (errors) => {
-                alert('Error al actualizar el estatus: ' + JSON.stringify(errors));
-            }
-        });
+        router.patch(
+            route("sales.toggle-status", id),
+            {},
+            {
+                preserveScroll: true,
+                onError: (errors) => {
+                    alert(
+                        "Error al actualizar el estatus: " +
+                            JSON.stringify(errors),
+                    );
+                },
+            },
+        );
     };
 
-    const filteredOrders = orders.filter(order =>
-        order.folio.toLowerCase().includes(search.toLowerCase()) ||
-        order.sale_order?.toLowerCase().includes(search.toLowerCase()) ||
-        order.client?.business_name.toLowerCase().includes(search.toLowerCase())
+    const filteredOrders = orders.filter(
+        (order) =>
+            order.folio.toLowerCase().includes(search.toLowerCase()) ||
+            order.sale_order?.toLowerCase().includes(search.toLowerCase()) ||
+            order.client?.business_name
+                .toLowerCase()
+                .includes(search.toLowerCase()),
     );
 
     const menuItems = [
         {
-            name: 'Generar OV',
+            name: "Generar OV",
             icon: Plus,
-            action: () => router.visit(route('sales.create')),
-            description: 'Crear nueva orden de venta.',
-            color: 'bg-indigo-50 text-indigo-600',
-            bg: 'bg-white',
-            borderColor: 'border-gray-100 hover:border-indigo-100'
+            action: () => router.visit(route("sales.create")),
+            description: "Crear nueva orden de venta.",
+            color: "bg-indigo-50 text-indigo-600",
+            bg: "bg-white",
+            borderColor: "border-gray-100 hover:border-indigo-100",
         },
         {
-            name: 'Agregar Cliente',
+            name: "Agregar Cliente",
             icon: UserPlus,
-            action: () => router.visit(route('clients.create')),
-            description: 'Registrar nuevo cliente.',
-            color: 'bg-blue-50 text-blue-600',
-            bg: 'bg-white',
-            borderColor: 'border-gray-100 hover:border-blue-100'
+            action: () => router.visit(route("clients.create")),
+            description: "Registrar nuevo cliente.",
+            color: "bg-blue-50 text-blue-600",
+            bg: "bg-white",
+            borderColor: "border-gray-100 hover:border-blue-100",
         },
         {
-            name: 'Lista de Clientes',
+            name: "Lista de Clientes",
             icon: Users,
-            action: () => router.visit(route('clients.index')),
-            description: 'Ver directorio de clientes.',
-            color: 'bg-purple-50 text-purple-600',
-            bg: 'bg-white',
-            borderColor: 'border-gray-100 hover:border-purple-100'
+            action: () => router.visit(route("clients.index")),
+            description: "Ver directorio de clientes.",
+            color: "bg-purple-50 text-purple-600",
+            bg: "bg-white",
+            borderColor: "border-gray-100 hover:border-purple-100",
         },
         {
-            name: 'Reportes OV',
+            name: "Reportes OV",
             icon: FileText,
-            action: () => setViewMode('report'),
-            description: 'Ver historial de órdenes de venta.',
-            color: 'bg-emerald-50 text-emerald-600',
-            bg: 'bg-white',
-            borderColor: 'border-gray-100 hover:border-emerald-100'
+            action: () => setViewMode("report"),
+            description: "Ver historial de órdenes de venta.",
+            color: "bg-emerald-50 text-emerald-600",
+            bg: "bg-white",
+            borderColor: "border-gray-100 hover:border-emerald-100",
         },
     ];
 
@@ -102,19 +129,25 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    {viewMode === 'menu' ? (
+                    {viewMode === "menu" ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                             {menuItems.map((item, index) => (
                                 <button
                                     key={index}
                                     onClick={item.action}
-                                    className={`group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl ${item.color.includes('indigo') ? 'hover:border-indigo-500' : item.color.includes('blue') ? 'hover:border-blue-500' : item.color.includes('purple') ? 'hover:border-purple-500' : 'hover:border-emerald-500'}`}
+                                    className={`group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl ${item.color.includes("indigo") ? "hover:border-indigo-500" : item.color.includes("blue") ? "hover:border-blue-500" : item.color.includes("purple") ? "hover:border-purple-500" : "hover:border-emerald-500"}`}
                                 >
-                                    <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 ${item.color}`}>
+                                    <div
+                                        className={`w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 ${item.color}`}
+                                    >
                                         <item.icon className="w-10 h-10" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-800 break-words w-full">{item.name}</h3>
-                                    <p className="text-gray-500 mt-2 text-sm">{item.description}</p>
+                                    <h3 className="text-xl font-bold text-gray-800 break-words w-full">
+                                        {item.name}
+                                    </h3>
+                                    <p className="text-gray-500 mt-2 text-sm">
+                                        {item.description}
+                                    </p>
                                 </button>
                             ))}
                         </div>
@@ -125,7 +158,7 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                 <div className="flex-1 min-w-0">
                                     <div className="mb-4">
                                         <button
-                                            onClick={() => setViewMode('menu')}
+                                            onClick={() => setViewMode("menu")}
                                             className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                                         >
                                             <ArrowLeft className="w-4 h-4 mr-1" />
@@ -150,7 +183,9 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                         placeholder="Buscar por folio, cliente..."
                                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow"
                                         value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
+                                        onChange={(e) =>
+                                            setSearch(e.target.value)
+                                        }
                                     />
                                 </div>
                                 <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full">
@@ -163,75 +198,154 @@ export default function Index({ auth, orders, clients, initialView = 'menu' }: {
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                             <tr>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Orden de Venta</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cliente</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Estatus</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Solicitado</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Cargado</th>
-                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Saldo</th>
-                                                <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                                    Orden de Venta
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                                    Cliente
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                                    Estatus
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                                    Solicitado
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                                    Cargado
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                                    Saldo
+                                                </th>
+                                                <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                                                    Acciones
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {filteredOrders.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                                                    <td
+                                                        colSpan={7}
+                                                        className="px-6 py-12 text-center text-gray-500"
+                                                    >
                                                         <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                                        <p className="text-lg font-medium">No hay órdenes registradas</p>
-                                                        <p className="text-sm">Comienza creando una nueva orden de venta.</p>
+                                                        <p className="text-lg font-medium">
+                                                            No hay órdenes
+                                                            registradas
+                                                        </p>
+                                                        <p className="text-sm">
+                                                            Comienza creando una
+                                                            nueva orden de
+                                                            venta.
+                                                        </p>
                                                     </td>
                                                 </tr>
                                             ) : (
                                                 filteredOrders.map((order) => (
-                                                    <tr key={order.id} className="hover:bg-indigo-50 transition-colors duration-150">
+                                                    <tr
+                                                        key={order.id}
+                                                        className="hover:bg-indigo-50 transition-colors duration-150"
+                                                    >
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
-                                                            {order.folio || 'N/A'}
+                                                            {order.folio ||
+                                                                "N/A"}
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                            {order.client?.business_name}
+                                                            {
+                                                                order.client
+                                                                    ?.business_name
+                                                            }
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
-                                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                                                            ${order.status === 'created' ? 'bg-blue-100 text-blue-800' : ''}
-                                                            ${order.status === 'closed' ? 'bg-red-100 text-red-800' : ''}
-                                                            ${order.status === 'completed' ? 'bg-green-100 text-green-800' : ''}
-                                                        `}>
-                                                                {order.status === 'created' ? 'ABIERTA' :
-                                                                    order.status === 'closed' ? 'CERRADA' :
-                                                                        order.status.toUpperCase()}
+                                                            <span
+                                                                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                                            ${order.status === "created" ? "bg-blue-100 text-blue-800" : ""}
+                                                            ${order.status === "closed" ? "bg-red-100 text-red-800" : ""}
+                                                            ${order.status === "completed" ? "bg-green-100 text-green-800" : ""}
+                                                        `}
+                                                            >
+                                                                {order.status ===
+                                                                "created"
+                                                                    ? "ABIERTA"
+                                                                    : order.status ===
+                                                                        "closed"
+                                                                      ? "CERRADA"
+                                                                      : order.status.toUpperCase()}
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
-                                                            {formatter.format(Number(order.total_quantity))} TM
+                                                            {formatter.format(
+                                                                Number(
+                                                                    order.total_quantity,
+                                                                ),
+                                                            )}{" "}
+                                                            TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
-                                                            {formatter.format(Number(order.loaded_quantity))} TM
+                                                            {formatter.format(
+                                                                Number(
+                                                                    order.loaded_quantity,
+                                                                ),
+                                                            )}{" "}
+                                                            TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
-                                                            {formatter.format(Number(order.balance))} TM
+                                                            {formatter.format(
+                                                                Number(
+                                                                    order.balance,
+                                                                ),
+                                                            )}{" "}
+                                                            TM
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                            <Link href={route('sales.show', { sale: order.id, module: 'sales_report' })} className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors">Ver</Link>
+                                                            <Link
+                                                                href={route(
+                                                                    "sales.show",
+                                                                    {
+                                                                        sale: order.id,
+                                                                        module: "sales_report",
+                                                                    },
+                                                                )}
+                                                                className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
+                                                            >
+                                                                Ver
+                                                            </Link>
 
-                                                            {order.status === 'created' && (
+                                                            {order.status ===
+                                                                "created" && (
                                                                 <>
                                                                     <Link
-                                                                        href={route('sales.edit', { sale: order.id, module: 'sales_report' })}
+                                                                        href={route(
+                                                                            "sales.edit",
+                                                                            {
+                                                                                sale: order.id,
+                                                                                module: "sales_report",
+                                                                            },
+                                                                        )}
                                                                         className="text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1.5 rounded-md hover:bg-amber-100 transition-colors"
                                                                     >
                                                                         Editar
                                                                     </Link>
                                                                     <button
-                                                                        onClick={() => toggleStatus(order.id)}
+                                                                        onClick={() =>
+                                                                            toggleStatus(
+                                                                                order.id,
+                                                                            )
+                                                                        }
                                                                         className="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors"
                                                                     >
                                                                         Cerrar
                                                                     </button>
                                                                 </>
                                                             )}
-                                                            {order.status === 'closed' && (
+                                                            {order.status ===
+                                                                "closed" && (
                                                                 <button
-                                                                    onClick={() => toggleStatus(order.id)}
+                                                                    onClick={() =>
+                                                                        toggleStatus(
+                                                                            order.id,
+                                                                        )
+                                                                    }
                                                                     className="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1.5 rounded-md hover:bg-green-100 transition-colors"
                                                                 >
                                                                     Abrir

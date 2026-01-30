@@ -1,20 +1,32 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft, Printer, ChevronRight } from 'lucide-react';
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, Link } from "@inertiajs/react";
+import { ArrowLeft, Printer, ChevronRight } from "lucide-react";
 
-export default function Show({ auth, order, context_module }: { auth: any, order: any, context_module?: string }) {
-    const isDocumentation = context_module === 'documentation';
-    const isSalesReport = context_module === 'sales_report';
+export default function Show({
+    auth,
+    order,
+    context_module,
+}: {
+    auth: any;
+    order: any;
+    context_module?: string;
+}) {
+    const isDocumentation = context_module === "documentation";
+    const isSalesReport = context_module === "sales_report";
 
     const backLink = isDocumentation
-        ? route('documentation.orders.index')
-        : (isSalesReport ? route('sales.index', { view: 'report' }) : route('sales.index'));
+        ? route("documentation.orders.index")
+        : isSalesReport
+          ? route("sales.index", { view: "report" })
+          : route("sales.index");
 
     const backLabel = isDocumentation
-        ? 'Volver al reporte de embarque'
-        : (isSalesReport ? 'Volver al reporte de ventas' : 'Volver al listado');
+        ? "Volver al reporte de embarque"
+        : isSalesReport
+          ? "Volver al reporte de ventas"
+          : "Volver al listado";
 
-    const formatter = new Intl.NumberFormat('en-US', {
+    const formatter = new Intl.NumberFormat("en-US", {
         maximumFractionDigits: 3,
         minimumFractionDigits: 0,
     });
@@ -26,7 +38,10 @@ export default function Show({ auth, order, context_module }: { auth: any, order
             <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Navigation Header */}
                 <div className="mb-6 flex justify-between items-center print:hidden">
-                    <Link href={backLink} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                    <Link
+                        href={backLink}
+                        className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                    >
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         {backLabel}
                     </Link>
@@ -47,11 +62,22 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                         {/* Header Section */}
                         <div className="flex justify-between items-start mb-8 print:mb-4">
                             <div className="flex flex-col">
-                                <img src="/img/Proagro2.png" alt="Proagro" className="h-16 w-auto object-contain mb-2 self-start" />
+                                <img
+                                    src="/img/Proagro2.png"
+                                    alt="Proagro"
+                                    className="h-16 w-auto object-contain mb-2 self-start"
+                                />
                                 <div className="text-[11px] leading-tight text-gray-700">
-                                    <p className="font-bold text-black text-[13px]">Proagroindustria S.A. de C.V.</p>
-                                    <p>Carretera Coatzacoalcos-villahermosa Km 5</p>
-                                    <p>interior complejo petroquimico pajaritos</p>
+                                    <p className="font-bold text-black text-[13px]">
+                                        Proagroindustria S.A. de C.V.
+                                    </p>
+                                    <p>
+                                        Carretera Coatzacoalcos-villahermosa Km
+                                        5
+                                    </p>
+                                    <p>
+                                        interior complejo petroquimico pajaritos
+                                    </p>
                                     <p>Coatzacoalcos, Veracruz</p>
                                 </div>
                             </div>
@@ -63,23 +89,35 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                 <table className="w-full border-collapse border border-black text-xs">
                                     <tbody>
                                         <tr>
-                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium w-1/3">Folio:</td>
-                                            <td className="border border-black px-2 py-1 font-bold text-[13px]">{order.folio}</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">Fecha:</td>
-                                            <td className="border border-black px-2 py-1 text-gray-700">
-                                                {new Date(order.created_at).toLocaleDateString('es-MX')}
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium w-1/3">
+                                                Folio:
+                                            </td>
+                                            <td className="border border-black px-2 py-1 font-bold text-[13px]">
+                                                {order.folio}
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">No. Cliente:</td>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">
+                                                Fecha:
+                                            </td>
+                                            <td className="border border-black px-2 py-1 text-gray-700">
+                                                {new Date(
+                                                    order.created_at,
+                                                ).toLocaleDateString("es-MX")}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">
+                                                No. Cliente:
+                                            </td>
                                             <td className="border border-black px-2 py-1 font-bold text-[13px]">
                                                 {order.client?.id}
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">Orden de compra:</td>
+                                            <td className="border border-black px-2 py-1 bg-gray-100 font-medium">
+                                                Orden de compra:
+                                            </td>
                                             <td className="border border-black px-2 py-1 font-bold text-[13px] uppercase">
                                                 {order.sale_order}
                                             </td>
@@ -87,11 +125,20 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                     </tbody>
                                 </table>
                                 <div className="mt-2 text-right">
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${order.status === 'created' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                        order.status === 'closed' ? 'bg-red-50 text-red-700 border-red-200' :
-                                            'bg-green-50 text-green-700 border-green-200'
-                                        }`}>
-                                        {order.status === 'created' ? 'ABIERTA' : order.status === 'closed' ? 'CERRADA' : order.status}
+                                    <span
+                                        className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                                            order.status === "created"
+                                                ? "bg-blue-50 text-blue-700 border-blue-200"
+                                                : order.status === "closed"
+                                                  ? "bg-red-50 text-red-700 border-red-200"
+                                                  : "bg-green-50 text-green-700 border-green-200"
+                                        }`}
+                                    >
+                                        {order.status === "created"
+                                            ? "ABIERTA"
+                                            : order.status === "closed"
+                                              ? "CERRADA"
+                                              : order.status}
                                     </span>
                                 </div>
                             </div>
@@ -105,27 +152,36 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             <table className="w-full border-collapse border border-black text-xs">
                                 <tbody>
                                     <tr>
-                                        <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">Nombre:</td>
+                                        <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">
+                                            Nombre:
+                                        </td>
                                         <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
                                             {order.client?.business_name}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">RFC:</td>
+                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">
+                                            RFC:
+                                        </td>
                                         <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
-                                            {order.client?.rfc || 'N/A'}
+                                            {order.client?.rfc || "N/A"}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">Dirección:</td>
+                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">
+                                            Dirección:
+                                        </td>
                                         <td className="px-3 py-1 border border-black text-[11px] font-normal uppercase leading-tight">
-                                            {order.client?.address || 'N/A'}
+                                            {order.client?.address || "N/A"}
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">Contacto:</td>
+                                        <td className="bg-gray-100 px-3 py-1 border border-black font-normal">
+                                            Contacto:
+                                        </td>
                                         <td className="px-3 py-1 border border-black text-xs font-normal uppercase">
-                                            {order.client?.contact_info || 'N/A'}
+                                            {order.client?.contact_info ||
+                                                "N/A"}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -135,15 +191,21 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                 <table className="w-full border-collapse border border-black text-xs">
                                     <tbody>
                                         <tr>
-                                            <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de venta:</td>
+                                            <td className="w-1/4 bg-gray-100 px-3 py-2 border border-black font-normal">
+                                                Condiciones de venta:
+                                            </td>
                                             <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
-                                                {order.sale_conditions || 'CONTADO'}
+                                                {order.sale_conditions ||
+                                                    "CONTADO"}
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td className="bg-gray-100 px-3 py-2 border border-black font-normal">Condiciones de entrega:</td>
+                                            <td className="bg-gray-100 px-3 py-2 border border-black font-normal">
+                                                Condiciones de entrega:
+                                            </td>
                                             <td className="w-3/4 px-3 py-2 border border-black text-sm font-normal uppercase">
-                                                {order.delivery_conditions || 'LAB PLANTA'}
+                                                {order.delivery_conditions ||
+                                                    "LAB PLANTA"}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -156,21 +218,31 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                             <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
                                 <thead className="bg-gray-500 text-white text-center">
                                     <tr>
-                                        <th className="border border-black py-1 w-[60%]">Descripción</th>
-                                        <th className="border border-black py-1 w-[20%]">Unidad</th>
-                                        <th className="border border-black py-1 w-[20%]">Cantidad</th>
+                                        <th className="border border-black py-1 w-[60%]">
+                                            Descripción
+                                        </th>
+                                        <th className="border border-black py-1 w-[20%]">
+                                            Unidad
+                                        </th>
+                                        <th className="border border-black py-1 w-[20%]">
+                                            Cantidad
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr className="h-10 text-center">
                                         <td className="border border-black px-2 py-1 text-[13px] font-normal">
-                                            {order.product?.code ? `${order.product.code} - ${order.product.name}` : order.product?.name}
+                                            {order.product?.code
+                                                ? `${order.product.code} - ${order.product.name}`
+                                                : order.product?.name}
                                         </td>
                                         <td className="border border-black py-1 h-10 font-normal">
                                             TONELADAS
                                         </td>
                                         <td className="border border-black px-2 py-1 font-normal text-[15px]">
-                                            {formatter.format(Number(order.total_quantity))}
+                                            {formatter.format(
+                                                Number(order.total_quantity),
+                                            )}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -183,7 +255,7 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                                 Observaciones
                             </div>
                             <div className="border border-black min-h-[6rem] p-3 text-[13px] font-normal whitespace-pre-line">
-                                {order.destination || '...'}
+                                {order.destination || "..."}
                             </div>
                         </div>
 
@@ -191,23 +263,50 @@ export default function Show({ auth, order, context_module }: { auth: any, order
                         <div className="mt-20 print:mt-8">
                             <div className="flex flex-col items-center mb-16 print:mb-8">
                                 <div className="w-64 border-b border-black mb-1"></div>
-                                <p className="text-sm font-medium">Oscar Méndez Torres</p>
-                                <p className="text-[12px] text-gray-500">Comercialización</p>
+                                <p className="text-sm font-medium">
+                                    Oscar Méndez Torres
+                                </p>
+                                <p className="text-[12px] text-gray-500">
+                                    Comercialización
+                                </p>
                             </div>
 
                             <div className="text-center mb-8 print:mb-4">
-                                <p className="text-indigo-900 font-bold text-[13px]">www.pro-agroindustria.com</p>
+                                <p className="text-indigo-900 font-bold text-[13px]">
+                                    www.pro-agroindustria.com
+                                </p>
                             </div>
 
                             <div className="flex justify-between items-end border-t border-gray-100 pt-6 print:pt-4">
                                 <div className="text-[10px] text-gray-500 space-y-0.5">
-                                    <p><span className="font-bold text-black">Venta y cobranza:</span> oscar.mendez@pro-agroindustria.com</p>
-                                    <p><span className="font-bold text-black">Asst. Adtvo.:</span> jorge.robles@pro-agroindustria.com</p>
-                                    <p><span className="font-bold text-black">Comercialización:</span> ventas.comercializacion@pro-agroindustria.com</p>
+                                    <p>
+                                        <span className="font-bold text-black">
+                                            Venta y cobranza:
+                                        </span>{" "}
+                                        oscar.mendez@pro-agroindustria.com
+                                    </p>
+                                    <p>
+                                        <span className="font-bold text-black">
+                                            Asst. Adtvo.:
+                                        </span>{" "}
+                                        jorge.robles@pro-agroindustria.com
+                                    </p>
+                                    <p>
+                                        <span className="font-bold text-black">
+                                            Comercialización:
+                                        </span>{" "}
+                                        ventas.comercializacion@pro-agroindustria.com
+                                    </p>
                                 </div>
                                 <div className="flex flex-col items-end">
-                                    <img src="/img/Proagro2.png" alt="Logo" className="h-8 opacity-50 mb-1" />
-                                    <p className="text-[10px] text-gray-400 font-mono italic">DCM-FO-001</p>
+                                    <img
+                                        src="/img/Proagro2.png"
+                                        alt="Logo"
+                                        className="h-8 opacity-50 mb-1"
+                                    />
+                                    <p className="text-[10px] text-gray-400 font-mono italic">
+                                        DCM-FO-001
+                                    </p>
                                 </div>
                             </div>
                         </div>

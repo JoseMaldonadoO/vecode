@@ -1,26 +1,47 @@
-import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, Link, router } from '@inertiajs/react';
-import { Search, Calendar, Filter, Download, Edit, Trash2, Printer, ChevronLeft, ChevronRight, X, ArrowLeft, FileText, Scale } from 'lucide-react';
-import { useState, useCallback } from 'react';
-import { debounce, pickBy } from 'lodash';
-import Swal from 'sweetalert2';
+import DashboardLayout from "@/Layouts/DashboardLayout";
+import { Head, Link, router } from "@inertiajs/react";
+import {
+    Search,
+    Calendar,
+    Filter,
+    Download,
+    Edit,
+    Trash2,
+    Printer,
+    ChevronLeft,
+    ChevronRight,
+    X,
+    ArrowLeft,
+    FileText,
+    Scale,
+} from "lucide-react";
+import { useState, useCallback } from "react";
+import { debounce, pickBy } from "lodash";
+import Swal from "sweetalert2";
 
-export default function Index({ auth, tickets, filters }: { auth: any, tickets: any, filters: any }) {
-
+export default function Index({
+    auth,
+    tickets,
+    filters,
+}: {
+    auth: any;
+    tickets: any;
+    filters: any;
+}) {
     // Search State
-    const [search, setSearch] = useState(filters.search || '');
-    const [date, setDate] = useState(filters.date || '');
+    const [search, setSearch] = useState(filters.search || "");
+    const [date, setDate] = useState(filters.date || "");
 
     // Debounced Search
     const onSearchChange = useCallback(
         debounce((query: string, dateVal: string) => {
             router.get(
-                route('scale.tickets.index'),
+                route("scale.tickets.index"),
                 pickBy({ search: query, date: dateVal }),
-                { preserveState: true, preserveScroll: true }
+                { preserveState: true, preserveScroll: true },
             );
         }, 300),
-        []
+        [],
     );
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,55 +55,60 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
     };
 
     const clearFilters = () => {
-        setSearch('');
-        setDate('');
-        router.get(route('scale.tickets.index'));
+        setSearch("");
+        setDate("");
+        router.get(route("scale.tickets.index"));
     };
 
     const confirmDelete = (id: string, folio: string) => {
         Swal.fire({
-            title: '¿Estás seguro?',
+            title: "¿Estás seguro?",
             text: `Se eliminará el ticket asociado al Folio ${folio}. La orden volverá a estado "Autorizado". Esta acción no se puede deshacer.`,
-            icon: 'warning',
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Sí, eliminar",
+            cancelButtonText: "Cancelar",
             customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-xl px-6 py-3 font-bold',
-                cancelButton: 'rounded-xl px-6 py-3 font-bold'
-            }
+                popup: "rounded-2xl",
+                confirmButton: "rounded-xl px-6 py-3 font-bold",
+                cancelButton: "rounded-xl px-6 py-3 font-bold",
+            },
         }).then((result) => {
             if (result.isConfirmed) {
-                router.delete(route('scale.tickets.destroy', id), {
+                router.delete(route("scale.tickets.destroy", id), {
                     preserveScroll: true,
                     onSuccess: () => {
                         Swal.fire({
-                            title: '¡Eliminado!',
-                            text: 'El ticket ha sido eliminado correctamente.',
-                            icon: 'success',
-                            confirmButtonColor: '#3085d6',
-                            timer: 2000
+                            title: "¡Eliminado!",
+                            text: "El ticket ha sido eliminado correctamente.",
+                            icon: "success",
+                            confirmButtonColor: "#3085d6",
+                            timer: 2000,
                         });
-                    }
+                    },
                 });
             }
         });
     };
 
     return (
-        <DashboardLayout user={auth.user} header="Historial de Tickets de Báscula">
+        <DashboardLayout
+            user={auth.user}
+            header="Historial de Tickets de Báscula"
+        >
             <Head title="Historial Tickets" />
 
             <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
                 {/* Header Section */}
                 <div className="md:flex md:items-center md:justify-between mb-6">
                     <div className="flex-1 min-w-0">
                         <div className="mb-4">
-                            <Link href={route('scale.index')} className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors">
+                            <Link
+                                href={route("scale.index")}
+                                className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                            >
                                 <ArrowLeft className="w-4 h-4 mr-1" />
                                 Volver al Panel de Báscula
                             </Link>
@@ -96,7 +122,6 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
 
                 {/* Filters Bar */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
-
                     <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
                         {/* Search */}
                         <div className="relative w-full md:w-96">
@@ -142,47 +167,119 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Folio / Ticket</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Chofer / Unidad</th>
-                                    <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">Producto / Cliente</th>
-                                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">Pesos (kg)</th>
-                                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Estatus</th>
-                                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Folio / Ticket
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Chofer / Unidad
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Producto / Cliente
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Pesos (kg)
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Estatus
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Acciones
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {tickets.data.length > 0 ? (
                                     tickets.data.map((ticket: any) => (
-                                        <tr key={ticket.id} className="hover:bg-indigo-50 transition-colors duration-150 group">
+                                        <tr
+                                            key={ticket.id}
+                                            className="hover:bg-indigo-50 transition-colors duration-150 group"
+                                        >
                                             <td className="px-6 py-4 sm:whitespace-nowrap">
-                                                <div className="font-bold text-gray-900">Folio: {ticket.folio}</div>
-                                                <div className="text-xs text-gray-500 font-mono mt-0.5">{ticket.ticket_number}</div>
-                                                <div className="text-xs text-indigo-500 mt-1 font-medium">{ticket.exit_at ? new Date(ticket.exit_at).toLocaleDateString() : 'En proceso'}</div>
+                                                <div className="font-bold text-gray-900">
+                                                    Folio: {ticket.folio}
+                                                </div>
+                                                <div className="text-xs text-gray-500 font-mono mt-0.5">
+                                                    {ticket.ticket_number}
+                                                </div>
+                                                <div className="text-xs text-indigo-500 mt-1 font-medium">
+                                                    {ticket.exit_at
+                                                        ? new Date(
+                                                              ticket.exit_at,
+                                                          ).toLocaleDateString()
+                                                        : "En proceso"}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold mr-3">
-                                                        {ticket.driver.charAt(0)}
+                                                        {ticket.driver.charAt(
+                                                            0,
+                                                        )}
                                                     </div>
                                                     <div>
-                                                        <div className="font-medium text-gray-800 text-sm">{ticket.driver}</div>
+                                                        <div className="font-medium text-gray-800 text-sm">
+                                                            {ticket.driver}
+                                                        </div>
                                                         <div className="inline-flex mt-1 items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                                                            {ticket.vehicle_plate}
+                                                            {
+                                                                ticket.vehicle_plate
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <div className="text-indigo-700 font-bold text-sm">{ticket.product}</div>
-                                                <div className="text-gray-500 text-xs truncate max-w-[200px]" title={ticket.provider}>{ticket.provider}</div>
+                                                <div className="text-indigo-700 font-bold text-sm">
+                                                    {ticket.product}
+                                                </div>
+                                                <div
+                                                    className="text-gray-500 text-xs truncate max-w-[200px]"
+                                                    title={ticket.provider}
+                                                >
+                                                    {ticket.provider}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <div className="text-gray-900 font-mono font-medium text-sm"><span className="text-gray-400 text-xs mr-1">Neto:</span>{ticket.net_weight?.toLocaleString()}</div>
-                                                <div className="text-gray-500 font-mono text-xs"><span className="text-gray-300 mr-1">Tara:</span>{ticket.tare_weight?.toLocaleString()}</div>
-                                                <div className="text-gray-500 font-mono text-xs"><span className="text-gray-300 mr-1">Bruto:</span>{ticket.gross_weight?.toLocaleString()}</div>
+                                                <div className="text-gray-900 font-mono font-medium text-sm">
+                                                    <span className="text-gray-400 text-xs mr-1">
+                                                        Neto:
+                                                    </span>
+                                                    {ticket.net_weight?.toLocaleString()}
+                                                </div>
+                                                <div className="text-gray-500 font-mono text-xs">
+                                                    <span className="text-gray-300 mr-1">
+                                                        Tara:
+                                                    </span>
+                                                    {ticket.tare_weight?.toLocaleString()}
+                                                </div>
+                                                <div className="text-gray-500 font-mono text-xs">
+                                                    <span className="text-gray-300 mr-1">
+                                                        Bruto:
+                                                    </span>
+                                                    {ticket.gross_weight?.toLocaleString()}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 text-center whitespace-nowrap">
-                                                {ticket.status === 'completed' ? (
+                                                {ticket.status ===
+                                                "completed" ? (
                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
                                                         Completado
                                                     </span>
@@ -196,7 +293,10 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                                 <div className="flex items-center justify-center gap-2">
                                                     {/* Reprint */}
                                                     <a
-                                                        href={route('scale.ticket.print', ticket.id)}
+                                                        href={route(
+                                                            "scale.ticket.print",
+                                                            ticket.id,
+                                                        )}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="inline-flex items-center text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 p-2 rounded-md transition-colors"
@@ -206,9 +306,14 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                                     </a>
 
                                                     {/* Edit - Only for Admin */}
-                                                    {auth.user?.roles?.includes('Admin') && (
+                                                    {auth.user?.roles?.includes(
+                                                        "Admin",
+                                                    ) && (
                                                         <Link
-                                                            href={route('scale.tickets.edit', ticket.id)}
+                                                            href={route(
+                                                                "scale.tickets.edit",
+                                                                ticket.id,
+                                                            )}
                                                             className="inline-flex items-center text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 p-2 rounded-md transition-colors"
                                                             title="Editar Ticket"
                                                         >
@@ -217,9 +322,16 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                                     )}
 
                                                     {/* Delete - Only for Admin */}
-                                                    {auth.user?.roles?.includes('Admin') && (
+                                                    {auth.user?.roles?.includes(
+                                                        "Admin",
+                                                    ) && (
                                                         <button
-                                                            onClick={() => confirmDelete(ticket.id, ticket.folio)}
+                                                            onClick={() =>
+                                                                confirmDelete(
+                                                                    ticket.id,
+                                                                    ticket.folio,
+                                                                )
+                                                            }
                                                             className="inline-flex items-center text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-md transition-colors"
                                                             title="Eliminar Ticket"
                                                         >
@@ -232,10 +344,18 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                        <td
+                                            colSpan={6}
+                                            className="px-6 py-12 text-center text-gray-500"
+                                        >
                                             <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                            <p className="text-lg font-medium">No se encontraron tickets</p>
-                                            <p className="text-sm">Intenta ajustar los filtros de búsqueda.</p>
+                                            <p className="text-lg font-medium">
+                                                No se encontraron tickets
+                                            </p>
+                                            <p className="text-sm">
+                                                Intenta ajustar los filtros de
+                                                búsqueda.
+                                            </p>
                                         </td>
                                     </tr>
                                 )}
@@ -247,28 +367,46 @@ export default function Index({ auth, tickets, filters }: { auth: any, tickets: 
                     {tickets.links && tickets.links.length > 3 && (
                         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 md:flex md:items-center md:justify-between">
                             <div className="text-sm text-gray-500 mb-4 md:mb-0">
-                                Mostrando <span className="font-medium">{tickets.from}</span> a <span className="font-medium">{tickets.to}</span> de <span className="font-medium">{tickets.total}</span> resultados
+                                Mostrando{" "}
+                                <span className="font-medium">
+                                    {tickets.from}
+                                </span>{" "}
+                                a{" "}
+                                <span className="font-medium">
+                                    {tickets.to}
+                                </span>{" "}
+                                de{" "}
+                                <span className="font-medium">
+                                    {tickets.total}
+                                </span>{" "}
+                                resultados
                             </div>
                             <div className="flex justify-center space-x-1">
                                 {tickets.links.map((link: any, i: number) => {
                                     // Render disabled label if URL is null
-                                    if (link.url === null) return (
-                                        <span
-                                            key={i}
-                                            className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
-                                        ></span>
-                                    );
+                                    if (link.url === null)
+                                        return (
+                                            <span
+                                                key={i}
+                                                className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            ></span>
+                                        );
 
                                     return (
                                         <Link
                                             key={i}
                                             href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                ? 'bg-indigo-600 text-white shadow-sm'
-                                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                                                }`}
-                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                                                link.active
+                                                    ? "bg-indigo-600 text-white shadow-sm"
+                                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                            }`}
+                                            dangerouslySetInnerHTML={{
+                                                __html: link.label,
+                                            }}
                                         />
                                     );
                                 })}
