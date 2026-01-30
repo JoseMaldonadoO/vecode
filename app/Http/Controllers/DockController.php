@@ -112,15 +112,29 @@ class DockController extends Controller
             }
         }
 
-        // Validation for Dock Occupancy (Only if boat is active)
-        if (!empty($validated['dock'])) {
-            $occupied = Vessel::active()
-                ->where('dock', $validated['dock'])
+        // Validation for Dock Occupancy (Time Overlap)
+        if (!empty($validated['dock']) && !empty($validated['berthal_datetime'])) {
+            $newStart = $validated['berthal_datetime'];
+            $newEnd = $validated['departure_date'] ?? null;
+
+            $existingCollision = Vessel::where('dock', $validated['dock'])
+                ->whereNotNull('berthal_datetime')
+                ->where(function ($query) use ($newStart, $newEnd) {
+                    // Condition 1: Existing Start < New End (if New End defined)
+                    if ($newEnd) {
+                        $query->where('berthal_datetime', '<', $newEnd);
+                    }
+                    // Condition 2: Existing End > New Start (or Infinite End)
+                    $query->where(function ($q) use ($newStart) {
+                        $q->whereNull('departure_date')
+                            ->orWhere('departure_date', '>', $newStart);
+                    });
+                })
                 ->first();
 
-            if ($occupied) {
+            if ($existingCollision) {
                 return back()->withErrors([
-                    'dock' => "El muelle {$validated['dock']} ya está ocupado por el buque {$occupied->name}."
+                    'dock' => "El muelle {$validated['dock']} está ocupado por el buque {$existingCollision->name} en las fechas seleccionadas."
                 ])->withInput();
             }
         }
@@ -223,19 +237,30 @@ class DockController extends Controller
             $validated['stay_days'] = 0;
         }
 
-        // Validation for Dock Occupancy
-        if ($validated['berthal_datetime'] && $validated['dock']) {
-            $now = now();
-            $occupied = Vessel::active()
-                ->where('dock', $validated['dock'])
-                ->where('berthal_datetime', '<=', $now)
+        // Validation for Dock Occupancy (Time Overlap)
+        if (!empty($validated['dock']) && !empty($validated['berthal_datetime'])) {
+            $newStart = $validated['berthal_datetime'];
+            $newEnd = $validated['departure_date'] ?? null;
+
+            $existingCollision = Vessel::where('dock', $validated['dock'])
+                ->whereNotNull('berthal_datetime')
                 ->where('id', '!=', $id) // Exclude self
+                ->where(function ($query) use ($newStart, $newEnd) {
+                    // Condition 1: Existing Start < New End (if New End defined)
+                    if ($newEnd) {
+                        $query->where('berthal_datetime', '<', $newEnd);
+                    }
+                    // Condition 2: Existing End > New Start (or Infinite End)
+                    $query->where(function ($q) use ($newStart) {
+                        $q->whereNull('departure_date')
+                            ->orWhere('departure_date', '>', $newStart);
+                    });
+                })
                 ->first();
 
-            if ($occupied) {
+            if ($existingCollision) {
                 return back()->withErrors([
-                    'dock' => "El muelle {$validated['dock']} ya está ocupado por el buque {$occupied->name}. " .
-                        "Por favor, asigne una fecha de salida al buque activo antes de asignar este muelle."
+                    'dock' => "El muelle {$validated['dock']} está ocupado por el buque {$existingCollision->name} en las fechas seleccionadas. Ajuste las fechas o asigne una salida al buque activo."
                 ])->withInput();
             }
         }

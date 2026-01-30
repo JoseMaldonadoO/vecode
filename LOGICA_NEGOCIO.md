@@ -29,6 +29,9 @@ El agente que mueve la carga.
     -   **Descarga Báscula**: Flujo estándar. El camión entra por báscula.
     -   **Burreo**: "Aligerar carga". El barco puede estar en otro muelle o en bahía, y se traslada carga de forma interna o directa a almacén.
 3.  **Estado Inicial**: El barco se crea y queda disponible para vincular operadores.
+4.  **Validación de Ocupación**:
+    -   El sistema valida que el muelle asignado esté disponible en las fechas indicadas.
+    -   Permite programar barcos futuros en un muelle "ocupado" actualmente, siempre que los intervalos de tiempo no se solapen (Fecha Atraco vs Fecha Salida).
 
 39: - **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
 40: 

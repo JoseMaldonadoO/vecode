@@ -81,6 +81,26 @@ export default function CreateVessel({
         }
     }, [data.operation_type]);
 
+
+    // Auto-calculate ETC when Docking Date (ETB) or Stay Days change
+    useEffect(() => {
+        if (data.docking_date && data.stay_days) {
+            const etb = new Date(data.docking_date + "T00:00:00");
+            const days = parseInt(data.stay_days.toString());
+
+            if (!isNaN(etb.getTime()) && !isNaN(days)) {
+                etb.setDate(etb.getDate() + days);
+                // Format to YYYY-MM-DD
+                const etc = etb.toISOString().split("T")[0];
+                setData((prevData) => ({
+                    ...prevData,
+                    etc: etc,
+                    departure_date: etc, // Also suggest departure date
+                }));
+            }
+        }
+    }, [data.docking_date, data.stay_days]);
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         post(route("dock.vessel.store"), {
@@ -485,11 +505,10 @@ export default function CreateVessel({
                                             )
                                         }
                                         className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
-                                            ${
-                                                data.apt_operation_type ===
+                                            ${data.apt_operation_type ===
                                                 "scale"
-                                                    ? "border-indigo-600 bg-indigo-50 text-indigo-800 shadow-md ring-2 ring-indigo-500/20"
-                                                    : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
+                                                ? "border-indigo-600 bg-indigo-50 text-indigo-800 shadow-md ring-2 ring-indigo-500/20"
+                                                : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
                                             }
                                         `}
                                     >
@@ -512,11 +531,10 @@ export default function CreateVessel({
                                             )
                                         }
                                         className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
-                                            ${
-                                                data.apt_operation_type ===
+                                            ${data.apt_operation_type ===
                                                 "burreo"
-                                                    ? "border-orange-500 bg-orange-50 text-orange-800 shadow-md ring-2 ring-orange-500/20"
-                                                    : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
+                                                ? "border-orange-500 bg-orange-50 text-orange-800 shadow-md ring-2 ring-orange-500/20"
+                                                : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
                                             }
                                         `}
                                     >
