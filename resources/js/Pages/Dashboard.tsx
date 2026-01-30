@@ -267,8 +267,8 @@ export default function Dashboard({
                             <button
                                 onClick={() => handleViewModeChange("all")}
                                 className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === "all"
-                                        ? "bg-white text-[#1e3a8a] shadow-lg scale-105"
-                                        : "text-blue-200 hover:text-white"
+                                    ? "bg-white text-[#1e3a8a] shadow-lg scale-105"
+                                    : "text-blue-200 hover:text-white"
                                     }`}
                             >
                                 Total
@@ -276,8 +276,8 @@ export default function Dashboard({
                             <button
                                 onClick={() => handleViewModeChange("scale")}
                                 className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === "scale"
-                                        ? "bg-blue-400 text-white shadow-lg scale-105"
-                                        : "text-blue-200 hover:text-white"
+                                    ? "bg-blue-400 text-white shadow-lg scale-105"
+                                    : "text-blue-200 hover:text-white"
                                     }`}
                             >
                                 Báscula
@@ -285,8 +285,8 @@ export default function Dashboard({
                             <button
                                 onClick={() => handleViewModeChange("burreo")}
                                 className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${viewMode === "burreo"
-                                        ? "bg-amber-400 text-amber-900 shadow-lg scale-105"
-                                        : "text-blue-200 hover:text-white"
+                                    ? "bg-amber-400 text-amber-900 shadow-lg scale-105"
+                                    : "text-blue-200 hover:text-white"
                                     }`}
                             >
                                 Burreo
@@ -297,9 +297,14 @@ export default function Dashboard({
                         <div className="bg-white/10 p-1 rounded-xl flex items-center border border-white/10">
                             <button
                                 onClick={() => {
-                                    const url = route("dashboard.export", localFilters);
+                                    const params = {
+                                        ...localFilters,
+                                        vessel_id: localFilters.vessel_id || vessel?.id
+                                    };
+                                    const url = route("dashboard.export", params);
                                     window.location.href = url;
                                 }}
+
                                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider shadow-lg shadow-green-900/20 transition-all flex items-center gap-2"
                             >
                                 <span className="hidden md:inline">Exportar</span>
@@ -471,8 +476,8 @@ export default function Dashboard({
                                                 {viewMode !== "all" && (
                                                     <span
                                                         className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${viewMode === "scale"
-                                                                ? "bg-blue-100 text-blue-700"
-                                                                : "bg-amber-100 text-amber-700"
+                                                            ? "bg-blue-100 text-blue-700"
+                                                            : "bg-amber-100 text-amber-700"
                                                             }`}
                                                     >
                                                         {viewMode === "scale"
