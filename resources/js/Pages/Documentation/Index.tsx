@@ -6,6 +6,7 @@ export default function Index({ auth }: { auth: any }) {
     const menuItems = [
         { name: 'Nueva Orden de Embarque', icon: FileText, href: route('documentation.create'), description: 'Crear una nueva orden de embarque.', color: 'bg-indigo-50 text-indigo-600', hover: 'hover:border-indigo-500' },
         { name: 'Descarga de Barco', icon: Anchor, href: route('documentation.dock'), description: 'Gestión de operadores y códigos QR.', color: 'bg-amber-50 text-amber-600', hover: 'hover:border-amber-500' },
+        { name: 'Reportes OB', icon: FileText, href: route('documentation.orders.index'), description: 'Ver historial de descargas (Báscula/Burreo).', color: 'bg-emerald-50 text-emerald-600', hover: 'hover:border-emerald-500' },
     ];
 
     return (
