@@ -305,7 +305,7 @@ class DashboardController extends Controller
         $data = $query->selectRaw("
                 loading_orders.operator_name,
                 COALESCE(NULLIF(loading_orders.unit_number, ''), NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
-                COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate), '---') as tractor_plate,
+                COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate_number), '---') as tractor_plate,
                 MAX(loading_orders.cubicle) as cubicle,
                 SUM(weight_tickets.net_weight) as total_net_weight,
                 COUNT(*) as trip_count
@@ -385,7 +385,7 @@ class DashboardController extends Controller
             'weight_tickets.net_weight',
             'weight_tickets.weigh_out_at',
             // Fallback to Vehicle Plate if Snapshot is NULL
-            \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate, \'---\') as tractor_plate'),
+            \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate_number, \'---\') as tractor_plate'),
             'loading_orders.trailer_plate'
         ])
             ->orderBy('weight_tickets.weigh_out_at', 'asc')
