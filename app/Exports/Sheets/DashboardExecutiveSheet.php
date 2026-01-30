@@ -144,7 +144,7 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
             DataSeries::TYPE_BARCHART, // Plot Type
             DataSeries::GROUPING_CLUSTERED,
             range(0, count($values) - 1),
-            ['Total (MT)'], // Legend
+            [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, null, null, 1, ['Total (MT)'])], // Legend Labels
             $categories,
             $values
         );
