@@ -355,7 +355,8 @@ class DashboardController extends Controller
         try {
             // Level 3: Trips for a specific Unit (Unit ID or Plate/Economic)
             // We receive 'unit_id' which is likely 'economic_number' from Level 2 grouping.
-            $unitId = $request->input('unit_id'); // This is the economic_number
+            // FRONTEND FIX: The frontend sends 'economic_number', not 'unit_id'.
+            $unitId = $request->input('unit_id') ?? $request->input('economic_number');
             $operator = $request->input('operator');
             $vesselId = $request->input('vessel_id');
 
