@@ -312,9 +312,21 @@ class DashboardController extends Controller
             ")
             ->groupBy('loading_orders.operator_name', 'loading_orders.unit_number', 'loading_orders.economic_number')
             ->orderByDesc('total_net_weight')
-            ->paginate(10);
+            ->get();
 
-        return response()->json($data);
+        // Manual Pagination to prevent GROUP BY SQL Error
+        $page = $request->input('page', 1);
+        $perPage = 10;
+        $total = $data->count();
+        $items = $data->skip(($page - 1) * $perPage)->take($perPage)->values();
+
+        return response()->json([
+            'current_page' => (int) $page,
+            'data' => $items,
+            'total' => $total,
+            'per_page' => $perPage,
+            'last_page' => ceil($total / $perPage)
+        ]);
     }
 
     /**
