@@ -303,8 +303,8 @@ class AptController extends Controller
                     }
 
                     // STRICT CHECK: If vessel requires scale, do not allow auto-creation of Burreo
-                    if (($operator->vessel->apt_operation_type ?? 'scale') === 'scale') {
-                        return back()->withErrors(['qr' => 'ALERTA: Este barco requiere registro en Báscula de entrada antes de asignar ubicación.']);
+                    if (($operator->vessel->apt_operation_type ?? 'scale') !== 'burreo') {
+                        return back()->withErrors(['qr' => 'ALERTA: El operador aún no pasa por báscula y por ende no se le puede asignar un almacén.']);
                     }
 
                     try {
@@ -373,7 +373,7 @@ class AptController extends Controller
 
             // Must be 'loading' AND have a Weight Ticket
             if ($order->status !== 'loading' || !$order->weight_ticket) {
-                return back()->withErrors(['qr' => 'ALERTA: El vehículo no ha pasado por báscula de entrada. No tiene ticket activo o estatus válido (Status: ' . $order->status . ').']);
+                return back()->withErrors(['qr' => 'ALERTA: El operador aún no pasa por báscula y por ende no se le puede asignar un almacén.']);
             }
         }
 

@@ -20,6 +20,14 @@ export default function Index({ auth }: { auth: any }) {
             color: "bg-amber-50 text-amber-600",
             hover: "hover:border-amber-500",
         },
+        {
+            name: "Reportes OB",
+            icon: FileText,
+            href: route("documentation.orders.index"),
+            description: "Ver historial de descargas (Báscula/Burreo).",
+            color: "bg-emerald-50 text-emerald-600",
+            hover: "hover:border-emerald-500",
+        },
     ];
 
     return (

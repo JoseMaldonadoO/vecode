@@ -28,14 +28,6 @@ export default function Dock({ auth }: { auth: any }) {
             color: "bg-blue-50 text-blue-600",
             hover: "hover:border-blue-500",
         },
-        {
-            name: "REPORTES OB",
-            icon: FileText,
-            href: route("documentation.orders.index"),
-            description: "Ver historial de descargas (Báscula/Burreo).",
-            color: "bg-emerald-50 text-emerald-600",
-            hover: "hover:border-emerald-500",
-        },
     ];
 
     return (
