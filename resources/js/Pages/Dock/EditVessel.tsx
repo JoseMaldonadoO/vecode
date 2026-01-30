@@ -72,15 +72,18 @@ export default function EditVessel({
 
 
     // Auto-calculate ETC when Docking Date (ETB) or Stay Days change
+    // Auto-calculate ETC when Docking Date (ETB), ETA or Stay Days change
     useEffect(() => {
-        if (data.docking_date && data.stay_days) {
-            const etb = new Date(data.docking_date + "T00:00:00");
+        const baseDateString = data.docking_date || data.eta;
+
+        if (baseDateString && data.stay_days) {
+            const baseDate = new Date(baseDateString + "T00:00:00");
             const days = parseInt(data.stay_days.toString());
 
-            if (!isNaN(etb.getTime()) && !isNaN(days)) {
-                etb.setDate(etb.getDate() + days);
+            if (!isNaN(baseDate.getTime()) && !isNaN(days)) {
+                baseDate.setDate(baseDate.getDate() + days);
                 // Format to YYYY-MM-DD
-                const etc = etb.toISOString().split("T")[0];
+                const etc = baseDate.toISOString().split("T")[0];
                 setData((prevData) => ({
                     ...prevData,
                     etc: etc,
@@ -88,7 +91,7 @@ export default function EditVessel({
                 }));
             }
         }
-    }, [data.docking_date, data.stay_days]);
+    }, [data.docking_date, data.eta, data.stay_days]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
