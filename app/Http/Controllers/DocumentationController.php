@@ -95,8 +95,18 @@ class DocumentationController extends Controller
     // QR Printing
     public function qrPrint(Request $request)
     {
+        $operator = null;
+        if ($request->has('qr')) {
+            $qr = $request->input('qr');
+            // Assuming format "OP <id>"
+            if (str_starts_with($qr, 'OP ')) {
+                $id = (int) substr($qr, 3);
+                $operator = VesselOperator::with('vessel')->find($id);
+            }
+        }
+
         return Inertia::render('Documentation/QrPrint', [
-            'qr' => $request->input('qr'),
+            'operator' => $operator,
         ]);
     }
 

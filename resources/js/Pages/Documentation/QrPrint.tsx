@@ -1,42 +1,28 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Search, Printer } from "lucide-react";
+import { ArrowLeft, Printer, Search } from "lucide-react";
 import axios from "axios";
 import QRCode from "qrcode";
 
-export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
+export default function QrPrint({ auth, operator: initialOperator }: { auth: any; operator?: any }) {
+    // State to handle both direct mode (initialOperator) and manual search
+    const [selectedOperator, setSelectedOperator] = useState<any>(initialOperator || null);
+
+    // Search state (only used if no operator is selected)
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<any[]>([]);
-    const [selectedOperator, setSelectedOperator] = useState<any>(null);
     const [qrDataUrl, setQrDataUrl] = useState("");
-    const [isAutoSearch, setIsAutoSearch] = useState(false);
 
-    // Initialize from URL param
-    useEffect(() => {
-        if (qr) {
-            const cleanQuery = qr.replace(/^OP\s*/i, ""); // Remove "OP " prefix
-            setQuery(cleanQuery);
-            setIsAutoSearch(true);
-        }
-    }, [qr]);
-
+    // Effect for Manual Search
     useEffect(() => {
         const search = async () => {
-            if (query.length > 0) {
-                // Changed min length to 1 for ID searches
+            if (query.length > 0 && !selectedOperator) {
                 try {
                     const response = await axios.get(
                         route("apt.operators.search") + `?q=${query}`,
                     );
                     setResults(response.data);
-
-                    // Auto-select if exact match or single result during auto-search
-                    if (isAutoSearch && response.data.length > 0) {
-                        // If searching by ID, finding 1 result is highly likely the correct one
-                        setSelectedOperator(response.data[0]);
-                        setIsAutoSearch(false); // Reset flag
-                    }
                 } catch (error) {
                     console.error("Error searching operators:", error);
                 }
@@ -45,15 +31,18 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
             }
         };
 
-        const timeoutId = setTimeout(() => search(), 300);
-        return () => clearTimeout(timeoutId);
-    }, [query]);
+        if (!selectedOperator) {
+            const timeoutId = setTimeout(() => search(), 300);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [query, selectedOperator]);
 
+    // Effect for QR Generation
     useEffect(() => {
         if (selectedOperator) {
             // Generate QR Code with Operator ID or unique data
             const qrText = `OP ${selectedOperator.id}|${selectedOperator.operator_name}`;
-            QRCode.toDataURL(qrText, { width: 200, margin: 1 }, (err, url) => {
+            QRCode.toDataURL(qrText, { width: 300, margin: 1 }, (err, url) => {
                 if (!err) setQrDataUrl(url);
             });
         }
@@ -64,22 +53,31 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
     };
 
     return (
-        <DashboardLayout user={auth.user} header="Impresión de QR (APT)">
-            <Head title="Imprimir QR - APT" />
+        <DashboardLayout user={auth.user} header="Impresión de QR (Muelle)">
+            <Head title="Imprimir QR - Muelle" />
 
-            {/* Non-printable search area */}
-            <div className="max-w-4xl mx-auto print:hidden">
+            <div className="max-w-4xl mx-auto py-8 px-4 print:hidden">
                 <div className="mb-6 flex items-center justify-between">
                     <Link
                         href={route("documentation.operators.index")}
-                        className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium"
+                        className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1" />
                         Volver a Lista de Operadores
                     </Link>
+
+                    {selectedOperator && (
+                        <button
+                            onClick={handlePrint}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold flex items-center shadow-lg transition-all transform hover:-translate-y-0.5"
+                        >
+                            <Printer className="w-5 h-5 mr-2" />
+                            IMPRIMIR QR
+                        </button>
+                    )}
                 </div>
 
-                {(query.length === 0 && !selectedOperator && !qr) ? (
+                {!selectedOperator ? (
                     <div className="bg-white rounded-xl shadow-lg p-8">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                             Buscar Operador
@@ -117,99 +115,70 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
                                     </div>
                                 </button>
                             ))}
-                            {query.length > 2 && results.length === 0 && (
-                                <p className="text-center text-gray-500 py-4">
-                                    No se encontraron operadores.
-                                </p>
-                            )}
                         </div>
-                    </div>
-                ) : !selectedOperator && qr ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="text-gray-500 text-lg">Cargando datos del operador...</div>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-xl shadow-lg p-8">
-                        <div className="mb-6 flex justify-between items-center">
-                            {!qr && (
-                                <button
-                                    onClick={() => setSelectedOperator(null)}
-                                    className="text-gray-500 hover:text-gray-900 font-medium"
-                                >
-                                    &larr; Buscar otro
-                                </button>
-                            )}
-                            {qr && <div></div>} {/* Spacer to keep Print button on right */}
-                            <button
-                                onClick={handlePrint}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold flex items-center shadow-md transition-all"
-                            >
-                                <Printer className="w-5 h-5 mr-2" />
-                                Imprimir
-                            </button>
-                        </div>
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 p-8">
+                        <div className="flex flex-col items-center">
+                            <div className="w-full flex justify-between items-center mb-6">
+                                <p className="text-gray-400 text-xs font-bold uppercase tracking-[0.2em]">Vista Previa de Impresión</p>
+                                {!initialOperator && (
+                                    <button
+                                        onClick={() => { setSelectedOperator(null); setQuery(""); }}
+                                        className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                                    >
+                                        Buscar otro
+                                    </button>
+                                )}
+                            </div>
 
-                        <div className="items-center justify-center flex flex-col bg-gray-100 p-8 rounded-xl border border-dashed border-gray-300">
-                            <p className="text-gray-500 mb-4 text-sm font-medium uppercase tracking-wide">
-                                Vista Previa
-                            </p>
-                            {/* Card Container for Preview */}
-                            <div className="bg-white w-[8.5in] min-h-[500px] shadow-2xl p-16 relative">
-                                {" "}
-                                {/* Approx letter width scale */}
-                                {/* Header Logo */}
-                                <div className="mb-8">
-                                    <img
-                                        src="/logo_pro_agro.png"
-                                        alt="Pro Agroindustria"
-                                        className="h-20 object-contain"
-                                    />
+                            {/* Preview Card */}
+                            <div className="bg-white border-2 border-gray-200 w-full max-w-[21cm] p-12 shadow-inner rounded-lg">
+                                <div className="flex justify-between items-start mb-10">
+                                    <img src="/logo_pro_agro.png" alt="Logo" className="h-16 object-contain" />
+                                    <div className="text-right">
+                                        <h2 className="text-2xl font-black text-gray-900 leading-tight">FICHA DE<br />OPERADOR</h2>
+                                        <p className="text-indigo-600 font-bold text-sm">INGRESO / MUELLE</p>
+                                    </div>
                                 </div>
-                                <h1 className="text-3xl font-bold text-gray-900 mb-8 font-sans">
-                                    Datos de Unidad
-                                </h1>
-                                <div className="space-y-6 text-lg font-serif">
-                                    <p className="tracking-wide">
-                                        <span className="font-bold">
-                                            ECONOMICO:
-                                        </span>{" "}
-                                        {selectedOperator.economic_number}
-                                    </p>
-                                    <p className="tracking-wide">
-                                        <span className="font-bold">
-                                            TIPO DE UNIDAD:
-                                        </span>{" "}
-                                        {selectedOperator.unit_type.toUpperCase()}
-                                    </p>
-                                    {/* Modelo mocked as not in DB yet */}
-                                    {/* <p className="tracking-wide"><span className="font-bold">MODELO:</span> 2015</p> */}
-                                    <p className="tracking-wide">
-                                        <span className="font-bold">
-                                            PLACA:
-                                        </span>{" "}
-                                        {selectedOperator.tractor_plate}
-                                    </p>
-                                    <p className="tracking-wide">
-                                        <span className="font-bold">
-                                            LINEA TRANSPORTISTA:
-                                        </span>{" "}
-                                        {selectedOperator.transporter_line}
-                                    </p>
-                                    <p className="tracking-wide">
-                                        <span className="font-bold">
-                                            NOMBRE DEL OPERADOR:
-                                        </span>{" "}
-                                        {selectedOperator.operator_name}
-                                    </p>
+
+                                <div className="grid grid-cols-2 gap-8 mb-12">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Nombre del Operador</p>
+                                            <p className="text-xl font-black text-gray-900 uppercase leading-none">{selectedOperator.operator_name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Línea Transportista</p>
+                                            <p className="text-lg font-bold text-gray-800 uppercase">{selectedOperator.transporter_line}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Unidad</p>
+                                            <p className="text-lg font-bold text-gray-800 uppercase">{selectedOperator.unit_type} - {selectedOperator.brand_model || 'S/M'}</p>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4 text-right">
+                                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Placa Tracto</p>
+                                            <p className="text-2xl font-black text-indigo-700 font-mono">{selectedOperator.tractor_plate}</p>
+                                        </div>
+                                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Placa Remolque</p>
+                                            <p className="text-2xl font-black text-gray-700 font-mono">{selectedOperator.trailer_plate || 'N/A'}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="mt-16 flex justify-center">
+
+                                <div className="flex justify-center">
                                     {qrDataUrl && (
-                                        <img
-                                            src={qrDataUrl}
-                                            alt="QR Code"
-                                            className="w-64 h-64"
-                                        />
+                                        <div className="p-4 border-4 border-gray-900 rounded-2xl">
+                                            <img src={qrDataUrl} alt="QR Code" className="w-56 h-56" />
+                                        </div>
                                     )}
+                                </div>
+
+                                <div className="mt-8 text-center">
+                                    <p className="text-[10px] text-gray-300 font-mono">ID: {selectedOperator.id} | VERIFICACIÓN DE INGRESO VECODE</p>
                                 </div>
                             </div>
                         </div>
@@ -217,69 +186,69 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
                 )}
             </div>
 
-            {/* Printable Area - Only visible when printing */}
-            <div className="hidden print:block fixed inset-0 bg-white z-50 p-12">
+            {/* Printable View */}
+            <div className="hidden print:block bg-white min-h-screen p-12">
                 {selectedOperator && (
-                    <div className="max-w-[21cm] mx-auto">
-                        <div className="mb-8">
-                            <img
-                                src="/logo_pro_agro.png"
-                                alt="Pro Agroindustria"
-                                className="h-24 object-contain"
-                            />
+                    <div className="max-w-[21cm] mx-auto border-[10px] border-black p-16">
+                        <div className="flex justify-between items-start mb-16">
+                            <img src="/logo_pro_agro.png" alt="Logo" className="h-32 object-contain" />
+                            <div className="text-right">
+                                <h1 className="text-5xl font-black text-black leading-tight mb-2">FICHA DE<br />OPERADOR</h1>
+                                <p className="text-2xl font-bold text-black border-t-4 border-black pt-2 uppercase">Ingreso / Muelle</p>
+                            </div>
                         </div>
 
-                        <h1 className="text-4xl font-bold text-black mb-10 font-sans">
-                            Datos de Unidad
-                        </h1>
+                        <div className="space-y-12 mb-20">
+                            <div>
+                                <p className="text-lg font-bold text-gray-500 uppercase mb-2">Nombre del Operador</p>
+                                <p className="text-5xl font-black text-black uppercase">{selectedOperator.operator_name}</p>
+                            </div>
 
-                        <div className="space-y-6 text-xl font-serif text-black">
-                            <p>
-                                <span className="font-bold">ECONOMICO:</span>{" "}
-                                {selectedOperator.economic_number}
-                            </p>
-                            <p>
-                                <span className="font-bold">
-                                    TIPO DE UNIDAD:
-                                </span>{" "}
-                                {selectedOperator.unit_type.toUpperCase()}
-                            </p>
-                            <p>
-                                <span className="font-bold">PLACA:</span>{" "}
-                                {selectedOperator.tractor_plate}
-                            </p>
-                            <p>
-                                <span className="font-bold">
-                                    LINEA TRANSPORTISTA:
-                                </span>{" "}
-                                {selectedOperator.transporter_line}
-                            </p>
-                            <p>
-                                <span className="font-bold">
-                                    NOMBRE DEL OPERADOR:
-                                </span>{" "}
-                                {selectedOperator.operator_name}
-                            </p>
+                            <div className="grid grid-cols-2 gap-16">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-500 uppercase mb-2">Línea Transportista</p>
+                                    <p className="text-3xl font-bold text-black uppercase">{selectedOperator.transporter_line}</p>
+                                </div>
+                                <div>
+                                    <p className="text-lg font-bold text-gray-500 uppercase mb-2">Unidad / Modelo</p>
+                                    <p className="text-3xl font-bold text-black uppercase">{selectedOperator.unit_type} - {selectedOperator.brand_model || 'S/M'}</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-16 border-y-4 border-black py-8">
+                                <div>
+                                    <p className="text-lg font-bold text-gray-500 uppercase mb-2">Placa Tracto</p>
+                                    <p className="text-6xl font-black text-black font-mono">{selectedOperator.tractor_plate}</p>
+                                </div>
+                                <div>
+                                    <p className="text-lg font-bold text-gray-500 uppercase mb-2">Placa Remolque</p>
+                                    <p className="text-6xl font-black text-black font-mono">{selectedOperator.trailer_plate || 'N/A'}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="mt-20 flex justify-center">
+                        <div className="flex flex-col items-center">
                             {qrDataUrl && (
-                                <img
-                                    src={qrDataUrl}
-                                    alt="QR Code"
-                                    className="w-80 h-80"
-                                />
+                                <div className="p-6 border-[8px] border-black rounded-[40px] mb-8">
+                                    <img src={qrDataUrl} alt="QR Code" className="w-80 h-80" />
+                                </div>
                             )}
+                            <p className="text-xl font-bold text-black tracking-[0.5em] uppercase">Escaneo Requerido</p>
+                        </div>
+
+                        <div className="mt-20 flex justify-between items-end border-t-2 border-dashed border-gray-400 pt-8">
+                            <p className="text-sm font-mono text-gray-400 uppercase">Sistema VECODE | ID Operador: {selectedOperator.id}</p>
+                            <p className="text-sm font-mono text-gray-400 uppercase">{new Date().toLocaleString()}</p>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Print Styles */}
             <style>{`
                 @media print {
-                    @page { margin: 0.5cm; }
-                    body { -webkit-print-color-adjust: exact; }
+                    @page { margin: 1cm; size: letter; }
+                    body { background: white; -webkit-print-color-adjust: exact; }
+                    .print\\:hidden { display: none !important; }
                 }
             `}</style>
         </DashboardLayout>
