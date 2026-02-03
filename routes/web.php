@@ -5,6 +5,15 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+Route::get('/run-migrations-emergency', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return "✅ Migraciones ejecutadas exitosamente: <br><pre>" . \Illuminate\Support\Facades\Artisan::output() . "</pre>";
+    } catch (\Exception $e) {
+        return "❌ Error ejecutando migraciones: " . $e->getMessage();
+    }
+});
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
