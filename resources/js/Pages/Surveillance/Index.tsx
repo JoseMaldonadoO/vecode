@@ -1,5 +1,5 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import {
     FileText,
     ClipboardCheck,
@@ -49,6 +49,10 @@ export default function Index({ auth }: { auth: any }) {
     ];
 
     const handleItemClick = (name: string) => {
+        if (name === "Vetar operador") {
+            router.get(route('surveillance.veto'));
+            return;
+        }
         setAlertAction(name);
         setIsAlertOpen(true);
     };

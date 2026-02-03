@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShipmentOrder;
+use App\Models\ExitOperator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -51,5 +52,53 @@ class SurveillanceController extends Controller
         ]);
 
         return redirect()->back();
+    }
+
+    public function vetoIndex()
+    {
+        return Inertia::render('Surveillance/VetoOperator');
+    }
+
+    public function searchOperators(Request $request)
+    {
+        $queryText = $request->input('q');
+
+        if (empty($queryText)) {
+            return response()->json([]);
+        }
+
+        // Logic for QR code format: OP_EXIT {id}|{name}|{plate}
+        if (str_starts_with($queryText, 'OP_EXIT ')) {
+            $parts = explode(' ', $queryText);
+            if (count($parts) > 1) {
+                $details = explode('|', $parts[1]);
+                $id = $details[0];
+                $operator = ExitOperator::find($id);
+                return response()->json($operator ? [$operator] : []);
+            }
+        }
+
+        // Normal search by ID or Name or Plate
+        $operators = ExitOperator::where('id', $queryText)
+            ->orWhere('name', 'like', "%{$queryText}%")
+            ->orWhere('tractor_plate', 'like', "%{$queryText}%")
+            ->limit(5)
+            ->get();
+
+        return response()->json($operators);
+    }
+
+    public function vetoOperator($id)
+    {
+        $operator = ExitOperator::findOrFail($id);
+
+        if ($operator->status === 'vetoed') {
+            return back()->with('error', 'El operador ya se encuentra vetado.');
+        }
+
+        $operator->status = 'vetoed';
+        $operator->save();
+
+        return back()->with('success', 'Operador vetado correctamente.');
     }
 }
