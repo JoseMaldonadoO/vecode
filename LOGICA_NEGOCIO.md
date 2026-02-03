@@ -95,3 +95,24 @@ Utilizado cuando se aligera un barco o se mueve carga desde una ubicación exter
 -   **Scanner APT**: Punto de control físico en almacén. Valida que la unidad que llega a descargar esté activa y vinculada al barco correcto.
     -   **Validación de Flujo**: Si el barco es tipo `scale`, el sistema **RECHAZARA** el escaneo si no hay una OE con ticket de entrada.
     -   **Protección de Datos**: Evita la auto-creación accidental de registros de "Burreo" para unidades que deben ser pesadas obligatoriamente.
+
+---
+
+## 5. Estándares de Unidades (Unit Standards)
+
+Para garantizar consistencia en todo el sistema, se establecen las siguientes reglas de conversión y visualización:
+
+### A. Base de Datos (Source of Truth)
+-   **Unidad**: Kilogramos (KG).
+-   **Regla**: Todos los campos de peso en la base de datos (`net_weight`, `provisional_burreo_weight`, etc.) almacenan el valor absoluto en **KG**.
+
+### B. Interfaz de Usuario (Dashboard, APT, Tráfico)
+-   **Unidad**: Toneladas Métricas (TM).
+-   **Regla**:
+    -   **Visualización**: El frontend debe dividir el valor de la base de datos entre `1000`.
+    -   **Captura**: El usuario ingresa TM, el backend multiplica por `1000` antes de guardar.
+    -   **Formato**: Mostrar siempre con 2 o 3 decimales (e.g., `30.000 T` o `30.45 T`).
+
+### C. Tickets de Báscula (Documentos Físicos)
+-   **Unidad**: Kilogramos (KG).
+-   **Regla**: En los documentos impresos y vistas de detalle de ticket, se debe mostrar el valor crudo en KILOGRAMOS para coincidir con la lectura directa de la báscula.

@@ -86,7 +86,7 @@ const WarehouseCard = ({
                                         Peso Total
                                     </span>
                                     <span className="text-white font-black text-lg">
-                                        {(wh.total_net).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} T
+                                        {(wh.total_net / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} T
                                     </span>
                                 </div>
                             </div>
@@ -203,7 +203,7 @@ const CubicleGrid = ({
                                             Peso
                                         </span>
                                         <span className="text-xs font-black text-gray-800">
-                                            {(cubicle.total_net).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
+                                            {(cubicle.total_net / 1000).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                                             T
                                         </span>
                                     </div>
@@ -421,7 +421,7 @@ export default function Status({
                                     </span>
                                     <span className="text-lg font-black text-blue-900">
                                         {(
-                                            viewingLocation.total_net
+                                            viewingLocation.total_net / 1000
                                         ).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{" "}
                                         T
                                     </span>
@@ -514,9 +514,9 @@ export default function Status({
                                                 <td className="bg-slate-50 group-hover:bg-white group-hover:shadow-md px-6 py-4 rounded-r-2xl border-y border-r border-slate-100 text-right transition-colors">
                                                     <span className="text-sm font-black text-indigo-600">
                                                         {(
-                                                            (order.weight_ticket
+                                                            ((order.weight_ticket
                                                                 ?.net_weight ||
-                                                                0)
+                                                                0) / 1000)
                                                         ).toLocaleString("es-MX", {
                                                             minimumFractionDigits: 2,
                                                             maximumFractionDigits: 2,
