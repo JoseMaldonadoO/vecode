@@ -10,7 +10,7 @@ export default function DashboardLayout({ user, header, children }: PropsWithChi
     return (
         <div className="min-h-screen bg-gray-50 flex">
             {/* Desktop Sidebar */}
-            <div className="hidden md:flex w-64 flex-col fixed inset-y-0 z-50">
+            <div className="hidden md:flex w-20 hover:w-64 flex-col fixed inset-y-0 z-50 transition-all duration-300 ease-in-out group">
                 <Sidebar />
             </div>
 
@@ -24,7 +24,7 @@ export default function DashboardLayout({ user, header, children }: PropsWithChi
                     />
 
                     {/* Drawer */}
-                    <div className="fixed inset-y-0 left-0 w-64 bg-brand-950 shadow-xl transition-transform transform translate-x-0">
+                    <div className="fixed inset-y-0 left-0 w-64 bg-slate-900 shadow-xl transition-transform transform translate-x-0">
                         <div className="absolute top-4 right-4 z-50">
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
@@ -39,7 +39,7 @@ export default function DashboardLayout({ user, header, children }: PropsWithChi
             )}
 
             {/* Main Content */}
-            <main className="md:pl-64 flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out overflow-x-hidden">
+            <main className="md:pl-20 flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out overflow-x-hidden">
                 {/* Top Header */}
                 <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
                     <div className="flex h-16 items-center px-6 justify-between">
