@@ -29,7 +29,8 @@ class WeightTicketController extends Controller
         // Also include Warehouse/Cubicle info if available.
         $pending_exit = LoadingOrder::with(['client', 'driver', 'vehicle', 'product', 'weight_ticket'])
             ->whereHas('weight_ticket', function ($q) {
-                $q->where('weighing_status', 'in_progress');
+                $q->where('weighing_status', 'in_progress')
+                    ->where('is_burreo', false); // EXCLUDE BURREO
             })
             // Filter by operation type if needed (scale vs burreo)?
             // Assuming Burreo doesn't have a weight ticket in progress in the same way, or handled differently.
@@ -68,6 +69,7 @@ class WeightTicketController extends Controller
                 $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client']);
             }
         ])
+            ->where('is_burreo', false) // EXCLUDE BURREO
             ->join('loading_orders', 'weight_tickets.loading_order_id', '=', 'loading_orders.id')
             ->select('weight_tickets.*', 'loading_orders.folio', 'loading_orders.operator_name', 'loading_orders.tractor_plate')
             ->orderBy('weight_tickets.created_at', 'desc');
