@@ -1,12 +1,8 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import {
-    Users,
-    UserPlus,
-    QrCode,
     Box,
     ShieldCheck,
-    FileText,
 } from "lucide-react";
 
 export default function Index({ auth }: { auth: any }) {
@@ -20,36 +16,12 @@ export default function Index({ auth }: { auth: any }) {
             hover: "hover:border-indigo-500",
         },
         {
-            name: "Alta operador manual",
-            icon: FileText,
-            href: "#",
-            description: "Registro manual de operadores.",
-            color: "bg-green-50 text-green-600",
-            hover: "hover:border-green-500",
-        },
-        {
-            name: "QR de operador",
-            icon: QrCode,
-            href: "#",
-            description: "Generar códigos QR para operadores.",
-            color: "bg-purple-50 text-purple-600",
-            hover: "hover:border-purple-500",
-        },
-        {
             name: "Productos",
             icon: Box,
             href: route("traffic.products.index"),
             description: "Alta y lista de productos.",
             color: "bg-amber-50 text-amber-600",
             hover: "hover:border-amber-500",
-        },
-        {
-            name: "Estatus QR",
-            icon: ShieldCheck,
-            href: "#",
-            description: "Verificar estatus de códigos QR.",
-            color: "bg-red-50 text-red-600",
-            hover: "hover:border-red-500",
         },
     ];
 
