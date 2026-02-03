@@ -9,8 +9,8 @@ export default function DashboardLayout({ user, header, children }: PropsWithChi
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            {/* Desktop Sidebar */}
-            <div className="hidden md:flex w-20 hover:w-64 flex-col fixed inset-y-0 z-50 transition-all duration-300 ease-in-out group">
+            {/* Desktop Sidebar - Sticky to push content */}
+            <div className="hidden md:flex w-20 hover:w-64 flex-col sticky top-0 h-screen z-50 transition-all duration-300 ease-in-out group flex-shrink-0">
                 <Sidebar />
             </div>
 
@@ -38,8 +38,8 @@ export default function DashboardLayout({ user, header, children }: PropsWithChi
                 </div>
             )}
 
-            {/* Main Content */}
-            <main className="md:pl-20 flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out overflow-x-hidden">
+            {/* Main Content - Flex grow to fill remaining space */}
+            <main className="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out overflow-x-hidden w-0">
                 {/* Top Header */}
                 <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
                     <div className="flex h-16 items-center px-6 justify-between">
