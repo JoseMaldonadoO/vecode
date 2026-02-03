@@ -73,7 +73,7 @@ class SurveillanceController extends Controller
 
         // Try to match OP_EXIT {id} with a flexible regex
         // Patterns: "OP_EXIT 123|...", "OP?EXIT 123]...", "OP-EXIT 123|..."
-        if (preg_match('/OP[_-? \.]?EXIT\s*(\d+)/i', $normalizedText, $matches)) {
+        if (preg_match('/OP[_\-? \.]?EXIT\s*(\d+)/i', $normalizedText, $matches)) {
             $id = $matches[1];
             $operator = ExitOperator::find($id);
             if ($operator) {

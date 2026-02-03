@@ -76,7 +76,7 @@ export default function VetoOperator({ auth }: { auth: any }) {
         // Match "OP_EXIT", "OP?EXIT", "OP-EXIT", etc. followed by space
         const normalizedSearch = search.replace(/\?/g, '_').replace(/\]/g, '|');
 
-        if (normalizedSearch.match(/^OP[_-? \.]?EXIT\s/i)) {
+        if (normalizedSearch.match(/^OP[_\-? \.]?EXIT\s/i)) {
             fetchOperators(search);
         } else {
             debouncedSearch(search);
