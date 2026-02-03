@@ -12,68 +12,76 @@ return new class extends Migration {
     public function up(): void
     {
         // 1. Create Loading Orders Table
-        Schema::create('loading_orders', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        if (!Schema::hasTable('loading_orders')) {
+            Schema::create('loading_orders', function (Blueprint $table) {
+                $table->uuid('id')->primary();
 
-            // Operational Data (Mirroring ShipmentOrder partially)
-            $table->string('folio')->unique(); // Operational folio (Ticket #)
-            $table->enum('status', ['created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled'])->default('created');
+                // Operational Data (Mirroring ShipmentOrder partially)
+                $table->string('folio')->unique(); // Operational folio (Ticket #)
+                $table->enum('status', ['created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled'])->default('created');
 
-            // Core Relations
-            $table->foreignId('vessel_id')->nullable()->constrained(); // Nullable just in case, but usually required for ops
-            $table->foreignId('client_id')->constrained();
-            $table->foreignId('product_id')->nullable()->constrained();
+                // Core Relations
+                $table->foreignId('vessel_id')->nullable()->constrained(); // Nullable just in case, but usually required for ops
+                $table->foreignId('client_id')->constrained();
+                $table->foreignId('product_id')->nullable()->constrained();
 
-            // Links to Commercial/Legacy
-            $table->foreignUuid('sales_order_id')->nullable()->constrained('sales_orders')->onDelete('set null'); // Link to Commercial Order
-            $table->foreignUuid('shipment_order_id')->nullable()->constrained('shipment_orders')->onDelete('set null'); // Link to Commercial Shipment Doc (if separate)
+                // Links to Commercial/Legacy
+                $table->foreignUuid('sales_order_id')->nullable()->constrained('sales_orders')->onDelete('set null'); // Link to Commercial Order
+                $table->foreignUuid('shipment_order_id')->nullable()->constrained('shipment_orders')->onDelete('set null'); // Link to Commercial Shipment Doc (if separate)
 
-            // Timestamps / Operational Infos
-            $table->timestamp('entry_at')->nullable();
+                // Timestamps / Operational Infos
+                $table->timestamp('entry_at')->nullable();
 
-            // Snapshot Operational Fields
-            $table->string('operator_name')->nullable();
-            $table->string('tractor_plate')->nullable();
-            $table->string('trailer_plate')->nullable();
-            $table->string('economic_number')->nullable();
-            $table->string('transport_company')->nullable();
-            $table->string('unit_type')->nullable(); // Added
+                // Snapshot Operational Fields
+                $table->string('operator_name')->nullable();
+                $table->string('tractor_plate')->nullable();
+                $table->string('trailer_plate')->nullable();
+                $table->string('economic_number')->nullable();
+                $table->string('transport_company')->nullable();
+                $table->string('unit_type')->nullable(); // Added
 
-            $table->string('warehouse')->nullable();
-            $table->string('cubicle')->nullable();
+                $table->string('warehouse')->nullable();
+                $table->string('cubicle')->nullable();
 
-            $table->string('origin')->nullable();
-            $table->string('destination')->nullable();
+                $table->string('origin')->nullable();
+                $table->string('destination')->nullable();
 
-            // Document References carried over for convenience/validation
-            $table->string('withdrawal_letter')->nullable();
-            $table->string('bill_of_lading')->nullable(); // Carta Porte
-            $table->string('reference')->nullable();
-            $table->string('observations')->nullable();
-            $table->string('consignee')->nullable();
+                // Document References carried over for convenience/validation
+                $table->string('withdrawal_letter')->nullable();
+                $table->string('bill_of_lading')->nullable(); // Carta Porte
+                $table->string('reference')->nullable();
+                $table->string('observations')->nullable();
+                $table->string('consignee')->nullable();
 
-            $table->enum('destare_status', ['pending', 'completed'])->default('pending');
-            $table->enum('operation_type', ['scale', 'burreo'])->default('scale');
+                $table->enum('destare_status', ['pending', 'completed'])->default('pending');
+                $table->enum('operation_type', ['scale', 'burreo'])->default('scale');
 
-            // IDs for entities if they exist (nullable)
-            $table->foreignId('transporter_id')->nullable()->constrained();
-            $table->foreignId('driver_id')->nullable()->constrained();
-            $table->foreignId('vehicle_id')->nullable()->constrained();
+                // IDs for entities if they exist (nullable)
+                $table->foreignId('transporter_id')->nullable()->constrained();
+                $table->foreignId('driver_id')->nullable()->constrained();
+                $table->foreignId('vehicle_id')->nullable()->constrained();
 
-            $table->timestamps();
-        });
+                $table->timestamps();
+            });
+        }
 
         // 2. Add columns to related tables
         Schema::table('weight_tickets', function (Blueprint $table) {
-            $table->foreignUuid('loading_order_id')->nullable()->after('shipment_order_id')->constrained('loading_orders')->onDelete('cascade');
+            if (!Schema::hasColumn('weight_tickets', 'loading_order_id')) {
+                $table->foreignUuid('loading_order_id')->nullable()->after('shipment_order_id')->constrained('loading_orders')->onDelete('cascade');
+            }
         });
 
         Schema::table('apt_scans', function (Blueprint $table) {
-            $table->foreignUuid('loading_order_id')->nullable()->after('shipment_order_id')->constrained('loading_orders')->onDelete('cascade');
+            if (!Schema::hasColumn('apt_scans', 'loading_order_id')) {
+                $table->foreignUuid('loading_order_id')->nullable()->after('shipment_order_id')->constrained('loading_orders')->onDelete('cascade');
+            }
         });
 
         Schema::table('loading_operations', function (Blueprint $table) {
-            $table->foreignUuid('loading_order_id')->nullable()->after('shipment_order_id')->constrained('loading_orders')->onDelete('cascade');
+            if (!Schema::hasColumn('loading_operations', 'loading_order_id')) {
+                $table->foreignUuid('loading_order_id')->nullable()->after('shipment_order_id')->constrained('loading_orders')->onDelete('cascade');
+            }
         });
 
         // 3. Migrate Data
