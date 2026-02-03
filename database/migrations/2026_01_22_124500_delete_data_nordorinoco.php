@@ -14,7 +14,7 @@ return new class extends Migration {
         $vesselId = 'a0e2b156-646a-4edd-8f81-22f1b00c7114';
 
         // Disable foreign key checks to force deletion if any constraint is stuck
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
 
         try {
             // 1. Get all Shipment Orders for this vessel to delete their dependent children
@@ -40,7 +40,7 @@ return new class extends Migration {
 
         } finally {
             // Re-enable foreign key checks
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            Schema::enableForeignKeyConstraints();
         }
     }
 

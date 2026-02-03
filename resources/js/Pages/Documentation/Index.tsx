@@ -28,6 +28,14 @@ export default function Index({ auth }: { auth: any }) {
             color: "bg-emerald-50 text-emerald-600",
             hover: "hover:border-emerald-500",
         },
+        {
+            name: "Gestion Operadores Salida",
+            icon: Anchor, // or another icon like Users
+            href: route("documentation.exit-operators.index"),
+            description: "Registro de operadores de salida, lista de operadores y qr de operadores.",
+            color: "bg-rose-50 text-rose-600",
+            hover: "hover:border-rose-500",
+        },
     ];
 
     return (

@@ -113,6 +113,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/documentation/operators/{id}/edit', [\App\Http\Controllers\DocumentationController::class, 'editOperator'])->name('documentation.operators.edit');
     Route::put('/documentation/operators/{id}', [\App\Http\Controllers\DocumentationController::class, 'updateOperator'])->name('documentation.operators.update');
 
+    // Exit Operators (Operadores de Salida)
+    Route::get('/documentation/exit-operators', [\App\Http\Controllers\ExitOperatorController::class, 'index'])->name('documentation.exit-operators.index');
+    Route::get('/documentation/exit-operators/create', [\App\Http\Controllers\ExitOperatorController::class, 'create'])->name('documentation.exit-operators.create');
+    Route::post('/documentation/exit-operators', [\App\Http\Controllers\ExitOperatorController::class, 'store'])->name('documentation.exit-operators.store');
+    Route::get('/documentation/exit-operators/{id}/edit', [\App\Http\Controllers\ExitOperatorController::class, 'edit'])->name('documentation.exit-operators.edit');
+    // For update, I'll use put for consistency or patch
+    Route::put('/documentation/exit-operators/{id}', [\App\Http\Controllers\ExitOperatorController::class, 'update'])->name('documentation.exit-operators.update');
+    Route::patch('/documentation/exit-operators/{id}/toggle', [\App\Http\Controllers\ExitOperatorController::class, 'toggleStatus'])->name('documentation.exit-operators.toggle');
+    Route::get('/documentation/exit-operators/{id}/qr', [\App\Http\Controllers\ExitOperatorController::class, 'qr'])->name('documentation.exit-operators.qr');
+
     // New Shipment Orders Report Route
     Route::get('/documentation/shipment-orders', [\App\Http\Controllers\DocumentationController::class, 'shipmentOrdersIndex'])->name('documentation.orders.index');
 

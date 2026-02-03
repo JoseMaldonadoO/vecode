@@ -14,14 +14,17 @@ return new class extends Migration {
         // Fix for "Integrity constraint violation: 1048 Column 'shipment_order_id' cannot be null"
         // Since doctrine/dbal might be missing or failed to change the column, we force it with raw SQL.
 
-        // 1. weight_tickets
-        DB::statement("ALTER TABLE weight_tickets MODIFY shipment_order_id CHAR(36) NULL");
+        Schema::table('weight_tickets', function (Blueprint $table) {
+            $table->uuid('shipment_order_id')->nullable()->change();
+        });
 
-        // 2. apt_scans
-        DB::statement("ALTER TABLE apt_scans MODIFY shipment_order_id CHAR(36) NULL");
+        Schema::table('apt_scans', function (Blueprint $table) {
+            $table->uuid('shipment_order_id')->nullable()->change();
+        });
 
-        // 3. loading_operations
-        DB::statement("ALTER TABLE loading_operations MODIFY shipment_order_id CHAR(36) NULL");
+        Schema::table('loading_operations', function (Blueprint $table) {
+            $table->uuid('shipment_order_id')->nullable()->change();
+        });
     }
 
     /**
