@@ -187,7 +187,7 @@ export default function QrPrint({ auth, operator: initialOperator }: { auth: any
             </div>
 
             {/* Printable View */}
-            <div className="hidden print:block bg-white min-h-screen">
+            <div className="hidden print:block bg-white h-auto">
                 {selectedOperator && (
                     <div className="max-w-[19cm] mx-auto p-4 flex flex-col items-center">
                         <div className="w-full border-2 border-gray-200 rounded-xl p-8 mb-4">

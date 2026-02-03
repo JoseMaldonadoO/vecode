@@ -114,7 +114,7 @@ export default function Qr({ auth, operator }: { auth: any; operator: Operator }
             </div>
 
             {/* Printable View */}
-            <div className="hidden print:block bg-white min-h-screen">
+            <div className="hidden print:block bg-white h-auto">
                 <div className="max-w-[19cm] mx-auto p-4 flex flex-col items-center">
                     {/* Header like Preview */}
                     <div className="w-full border-2 border-gray-200 rounded-xl p-8 mb-4">
