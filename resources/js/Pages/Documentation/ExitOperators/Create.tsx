@@ -66,14 +66,14 @@ export default function Create({ auth }: { auth: any }) {
                 )}
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                    <div className="bg-gradient-to-r from-rose-800 to-rose-900 px-8 py-6 flex items-center justify-between">
+                    <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">
                         <div className="flex items-center">
-                            <div className="p-2 bg-rose-700 rounded-lg mr-3 shadow-inner">
+                            <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
                                 <UserPlus className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h3 className="text-white font-bold text-xl uppercase">Alta de Operador de Salida</h3>
-                                <p className="text-rose-200 text-sm">Ingrese los datos correspondientes</p>
+                                <p className="text-indigo-200 text-sm">Ingrese los datos correspondientes</p>
                             </div>
                         </div>
                     </div>
@@ -90,7 +90,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.name}
                                             onChange={(e) => setData("name", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
                                             required
                                         />
                                         <User className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -106,7 +106,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.transport_line}
                                             onChange={(e) => setData("transport_line", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
                                             required
                                         />
                                         <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -122,7 +122,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.real_transport_line}
                                             onChange={(e) => setData("real_transport_line", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
                                             required
                                         />
                                         <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -137,7 +137,7 @@ export default function Create({ auth }: { auth: any }) {
                                         <select
                                             value={data.unit_type}
                                             onChange={(e) => setData("unit_type", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10"
                                             required
                                         >
                                             <option value="Volteo">Volteo</option>
@@ -159,7 +159,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.brand_model}
                                             onChange={(e) => setData("brand_model", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
                                             required
                                         />
                                         <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -175,7 +175,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.trailer_plate}
                                             onChange={(e) => setData("trailer_plate", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase font-mono"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase font-mono"
                                             placeholder="Placa Remolque"
                                             disabled={data.unit_type === "Volteo"}
                                         />
@@ -195,7 +195,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.license}
                                             onChange={(e) => setData("license", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase font-mono"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase font-mono"
                                             required
                                         />
                                         <CreditCard className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -211,7 +211,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.economic_number}
                                             onChange={(e) => setData("economic_number", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
                                             required
                                         />
                                         <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -227,7 +227,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.policy}
                                             onChange={(e) => setData("policy", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
                                             required
                                         />
                                         <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -243,7 +243,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="date"
                                             value={data.validity}
                                             onChange={(e) => setData("validity", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10"
                                             required
                                         />
                                         <Calendar className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
@@ -259,7 +259,7 @@ export default function Create({ auth }: { auth: any }) {
                                             type="text"
                                             value={data.tractor_plate}
                                             onChange={(e) => setData("tractor_plate", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 py-2 pl-10 uppercase font-mono"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase font-mono"
                                             required
                                             placeholder="ABC-123"
                                         />

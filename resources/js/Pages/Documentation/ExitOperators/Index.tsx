@@ -97,14 +97,14 @@ export default function Index({
                             </Link>
                         </div>
                         <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
-                            <User className="mr-3 h-8 w-8 text-rose-600" />
+                            <User className="mr-3 h-8 w-8 text-indigo-600" />
                             Operadores de Salida
                         </h2>
                     </div>
                     <div className="mt-4 flex md:mt-0 md:ml-4">
                         <Link
                             href={route("documentation.exit-operators.create")}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                             <Plus className="h-5 w-5 mr-2" />
                             Alta Operador
@@ -150,7 +150,7 @@ export default function Index({
                 <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-rose-800 to-rose-900">
+                            <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                         Operador
@@ -174,11 +174,11 @@ export default function Index({
                                     operators.data.map((operator) => (
                                         <tr
                                             key={operator.id}
-                                            className="hover:bg-rose-50 transition-colors duration-150"
+                                            className="hover:bg-indigo-50 transition-colors duration-150"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-10 w-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 font-bold">
+                                                    <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
                                                         {operator.name.charAt(0)}
                                                     </div>
                                                     <div className="ml-4">
@@ -238,8 +238,8 @@ export default function Index({
                                                     method="patch"
                                                     as="button"
                                                     className={`inline-flex items-center px-3 py-1.5 rounded-lg border transition-all font-bold ${operator.status === 'active'
-                                                            ? 'text-red-600 bg-red-50 border-red-100 hover:bg-red-100 hover:border-red-300'
-                                                            : 'text-green-600 bg-green-50 border-green-100 hover:bg-green-100 hover:border-green-300'
+                                                        ? 'text-red-600 bg-red-50 border-red-100 hover:bg-red-100 hover:border-red-300'
+                                                        : 'text-green-600 bg-green-50 border-green-100 hover:bg-green-100 hover:border-green-300'
                                                         }`}
                                                 >
                                                     {operator.status === 'active' ? (
@@ -287,7 +287,7 @@ export default function Index({
                                             key={key}
                                             href={link.url}
                                             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                ? "bg-rose-600 text-white shadow-sm"
+                                                ? "bg-indigo-600 text-white shadow-sm"
                                                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             dangerouslySetInnerHTML={{

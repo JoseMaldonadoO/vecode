@@ -49,7 +49,7 @@ export default function Qr({ auth, operator }: { auth: any; operator: Operator }
 
                     <button
                         onClick={handlePrint}
-                        className="bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-xl font-bold flex items-center shadow-lg transition-all transform hover:-translate-y-0.5"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold flex items-center shadow-lg transition-all transform hover:-translate-y-0.5"
                     >
                         <Printer className="w-5 h-5 mr-2" />
                         IMPRIMIR QR
@@ -66,7 +66,7 @@ export default function Qr({ auth, operator }: { auth: any; operator: Operator }
                                 <img src="/logo_pro_agro.png" alt="Logo" className="h-16 object-contain" />
                                 <div className="text-right">
                                     <h2 className="text-2xl font-black text-gray-900 leading-tight">FICHA DE<br />OPERADOR</h2>
-                                    <p className="text-rose-600 font-bold text-sm">SALIDA GENERAL</p>
+                                    <p className="text-indigo-600 font-bold text-sm">SALIDA GENERAL</p>
                                 </div>
                             </div>
 

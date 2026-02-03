@@ -33,8 +33,8 @@ export default function Index({ auth }: { auth: any }) {
             icon: Anchor, // or another icon like Users
             href: route("documentation.exit-operators.index"),
             description: "Registro de operadores de salida, lista de operadores y qr de operadores.",
-            color: "bg-rose-50 text-rose-600",
-            hover: "hover:border-rose-500",
+            color: "bg-indigo-50 text-indigo-600",
+            hover: "hover:border-indigo-500",
         },
     ];
 
