@@ -5,20 +5,38 @@ import { ArrowLeft, Search, Printer } from "lucide-react";
 import axios from "axios";
 import QRCode from "qrcode";
 
-export default function QrPrint({ auth }: { auth: any }) {
+export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [selectedOperator, setSelectedOperator] = useState<any>(null);
     const [qrDataUrl, setQrDataUrl] = useState("");
+    const [isAutoSearch, setIsAutoSearch] = useState(false);
+
+    // Initialize from URL param
+    useEffect(() => {
+        if (qr) {
+            const cleanQuery = qr.replace(/^OP\s*/i, ""); // Remove "OP " prefix
+            setQuery(cleanQuery);
+            setIsAutoSearch(true);
+        }
+    }, [qr]);
 
     useEffect(() => {
         const search = async () => {
-            if (query.length > 2) {
+            if (query.length > 0) {
+                // Changed min length to 1 for ID searches
                 try {
                     const response = await axios.get(
                         route("apt.operators.search") + `?q=${query}`,
                     );
                     setResults(response.data);
+
+                    // Auto-select if exact match or single result during auto-search
+                    if (isAutoSearch && response.data.length > 0) {
+                        // If searching by ID, finding 1 result is highly likely the correct one
+                        setSelectedOperator(response.data[0]);
+                        setIsAutoSearch(false); // Reset flag
+                    }
                 } catch (error) {
                     console.error("Error searching operators:", error);
                 }

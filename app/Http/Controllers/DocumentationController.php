@@ -93,9 +93,11 @@ class DocumentationController extends Controller
     // --- Moved Functionality from APT ---
 
     // QR Printing
-    public function qrPrint()
+    public function qrPrint(Request $request)
     {
-        return Inertia::render('Documentation/QrPrint');
+        return Inertia::render('Documentation/QrPrint', [
+            'qr' => $request->input('qr'),
+        ]);
     }
 
     // Dock Submenu
