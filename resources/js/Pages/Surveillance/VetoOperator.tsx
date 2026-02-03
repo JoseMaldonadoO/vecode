@@ -41,11 +41,14 @@ export default function VetoOperator({ auth }: { auth: any }) {
             return;
         }
 
+        // Normalize input for common scanner keyboard layout issues
+        const normalizedQuery = query.replace(/\?/g, '_').replace(/\]/g, '|');
+
         setSearching(true);
         setError(null);
         try {
             const response = await axios.get(route('surveillance.operators.search'), {
-                params: { q: query }
+                params: { q: normalizedQuery }
             });
 
             if (response.data.length > 0) {
@@ -68,7 +71,10 @@ export default function VetoOperator({ auth }: { auth: any }) {
 
     useEffect(() => {
         // Handle QR input directly or search by text
-        if (search.startsWith("OP_EXIT ")) {
+        // Normalize search term check for QR prefix
+        const normalizedSearch = search.replace(/\?/g, '_').replace(/\]/g, '|');
+
+        if (normalizedSearch.startsWith("OP_EXIT ")) {
             fetchOperators(search);
         } else {
             debouncedSearch(search);

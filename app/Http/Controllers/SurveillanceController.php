@@ -67,9 +67,13 @@ class SurveillanceController extends Controller
             return response()->json([]);
         }
 
+        // Normalize input for common scanner keyboard layout issues
+        // Replace '?' with '_' and ']' with '|'
+        $normalizedText = str_replace(['?', ']'], ['_', '|'], $queryText);
+
         // Logic for QR code format: OP_EXIT {id}|{name}|{plate}
-        if (str_starts_with($queryText, 'OP_EXIT ')) {
-            $parts = explode(' ', $queryText);
+        if (str_starts_with($normalizedText, 'OP_EXIT ')) {
+            $parts = explode(' ', $normalizedText);
             if (count($parts) > 1) {
                 $details = explode('|', $parts[1]);
                 $id = $details[0];
@@ -78,10 +82,10 @@ class SurveillanceController extends Controller
             }
         }
 
-        // Normal search by ID or Name or Plate
-        $operators = ExitOperator::where('id', $queryText)
-            ->orWhere('name', 'like', "%{$queryText}%")
-            ->orWhere('tractor_plate', 'like', "%{$queryText}%")
+        // Normal search by ID or Name or Plate - using normalized text just in case
+        $operators = ExitOperator::where('id', $normalizedText)
+            ->orWhere('name', 'like', "%{$normalizedText}%")
+            ->orWhere('tractor_plate', 'like', "%{$normalizedText}%")
             ->limit(5)
             ->get();
 
