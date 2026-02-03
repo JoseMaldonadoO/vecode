@@ -8,7 +8,9 @@ import {
     Ship,
     AlertCircle,
     CheckCircle2,
+    ArrowLeft,
 } from "lucide-react";
+import { Link } from "@inertiajs/react";
 
 interface Vessel {
     id: string;
@@ -73,8 +75,23 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
         <DashboardLayout user={auth.user} header="Gestión de Pesos Burreo">
             <Head title="Gestión Pesos Burreo" />
 
-            <div className="py-12">
+            <div className="py-8">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <Link
+                            href={route("traffic.index")}
+                            className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4 mr-1" />
+                            Volver a Tráfico
+                        </Link>
+                    </div>
+
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-gray-900">Gestión de Pesos Burreo</h2>
+                        <p className="text-gray-500 mt-1">Administración de pesos provisionales y recálculos por calado.</p>
+                    </div>
+
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Vessel List */}
                         <div className="lg:col-span-1 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 italic-text">
@@ -199,14 +216,14 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                 </div>
                                                 {provisionalForm.errors
                                                     .provisional_burreo_weight && (
-                                                    <p className="mt-2 text-sm text-red-600">
-                                                        {
-                                                            provisionalForm
-                                                                .errors
-                                                                .provisional_burreo_weight
-                                                        }
-                                                    </p>
-                                                )}
+                                                        <p className="mt-2 text-sm text-red-600">
+                                                            {
+                                                                provisionalForm
+                                                                    .errors
+                                                                    .provisional_burreo_weight
+                                                            }
+                                                        </p>
+                                                    )}
                                                 <button
                                                     type="submit"
                                                     disabled={
@@ -273,13 +290,13 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                 </div>
                                                 {draftForm.errors
                                                     .draft_weight && (
-                                                    <p className="mt-2 text-sm text-red-600">
-                                                        {
-                                                            draftForm.errors
-                                                                .draft_weight
-                                                        }
-                                                    </p>
-                                                )}
+                                                        <p className="mt-2 text-sm text-red-600">
+                                                            {
+                                                                draftForm.errors
+                                                                    .draft_weight
+                                                            }
+                                                        </p>
+                                                    )}
 
                                                 <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-600">
                                                     <p className="font-bold text-gray-700 mb-1 flex items-center">
