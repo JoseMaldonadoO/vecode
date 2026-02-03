@@ -131,12 +131,15 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
                 ) : (
                     <div className="bg-white rounded-xl shadow-lg p-8">
                         <div className="mb-6 flex justify-between items-center">
-                            <button
-                                onClick={() => setSelectedOperator(null)}
-                                className="text-gray-500 hover:text-gray-900 font-medium"
-                            >
-                                &larr; Buscar otro
-                            </button>
+                            {!qr && (
+                                <button
+                                    onClick={() => setSelectedOperator(null)}
+                                    className="text-gray-500 hover:text-gray-900 font-medium"
+                                >
+                                    &larr; Buscar otro
+                                </button>
+                            )}
+                            {qr && <div></div>} {/* Spacer to keep Print button on right */}
                             <button
                                 onClick={handlePrint}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-bold flex items-center shadow-md transition-all"
