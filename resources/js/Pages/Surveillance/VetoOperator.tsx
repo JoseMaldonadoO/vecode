@@ -36,13 +36,14 @@ export default function VetoOperator({ auth }: { auth: any }) {
     const searchRef = useRef<HTMLInputElement>(null);
 
     const fetchOperators = async (query: string) => {
-        if (!query) {
+        const trimmedQuery = query.trim();
+        if (!trimmedQuery) {
             setOperator(null);
             return;
         }
 
         // Normalize input for common scanner keyboard layout issues
-        const normalizedQuery = query.replace(/\?/g, '_').replace(/\]/g, '|');
+        const normalizedQuery = trimmedQuery.replace(/\?/g, '_').replace(/\]/g, '|').replace(/\[/g, '|').replace(/\}/g, '|').replace(/\{/g, '|');
 
         setSearching(true);
         setError(null);
@@ -71,10 +72,11 @@ export default function VetoOperator({ auth }: { auth: any }) {
 
     useEffect(() => {
         // Handle QR input directly or search by text
-        // Normalize search term check for QR prefix
+        // Normalize search term check for QR prefix using a flexible regex
+        // Match "OP_EXIT", "OP?EXIT", "OP-EXIT", etc. followed by space
         const normalizedSearch = search.replace(/\?/g, '_').replace(/\]/g, '|');
 
-        if (normalizedSearch.startsWith("OP_EXIT ")) {
+        if (normalizedSearch.match(/^OP[_-? \.]?EXIT\s/i)) {
             fetchOperators(search);
         } else {
             debouncedSearch(search);

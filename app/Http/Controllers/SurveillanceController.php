@@ -61,30 +61,36 @@ class SurveillanceController extends Controller
 
     public function searchOperators(Request $request)
     {
-        $queryText = $request->input('q');
+        $queryText = trim($request->input('q', ''));
 
         if (empty($queryText)) {
             return response()->json([]);
         }
 
         // Normalize input for common scanner keyboard layout issues
-        // Replace '?' with '_' and ']' with '|'
-        $normalizedText = str_replace(['?', ']'], ['_', '|'], $queryText);
+        // Replace '?' with '_', ']' with '|', etc.
+        $normalizedText = str_replace(['?', ']', '[', '}', '{'], ['_', '|', '|', '|', '|'], $queryText);
 
-        // Logic for QR code format: OP_EXIT {id}|{name}|{plate}
-        if (str_starts_with($normalizedText, 'OP_EXIT ')) {
-            $parts = explode(' ', $normalizedText);
-            if (count($parts) > 1) {
-                $details = explode('|', $parts[1]);
-                $id = $details[0];
-                $operator = ExitOperator::find($id);
-                return response()->json($operator ? [$operator] : []);
+        // Try to match OP_EXIT {id} with a flexible regex
+        // Patterns: "OP_EXIT 123|...", "OP?EXIT 123]...", "OP-EXIT 123|..."
+        if (preg_match('/OP[_-? \.]?EXIT\s*(\d+)/i', $normalizedText, $matches)) {
+            $id = $matches[1];
+            $operator = ExitOperator::find($id);
+            if ($operator) {
+                return response()->json([$operator]);
             }
         }
 
-        // Normal search by ID or Name or Plate - using normalized text just in case
-        $operators = ExitOperator::where('id', $normalizedText)
-            ->orWhere('name', 'like', "%{$normalizedText}%")
+        // Also try to direct match ID if query is numeric
+        if (is_numeric($normalizedText)) {
+            $operator = ExitOperator::find($normalizedText);
+            if ($operator) {
+                return response()->json([$operator]);
+            }
+        }
+
+        // Normal search by Name or Plate
+        $operators = ExitOperator::where('name', 'like', "%{$normalizedText}%")
             ->orWhere('tractor_plate', 'like', "%{$normalizedText}%")
             ->limit(5)
             ->get();
