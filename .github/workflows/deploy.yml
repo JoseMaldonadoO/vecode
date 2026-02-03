@@ -72,6 +72,9 @@ jobs:
           local-dir: ./delivery/
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
+          security: loose
+          protocol: ftp
+          port: 21
           timeout: 600000
 
       - name: 🚀 Extract and Fix permissions
