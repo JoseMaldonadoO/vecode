@@ -217,21 +217,45 @@ export default function Index({
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-2">
-                                                <Link
-                                                    href={route("documentation.exit-operators.qr", operator.id)}
-                                                    className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-indigo-200 transition-all font-bold"
-                                                >
-                                                    <Printer className="w-4 h-4 mr-1.5" />
-                                                    QR
-                                                </Link>
+                                                {operator.status === 'active' ? (
+                                                    <>
+                                                        <Link
+                                                            href={route("documentation.exit-operators.qr", operator.id)}
+                                                            className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-indigo-200 transition-all font-bold"
+                                                        >
+                                                            <Printer className="w-4 h-4 mr-1.5" />
+                                                            QR
+                                                        </Link>
 
-                                                <Link
-                                                    href={route("documentation.exit-operators.edit", operator.id)}
-                                                    className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
-                                                >
-                                                    <Edit className="w-4 h-4 mr-1.5" />
-                                                    Editar
-                                                </Link>
+                                                        <Link
+                                                            href={route("documentation.exit-operators.edit", operator.id)}
+                                                            className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
+                                                        >
+                                                            <Edit className="w-4 h-4 mr-1.5" />
+                                                            Editar
+                                                        </Link>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            disabled
+                                                            title="Operador Vetado - No se puede generar QR"
+                                                            className="inline-flex items-center text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed font-bold"
+                                                        >
+                                                            <Printer className="w-4 h-4 mr-1.5" />
+                                                            QR
+                                                        </button>
+
+                                                        <button
+                                                            disabled
+                                                            title="Operador Vetado - No se puede editar"
+                                                            className="inline-flex items-center text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed font-bold"
+                                                        >
+                                                            <Edit className="w-4 h-4 mr-1.5" />
+                                                            Editar
+                                                        </button>
+                                                    </>
+                                                )}
 
                                                 <Link
                                                     href={route("documentation.exit-operators.toggle", operator.id)}

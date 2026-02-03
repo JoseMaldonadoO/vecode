@@ -63,6 +63,12 @@ class ExitOperatorController extends Controller
     public function edit($id)
     {
         $operator = ExitOperator::findOrFail($id);
+
+        if ($operator->status === 'vetoed') {
+            return redirect()->route('documentation.exit-operators.index')
+                ->with('error', 'No se puede editar un operador que ha sido vetado.');
+        }
+
         return Inertia::render('Documentation/ExitOperators/Edit', [
             'operator' => $operator,
         ]);
@@ -71,6 +77,11 @@ class ExitOperatorController extends Controller
     public function update(Request $request, $id)
     {
         $operator = ExitOperator::findOrFail($id);
+
+        if ($operator->status === 'vetoed') {
+            return redirect()->route('documentation.exit-operators.index')
+                ->with('error', 'No se puede actualizar la información de un operador vetado.');
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -104,6 +115,12 @@ class ExitOperatorController extends Controller
     public function qr($id)
     {
         $operator = ExitOperator::findOrFail($id);
+
+        if ($operator->status === 'vetoed') {
+            return redirect()->route('documentation.exit-operators.index')
+                ->with('error', 'No se puede generar QR para un operador vetado.');
+        }
+
         return Inertia::render('Documentation/ExitOperators/Qr', [
             'operator' => $operator,
         ]);
