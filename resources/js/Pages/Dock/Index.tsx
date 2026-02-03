@@ -161,14 +161,14 @@ export default function Index({
                                         </button>
                                         {(params.start_date ||
                                             params.end_date) && (
-                                            <button
-                                                onClick={clearFilters}
-                                                className="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
-                                                title="Limpiar"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        )}
+                                                <button
+                                                    onClick={clearFilters}
+                                                    className="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition"
+                                                    title="Limpiar"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            )}
                                     </div>
                                 </div>
                             </div>
@@ -180,31 +180,31 @@ export default function Index({
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                                 Buque
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-[10px] font-bold text-white uppercase tracking-wider">
                                                 ETA
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-[10px] font-bold text-white uppercase tracking-wider">
                                                 ETB
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-center text-[10px] font-bold text-white uppercase tracking-wider">
                                                 Muelle
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-[10px] font-bold text-white uppercase tracking-wider">
                                                 ETC
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-[10px] font-bold text-white uppercase tracking-wider">
                                                 F. Salida
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-[10px] font-bold text-white uppercase tracking-wider">
                                                 Operación
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-left text-[10px] font-bold text-white uppercase tracking-wider">
                                                 Estado
                                             </th>
-                                            <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                                            <th className="px-3 py-4 text-right text-[10px] font-bold text-white uppercase tracking-wider">
                                                 Acciones
                                             </th>
                                         </tr>
@@ -216,19 +216,19 @@ export default function Index({
                                                     key={v.id}
                                                     className="hover:bg-indigo-50 transition-colors duration-150"
                                                 >
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-3 py-4 whitespace-nowrap">
                                                         <div className="flex items-center">
-                                                            <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xs uppercase">
+                                                            <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-[10px] uppercase">
                                                                 {v.vessel_type.substring(
                                                                     0,
                                                                     2,
                                                                 )}
                                                             </div>
-                                                            <div className="ml-4">
-                                                                <div className="text-sm font-bold text-gray-900">
+                                                            <div className="ml-3">
+                                                                <div className="text-xs font-bold text-gray-900 leading-tight">
                                                                     {v.name}
                                                                 </div>
-                                                                <div className="text-xs text-gray-500">
+                                                                <div className="text-[10px] text-gray-400">
                                                                     {
                                                                         v.vessel_type
                                                                     }
@@ -236,21 +236,21 @@ export default function Index({
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
+                                                    <td className="px-3 py-4 whitespace-nowrap text-[10px] text-gray-600 font-mono">
                                                         {v.eta
                                                             ? v.eta.substring(
-                                                                  0,
-                                                                  10,
-                                                              )
+                                                                0,
+                                                                10,
+                                                            )
                                                             : "--"}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold font-mono">
+                                                    <td className="px-3 py-4 whitespace-nowrap text-[10px] text-gray-900 font-bold font-mono">
                                                         {v.docking_date || "--"}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold font-mono text-center">
+                                                    <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-900 font-bold font-mono text-center">
                                                         {v.dock ? (
                                                             <span
-                                                                className={`px-2 py-1 rounded text-xs text-white ${v.dock === "ECO" ? "bg-green-500" : "bg-orange-500"}`}
+                                                                className={`px-1.5 py-0.5 rounded text-[10px] text-white ${v.dock === "ECO" ? "bg-green-500" : "bg-orange-500"}`}
                                                             >
                                                                 {v.dock}
                                                             </span>
@@ -260,23 +260,23 @@ export default function Index({
                                                             </span>
                                                         )}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
+                                                    <td className="px-3 py-4 whitespace-nowrap text-[10px] text-gray-600 font-mono">
                                                         {v.etc || "--"}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
+                                                    <td className="px-3 py-4 whitespace-nowrap text-[10px] text-gray-600 font-mono">
                                                         {v.departure_date ||
                                                             "--"}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-3 py-4 whitespace-nowrap">
                                                         <span
-                                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${v.operation_type === "Descarga" ? "bg-indigo-100 text-indigo-800" : "bg-green-100 text-green-800"}`}
+                                                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${v.operation_type === "Descarga" ? "bg-indigo-100 text-indigo-800" : "bg-green-100 text-green-800"}`}
                                                         >
                                                             {v.operation_type}
                                                         </span>
                                                         {v.operation_type ===
                                                             "Descarga" &&
                                                             v.product && (
-                                                                <div className="text-xs text-gray-500 mt-1 font-medium">
+                                                                <div className="text-[10px] text-gray-400 mt-1 font-medium leading-tight max-w-[100px] truncate">
                                                                     {
                                                                         v
                                                                             .product
@@ -285,23 +285,23 @@ export default function Index({
                                                                 </div>
                                                             )}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                    <td className="px-3 py-4 whitespace-nowrap">
                                                         <span
-                                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${v.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
+                                                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${v.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}
                                                         >
                                                             {v.isActive
                                                                 ? "Activo"
                                                                 : "Archivado"}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div className="flex justify-end gap-2">
+                                                    <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                        <div className="flex justify-end gap-1.5">
                                                             <Link
                                                                 href={route(
                                                                     "dock.vessel.edit",
                                                                     v.id,
                                                                 )}
-                                                                className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md transition-colors"
+                                                                className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-md transition-colors text-xs"
                                                             >
                                                                 Editar
                                                             </Link>
@@ -331,7 +331,7 @@ export default function Index({
                                                                                         ) => {
                                                                                             alert(
                                                                                                 errors.error ||
-                                                                                                    "Error al purgar",
+                                                                                                "Error al purgar",
                                                                                             );
                                                                                         },
                                                                                 },
@@ -416,9 +416,9 @@ export default function Index({
                                                     <span className="font-mono text-gray-700 font-medium">
                                                         {v.eta
                                                             ? v.eta.substring(
-                                                                  0,
-                                                                  10,
-                                                              )
+                                                                0,
+                                                                10,
+                                                            )
                                                             : "--"}
                                                     </span>
                                                 </div>
