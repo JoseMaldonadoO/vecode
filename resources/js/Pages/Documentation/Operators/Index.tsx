@@ -277,18 +277,16 @@ export default function Index({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-2">
                                                 {/* Print QR Button */}
-                                                <a
+                                                <Link
                                                     href={route("documentation.qr", {
                                                         qr: "OP " + operator.id,
                                                     })}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
                                                     className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-md hover:bg-indigo-50 transition-colors border border-gray-200 hover:border-indigo-200"
                                                     title="Imprimir QR"
                                                 >
                                                     <Printer className="w-4 h-4 mr-1.5" />
                                                     QR
-                                                </a>
+                                                </Link>
 
                                                 {operator.is_active ? (
                                                     <Link

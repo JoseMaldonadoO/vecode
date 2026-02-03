@@ -79,7 +79,7 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
                     </Link>
                 </div>
 
-                {!selectedOperator ? (
+                {(query.length === 0 && !selectedOperator && !qr) ? (
                     <div className="bg-white rounded-xl shadow-lg p-8">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                             Buscar Operador
@@ -123,6 +123,10 @@ export default function QrPrint({ auth, qr }: { auth: any; qr?: string }) {
                                 </p>
                             )}
                         </div>
+                    </div>
+                ) : !selectedOperator && qr ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="text-gray-500 text-lg">Cargando datos del operador...</div>
                     </div>
                 ) : (
                     <div className="bg-white rounded-xl shadow-lg p-8">
