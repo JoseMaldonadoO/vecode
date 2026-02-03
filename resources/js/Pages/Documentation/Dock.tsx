@@ -5,26 +5,10 @@ import { Printer, UserPlus, ArrowLeft, Users, FileText } from "lucide-react";
 export default function Dock({ auth }: { auth: any }) {
     const menuItems = [
         {
-            name: "Imprimir QR",
-            icon: Printer,
-            href: route("documentation.qr"),
-            description: "Buscar operador e imprimir tarjeta con código QR.",
-            color: "bg-indigo-50 text-indigo-600",
-            hover: "hover:border-indigo-500",
-        },
-        {
-            name: "Alta Operador",
-            icon: UserPlus,
-            href: route("documentation.operators.create"),
-            description: "Registrar nuevo operador en el sistema.",
-            color: "bg-green-50 text-green-600",
-            hover: "hover:border-green-500",
-        },
-        {
-            name: "Lista de Operadores",
+            name: "Gestión de Operadores",
             icon: Users,
             href: route("documentation.operators.index"),
-            description: "Ver, buscar y editar operadores registrados.",
+            description: "Alta de operadores, imprimir QR y editar registros.",
             color: "bg-blue-50 text-blue-600",
             hover: "hover:border-blue-500",
         },

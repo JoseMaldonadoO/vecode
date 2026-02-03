@@ -10,6 +10,7 @@ import {
     ArrowLeft,
     ArrowRight,
     ArrowLeftCircle,
+    Printer,
 } from "lucide-react";
 import { useState } from "react";
 // @ts-ignore
@@ -105,6 +106,15 @@ export default function Index({
                             <User className="mr-3 h-8 w-8 text-indigo-600" />
                             Operadores Registrados
                         </h2>
+                    </div>
+                    <div className="mt-4 flex md:mt-0 md:ml-4">
+                        <Link
+                            href={route("documentation.operators.create")}
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            <Plus className="h-5 w-5 mr-2" />
+                            Alta Operador
+                        </Link>
                     </div>
                 </div>
 
@@ -265,7 +275,21 @@ export default function Index({
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-2">
+                                                {/* Print QR Button */}
+                                                <a
+                                                    href={route("documentation.qr", {
+                                                        qr: "OP " + operator.id,
+                                                    })}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-md hover:bg-indigo-50 transition-colors border border-gray-200 hover:border-indigo-200"
+                                                    title="Imprimir QR"
+                                                >
+                                                    <Printer className="w-4 h-4 mr-1.5" />
+                                                    QR
+                                                </a>
+
                                                 {operator.is_active ? (
                                                     <Link
                                                         href={route(
@@ -334,11 +358,10 @@ export default function Index({
                                         <Link
                                             key={key}
                                             href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                                                link.active
-                                                    ? "bg-indigo-600 text-white shadow-sm"
-                                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                            }`}
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
+                                                ? "bg-indigo-600 text-white shadow-sm"
+                                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                                                }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}
@@ -358,6 +381,6 @@ export default function Index({
                     )}
                 </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }
