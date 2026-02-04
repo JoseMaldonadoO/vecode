@@ -126,7 +126,7 @@ const TicketCopy: React.FC<{
                             Referencia:
                         </div>
                         <div className="w-1/4 px-1.5 py-0.5 border-r border-black">
-                            {ticket.reference}
+                            {ticket.reference || "N/A"}
                         </div>
                         <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">
                             Operación:
@@ -146,7 +146,7 @@ const TicketCopy: React.FC<{
                             ticket.programmed_weight || "N/A",
                         ],
                         ["Cliente ó Proveedor:", ticket.client],
-                        ["No. Orden de Venta:", ticket.sale_order],
+                        ["No. Orden de Venta:", ticket.sale_order || "N/A"],
                         ["Carta Porte:", ticket.withdrawal_letter],
                     ].map(([label, value], idx) => (
                         <div key={idx} className="flex border-b border-black">
@@ -201,8 +201,8 @@ const TicketCopy: React.FC<{
 
                 {/* --- Right Column: Weights (Dot Matrix Simulation) --- */}
                 <div className="w-[40%] flex flex-col font-mono text-[13px] bg-gray-50/5">
-                    <div className="border-b border-black text-center font-bold py-1 uppercase text-[11px]">
-                        Espacio para Impresión
+                    <div className="border-b border-black text-center font-bold py-1 uppercase text-[11px] h-[19px]">
+                        &nbsp;
                     </div>
 
                     <div className="flex-1 p-3 space-y-2 flex flex-col justify-center">
