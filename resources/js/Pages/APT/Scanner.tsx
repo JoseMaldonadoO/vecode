@@ -19,6 +19,7 @@ import axios from "axios";
 import { pickBy } from "lodash";
 import { QrReader } from "react-qr-reader";
 import Modal from "@/Components/Modal";
+import Swal from "sweetalert2";
 
 export default function Scanner({
     auth,
@@ -131,8 +132,18 @@ export default function Scanner({
             }
         } catch (error: any) {
             console.error("Search Error:", error);
-            const errorMessage = error.response?.data?.error || "Código no encontrado o formato inválido.";
-            alert(errorMessage);
+            const errorMessage =
+                error.response?.data?.error ||
+                "Código no encontrado o formato inválido.";
+
+            Swal.fire({
+                icon: "warning",
+                title: "Operación Restringida",
+                text: errorMessage,
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "Entendido",
+            });
+
             if (!showCamera) setScanInput("");
         }
     };

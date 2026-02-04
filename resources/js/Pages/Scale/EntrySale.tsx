@@ -22,6 +22,7 @@ import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function EntrySale({
     auth,
@@ -192,7 +193,15 @@ export default function EntrySale({
         } catch (error: any) {
             console.error("Search error:", error);
             const errorMessage = error.response?.data?.error || "No encontrado.";
-            alert(errorMessage);
+
+            Swal.fire({
+                icon: "warning",
+                title: "Operación Restringida",
+                text: errorMessage,
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "Entendido",
+            });
+
             setOrderDetails(null);
         } finally {
             setIsLoading(false);
