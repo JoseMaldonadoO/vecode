@@ -108,21 +108,30 @@ export default function Create({
         e: React.ChangeEvent<HTMLSelectElement>,
     ) => {
         const soId = e.target.value;
-        const so = sales_orders.find((s) => s.id === soId);
+        const so = sales_orders.find((s) => s.id.toString() === soId);
 
         if (so) {
             setData((data) => ({
                 ...data,
                 sales_order_id: soId,
-                client_id: so.client_id,
-                client_name: so.client?.business_name,
+                client_id: so.client_id.toString(),
+                client_name: so.client?.business_name || "",
                 rfc: so.client?.rfc || "",
                 address: so.client?.address || "",
-                product: so.product?.name,
+                product: so.product?.name || "",
                 programmed_tons: so.total_quantity.toString(),
             }));
         } else {
-            setData("sales_order_id", "");
+            setData((data) => ({
+                ...data,
+                sales_order_id: "",
+                client_id: "",
+                client_name: "",
+                rfc: "",
+                address: "",
+                product: "",
+                programmed_tons: "",
+            }));
         }
     };
 
@@ -239,38 +248,50 @@ export default function Create({
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
                                     Cliente
                                 </label>
-                                <Combobox onChange={handleClientSelect}>
+                                {data.sales_order_id ? (
                                     <div className="relative">
-                                        <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
-                                            <Combobox.Input
-                                                className="w-full border-none py-2.5 pl-10 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                                                onChange={(event) => setQuery(event.target.value)}
-                                                displayValue={() => data.client_name}
-                                                placeholder="Buscar Cliente..."
-                                            />
-                                            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                                <User className="w-5 h-5 text-gray-400" />
-                                            </div>
-                                            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-                                                <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                            </Combobox.Button>
-                                        </div>
-                                        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterLeave={() => setQuery("")}>
-                                            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                                {filteredClients.map((client) => (
-                                                    <Combobox.Option key={client.id} value={client} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-indigo-600 text-white" : "text-gray-900"}`}>
-                                                        {({ selected, active }) => (
-                                                            <>
-                                                                <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>{client.business_name}</span>
-                                                                {selected ? <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? "text-white" : "text-indigo-600"}`}><Check className="h-5 w-5" aria-hidden="true" /></span> : null}
-                                                            </>
-                                                        )}
-                                                    </Combobox.Option>
-                                                ))}
-                                            </Combobox.Options>
-                                        </Transition>
+                                        <input
+                                            type="text"
+                                            value={data.client_name}
+                                            readOnly
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-50 font-medium text-gray-700"
+                                        />
+                                        <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
-                                </Combobox>
+                                ) : (
+                                    <Combobox onChange={handleClientSelect}>
+                                        <div className="relative">
+                                            <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
+                                                <Combobox.Input
+                                                    className="w-full border-none py-2.5 pl-10 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                                                    onChange={(event) => setQuery(event.target.value)}
+                                                    displayValue={() => data.client_name}
+                                                    placeholder="Buscar Cliente..."
+                                                />
+                                                <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                                    <User className="w-5 h-5 text-gray-400" />
+                                                </div>
+                                                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                    <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                </Combobox.Button>
+                                            </div>
+                                            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterLeave={() => setQuery("")}>
+                                                <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                    {filteredClients.map((client) => (
+                                                        <Combobox.Option key={client.id} value={client} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-indigo-600 text-white" : "text-gray-900"}`}>
+                                                            {({ selected, active }) => (
+                                                                <>
+                                                                    <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>{client.business_name}</span>
+                                                                    {selected ? <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? "text-white" : "text-indigo-600"}`}><Check className="h-5 w-5" aria-hidden="true" /></span> : null}
+                                                                </>
+                                                            )}
+                                                        </Combobox.Option>
+                                                    ))}
+                                                </Combobox.Options>
+                                            </Transition>
+                                        </div>
+                                    </Combobox>
+                                )}
                             </div>
 
                             <div>
@@ -280,8 +301,9 @@ export default function Create({
                                 <input
                                     type="text"
                                     value={data.rfc}
+                                    readOnly={!!data.sales_order_id}
                                     onChange={(e) => setData("rfc", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 ${data.sales_order_id ? 'bg-gray-50 text-gray-700' : ''}`}
                                 />
                             </div>
 
@@ -293,8 +315,9 @@ export default function Create({
                                     <input
                                         type="text"
                                         value={data.address}
+                                        readOnly={!!data.sales_order_id}
                                         onChange={(e) => setData("address", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 ${data.sales_order_id ? 'bg-gray-50 text-gray-700' : ''}`}
                                     />
                                     <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>

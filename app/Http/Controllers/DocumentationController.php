@@ -38,7 +38,9 @@ class DocumentationController extends Controller
                 ];
             }),
             'products' => Product::all(),
-            'sales_orders' => SalesOrder::where('status', 'created')->orWhere('status', 'open')->get(),
+            'sales_orders' => SalesOrder::with(['client', 'product'])
+                ->whereIn('status', ['created', 'open'])
+                ->get(),
             'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
         ]);
     }
