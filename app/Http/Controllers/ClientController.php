@@ -42,7 +42,7 @@ class ClientController extends Controller
 
         Client::create($validated);
 
-        return redirect()->back()->with('message', 'Cliente agregado correctamente.');
+        return redirect()->route('clients.index')->with('success', 'Cliente agregado correctamente.');
     }
 
     public function edit(Client $client)
@@ -63,6 +63,6 @@ class ClientController extends Controller
 
         $client->update($validated);
 
-        return redirect()->back()->with('message', 'Cliente actualizado correctamente.');
+        return redirect()->route('clients.index')->with('success', 'Cliente actualizado correctamente.');
     }
 }

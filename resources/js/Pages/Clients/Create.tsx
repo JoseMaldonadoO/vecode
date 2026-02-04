@@ -35,7 +35,7 @@ export default function Create({ auth }: { auth: any }) {
             <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="mb-6">
                     <Link
-                        href={route("sales.index")}
+                        href={route("clients.index")}
                         className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1" />
@@ -78,139 +78,97 @@ export default function Create({ auth }: { auth: any }) {
                     </div>
 
                     <form onSubmit={submit} className="p-8">
-                        <div className="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-100">
-                            <h4 className="text-indigo-800 font-bold mb-4 flex items-center text-lg">
-                                <Building className="w-5 h-5 mr-2" />
-                                Información Fiscal y General
-                            </h4>
+                        <h4 className="text-gray-900 font-bold mb-4 flex items-center text-lg border-b pb-2">
+                            <Building className="w-5 h-5 mr-2 text-indigo-600" />
+                            Información Fiscal y General
+                        </h4>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        RFC{" "}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={data.rfc}
-                                            onChange={(e) =>
-                                                setData("rfc", e.target.value)
-                                            }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase"
-                                            placeholder="RFC del cliente"
-                                            required
-                                        />
-                                        <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                    </div>
-                                    {errors.rfc && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.rfc}
-                                        </p>
-                                    )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    RFC <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={data.rfc}
+                                        onChange={(e) => setData("rfc", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase text-sm"
+                                        placeholder="RFC del cliente"
+                                        required
+                                    />
+                                    <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
+                            </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Nombre / Razón Social{" "}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={data.business_name}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "business_name",
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            placeholder="Nombre completo o razón social"
-                                            required
-                                        />
-                                        <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                    </div>
-                                    {errors.business_name && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.business_name}
-                                        </p>
-                                    )}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Nombre / Razón Social <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={data.business_name}
+                                        onChange={(e) => setData("business_name", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
+                                        placeholder="Nombre completo o razón social"
+                                        required
+                                    />
+                                    <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
+                            </div>
 
-                                <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Dirección{" "}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={data.address}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "address",
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            placeholder="Calle, número, colonia, CP..."
-                                            required
-                                        />
-                                        <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                    </div>
-                                    {errors.address && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.address}
-                                        </p>
-                                    )}
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Dirección <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={data.address}
+                                        onChange={(e) => setData("address", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
+                                        placeholder="Calle, número, colonia, CP..."
+                                        required
+                                    />
+                                    <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
+                            </div>
 
-                                <div className="md:col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Contacto{" "}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={data.contact_info}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "contact_info",
-                                                    e.target.value,
-                                                )
-                                            }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            placeholder="Teléfono, Email o Nombre de contacto"
-                                            required
-                                        />
-                                        <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                    </div>
-                                    {errors.contact_info && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.contact_info}
-                                        </p>
-                                    )}
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Contacto <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={data.contact_info}
+                                        onChange={(e) => setData("contact_info", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
+                                        placeholder="Teléfono, Email o Nombre de contacto"
+                                        required
+                                    />
+                                    <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
                             </div>
                         </div>
-
-                        <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
-                            >
-                                <Save className="w-6 h-6 mr-2" />
-                                {processing
-                                    ? "Guardando..."
-                                    : "GUARDAR CLIENTE"}
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </div>
-        </DashboardLayout>
+
+                <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
+                    >
+                        <Save className="w-6 h-6 mr-2" />
+                        {processing
+                            ? "Guardando..."
+                            : "GUARDAR CLIENTE"}
+                    </button>
+                </div>
+            </form>
+        </div>
+            </div >
+        </DashboardLayout >
     );
 }

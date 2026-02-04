@@ -68,6 +68,15 @@ export default function Index({ auth, clients, filters }: PageProps) {
                             Directorio de Clientes
                         </h2>
                     </div>
+                    <div className="mt-4 flex md:mt-0 md:ml-4">
+                        <Link
+                            href={route("clients.create")}
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
+                        >
+                            <Plus className="w-5 h-5 mr-2" />
+                            Nuevo Cliente
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Filters & Actions */}
@@ -226,11 +235,10 @@ export default function Index({ auth, clients, filters }: PageProps) {
                                         <Link
                                             key={key}
                                             href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                                                link.active
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
                                                     ? "bg-indigo-600 text-white shadow-sm"
                                                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                            }`}
+                                                }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}

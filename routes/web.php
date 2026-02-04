@@ -60,6 +60,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sales/{id}/print', [\App\Http\Controllers\SalesController::class, 'print'])->name('sales.print');
     Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
+    // New Sales Orders History Route (Consistent with Documentation)
+    Route::get('/sales/orders', [\App\Http\Controllers\SalesController::class, 'ordersIndex'])->name('sales.orders.index');
     Route::resource('sales', \App\Http\Controllers\SalesController::class);
     Route::get('/clients', [\App\Http\Controllers\ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/create', [\App\Http\Controllers\ClientController::class, 'create'])->name('clients.create');

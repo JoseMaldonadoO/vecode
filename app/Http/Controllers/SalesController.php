@@ -10,21 +10,30 @@ class SalesController extends Controller
 {
     public function index(Request $request)
     {
+        return Inertia::render('Sales/Index');
+    }
+
+    /**
+     * Display the Sales Orders History (Consistent with Documentation/Orders/Index)
+     */
+    public function ordersIndex(Request $request)
+    {
         $orders = \App\Models\SalesOrder::with(['client', 'product'])
             ->withSum('weight_tickets as loaded_quantity', 'net_weight')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Add balance calculated attribute if needed or just handle in frontend
         $orders->each(function ($order) {
             $order->loaded_quantity = $order->loaded_quantity ?? 0;
             $order->balance = max(0, $order->total_quantity - $order->loaded_quantity);
         });
 
-        return Inertia::render('Sales/Index', [
+        return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,
-            'clients' => \App\Models\Client::all(),
-            'initialView' => $request->input('view', 'menu')
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error'),
+            ]
         ]);
     }
 
@@ -132,7 +141,7 @@ class SalesController extends Controller
         $order = \App\Models\SalesOrder::with(['client', 'product'])->findOrFail($id);
 
         if ($order->status !== 'created') {
-            return redirect()->route('sales.index')->withErrors(['message' => 'Solo se pueden editar órdenes en estatus CREADO.']);
+            return redirect()->route('sales.orders.index')->withErrors(['message' => 'Solo se pueden editar órdenes en estatus CREADO.']);
         }
 
         return Inertia::render('Sales/Edit', [
