@@ -154,7 +154,7 @@ export default function EntrySale({
                     provider: res.provider,
                     product: res.product,
 
-                    reference: res.reference || "",
+                    reference: res.reference || "N/A",
                     origin: res.origin,
                     transport_line: res.transport_line,
                     driver: res.driver,

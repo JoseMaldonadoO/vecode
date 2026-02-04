@@ -168,7 +168,7 @@ export default function EntryMP({
                     product: res.product,
 
                     origin: res.origin || res.reference || "",
-                    reference: "",
+                    reference: "N/A",
                     transport_line: res.transport_line,
                     driver: res.driver,
                     vehicle_type: res.vehicle_type,
@@ -351,7 +351,7 @@ export default function EntryMP({
                                         if (!!result) {
                                             const text =
                                                 typeof result.getText ===
-                                                "function"
+                                                    "function"
                                                     ? result.getText()
                                                     : result.text;
                                             if (text) {
@@ -394,21 +394,21 @@ export default function EntryMP({
                                 {auth.user?.roles?.some((r: string) =>
                                     r.toLowerCase().includes("admin"),
                                 ) && (
-                                    <div className="mt-4 flex justify-center">
-                                        <input
-                                            type="number"
-                                            className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm focus:ring-green-500 focus:border-green-500"
-                                            placeholder="Manual Admin"
-                                            onChange={(e) =>
-                                                setWeight(
-                                                    parseFloat(
-                                                        e.target.value,
-                                                    ) || 0,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                )}
+                                        <div className="mt-4 flex justify-center">
+                                            <input
+                                                type="number"
+                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm focus:ring-green-500 focus:border-green-500"
+                                                placeholder="Manual Admin"
+                                                onChange={(e) =>
+                                                    setWeight(
+                                                        parseFloat(
+                                                            e.target.value,
+                                                        ) || 0,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    )}
                             </div>
                             <div className="bg-gray-800 p-3 text-center border-t border-gray-700 flex justify-between px-6 items-center">
                                 <span className="text-gray-400 text-xs uppercase font-semibold">
