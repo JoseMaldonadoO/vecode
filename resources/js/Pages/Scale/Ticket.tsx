@@ -316,7 +316,7 @@ export default function Ticket({ ticket }: TicketProps) {
     const handleBack = () => {
         const params = new URLSearchParams(window.location.search);
         if (params.get("from") === "history") {
-            window.location.href = route("scale.tickets.index");
+            window.close();
             return;
         }
 
