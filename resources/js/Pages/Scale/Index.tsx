@@ -51,6 +51,12 @@ export default function Index({
                 position: "top-end",
             });
         }
+
+        // Check for view=pending in URL
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("view") === "pending") {
+            setViewMode("table");
+        }
     }, [flash]);
 
     const handleScaleSelect = (id: number) => {
@@ -265,13 +271,13 @@ export default function Index({
                                                         <span
                                                             className={
                                                                 order.warehouse ===
-                                                                "N/A"
+                                                                    "N/A"
                                                                     ? "text-amber-500 italic"
                                                                     : "text-blue-600 font-bold"
                                                             }
                                                         >
                                                             {order.warehouse ===
-                                                            "N/A"
+                                                                "N/A"
                                                                 ? "Sin Asignar"
                                                                 : `${order.warehouse} - ${order.cubicle}`}
                                                         </span>
@@ -355,7 +361,7 @@ export default function Index({
                                                 <span
                                                     className={
                                                         order.warehouse ===
-                                                        "N/A"
+                                                            "N/A"
                                                             ? "text-amber-500 italic text-xs"
                                                             : "text-blue-600 font-bold text-xs"
                                                     }
@@ -402,11 +408,10 @@ export default function Index({
                                 <button
                                     key={id}
                                     onClick={() => handleScaleSelect(id)}
-                                    className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${
-                                        scaleId === id
+                                    className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
                                             ? "border-indigo-500 bg-indigo-50 text-indigo-700"
                                             : "border-gray-200 hover:border-indigo-200"
-                                    }`}
+                                        }`}
                                 >
                                     <Scale
                                         className={`w-8 h-8 ${scaleId === id ? "text-indigo-600" : "text-gray-400"}`}
