@@ -91,7 +91,6 @@ export default function Index({
     const { flash } = usePage<any>().props;
     const [search, setSearch] = useState(filters.search || "");
     const [type, setType] = useState(filters.type || "");
-    const [showCreate, setShowCreate] = useState(false);
     const [showAlert, setShowAlert] = useState(!!flash?.success);
 
     useEffect(() => {
@@ -101,96 +100,6 @@ export default function Index({
             return () => clearTimeout(timer);
         }
     }, [flash?.success]);
-
-    // Form Logic
-    const { data, setData, post, processing, errors, reset } = useForm({
-        folio: default_folio || "",
-        sales_order_id: "",
-        date: new Date().toISOString().split("T")[0],
-        client_id: "",
-        client_name: "",
-        rfc: "",
-        address: "",
-        consigned_to: "",
-        transport_company: "",
-        operator_name: "",
-        unit_number: "",
-        tractor_plate: "",
-        trailer_plate: "",
-        carta_porte: "",
-        license_number: "",
-        unit_type: "",
-        economic_number: "",
-        qr_code: "",
-        origin: "PLANTA",
-        destination: "",
-        product: "",
-        presentation: "",
-        sacks_count: "",
-        programmed_tons: "",
-        shortage_balance: "",
-        status: "created",
-        documenter_name: auth.user.name,
-        scale_name: "",
-        observations: "",
-    });
-
-    const [clientQuery, setClientQuery] = useState("");
-
-    const filteredClients =
-        clientQuery === ""
-            ? clients
-            : clients.filter((client) =>
-                client.business_name
-                    .toLowerCase()
-                    .replace(/\s+/g, "")
-                    .includes(
-                        clientQuery.toLowerCase().replace(/\s+/g, ""),
-                    ),
-            );
-
-    const handleClientSelect = (client: Client | null) => {
-        if (!client) return;
-        setData((data) => ({
-            ...data,
-            client_id: client.id.toString(),
-            client_name: client.business_name,
-            rfc: client.rfc || "",
-            address: client.address || "",
-        }));
-    };
-
-    const handleSalesOrderSelect = (
-        e: React.ChangeEvent<HTMLSelectElement>,
-    ) => {
-        const soId = e.target.value;
-        const so = sales_orders.find((s) => s.id === soId);
-
-        if (so) {
-            setData((data) => ({
-                ...data,
-                sales_order_id: soId,
-                client_id: so.client_id,
-                client_name: so.client?.business_name,
-                rfc: so.client?.rfc || "",
-                address: so.client?.address || "",
-                product: so.product?.name,
-                programmed_tons: so.total_quantity.toString(),
-            }));
-        } else {
-            setData("sales_order_id", "");
-        }
-    };
-
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
-        post(route("documentation.store"), {
-            onSuccess: () => {
-                setShowCreate(false);
-                reset();
-            },
-        });
-    };
 
     const handleSearch = (newSearch?: string, newType?: string) => {
         const s = newSearch !== undefined ? newSearch : search;
@@ -253,218 +162,18 @@ export default function Index({
                         </h2>
                     </div>
                     <div className="mt-4 flex md:mt-0 md:ml-4">
-                        <button
-                            onClick={() => setShowCreate(!showCreate)}
-                            className={`inline-flex items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-base font-bold text-white transition-all transform hover:-translate-y-1 ${showCreate ? "bg-red-500 hover:bg-red-600" : "bg-indigo-600 hover:bg-indigo-700"}`}
+                        <Link
+                            href={route("documentation.create")}
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
                         >
-                            {showCreate ? (
-                                <>
-                                    <X className="w-5 h-5 mr-2" />
-                                    Cancelar Captura
-                                </>
-                            ) : (
-                                <>
-                                    <Plus className="w-5 h-5 mr-2" />
-                                    Nueva Orden de Embarque
-                                </>
-                            )}
-                        </button>
+                            <Plus className="w-5 h-5 mr-2" />
+                            Nueva Orden de Embarque
+                        </Link>
                     </div>
                 </div>
 
-                {/* Create Form Section */}
-                <Transition
-                    show={showCreate}
-                    enter="transition duration-500 ease-out"
-                    enterFrom="transform scale-95 opacity-0"
-                    enterTo="transform scale-100 opacity-100"
-                    leave="transition duration-300 ease-in"
-                    leaveFrom="transform scale-100 opacity-100"
-                    leaveTo="transform scale-95 opacity-0"
-                >
-                    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 mb-10 ring-4 ring-indigo-50">
-                        <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-5 flex items-center justify-between">
-                            <div className="flex items-center">
-                                <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
-                                    <Ship className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-white font-bold text-lg">
-                                        Captura de Nueva Orden
-                                    </h3>
-                                    <p className="text-indigo-200 text-xs">
-                                        Complete los datos para generar el folio {data.folio}
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setShowCreate(false)}
-                                className="text-indigo-300 hover:text-white transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-
-                        <form onSubmit={submit} className="p-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* SECTION: Información General */}
-                                <div className="lg:col-span-2 p-4 bg-indigo-50 rounded-xl border border-indigo-100 mb-2">
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div>
-                                            <label className="block text-xs font-bold text-indigo-700 uppercase mb-1">
-                                                Folio O.E.
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    value={data.folio}
-                                                    readOnly
-                                                    className="w-full rounded-lg border-gray-200 bg-gray-100 py-2 pl-9 font-bold text-gray-700"
-                                                />
-                                                <Hash className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-indigo-700 uppercase mb-1">
-                                                Fecha
-                                            </label>
-                                            <div className="relative">
-                                                <input
-                                                    type="date"
-                                                    value={data.date}
-                                                    onChange={(e) => setData("date", e.target.value)}
-                                                    className="w-full rounded-lg border-gray-200 py-2 pl-9"
-                                                />
-                                                <Calendar className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-indigo-700 uppercase mb-1">
-                                                Vincular a OV *
-                                            </label>
-                                            <div className="relative">
-                                                <select
-                                                    required
-                                                    value={data.sales_order_id}
-                                                    onChange={handleSalesOrderSelect}
-                                                    className="w-full rounded-lg border-indigo-200 py-2 pl-9 bg-white font-bold text-indigo-900"
-                                                >
-                                                    <option value="">-- Seleccionar OV --</option>
-                                                    {sales_orders.map((so) => (
-                                                        <option key={so.id} value={so.id}>
-                                                            {so.folio} - {so.client?.business_name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <ShoppingCart className="w-4 h-4 text-indigo-400 absolute left-3 top-2.5" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* SECTION: Cliente */}
-                                <div className="space-y-4">
-                                    <h4 className="text-sm font-bold text-gray-900 flex items-center border-b pb-2">
-                                        <User className="w-4 h-4 mr-2 text-indigo-600" />
-                                        Datos del Cliente
-                                    </h4>
-                                    <div>
-                                        <Combobox onChange={handleClientSelect}>
-                                            <div className="relative mt-1">
-                                                <div className="relative w-full overflow-hidden rounded-lg border border-gray-200">
-                                                    <Combobox.Input
-                                                        className="w-full border-none py-2.5 pl-9 pr-10 text-sm focus:ring-0"
-                                                        onChange={(event) => setClientQuery(event.target.value)}
-                                                        displayValue={() => data.client_name}
-                                                        placeholder="Buscar Cliente..."
-                                                    />
-                                                    <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                                        <User className="w-4 h-4 text-gray-400" />
-                                                    </div>
-                                                    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-                                                        <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                                    </Combobox.Button>
-                                                </div>
-                                                <Transition as={Fragment} leave="transition duration-100 ease-in" leaveFrom="opacity-100" leaveTo="opacity-0" afterLeave={() => setClientQuery("")}>
-                                                    <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
-                                                        {filteredClients.map((client) => (
-                                                            <Combobox.Option key={client.id} value={client} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-indigo-600 text-white" : "text-gray-900"}`}>
-                                                                {({ selected, active }) => (
-                                                                    <>
-                                                                        <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>{client.business_name}</span>
-                                                                        {selected && <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? "text-white" : "text-indigo-600"}`}><Check className="h-4 w-4" /></span>}
-                                                                    </>
-                                                                )}
-                                                            </Combobox.Option>
-                                                        ))}
-                                                    </Combobox.Options>
-                                                </Transition>
-                                            </div>
-                                        </Combobox>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <input type="text" value={data.rfc} onChange={(e) => setData("rfc", e.target.value)} placeholder="RFC" className="rounded-lg border-gray-200 text-sm" />
-                                        <input type="text" value={data.consigned_to} onChange={(e) => setData("consigned_to", e.target.value)} placeholder="Consignado a" className="rounded-lg border-gray-200 text-sm" />
-                                    </div>
-                                    <div className="relative">
-                                        <input type="text" value={data.address} onChange={(e) => setData("address", e.target.value)} placeholder="Dirección" className="w-full rounded-lg border-gray-200 text-sm pl-9" />
-                                        <MapPin className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
-                                    </div>
-                                </div>
-
-                                {/* SECTION: Transportista */}
-                                <div className="space-y-4">
-                                    <h4 className="text-sm font-bold text-gray-900 flex items-center border-b pb-2">
-                                        <Truck className="w-4 h-4 mr-2 text-indigo-600" />
-                                        Datos del Transportista
-                                    </h4>
-                                    <input type="text" value={data.transport_company} onChange={(e) => setData("transport_company", e.target.value)} placeholder="Empresa Transportista" className="w-full rounded-lg border-gray-200 text-sm" />
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <input type="text" value={data.operator_name} onChange={(e) => setData("operator_name", e.target.value)} placeholder="Operador" className="rounded-lg border-gray-200 text-sm" />
-                                        <input type="text" value={data.tractor_plate} onChange={(e) => setData("tractor_plate", e.target.value)} placeholder="Placas" className="rounded-lg border-gray-200 text-sm" />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <input type="text" value={data.carta_porte} onChange={(e) => setData("carta_porte", e.target.value)} placeholder="Carta Porte" className="rounded-lg border-gray-200 text-sm" />
-                                        <input type="text" value={data.unit_number} onChange={(e) => setData("unit_number", e.target.value)} placeholder="Unidad" className="rounded-lg border-gray-200 text-sm" />
-                                    </div>
-                                </div>
-
-                                {/* SECTION: Embarque */}
-                                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-xl">
-                                    <div className="md:col-span-2">
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Producto</label>
-                                        <select value={data.product} onChange={(e) => setData("product", e.target.value)} className="w-full rounded-lg border-gray-200 text-sm">
-                                            <option value="">Seleccione...</option>
-                                            {products.map((p) => <option key={p.id} value={p.name}>{p.name}</option>)}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Ton. Progr.</label>
-                                        <input type="text" value={data.programmed_tons} onChange={(e) => setData("programmed_tons", e.target.value)} className="w-full rounded-lg border-gray-200 text-sm" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Destino</label>
-                                        <input type="text" value={data.destination} onChange={(e) => setData("destination", e.target.value)} className="w-full rounded-lg border-gray-200 text-sm" />
-                                    </div>
-                                </div>
-
-                                <div className="lg:col-span-2 flex justify-end pt-4">
-                                    <button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="inline-flex items-center px-10 py-3.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl shadow-xl transition-all transform hover:scale-105 disabled:opacity-50"
-                                    >
-                                        <Save className="w-5 h-5 mr-2" />
-                                        {processing ? "GUARDANDO..." : "GUARDAR ORDEN DE EMBARQUE"}
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </Transition>
-
                 {/* Filters & Actions */}
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                < div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4" >
                     <div className="relative w-full sm:w-96">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search className="h-5 w-5 text-gray-400" />
@@ -493,10 +202,10 @@ export default function Index({
                             <option value="burreo">Descarga Burreo</option>
                         </select>
                     </div>
-                </div>
+                </div >
 
                 {/* Table */}
-                <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+                < div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100" >
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
@@ -647,50 +356,52 @@ export default function Index({
                     </div>
 
                     {/* Pagination */}
-                    {orders.links.length > 3 && (
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 md:flex md:items-center md:justify-between">
-                            <div className="text-sm text-gray-500 mb-4 md:mb-0">
-                                Mostrando{" "}
-                                <span className="font-medium">
-                                    {orders.from}
-                                </span>{" "}
-                                a{" "}
-                                <span className="font-medium">{orders.to}</span>{" "}
-                                de{" "}
-                                <span className="font-medium">
-                                    {orders.total}
-                                </span>{" "}
-                                resultados
+                    {
+                        orders.links.length > 3 && (
+                            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 md:flex md:items-center md:justify-between">
+                                <div className="text-sm text-gray-500 mb-4 md:mb-0">
+                                    Mostrando{" "}
+                                    <span className="font-medium">
+                                        {orders.from}
+                                    </span>{" "}
+                                    a{" "}
+                                    <span className="font-medium">{orders.to}</span>{" "}
+                                    de{" "}
+                                    <span className="font-medium">
+                                        {orders.total}
+                                    </span>{" "}
+                                    resultados
+                                </div>
+                                <div className="flex justify-center space-x-1">
+                                    {orders.links.map((link, key) =>
+                                        link.url ? (
+                                            <Link
+                                                key={key}
+                                                href={link.url}
+                                                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
+                                                    ? "bg-indigo-600 text-white shadow-sm"
+                                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                                                    }`}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ) : (
+                                            <span
+                                                key={key}
+                                                className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ),
+                                    )}
+                                </div>
                             </div>
-                            <div className="flex justify-center space-x-1">
-                                {orders.links.map((link, key) =>
-                                    link.url ? (
-                                        <Link
-                                            key={key}
-                                            href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                ? "bg-indigo-600 text-white shadow-sm"
-                                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                                }`}
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
-                                    ) : (
-                                        <span
-                                            key={key}
-                                            className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
-                                    ),
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </DashboardLayout>
+                        )
+                    }
+                </div >
+            </div >
+        </DashboardLayout >
     );
 }
