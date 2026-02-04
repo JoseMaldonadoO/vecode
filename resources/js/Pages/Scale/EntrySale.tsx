@@ -189,9 +189,10 @@ export default function EntrySale({
                     bill_of_lading: res.carta_porte || "",
                 }));
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Search error:", error);
-            alert("No encontrado.");
+            const errorMessage = error.response?.data?.error || "No encontrado.";
+            alert(errorMessage);
             setOrderDetails(null);
         } finally {
             setIsLoading(false);

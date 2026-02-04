@@ -315,7 +315,7 @@ class AptController extends Controller
                 if ($operator && $operator->vessel) {
                     // ARCHIVE CHECK: If vessel is inactive, block all scans
                     if (!$operator->vessel->is_active) {
-                        return back()->withErrors(['qr' => 'ALERTA: El barco ' . $operator->vessel->name . ' ya ha zarpado. No se pueden registrar nuevos movimientos en APT para este barco.']);
+                        return back()->withErrors(['qr' => 'ALERTA: El barco asociado a este operador no está en operación.']);
                     }
 
                     // STRICT CHECK: If vessel requires scale, do not allow auto-creation of Burreo

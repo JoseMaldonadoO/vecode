@@ -253,6 +253,15 @@ class WeightTicketController extends Controller
                 $operator = VesselOperator::with(['vessel.client', 'vessel.product'])->find($operatorId);
 
                 if ($operator) {
+                    // ARCHIVE CHECK: If vessel is inactive or already departed, block ALL operations immediately
+                    // requested message: "ALERTA: El barco asociado a este operador no está en operación"
+                    if (!$operator->vessel->is_active) {
+                        return response()->json([
+                            'error' => 'ALERTA: El barco asociado a este operador no está en operación.',
+                            'blocked' => true
+                        ], 403);
+                    }
+
                     // BEFORE suggesting a new entry, check if this operator already has an active order "In Plant"
                     $activeOrder = LoadingOrder::with(['client', 'product', 'vessel'])
                         ->where('status', 'loading')

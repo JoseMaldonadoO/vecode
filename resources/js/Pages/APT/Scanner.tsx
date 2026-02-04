@@ -129,9 +129,10 @@ export default function Scanner({
                 setScanInput(cleanCode);
                 clearErrors();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Search Error:", error);
-            alert("Código no encontrado o formato inválido.");
+            const errorMessage = error.response?.data?.error || "Código no encontrado o formato inválido.";
+            alert(errorMessage);
             if (!showCamera) setScanInput("");
         }
     };
@@ -619,9 +620,9 @@ export default function Scanner({
                                             </span>
                                             <div
                                                 className={`font-bold inline-block px-2 py-0.5 rounded text-sm ${scanResult.status ===
-                                                        "loading"
-                                                        ? "bg-green-100 text-green-700"
-                                                        : "bg-amber-100 text-amber-700"
+                                                    "loading"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-amber-100 text-amber-700"
                                                     }`}
                                             >
                                                 {scanResult.status === "loading"
@@ -652,10 +653,10 @@ export default function Scanner({
                                         !scanResult.apt_operation_type) && (
                                             <label
                                                 className={`flex-1 text-center py-2 rounded-md cursor-pointer transition-all ${data.operation_type === "scale"
-                                                        ? "bg-white shadow-sm text-indigo-700 font-bold"
-                                                        : scanResult.force_burreo
-                                                            ? "text-gray-300 cursor-not-allowed"
-                                                            : "text-gray-500"
+                                                    ? "bg-white shadow-sm text-indigo-700 font-bold"
+                                                    : scanResult.force_burreo
+                                                        ? "text-gray-300 cursor-not-allowed"
+                                                        : "text-gray-500"
                                                     }`}
                                             >
                                                 <input
@@ -1053,8 +1054,8 @@ export default function Scanner({
                                             key={key}
                                             href={link.url}
                                             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                    ? "bg-indigo-600 text-white shadow-sm"
-                                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                                                ? "bg-indigo-600 text-white shadow-sm"
+                                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
