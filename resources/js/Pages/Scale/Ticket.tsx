@@ -321,8 +321,9 @@ export default function Ticket({ ticket }: TicketProps) {
         }
 
         if (
-            ticket.operation &&
-            ticket.operation.toUpperCase().includes("SALIDA")
+            ticket.net_weight > 0 ||
+            (ticket.operation &&
+                ticket.operation.toUpperCase().includes("SALIDA"))
         ) {
             window.location.href = route("scale.index") + "?view=pending";
         } else {

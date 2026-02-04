@@ -39,6 +39,7 @@ export default function ExitMP({
 
     // State for Weighing
     const [weight, setWeight] = useState<number>(0);
+    const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const portRef = useRef<any>(null);
     const readerRef = useRef<any>(null);
@@ -50,8 +51,12 @@ export default function ExitMP({
     });
 
     useEffect(() => {
-        setData("weight", weight.toString());
-    }, [weight]);
+        if (capturedWeight !== null) {
+            setData("weight", capturedWeight.toString());
+        } else {
+            setData("weight", weight.toString());
+        }
+    }, [weight, capturedWeight]);
 
     // Handle Errors
     useEffect(() => {
@@ -67,6 +72,10 @@ export default function ExitMP({
             });
         }
     }, [errors]);
+
+    const handleCapture = () => {
+        setCapturedWeight(weight);
+    };
 
     const handleSerialConnect = async () => {
         if ("serial" in navigator) {
@@ -131,7 +140,7 @@ export default function ExitMP({
                 // We could just set state, but full page reload is safer for state reset
                 router.visit(
                     route("scale.exit", res.id) +
-                        `?scale_id=${active_scale_id}`,
+                    `?scale_id=${active_scale_id}`,
                 );
             } else {
                 alert(
@@ -174,7 +183,7 @@ export default function ExitMP({
                                         if (!!result) {
                                             const text =
                                                 typeof result.getText ===
-                                                "function"
+                                                    "function"
                                                     ? result.getText()
                                                     : result.text;
                                             if (text) {
@@ -334,21 +343,21 @@ export default function ExitMP({
                                 {auth.user?.roles?.some((r: string) =>
                                     r.toLowerCase().includes("admin"),
                                 ) && (
-                                    <div className="mt-2 flex justify-center">
-                                        <input
-                                            type="number"
-                                            className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm"
-                                            placeholder="Manual Admin"
-                                            onChange={(e) =>
-                                                setWeight(
-                                                    parseFloat(
-                                                        e.target.value,
-                                                    ) || 0,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                )}
+                                        <div className="mt-2 flex justify-center">
+                                            <input
+                                                type="number"
+                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm"
+                                                placeholder="Manual Admin"
+                                                onChange={(e) =>
+                                                    setWeight(
+                                                        parseFloat(
+                                                            e.target.value,
+                                                        ) || 0,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    )}
                             </div>
                             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3">
                                 <button
@@ -361,9 +370,13 @@ export default function ExitMP({
                                 </button>
                                 <button
                                     type="button"
-                                    className="flex items-center justify-center px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
+                                    onClick={handleCapture}
+                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold transition-all ${capturedWeight !== null ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
                                 >
-                                    <Scale className="w-5 h-5 mr-2" /> Capturar
+                                    <Scale className="w-5 h-5 mr-2" />{" "}
+                                    {capturedWeight !== null
+                                        ? "Recapturar"
+                                        : "Capturar"}
                                 </button>
                             </div>
                         </div>
