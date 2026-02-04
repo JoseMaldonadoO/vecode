@@ -57,7 +57,7 @@ class ExitOperatorController extends Controller
 
         ExitOperator::create($validated);
 
-        return redirect()->route('documentation.exit-operators.index')->with('success', 'Operador de salida registrado correctamente.');
+        return redirect()->route('documentation.exit-operators.index')->with('success', 'Operador de salida registrado con éxito.');
     }
 
     public function edit($id)
@@ -99,7 +99,7 @@ class ExitOperatorController extends Controller
 
         $operator->update($validated);
 
-        return redirect()->route('documentation.exit-operators.index')->with('success', 'Operador actualizado correctamente.');
+        return back()->with('success', 'Los cambios se guardaron con éxito.');
     }
 
     public function toggleStatus($id)

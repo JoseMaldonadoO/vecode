@@ -71,7 +71,7 @@ export default function Edit({ auth, operator }: { auth: any; operator: Operator
                             <CheckCircle className="w-6 h-6 text-green-600" />
                         </div>
                         <div>
-                            <span className="block font-bold text-lg">¡Actualización Exitosa!</span>
+                            <span className="block font-bold text-lg">¡Guardado Exitoso!</span>
                             <span className="block text-sm font-medium text-green-700">{flash.success}</span>
                         </div>
                     </div>
