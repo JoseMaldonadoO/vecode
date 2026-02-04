@@ -53,17 +53,6 @@ export default function Create({ auth }: { auth: any }) {
                     </Link>
                 </div>
 
-                {flash?.success && (
-                    <div className="mb-6 bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl shadow-md flex items-center transition-all duration-300 animate-fade-in-down">
-                        <div className="bg-green-100 p-2 rounded-full mr-4">
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div>
-                            <span className="block font-bold text-lg">¡Registro Exitoso!</span>
-                            <span className="block text-sm font-medium text-green-700">{flash.success}</span>
-                        </div>
-                    </div>
-                )}
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                     <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">

@@ -1,5 +1,5 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import {
     User,
     Truck,
@@ -10,8 +10,10 @@ import {
     Printer,
     ShieldAlert,
     ShieldCheck,
+    CheckCircle,
+    X,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // @ts-ignore
 import { pickBy } from "lodash";
 
@@ -48,6 +50,10 @@ interface PageProps {
     auth: {
         user: any;
     };
+    flash: {
+        success?: string;
+        error?: string;
+    };
 }
 
 export default function Index({
@@ -55,8 +61,18 @@ export default function Index({
     operators,
     filters,
 }: PageProps) {
+    const { flash } = usePage<any>().props;
     const [search, setSearch] = useState(filters.search || "");
     const [status, setStatus] = useState(filters.status || "active");
+    const [showAlert, setShowAlert] = useState(!!flash?.success);
+
+    useEffect(() => {
+        if (flash?.success) {
+            setShowAlert(true);
+            const timer = setTimeout(() => setShowAlert(false), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.success]);
 
     const applyFilters = (newParams: Partial<PageProps["filters"]>) => {
         const params = pickBy({
@@ -83,7 +99,27 @@ export default function Index({
         <DashboardLayout user={auth.user} header="Gestión Operadores Salida">
             <Head title="Operadores de Salida" />
 
-            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                {/* Dynamic Alert */}
+                {showAlert && flash?.success && (
+                    <div className="fixed top-24 right-8 z-50 animate-fade-in-right">
+                        <div className="bg-white border-l-4 border-green-500 rounded-lg shadow-2xl p-4 flex items-center max-w-md">
+                            <div className="bg-green-100 p-2 rounded-full mr-4">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex-1 mr-4">
+                                <h4 className="text-green-900 font-bold text-sm">Operación Exitosa</h4>
+                                <p className="text-green-700 text-xs font-medium">{flash.success}</p>
+                            </div>
+                            <button
+                                onClick={() => setShowAlert(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
                 {/* Header Section */}
                 <div className="md:flex md:items-center md:justify-between mb-6">
                     <div className="flex-1 min-w-0">
