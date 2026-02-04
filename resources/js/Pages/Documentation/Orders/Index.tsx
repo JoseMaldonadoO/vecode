@@ -1,5 +1,5 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import {
     FileText,
     Search,
@@ -19,8 +19,9 @@ import {
     Ship,
     Check,
     ChevronsUpDown,
+    CheckCircle,
 } from "lucide-react";
-import { useState, Fragment, FormEventHandler } from "react";
+import { useState, Fragment, FormEventHandler, useEffect } from "react";
 // @ts-ignore
 import { pickBy } from "lodash";
 import { Combobox, Transition } from "@headlessui/react";
@@ -87,9 +88,19 @@ export default function Index({
     sales_orders,
     default_folio,
 }: PageProps) {
+    const { flash } = usePage<any>().props;
     const [search, setSearch] = useState(filters.search || "");
     const [type, setType] = useState(filters.type || "");
     const [showCreate, setShowCreate] = useState(false);
+    const [showAlert, setShowAlert] = useState(!!flash?.success);
+
+    useEffect(() => {
+        if (flash?.success) {
+            setShowAlert(true);
+            const timer = setTimeout(() => setShowAlert(false), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.success]);
 
     // Form Logic
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -199,13 +210,31 @@ export default function Index({
     };
 
     return (
-        <DashboardLayout
-            user={auth.user}
-            header="Reporte de Órdenes de Embarque"
-        >
-            <Head title="Reportes OB" />
+        <DashboardLayout user={auth.user} header="Órdenes de Embarque">
+            <Head title="Órdenes de Embarque" />
 
-            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                {/* Dynamic Alert */}
+                {showAlert && flash?.success && (
+                    <div className="fixed top-24 right-8 z-50 animate-fade-in-right">
+                        <div className="bg-white border-l-4 border-green-500 rounded-lg shadow-2xl p-4 flex items-center max-w-md">
+                            <div className="bg-green-100 p-2 rounded-full mr-4">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="flex-1 mr-4">
+                                <h4 className="text-green-900 font-bold text-sm">Operación Exitosa</h4>
+                                <p className="text-green-700 text-xs font-medium">{flash.success}</p>
+                            </div>
+                            <button
+                                onClick={() => setShowAlert(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Header Section */}
                 <div className="md:flex md:items-center md:justify-between mb-6">
                     <div className="flex-1 min-w-0">
@@ -502,17 +531,29 @@ export default function Index({
                                             key={order.id}
                                             className="hover:bg-indigo-50 transition-colors duration-150"
                                         >
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
-                                                {order.folio}
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center">
+                                                    <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
+                                                        {order.folio.slice(-2)}
+                                                    </div>
+                                                    <div className="ml-4">
+                                                        <div className="text-sm font-bold text-indigo-700 uppercase">
+                                                            {order.folio}
+                                                        </div>
+                                                        <div className="text-[10px] text-gray-500 font-mono">
+                                                            ID: {order.id.slice(0, 8)}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 underline decoration-indigo-200">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium italic">
                                                 {order.sales_order?.folio ||
                                                     order.sale_order ||
                                                     "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.operation_type ===
+                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest ${order.operation_type ===
                                                         "burreo"
                                                         ? "bg-amber-100 text-amber-800"
                                                         : "bg-blue-100 text-blue-800"
@@ -525,37 +566,38 @@ export default function Index({
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">
+                                                <div className="text-sm font-bold text-gray-900 uppercase">
                                                     {
                                                         order.client
                                                             ?.business_name
                                                     }
                                                 </div>
-                                                <div className="text-xs text-indigo-500 font-semibold">
-                                                    {order.vessel?.name}
+                                                <div className="text-xs text-indigo-500 font-bold mt-0.5 flex items-center">
+                                                    <Ship className="w-3 h-3 mr-1" />
+                                                    {order.vessel?.name || 'S/A'}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                                                            ${order.status === "created" ? "bg-blue-100 text-blue-800" : ""}
-                                                            ${order.status === "closed" ? "bg-red-100 text-red-800" : ""}
-                                                            ${order.status === "completed" ? "bg-green-100 text-green-800" : ""}
-                                                            ${order.status === "loading" ? "bg-amber-100 text-amber-800" : ""}
+                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black tracking-widest
+                                                            ${order.status === "created" ? "bg-blue-100 text-blue-800 border border-blue-200" : ""}
+                                                            ${order.status === "closed" ? "bg-red-100 text-red-800 border border-red-200" : ""}
+                                                            ${order.status === "completed" ? "bg-green-100 text-green-800 border border-green-200" : ""}
+                                                            ${order.status === "loading" ? "bg-amber-100 text-amber-800 border border-amber-200" : ""}
                                                         `}
                                                 >
                                                     {order.status === "created"
                                                         ? "ABIERTA"
                                                         : order.status ===
                                                             "closed"
-                                                            ? "CERRADO"
+                                                            ? "CERRADA"
                                                             : order.status ===
                                                                 "loading"
                                                                 ? "CARGANDO"
                                                                 : order.status.toUpperCase()}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
                                                 {new Date(
                                                     order.created_at,
                                                 ).toLocaleDateString()}
@@ -570,13 +612,13 @@ export default function Index({
                                                                 module: "documentation",
                                                             },
                                                         )}
-                                                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
+                                                        className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
                                                     >
                                                         Ver Detalle
                                                     </Link>
                                                 ) : (
-                                                    <span className="text-gray-400 bg-gray-50 px-3 py-1.5 rounded-md text-xs">
-                                                        Sin OV
+                                                    <span className="text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-gray-100">
+                                                        SIN OV
                                                     </span>
                                                 )}
                                             </td>
