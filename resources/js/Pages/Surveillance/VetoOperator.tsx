@@ -227,7 +227,7 @@ export default function VetoOperator({ auth }: { auth: any }) {
                                             <div>
                                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Póliza de Seguro</p>
                                                 <p className="text-lg font-black text-gray-800 uppercase leading-none">{operator.policy}</p>
-                                                <p className="text-[10px] font-bold text-amber-600 mt-2 uppercase">Vigencia: {operator.validity}</p>
+                                                <p className="text-[10px] font-bold text-amber-600 mt-2 uppercase">Vigencia: {operator.validity?.split('T')[0]}</p>
                                             </div>
                                         </div>
 
