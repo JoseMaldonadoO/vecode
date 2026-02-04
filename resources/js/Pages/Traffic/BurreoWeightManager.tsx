@@ -304,15 +304,13 @@ export default function BurreoWeightManager({ auth, vessels }: Props) {
                                                         Acción Crítica
                                                     </p>
                                                     Esta acción tomará el peso
-                                                    total ingresado, lo dividirá
-                                                    entre el número de unidades
-                                                    de burreo del buque{" "}
+                                                    ingresado y lo **asignará directamente**
+                                                    a cada uno de los tickets de burreo del buque {" "}
                                                     <strong>
                                                         {selectedVessel.name}
                                                     </strong>
-                                                    , y actualizará
-                                                    automáticamente el peso neto
-                                                    de sus tickets.
+                                                    , reemplazando el valor provisional.
+                                                    (No divide, asigna el valor tal cual).
                                                 </div>
 
                                                 <button

@@ -102,12 +102,12 @@ class BurreoWeightController extends Controller
                 $burreoCount = $ticketsQuery->count();
 
                 if ($burreoCount > 0) {
-                    $realAverageWeight = $weightKg / $burreoCount;
-
                     // 3. Update all these tickets
-                    // Note: Update using the same query builder constraints
+                    // LOGIC CHANGE: User requested DIRECT ASSIGNMENT, not division.
+                    // The input 'draft_weight' is now treated as "Final Weight Per Trip", not "Total Ship Draft".
+                    // (Or rather, user enters the calculated average directly).
                     $ticketsQuery->update([
-                        'net_weight' => $realAverageWeight,
+                        'net_weight' => $weightKg, // Assign directly without dividing
                     ]);
                 }
             });

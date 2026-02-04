@@ -82,10 +82,10 @@ Utilizado cuando se aligera un barco o se mueve carga desde una ubicación exter
 3.  **Descarga (Escaneo APT)**: La unidad va a Almacén (APT) y se escanea el QR.
     -   *Cálculo Inmediato*: El sistema genera el registro con el peso neto equivalente al **Peso Provisional** actual del barco.
 4.  **No requiere Báscula**: Las unidades de Burreo **NO** pasan por la báscula de salida (Destare). El flujo se completa al momento del escaneo en almacén.
-5.  **Cálculo de Peso Final (Draft)**:
-    -   *Cierre de Operación*: Una vez finalizada la descarga total, se ingresa el **Peso de Draft** total (en TM) en el módulo de Tráfico.
-    -   *Recálculo Final*: El sistema calcula el promedio real (`Peso Draft / Total de Unidades`) y actualiza automáticamente todos los tickets de Burreo de ese barco con este valor final, sobreescribiendo el provisional.
-    *   **Regla de Múltives Viajes**: Cada escaneo genera una nueva Shipment Order. El sistema alerta el número de descarga consecutivo.
+5.    -   *Cálculo de Peso Final (Draft)*:
+    -   *Cierre de Operación*: Al finalizar, se ingresa el **Peso Final Promedio por Viaje** (en TM) en el módulo de Tráfico.
+    -   *Recálculo Final*: El sistema actualiza automáticamente todos los tickets de Burreo con este valor final (Asignación Directa), sobreescribiendo el provisional.
+    -   *Nota*: Anteriormente se dividía un total, pero se cambió la reglas para asignar directamente el peso ingresado a cada ticket.
 
 ---
 
