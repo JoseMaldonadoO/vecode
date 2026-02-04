@@ -212,6 +212,15 @@ export default function EntrySale({
         e.preventDefault();
         // Validation: Weigh > 0? User might want to save manual wait if serial fails, but generally > 0.
         // if (weight <= 0) { alert("Peso debe ser mayor a 0."); return; }
+        if (!data.bill_of_lading) {
+            Swal.fire({
+                icon: "warning",
+                title: "Campo Requerido",
+                text: "Por favor, ingrese la Carta Porte.",
+                confirmButtonColor: "#4f46e5",
+            });
+            return;
+        }
         if (!data.driver) {
             alert("Faltan datos de conductor.");
             return;
@@ -532,7 +541,7 @@ export default function EntrySale({
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <InputLabel value="Carta Porte (Manual si aplica)" />
+                                    <InputLabel value="Carta Porte (Manual si aplica) *" />
                                     <TextInput
                                         value={data.bill_of_lading}
                                         onChange={(e) =>

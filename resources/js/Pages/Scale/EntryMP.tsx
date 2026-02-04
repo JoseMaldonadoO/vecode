@@ -225,6 +225,15 @@ export default function EntryMP({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!data.bill_of_lading) {
+            Swal.fire({
+                icon: "warning",
+                title: "Campo Requerido",
+                text: "Por favor, ingrese la Carta Porte.",
+                confirmButtonColor: "#4f46e5",
+            });
+            return;
+        }
         if (!data.driver) {
             alert("Faltan datos de conductor.");
             return;
@@ -528,14 +537,15 @@ export default function EntryMP({
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Carta Porte
+                                        Carta Porte{" "}
+                                        <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
-                                        value={data.withdrawal_letter}
+                                        value={data.bill_of_lading}
                                         onChange={(e) =>
                                             setData(
-                                                "withdrawal_letter",
+                                                "bill_of_lading",
                                                 e.target.value,
                                             )
                                         }

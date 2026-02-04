@@ -353,7 +353,7 @@ class WeightTicketController extends Controller
             'consignee' => 'nullable|string',
             'destination' => 'nullable|string',
             'origin' => 'nullable|string',
-            'bill_of_lading' => 'nullable|string', // Carta Porte
+            'bill_of_lading' => 'required|string', // Carta Porte
 
             // Transport info (Snapshot)
             'driver' => 'required|string',
