@@ -222,8 +222,8 @@ export default function Index({
                                                 <div className="text-xs text-indigo-500 mt-1 font-medium">
                                                     {ticket.exit_at
                                                         ? new Date(
-                                                              ticket.exit_at,
-                                                          ).toLocaleDateString()
+                                                            ticket.exit_at,
+                                                        ).toLocaleDateString()
                                                         : "En proceso"}
                                                 </div>
                                             </td>
@@ -279,7 +279,7 @@ export default function Index({
                                             </td>
                                             <td className="px-6 py-4 text-center whitespace-nowrap">
                                                 {ticket.status ===
-                                                "completed" ? (
+                                                    "completed" ? (
                                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">
                                                         Completado
                                                     </span>
@@ -293,10 +293,12 @@ export default function Index({
                                                 <div className="flex items-center justify-center gap-2">
                                                     {/* Reprint */}
                                                     <a
-                                                        href={route(
-                                                            "scale.ticket.print",
-                                                            ticket.id,
-                                                        )}
+                                                        href={
+                                                            route(
+                                                                "scale.ticket.print",
+                                                                ticket.id,
+                                                            ) + "?from=history"
+                                                        }
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="inline-flex items-center text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 p-2 rounded-md transition-colors"
@@ -309,35 +311,35 @@ export default function Index({
                                                     {auth.user?.roles?.includes(
                                                         "Admin",
                                                     ) && (
-                                                        <Link
-                                                            href={route(
-                                                                "scale.tickets.edit",
-                                                                ticket.id,
-                                                            )}
-                                                            className="inline-flex items-center text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 p-2 rounded-md transition-colors"
-                                                            title="Editar Ticket"
-                                                        >
-                                                            <Edit className="w-5 h-5" />
-                                                        </Link>
-                                                    )}
+                                                            <Link
+                                                                href={route(
+                                                                    "scale.tickets.edit",
+                                                                    ticket.id,
+                                                                )}
+                                                                className="inline-flex items-center text-gray-500 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 p-2 rounded-md transition-colors"
+                                                                title="Editar Ticket"
+                                                            >
+                                                                <Edit className="w-5 h-5" />
+                                                            </Link>
+                                                        )}
 
                                                     {/* Delete - Only for Admin */}
                                                     {auth.user?.roles?.includes(
                                                         "Admin",
                                                     ) && (
-                                                        <button
-                                                            onClick={() =>
-                                                                confirmDelete(
-                                                                    ticket.id,
-                                                                    ticket.folio,
-                                                                )
-                                                            }
-                                                            className="inline-flex items-center text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-md transition-colors"
-                                                            title="Eliminar Ticket"
-                                                        >
-                                                            <Trash2 className="w-5 h-5" />
-                                                        </button>
-                                                    )}
+                                                            <button
+                                                                onClick={() =>
+                                                                    confirmDelete(
+                                                                        ticket.id,
+                                                                        ticket.folio,
+                                                                    )
+                                                                }
+                                                                className="inline-flex items-center text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 p-2 rounded-md transition-colors"
+                                                                title="Eliminar Ticket"
+                                                            >
+                                                                <Trash2 className="w-5 h-5" />
+                                                            </button>
+                                                        )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -399,11 +401,10 @@ export default function Index({
                                         <Link
                                             key={i}
                                             href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                                                link.active
+                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
                                                     ? "bg-indigo-600 text-white shadow-sm"
                                                     : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
-                                            }`}
+                                                }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}

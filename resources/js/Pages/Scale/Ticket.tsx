@@ -314,7 +314,16 @@ export default function Ticket({ ticket }: TicketProps) {
     };
 
     const handleBack = () => {
-        if (ticket.operation && ticket.operation.toUpperCase().includes("SALIDA")) {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("from") === "history") {
+            window.location.href = route("scale.tickets.index");
+            return;
+        }
+
+        if (
+            ticket.operation &&
+            ticket.operation.toUpperCase().includes("SALIDA")
+        ) {
             window.location.href = route("scale.index") + "?view=pending";
         } else {
             window.history.back();
