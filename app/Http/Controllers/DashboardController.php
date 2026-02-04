@@ -475,9 +475,22 @@ class DashboardController extends Controller
                 });
             }
 
-            // Filter by Operator
             if ($operator) {
                 $query->where('loading_orders.operator_name', $operator);
+            }
+
+            // Warehouse Filter
+            $warehouse = $request->input('warehouse');
+            if ($warehouse) {
+                if ($warehouse === 'S/A' || $warehouse === 'Sin Asignar') {
+                    $query->where(function ($q) {
+                        $q->whereNull('loading_orders.warehouse')
+                            ->orWhere('loading_orders.warehouse', '')
+                            ->orWhere('loading_orders.warehouse', 'S/A');
+                    });
+                } else {
+                    $query->where('loading_orders.warehouse', $warehouse);
+                }
             }
 
             // Date Filter (Global)

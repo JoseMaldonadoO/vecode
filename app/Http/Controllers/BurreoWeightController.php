@@ -42,9 +42,18 @@ class BurreoWeightController extends Controller
                 // 2. Update all associated Burreo tickets that are NOT finalized by a draft
                 // (If draft_weight is null, we are still in provisional phase)
                 if ($vessel->draft_weight === null) {
-                    $tickets = WeightTicket::whereHas('shipmentOrder', function ($q) use ($vessel) {
-                        $q->where('vessel_id', $vessel->id)
-                            ->where('operation_type', 'burreo');
+                    // Update tickets linked via ShipmentOrder OR LoadingOrder
+                    $tickets = WeightTicket::where(function ($query) use ($vessel) {
+                        // Case A: Linked via ShipmentOrder (Legacy / Traffic)
+                        $query->whereHas('shipmentOrder', function ($q) use ($vessel) {
+                            $q->where('vessel_id', $vessel->id)
+                                ->where('operation_type', 'burreo');
+                        })
+                            // Case B: Linked via LoadingOrder (APT Scans / Direct)
+                            ->orWhereHas('loadingOrder', function ($q) use ($vessel) {
+                                $q->where('vessel_id', $vessel->id)
+                                    ->where('operation_type', 'burreo');
+                            });
                     })
                         ->where('is_burreo', true)
                         ->update([
@@ -75,28 +84,31 @@ class BurreoWeightController extends Controller
                     'draft_weight' => $weightKg
                 ]);
 
-                // 2. Find all "Burreo" tickets for this vessel
-                $orders = ShipmentOrder::where('vessel_id', $vessel->id)
-                    ->where('operation_type', 'burreo')
-                    ->whereHas('weight_ticket', function ($q) {
-                        $q->where('is_burreo', true);
-                    })
-                    ->get();
+                // 2. Find all "Burreo" tickets for this vessel (From ShipmentOrder AND LoadingOrder)
+                // We need to count unique TRIPS. 
+                // A WeightTicket represents a Trip.
+                $ticketsQuery = WeightTicket::where('is_burreo', true)
+                    ->where(function ($query) use ($vessel) {
+                        $query->whereHas('shipmentOrder', function ($q) use ($vessel) {
+                            $q->where('vessel_id', $vessel->id)
+                                ->where('operation_type', 'burreo');
+                        })
+                            ->orWhereHas('loadingOrder', function ($q) use ($vessel) {
+                                $q->where('vessel_id', $vessel->id)
+                                    ->where('operation_type', 'burreo');
+                            });
+                    });
 
-                $burreoCount = $orders->count();
+                $burreoCount = $ticketsQuery->count();
 
                 if ($burreoCount > 0) {
                     $realAverageWeight = $weightKg / $burreoCount;
 
-                    // 3. Update all these tickets with the real average weight
-                    foreach ($orders as $order) {
-                        $ticket = $order->weight_ticket;
-                        $ticket->update([
-                            'net_weight' => $realAverageWeight,
-                            // Note: we don't strictly update tare_weight here as per business logic 
-                            // but net_weight is what counts for Dashboard.
-                        ]);
-                    }
+                    // 3. Update all these tickets
+                    // Note: Update using the same query builder constraints
+                    $ticketsQuery->update([
+                        'net_weight' => $realAverageWeight,
+                    ]);
                 }
             });
 
