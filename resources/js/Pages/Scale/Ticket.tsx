@@ -324,7 +324,7 @@ export default function Ticket({ ticket }: TicketProps) {
             ticket.operation &&
             ticket.operation.toUpperCase().includes("SALIDA")
         ) {
-            window.location.href = route("scale.tickets.index");
+            window.location.href = route("scale.index") + "?view=pending";
         } else {
             window.history.back();
         }
