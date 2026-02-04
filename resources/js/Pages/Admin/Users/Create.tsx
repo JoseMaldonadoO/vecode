@@ -11,9 +11,11 @@ import {
     Lock,
     Key,
     IdCard,
-    FileText
+    FileText,
+    Eye,
+    EyeOff
 } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useState } from "react";
 
 export default function Create({ auth, roles }: { auth: any; roles: any[] }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -24,6 +26,9 @@ export default function Create({ auth, roles }: { auth: any; roles: any[] }) {
         password_confirmation: "",
         role: "",
     });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -62,7 +67,7 @@ export default function Create({ auth, roles }: { auth: any; roles: any[] }) {
                     </div>
 
                     <form onSubmit={submit} className="p-8">
-                        {/* SECTION: Información Personal - Estilo idéntico a Información General de OV */}
+                        {/* SECTION: Información General - Estilo idéntico a Información General de OV */}
                         <h4 className="text-gray-900 font-bold mb-4 flex items-center text-lg border-b pb-2">
                             <FileText className="w-5 h-5 mr-2 text-indigo-600" />
                             Información General del Usuario
@@ -160,13 +165,20 @@ export default function Create({ auth, roles }: { auth: any; roles: any[] }) {
                                 </label>
                                 <div className="relative">
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         value={data.password}
                                         onChange={(e) => setData("password", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 pr-10 text-sm"
                                         required
                                     />
                                     <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-indigo-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
                                 </div>
                                 <InputError message={errors.password} className="mt-1" />
                             </div>
@@ -177,13 +189,20 @@ export default function Create({ auth, roles }: { auth: any; roles: any[] }) {
                                 </label>
                                 <div className="relative">
                                     <input
-                                        type="password"
+                                        type={showConfirmPassword ? "text" : "password"}
                                         value={data.password_confirmation}
                                         onChange={(e) => setData("password_confirmation", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 pr-10 text-sm"
                                         required
                                     />
                                     <Key className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-3 top-2.5 text-gray-400 hover:text-indigo-600 transition-colors"
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
                                 </div>
                                 <InputError message={errors.password_confirmation} className="mt-1" />
                             </div>

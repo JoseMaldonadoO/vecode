@@ -12,9 +12,11 @@ import {
     Key,
     IdCard,
     AlertCircle,
-    FileText
+    FileText,
+    Eye,
+    EyeOff
 } from "lucide-react";
-import { FormEventHandler } from "react";
+import { FormEventHandler, useState } from "react";
 
 export default function Edit({
     auth,
@@ -32,6 +34,9 @@ export default function Edit({
         password: "",
         password_confirmation: "",
     });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -176,13 +181,20 @@ export default function Edit({
                                         </label>
                                         <div className="relative">
                                             <input
-                                                type="password"
+                                                type={showPassword ? "text" : "password"}
                                                 value={data.password}
                                                 onChange={(e) => setData("password", e.target.value)}
-                                                className="w-full rounded-lg border-amber-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 py-2.5 pl-10 text-sm"
+                                                className="w-full rounded-lg border-amber-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 py-2.5 pl-10 pr-10 text-sm"
                                                 placeholder="••••••••"
                                             />
                                             <Key className="w-5 h-5 text-amber-300 absolute left-3 top-2.5" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-2.5 text-amber-400 hover:text-amber-600 transition-colors"
+                                            >
+                                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                            </button>
                                         </div>
                                         <InputError message={errors.password} className="mt-1" />
                                     </div>
@@ -193,13 +205,20 @@ export default function Edit({
                                         </label>
                                         <div className="relative">
                                             <input
-                                                type="password"
+                                                type={showConfirmPassword ? "text" : "password"}
                                                 value={data.password_confirmation}
                                                 onChange={(e) => setData("password_confirmation", e.target.value)}
-                                                className="w-full rounded-lg border-amber-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 py-2.5 pl-10 text-sm"
+                                                className="w-full rounded-lg border-amber-200 bg-white shadow-sm focus:border-amber-500 focus:ring-amber-500 py-2.5 pl-10 pr-10 text-sm"
                                                 placeholder="••••••••"
                                             />
                                             <Key className="w-5 h-5 text-amber-300 absolute left-3 top-2.5" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                className="absolute right-3 top-2.5 text-amber-400 hover:text-amber-600 transition-colors"
+                                            >
+                                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                            </button>
                                         </div>
                                         <InputError message={errors.password_confirmation} className="mt-1" />
                                     </div>
