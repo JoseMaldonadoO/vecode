@@ -87,7 +87,7 @@ class DocumentationController extends Controller
 
         ShipmentOrder::create($validated + ['status' => 'created']);
 
-        return redirect()->route('documentation.index')->with('success', 'Orden de Embarque creada correctamente.');
+        return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque creada correctamente.');
     }
 
     // --- Moved Functionality from APT ---
@@ -303,6 +303,17 @@ class DocumentationController extends Controller
         return Inertia::render('Documentation/Orders/Index', [
             'orders' => $orders,
             'filters' => $request->only(['search', 'type']),
+            'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'business_name' => $client->business_name,
+                    'rfc' => $client->rfc ?? '',
+                    'address' => $client->address ?? '',
+                ];
+            }),
+            'products' => Product::all(),
+            'sales_orders' => SalesOrder::where('status', 'created')->orWhere('status', 'open')->get(),
+            'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
         ]);
     }
 }
