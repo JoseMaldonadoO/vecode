@@ -11,6 +11,7 @@ import {
     CreditCard,
     AlertCircle,
     User,
+    Hash,
 } from "lucide-react";
 import axios from "axios";
 // @ts-ignore
@@ -19,10 +20,16 @@ import { debounce } from "lodash";
 interface Operator {
     id: number;
     name: string;
+    license: string; // Added
     transport_line: string;
+    real_transport_line: string; // Added
+    economic_number: string; // Added
     unit_type: string;
+    brand_model: string; // Added
     tractor_plate: string;
     trailer_plate: string;
+    policy: string; // Added
+    validity: string; // Added
     status: string;
 }
 
@@ -103,7 +110,7 @@ export default function VetoOperator({ auth }: { auth: any }) {
         <DashboardLayout user={auth.user} header="Veto de Operadores">
             <Head title="Vigilancia - Vetar Operador" />
 
-            <div className="py-8 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-8 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Section */}
                 <div className="mb-8">
                     <Link
@@ -114,100 +121,139 @@ export default function VetoOperator({ auth }: { auth: any }) {
                         Volver a Menú
                     </Link>
                     <div className="flex items-center">
-                        <div className="bg-red-100 p-3 rounded-xl mr-4">
+                        <div className="bg-red-100 p-3 rounded-xl mr-4 shadow-sm">
                             <UserX className="w-8 h-8 text-red-600" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-gray-900 uppercase">Control de Acceso</h2>
-                            <p className="text-gray-500 text-sm">Escanee el QR o busque al operador por ID/Nombre</p>
+                            <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tight">Control de Acceso</h2>
+                            <p className="text-gray-500 text-sm font-medium">Escanee el QR o busque al operador para verificar su información completa</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Search Bar */}
-                <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 mb-8 overflow-hidden relative">
+                <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 mb-8 overflow-hidden relative group">
+                    <div className="bg-indigo-600 absolute bottom-0 left-0 h-1 w-full scale-x-0 group-focus-within:scale-x-100 transition-transform duration-500" />
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             {searching ? (
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600" />
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600" />
                             ) : (
-                                <Search className="h-6 w-6 text-gray-400" />
+                                <Search className="h-6 w-6 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
                             )}
                         </div>
                         <input
                             ref={searchRef}
                             type="text"
                             autoFocus
-                            className="block w-full pl-12 pr-12 py-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 text-lg font-bold placeholder-gray-400 transition-all uppercase"
-                            placeholder="Buscar por ID, Nombre o Escanear QR..."
+                            className="block w-full pl-14 pr-12 py-5 bg-gray-50 border-none rounded-2xl focus:ring-0 text-xl font-black placeholder-gray-400 transition-all uppercase tracking-wide"
+                            placeholder="ESCRIBIR ID, NOMBRE O ESCANEAR CÓDIGO QR..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
-                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <QrCode className="h-6 w-6 text-indigo-400" />
+                        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-indigo-400 group-focus-within:text-indigo-600 transition-colors animate-pulse">
+                            <QrCode className="h-8 w-8" />
                         </div>
                     </div>
                 </div>
 
                 {/* Error Alert */}
                 {error && (
-                    <div className="mb-8 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl flex items-center shadow-sm">
-                        <AlertCircle className="w-6 h-6 text-amber-500 mr-3 shrink-0" />
-                        <p className="text-amber-800 font-bold">{error}</p>
+                    <div className="mb-8 bg-amber-50 border-l-4 border-amber-500 p-5 rounded-r-2xl flex items-center shadow-md animate-fade-in-down">
+                        <AlertCircle className="w-8 h-8 text-amber-500 mr-4 shrink-0" />
+                        <div>
+                            <p className="text-amber-900 font-black text-lg">SIN RESULTADOS</p>
+                            <p className="text-amber-700 font-bold text-sm tracking-wide">{error}</p>
+                        </div>
                     </div>
                 )}
 
                 {/* Operator Details Card */}
                 {operator ? (
-                    <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 transform transition-all animate-fade-in-up">
-                        <div className={`px-8 py-6 flex items-center justify-between ${operator.status === 'active' ? 'bg-indigo-900 text-white' : 'bg-red-800 text-white'}`}>
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 transform transition-all animate-fade-in-up">
+                        {/* Status Header */}
+                        <div className={`px-10 py-8 flex items-center justify-between ${operator.status === 'active' ? 'bg-gradient-to-r from-indigo-900 to-indigo-800 text-white' : 'bg-gradient-to-r from-red-900 to-red-800 text-white'}`}>
                             <div className="flex items-center">
-                                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mr-4 backdrop-blur-sm">
-                                    <User className="w-7 h-7" />
+                                <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mr-6 backdrop-blur-md border border-white/20 shadow-inner">
+                                    <User className="w-10 h-10 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="font-black text-xl uppercase tracking-wide leading-none">{operator.name}</h3>
-                                    <p className="text-indigo-200 text-xs font-bold mt-1 uppercase">ID: {operator.id}</p>
+                                    <h3 className="font-black text-3xl uppercase tracking-tighter leading-none">{operator.name}</h3>
+                                    <div className="flex items-center mt-2">
+                                        <span className="bg-white/20 px-3 py-1 rounded-lg text-xs font-black mr-3 tracking-widest border border-white/10 shadow-sm">ID: {operator.id}</span>
+                                        <span className="text-indigo-200 text-xs font-black uppercase tracking-widest flex items-center">
+                                            <CreditCard className="w-4 h-4 mr-1.5 opacity-70" />
+                                            LIC: {operator.license}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${operator.status === 'active' ? 'bg-green-500/20 text-green-300' : 'bg-white/20 text-red-200 underline'}`}>
-                                {operator.status === 'active' ? 'ESTATUS: ACTIVO' : 'ESTATUS: VETADO'}
+                            <div className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg border-2 ${operator.status === 'active' ? 'bg-green-500/10 text-green-300 border-green-500/30' : 'bg-red-500/10 text-red-200 border-red-500/30 ring-4 ring-red-500/10'}`}>
+                                {operator.status === 'active' ? '● ESTATUS: ACTIVO' : '● ESTATUS: VETADO'}
                             </div>
                         </div>
 
-                        <div className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                                <div className="space-y-6">
-                                    <div className="flex items-start">
-                                        <div className="bg-gray-100 p-2 rounded-lg mr-4 text-gray-400">
-                                            <Truck className="w-5 h-5" />
+                        <div className="p-10">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-10">
+                                {/* Informacción de la Unidad */}
+                                <div className="lg:col-span-2 space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="flex items-start bg-gray-50 p-5 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all duration-300">
+                                            <div className="bg-indigo-100 p-3 rounded-xl mr-5 text-indigo-600 shadow-sm">
+                                                <Truck className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Línea Transportista</p>
+                                                <p className="text-lg font-black text-gray-800 uppercase leading-none">{operator.transport_line}</p>
+                                                <p className="text-[10px] font-bold text-indigo-400 mt-2 italic">Real: {operator.real_transport_line}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Línea Transportista</p>
-                                            <p className="text-lg font-bold text-gray-800 uppercase leading-none">{operator.transport_line}</p>
+
+                                        <div className="flex items-start bg-gray-50 p-5 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all duration-300">
+                                            <div className="bg-indigo-100 p-3 rounded-xl mr-5 text-indigo-600 shadow-sm">
+                                                <Truck className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Tipo y Modelo</p>
+                                                <p className="text-lg font-black text-gray-800 uppercase leading-none">{operator.unit_type}</p>
+                                                <p className="text-[10px] font-bold text-indigo-400 mt-2 uppercase">{operator.brand_model}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="flex items-start">
-                                        <div className="bg-gray-100 p-2 rounded-lg mr-4 text-gray-400">
-                                            <Truck className="w-5 h-5" />
+
+                                        <div className="flex items-start bg-gray-50 p-5 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all duration-300">
+                                            <div className="bg-amber-100 p-3 rounded-xl mr-5 text-amber-600 shadow-sm">
+                                                <ShieldAlert className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Póliza de Seguro</p>
+                                                <p className="text-lg font-black text-gray-800 uppercase leading-none">{operator.policy}</p>
+                                                <p className="text-[10px] font-bold text-amber-600 mt-2 uppercase">Vigencia: {operator.validity}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">Tipo de Unidad</p>
-                                            <p className="text-lg font-bold text-gray-800 uppercase leading-none">{operator.unit_type}</p>
+
+                                        <div className="flex items-start bg-gray-50 p-5 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all duration-300">
+                                            <div className="bg-indigo-100 p-3 rounded-xl mr-5 text-indigo-600 shadow-sm">
+                                                <Hash className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Número Económico</p>
+                                                <p className="text-2xl font-black text-gray-800 uppercase leading-none">{operator.economic_number}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Placas Section */}
                                 <div className="space-y-6">
-                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 relative overflow-hidden group">
-                                        <CreditCard className="w-12 h-12 text-indigo-50 absolute -right-2 -bottom-2 group-hover:scale-110 transition-transform" />
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter mb-1">Placa Tracto</p>
-                                        <p className="text-2xl font-black text-indigo-700 font-mono tracking-wider">{operator.tractor_plate}</p>
+                                    <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-[2rem] border-2 border-indigo-100/50 relative overflow-hidden group hover:scale-[1.02] transition-transform shadow-xl">
+                                        <CreditCard className="w-16 h-16 text-indigo-100 absolute -right-4 -top-4 -rotate-12 group-hover:scale-125 transition-transform duration-500" />
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3">Placa Tracto</p>
+                                        <p className="text-3xl font-black text-indigo-900 font-mono tracking-tighter leading-none">{operator.tractor_plate}</p>
                                     </div>
-                                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 relative overflow-hidden group">
-                                        <CreditCard className="w-12 h-12 text-indigo-50 absolute -right-2 -bottom-2 group-hover:scale-110 transition-transform" />
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter mb-1">Placa Remolque</p>
-                                        <p className="text-2xl font-black text-gray-700 font-mono tracking-wider">{operator.trailer_plate || 'N/A'}</p>
+                                    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-[2rem] border-2 border-gray-200/50 relative overflow-hidden group hover:scale-[1.02] transition-transform shadow-xl">
+                                        <CreditCard className="w-16 h-16 text-gray-100 absolute -right-4 -top-4 -rotate-12 group-hover:scale-125 transition-transform duration-500" />
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Placa Remolque</p>
+                                        <p className="text-3xl font-black text-gray-800 font-mono tracking-tighter leading-none">{operator.trailer_plate || 'SIN REMOLQUE'}</p>
                                     </div>
                                 </div>
                             </div>
