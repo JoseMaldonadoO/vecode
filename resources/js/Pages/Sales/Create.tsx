@@ -163,7 +163,6 @@ export default function Create({
                     )}
 
                     <form onSubmit={submit} className="p-8">
-                        {/* Section: Orden de Venta */}
                         <h4 className="text-gray-900 font-bold mb-4 flex items-center text-lg border-b pb-2">
                             <FileText className="w-5 h-5 mr-2 text-indigo-600" />
                             Información General
@@ -368,23 +367,22 @@ export default function Create({
                                 />
                             </div>
                         </div>
-                </div>
 
-                <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
-                    >
-                        <Save className="w-6 h-6 mr-2" />
-                        {processing
-                            ? "Guardando..."
-                            : "GUARDAR ORDEN DE VENTA"}
-                    </button>
+                        <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-200 transition-all transform hover:-translate-y-0.5"
+                            >
+                                <Save className="w-6 h-6 mr-2" />
+                                {processing
+                                    ? "Guardando..."
+                                    : "GUARDAR ORDEN DE VENTA"}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-            </div >
-        </DashboardLayout >
+            </div>
+        </DashboardLayout>
     );
 }
