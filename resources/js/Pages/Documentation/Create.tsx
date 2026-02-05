@@ -100,6 +100,7 @@ export default function Create({
         status: "created",
         scale_name: "",
         economic_number: "",
+        state: "", // New Field
     });
 
     const [queryClient, setQueryClient] = useState("");
@@ -288,7 +289,7 @@ export default function Create({
                                         <option value="">-- Seleccionar OV Obligatorio --</option>
                                         {sales_orders.map((so) => (
                                             <option key={so.id} value={so.id}>
-                                                {so.folio} - {so.client?.business_name} ({so.total_quantity} TM)
+                                                {so.folio}
                                             </option>
                                         ))}
                                     </select>
@@ -571,9 +572,20 @@ export default function Create({
                                     step="0.01"
                                     value={data.programmed_tons}
                                     onChange={(e) => setData("programmed_tons", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold"
+                                    className={`w-full rounded-lg shadow-sm focus:ring-indigo-500 py-2.5 px-3 font-bold ${Number(data.programmed_tons) > Number(data.balance)
+                                            ? 'border-red-500 focus:border-red-500 bg-red-50'
+                                            : 'border-gray-300 focus:border-indigo-500'
+                                        }`}
                                     placeholder="0.00"
                                 />
+                                {Number(data.programmed_tons) > Number(data.balance) && (
+                                    <p className="text-red-600 text-[10px] mt-1 font-bold animate-pulse">
+                                        ❌ Excede el saldo de la OV ({data.balance} TM)
+                                    </p>
+                                )}
+                                {errors.programmed_tons && (
+                                    <p className="text-red-500 text-xs mt-1">{errors.programmed_tons}</p>
+                                )}
                             </div>
 
                             <div>
@@ -585,6 +597,19 @@ export default function Create({
                                     value={data.destination}
                                     onChange={(e) => setData("destination", e.target.value)}
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Estado
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.state}
+                                    onChange={(e) => setData("state", e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
+                                    placeholder="Ej. VERACRUZ"
                                 />
                             </div>
 

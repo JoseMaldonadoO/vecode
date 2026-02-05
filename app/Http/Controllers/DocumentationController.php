@@ -84,7 +84,27 @@ class DocumentationController extends Controller
             'documenter_name' => 'nullable|string',
             'scale_name' => 'nullable|string',
             'observations' => 'nullable|string',
+            'state' => 'nullable|string',
         ]);
+
+        // 1. Validation: Programmed Tons <= OV Balance
+        $salesOrder = SalesOrder::findOrFail($validated['sales_order_id']);
+        if ($validated['programmed_tons'] > $salesOrder->balance) {
+            return back()->withErrors([
+                'programmed_tons' => 'El tonelaje programado (' . $validated['programmed_tons'] . ' TM) excede el saldo disponible de la Orden de Venta (' . $salesOrder->balance . ' TM).'
+            ])->withInput();
+        }
+
+        // 2. Validation: Unique Carta Porte per Transport Line
+        $exists = ShipmentOrder::where('transport_company', $validated['transport_company'])
+            ->where('carta_porte', $validated['carta_porte'])
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors([
+                'carta_porte' => 'La Carta Porte "' . $validated['carta_porte'] . '" ya ha sido registrada anteriormente para la línea "' . $validated['transport_company'] . '".'
+            ])->withInput();
+        }
 
         // Map frontend fields to DB columns
         $validated['shortage_balance'] = $request->input('balance');
