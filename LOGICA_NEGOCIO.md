@@ -121,39 +121,45 @@ Para garantizar consistencia en todo el sistema, se establecen las siguientes re
 
 ## 6. Control de Accesos (Vigilancia)
 
-Módulo encargado de registrar la bitácora de entradas y salidas de personas (operadores) al recinto portuario.
+El módulo de Vigilancia es el punto de inicio y fin de toda la operación en planta. Su función es filtrar, registrar y autorizar el ingreso físico.
 
-### Entidades y Flujo
-- **Tabla Central**: `access_logs` (Polimórfica).
-- **Controlador**: `SurveillanceController`.
+### A. Tipos de Operadores y Origen
+Para que la lógica sea clara, el sistema diferencia el origen del operador mediante su QR:
+1.  **Operador de Barco (Descarga/MI/MP)**:
+    -   **Prefijo QR**: `OP {id}`.
+    -   **Origen**: Módulo `Dock` -> `VesselOperator`.
+    -   **Flujo**: Vienen a **DEJAR** producto del barco.
+2.  **Operador de Salida (Carga/Ventas)**:
+    -   **Prefijo QR**: `OP_EXIT {id}`.
+    -   **Origen**: Módulo `Documentation` -> `ExitOperator`.
+    -   **Flujo**: Vienen a **RECOGER** producto para clientes.
 
-### Flujos de Operación
-Existen dos tipos de sujetos escaneables:
+### B. Proceso Operativo Integral
 
-#### A. Operador de Barco (`VesselOperator`)
-- **Prefijo QR**: `OP {id}`
-- **Contexto**: Unidades que ingresan para cargar/descargar un barco activo.
-- **Validación**: Deben estar vinculados a un barco con estatus ACTIVO.
+| Fase | Operador de Barco (MI/MP) | Operador de Salida (Carga) |
+| :--- | :--- | :--- |
+| **1. Vigilancia (Entrada)** | Escaneo -> Pendiente -> Checklist Físico -> **Autorizar**. | Escaneo -> Pendiente -> Checklist Físico -> **Autorizar**. |
+| **2. Documentación** | Generación de Orden de Embarque (OE). | Generación de OE vinculada a Orden de Venta (OV). |
+| **3. Báscula (Entrada)** | Pesaje **LLENO** (Peso Bruto). | Pesaje **VACÍO** (Tara Inicial). |
+| **4. Almacén (APT)** | Descarga de producto (Escaneo QR Ubicación). | Carga de producto (Escaneo QR Ubicación). |
+| **5. Báscula (Salida)** | Pesaje **VACÍO** (Tara Final). | Pesaje **LLENO** (Peso Neto cargado). |
+| **6. Vigilancia (Salida)** | Registro de Salida (Fecha/Hora manual). | Registro de Salida (Fecha/Hora manual). |
 
-#### B. Operador de Salida (`ExitOperator`)
-- **Prefijo QR**: `OP_EXIT {id}`
-- **Contexto**: Unidades que ingresan solo para realizar trámites de salida o administrativos, sin vinculación directa a carga de barco en ese momento.
-- **Validación**: Verifica estatus general (no vetado).
+---
 
-### Proceso de Registro
-1.  **Escaneo (Entrada)**:
-    -   Vigilancia escanea el QR (Cámara o USB).
-    -   Sistema detecta el tipo (Barco vs Salida).
-    -   Se muestra **Modal de Checklist** (EPP: Casco, Chaleco, Botas).
-    -   Al autorizar, se crea registro en `access_logs` con `entry_at = NOW()`.
+## 7. Reglas de Vigilancia
 
-2.  **En Planta (Permanencia)**:
-    -   La unidad aparece en la pestaña "En Planta".
-    -   Estado: `in_plant`.
+### Checklist y Autorización
+- El checklist es **físico** (Casco, Chaleco, Botas, Estado de Unidad). 
+- El sistema de Vigilancia **no es bloqueante**: se pueden escanear múltiples unidades y quedan en la pestaña **Pendientes**.
+- Un usuario supervisor decide si el checklist fue exitoso haciendo clic en **Autorizar** o **Denegar**.
+- Solo las unidades autorizadas pasan al estado `in_plant` y pueden ser procesadas en los siguientes módulos (Documentación/Báscula).
 
-3.  **Salida**:
-    -   Vigilancia da clic en "Marcar Salida" o rescanea el QR.
-    -   Sistema actualiza el registro existente cerrando `exit_at = NOW()`.
-    -   Estado pasa a: `completed`.
+### Control de Salida
+- Al salir, se debe registrar manualmente la fecha y hora exacta de salida para mantener la precisión de los tiempos de estadía en planta.
+
+### Historial y Auditoría
+- El sistema mantiene una bitácora completa de cada ingreso con filtros por fecha y paginación debido al alto volumen de unidades diarias.
+- Se puede consultar la información completa del operador (Empresa, Placas, Licencia) en cualquier momento mediante el botón de detalles.
 
 ---
