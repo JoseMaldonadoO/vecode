@@ -270,12 +270,12 @@ export default function Index({ auth, pending_logs, in_plant, history }: { auth:
                         {activeTab === "pending" && (
                             <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-lg">
                                 <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-left">
+                                    <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900 text-white">
                                         <tr>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-100">Escaneado</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-100">Operador</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-100">Unidad</th>
-                                            <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-gray-100">Acciones</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-100">Escaneado</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-100">Operador</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-indigo-100">Unidad</th>
+                                            <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-indigo-100">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-100">
@@ -289,10 +289,10 @@ export default function Index({ auth, pending_logs, in_plant, history }: { auth:
                                             </tr>
                                         ) : (
                                             pending_logs.map((log) => (
-                                                <tr key={log.id} className="hover:bg-gray-50 transition-colors duration-200 text-gray-700">
+                                                <tr key={log.id} className="hover:bg-indigo-50/50 transition-colors duration-200 text-gray-700">
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <div className="flex items-center text-gray-900">
-                                                            <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                                                            <Clock className="w-4 h-4 mr-2 text-indigo-500" />
                                                             {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         </div>
                                                     </td>
@@ -312,13 +312,13 @@ export default function Index({ auth, pending_logs, in_plant, history }: { auth:
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                                                         <button
                                                             onClick={() => authorizeLog(log.id, false)}
-                                                            className="text-red-600 hover:text-white hover:bg-red-600 border border-red-600 px-4 py-2 rounded-lg transition-all font-black text-xs uppercase"
+                                                            className="text-red-700 hover:text-white hover:bg-red-600 border border-red-200 bg-red-50 px-4 py-2 rounded-lg transition-all font-black text-xs uppercase shadow-sm"
                                                         >
                                                             Denegar
                                                         </button>
                                                         <button
                                                             onClick={() => authorizeLog(log.id, true)}
-                                                            className="bg-green-600 text-white hover:bg-green-700 px-5 py-2 rounded-lg transition-all shadow-md font-black text-xs uppercase"
+                                                            className="bg-indigo-600 text-white hover:bg-indigo-700 px-5 py-2 rounded-lg transition-all shadow-md font-black text-xs uppercase"
                                                         >
                                                             Autorizar
                                                         </button>
@@ -485,8 +485,8 @@ export default function Index({ auth, pending_logs, in_plant, history }: { auth:
                                                                 }
                                                             }}
                                                             className={`inline-flex items-center px-3 py-1.5 rounded-lg border transition-all shadow-sm font-bold text-xs uppercase ${log.subject?.status === 'active'
-                                                                    ? 'text-red-700 bg-red-50 border-red-200 hover:bg-red-100'
-                                                                    : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'
+                                                                ? 'text-red-700 bg-red-50 border-red-200 hover:bg-red-100'
+                                                                : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'
                                                                 }`}
                                                         >
                                                             {log.subject?.status === 'active' ? (
