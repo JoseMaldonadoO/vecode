@@ -32,7 +32,9 @@ class SurveillanceController extends Controller
     public function scan(Request $request)
     {
         $rawQr = $request->input('qr');
+        // Normalize scanner input: replace common misread characters (?, ', -) with _
         $qr = strtoupper(trim($rawQr));
+        $qr = str_replace(['?', "'", '-'], '_', $qr);
 
         $subject = null;
         $type = null;

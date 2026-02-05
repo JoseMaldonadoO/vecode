@@ -87,6 +87,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('traffic', \App\Http\Controllers\TrafficController::class);
 
     Route::resource('surveillance', \App\Http\Controllers\SurveillanceController::class)->only(['index', 'store']);
+    Route::post('/surveillance/scan', [\App\Http\Controllers\SurveillanceController::class, 'scan'])->name('surveillance.scan');
+    Route::put('/surveillance/{id}', [\App\Http\Controllers\SurveillanceController::class, 'update'])->name('surveillance.update');
+
     Route::get('/surveillance/veto', [\App\Http\Controllers\SurveillanceController::class, 'vetoIndex'])->name('surveillance.veto');
     Route::get('/surveillance/operators/search', [\App\Http\Controllers\SurveillanceController::class, 'searchOperators'])->name('surveillance.operators.search');
     Route::post('/surveillance/operators/{id}/veto', [\App\Http\Controllers\SurveillanceController::class, 'vetoOperator'])->name('surveillance.operators.veto');
