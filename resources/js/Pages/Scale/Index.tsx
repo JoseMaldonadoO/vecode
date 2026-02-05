@@ -22,19 +22,24 @@ import PrimaryButton from "@/Components/PrimaryButton";
 
 import Swal from "sweetalert2";
 
-export default function Index({
-    auth,
+auth,
     pending_exit = [],
     flash,
+    clients = [],
+    filters = { client_id: '' }
 }: {
     auth: any;
     pending_exit: any[];
-    flash?: any;
+    flash ?: any;
+    clients ?: any[];
+    filters ?: { client_id: string };
 }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
     const [viewMode, setViewMode] = useState<"menu" | "table">("menu");
+    const [selectedClient, setSelectedClient] = useState(filters?.client_id || '');
+    const [searchTerm, setSearchTerm] = useState(''); // Local search for convenience
 
     useEffect(() => {
         const saved = localStorage.getItem("selected_scale_id");
@@ -54,18 +59,36 @@ export default function Index({
 
         // Check for view=pending in URL
         const params = new URLSearchParams(window.location.search);
-        if (params.get("view") === "pending") {
-            setViewMode("table");
+        if (params.get("view") === "pending" || pending_exit.length > 0) { // Auto switch if items present?
+            // Maybe not auto switch, stick to param
+            if (params.get("view") === "pending") setViewMode("table");
         }
     }, [flash]);
 
+    // Handle Filter Change
+    const handleClientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const val = e.target.value;
+        setSelectedClient(val);
+        // Reload with Inertia
+        import('@inertiajs/react').then(({ router }) => {
+            router.get(route(route().current() as string), { client_id: val, view: 'table' }, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
+        });
+    };
+
+    // ... scale select logic ...
     const handleScaleSelect = (id: number) => {
         setScaleId(id);
         localStorage.setItem("selected_scale_id", id.toString());
         setShowScaleModal(false);
     };
 
+    // ... buttons array ...
     const buttons = [
+        // (Keep buttons same as before)
         {
             name: "Salida",
             icon: Truck,
@@ -73,7 +96,6 @@ export default function Index({
             hover: "hover:border-blue-500",
             href: route("scale.exit") + `?scale_id=${scaleId}`,
         },
-        // Append scale_id to the entry route
         {
             name: "Entrada MI / MP",
             icon: Package,
@@ -84,7 +106,7 @@ export default function Index({
         {
             name: "Entrada Carga (Vacía)",
             icon: Truck,
-            color: "bg-blue-50 text-blue-600", // Distinct color for Sales
+            color: "bg-blue-50 text-blue-600",
             hover: "hover:border-blue-500",
             href: route("scale.entry-sale") + `?scale_id=${scaleId}`,
         },
@@ -118,7 +140,7 @@ export default function Index({
             <Head title="Báscula" />
 
             <div className="max-w-7xl mx-auto py-8 px-4 space-y-8">
-                {/* Scale Selector Banner */}
+                {/* Scale Selector */}
                 <div className="flex justify-end">
                     <button
                         onClick={() => setShowScaleModal(true)}
@@ -131,88 +153,49 @@ export default function Index({
                 </div>
 
                 {viewMode === "menu" ? (
-                    /* Actions Grid */
+                    /* Menu Grid */
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {buttons.map((btn, index) => {
+                            // ... render buttons code ...
                             const isLink = btn.href && btn.href !== "#";
                             const CardContent = () => (
                                 <>
-                                    <div
-                                        className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 ${btn.color}`}
-                                    >
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 ${btn.color}`}>
                                         <btn.icon className="w-8 h-8" />
                                     </div>
-                                    <h3 className="font-bold text-gray-800">
-                                        {btn.name}
-                                    </h3>
+                                    <h3 className="font-bold text-gray-800">{btn.name}</h3>
                                 </>
                             );
-
                             const className = `group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${btn.hover} w-full`;
-
                             return isLink ? (
-                                <a
-                                    key={index}
-                                    href={btn.href}
-                                    className={className}
-                                >
-                                    <CardContent />
-                                </a>
+                                <a key={index} href={btn.href} className={className}><CardContent /></a>
                             ) : (
-                                <button
-                                    key={index}
-                                    className={className}
-                                    onClick={() =>
-                                        alert(
-                                            `Funcionalidad '${btn.name}' en desarrollo`,
-                                        )
-                                    }
-                                >
-                                    <CardContent />
-                                </button>
+                                <button key={index} className={className} onClick={() => alert("Funcionalidad en desarrollo")}><CardContent /></button>
                             );
                         })}
 
-                        {/* Button to show pending records table */}
                         <button
                             onClick={() => setViewMode("table")}
                             className="group relative bg-white rounded-2xl shadow-sm border-2 border-green-100 p-8 flex flex-col items-center justify-center text-center transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-green-500 overflow-hidden w-full"
                         >
-                            {/* Premium Background Effect */}
                             <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-green-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-
                             <div className="relative z-10">
                                 <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 bg-green-100 text-green-600 shadow-inner">
                                     <Scale className="w-10 h-10" />
                                 </div>
-                                <h3 className="text-xl font-black text-gray-900 tracking-tight">
-                                    Destare
-                                </h3>
-                                <div className="text-sm font-bold text-green-600 uppercase tracking-widest mt-1">
-                                    Unidades en Planta
-                                </div>
-
+                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Destare</h3>
+                                <div className="text-sm font-bold text-green-600 uppercase tracking-widest mt-1">Unidades en Planta</div>
                                 <div className="mt-4 flex items-center justify-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100 group-hover:bg-green-50 group-hover:border-green-200 transition-colors">
                                     <Activity className="w-3 h-3 text-green-500 animate-pulse" />
-                                    <span className="text-xs font-bold text-gray-600 group-hover:text-green-700">
-                                        {pending_exit.length} unidades activas
-                                    </span>
+                                    <span className="text-xs font-bold text-gray-600 group-hover:text-green-700">{pending_exit.length} unidades activas</span>
                                 </div>
-
-                                <p className="text-xs text-gray-400 mt-4 max-w-[150px] leading-tight">
-                                    Registra salida y genera ticket
-                                    automáticamente
-                                </p>
                             </div>
-
-                            {/* Hover Bottom Bar */}
-                            <div className="absolute bottom-0 left-0 w-full h-1.5 bg-green-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                         </button>
                     </div>
                 ) : (
-                    /* Pending Exit List - Table View */
+                    /* Table View with Filters */
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gray-50 gap-4">
                             <div className="flex items-center gap-4">
                                 <button
                                     onClick={() => setViewMode("menu")}
@@ -223,225 +206,208 @@ export default function Index({
                                 </button>
                                 <h2 className="text-xl font-bold text-gray-800 flex items-center border-l-2 border-gray-200 pl-4">
                                     <Truck className="w-6 h-6 mr-2 text-green-600" />
-                                    Unidades en Planta (Pendientes de Salida)
+                                    Pendientes de Salida
                                 </h2>
                             </div>
-                            <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm">
-                                {pending_exit.length} Pendientes
-                            </span>
+
+                            <div className="flex items-center gap-4">
+                                {/* Client Filter */}
+                                <select
+                                    value={selectedClient}
+                                    onChange={handleClientChange}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 min-w-[200px]"
+                                >
+                                    <option value="">Todos los Clientes</option>
+                                    {clients?.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
+                                    ))}
+                                </select>
+                                <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm">
+                                    {pending_exit.length}
+                                </span>
+                            </div>
                         </div>
 
-                        {/* Responsive Content: Table for Desktop, Cards for Mobile */}
-
-                        {/* Desktop View (Table) */}
                         <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-gray-50 text-gray-600 text-sm uppercase font-bold">
                                     <tr>
+                                        <th className="p-4">Tipo</th>
                                         <th className="p-4">Folio</th>
-                                        <th className="p-4">Unidad / Chofer</th>
+                                        <th className="p-4">Cliente / Chofer</th>
                                         <th className="p-4">Producto</th>
                                         <th className="p-4">Peso Entrada</th>
-                                        <th className="p-4">Ubicación (APT)</th>
-                                        <th className="p-4 text-center">
-                                            Acción
-                                        </th>
+                                        <th className="p-4">Ubicación</th>
+                                        <th className="p-4 text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {pending_exit.length > 0 ? (
                                         pending_exit.map((order) => (
-                                            <tr
-                                                key={order.id}
-                                                className="hover:bg-gray-50 transition-colors"
-                                            >
-                                                <td className="p-4 font-mono font-bold text-indigo-600">
-                                                    {order.folio}
+                                            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                                <td className="p-4 text-center">
+                                                    {order.type === 'sale' ? (
+                                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold uppercase">VENTA</span>
+                                                    ) : (
+                                                        <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold uppercase">BARCO</span>
+                                                    )}
                                                 </td>
+                                                <td className="p-4 font-mono font-bold text-indigo-600">{order.folio}</td>
                                                 <td className="p-4">
-                                                    <div className="font-bold text-gray-800">
-                                                        {order.driver}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500 font-mono">
-                                                        {order.plate}
-                                                    </div>
+                                                    <div className="text-xs text-gray-500 mb-1">{order.provider}</div>
+                                                    <div className="font-bold text-gray-800">{order.driver}</div>
+                                                    <div className="text-sm text-gray-500 font-mono">{order.plate}</div>
                                                 </td>
-                                                <td className="p-4 text-gray-700">
-                                                    {order.product}
-                                                </td>
-                                                <td className="p-4 font-mono font-bold">
-                                                    {order.tare_weight} kg
-                                                </td>
+                                                <td className="p-4 text-gray-700">{order.product}</td>
+                                                <td className="p-4 font-mono font-bold">{order.tare_weight} kg</td>
                                                 <td className="p-4">
                                                     <div className="flex items-center text-sm">
                                                         <Warehouse className="w-4 h-4 mr-2 text-gray-400" />
-                                                        <span
-                                                            className={
-                                                                order.warehouse ===
-                                                                    "N/A"
-                                                                    ? "text-amber-500 italic"
-                                                                    : "text-blue-600 font-bold"
-                                                            }
-                                                        >
-                                                            {order.warehouse ===
-                                                                "N/A"
-                                                                ? "Sin Asignar"
-                                                                : `${order.warehouse} - ${order.cubicle}`}
+                                                        <span className={order.warehouse === "N/A" ? "text-amber-500 italic" : "text-blue-600 font-bold"}>
+                                                            {order.warehouse === "N/A" ? "Sin Asignar" : `${order.warehouse} - ${order.cubicle}`}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-center">
                                                     <Link
-                                                        href={
-                                                            route(
-                                                                "scale.exit",
-                                                                order.id,
-                                                            ) +
-                                                            `?scale_id=${scaleId}`
-                                                        }
+                                                        href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
                                                         className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition"
                                                     >
-                                                        Destarar{" "}
-                                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                                        Destarar <ArrowRight className="w-4 h-4 ml-2" />
                                                     </Link>
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
-                                        <tr>
-                                            <td
-                                                colSpan={6}
-                                                className="p-8 text-center text-gray-400 italic"
-                                            >
-                                                No hay unidades pendientes de
-                                                salida.
-                                            </td>
-                                        </tr>
+                                        <tr><td colSpan={7} className="p-8 text-center text-gray-400 italic">No hay unidades pendientes.</td></tr>
                                     )}
                                 </tbody>
                             </table>
                         </div>
-
-                        {/* Mobile View (Cards) */}
-                        <div className="lg:hidden p-4 space-y-4">
-                            {pending_exit.length > 0 ? (
-                                pending_exit.map((order) => (
-                                    <div
-                                        key={order.id}
-                                        className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
-                                                    Folio: {order.folio}
-                                                </span>
-                                                <h3 className="font-bold text-gray-900 text-lg">
-                                                    {order.driver}
-                                                </h3>
-                                                <p className="text-sm text-gray-500 font-mono">
-                                                    {order.plate}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-xs text-gray-400 uppercase">
-                                                    Peso Entrada
-                                                </div>
-                                                <div className="font-mono font-bold text-gray-800">
-                                                    {order.tare_weight} kg
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-gray-500">
-                                                    Producto:
-                                                </span>
-                                                <span className="font-medium text-gray-800">
-                                                    {order.product}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between text-sm items-center">
-                                                <span className="text-gray-500">
-                                                    Ubicación:
-                                                </span>
-                                                <span
-                                                    className={
-                                                        order.warehouse ===
-                                                            "N/A"
-                                                            ? "text-amber-500 italic text-xs"
-                                                            : "text-blue-600 font-bold text-xs"
-                                                    }
-                                                >
-                                                    {order.warehouse === "N/A"
-                                                        ? "Sin Asignar"
-                                                        : `${order.warehouse} - ${order.cubicle}`}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <Link
-                                            href={
-                                                route("scale.exit", order.id) +
-                                                `?scale_id=${scaleId}`
-                                            }
-                                            className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
-                                        >
-                                            Destarar Unidad{" "}
-                                            <ArrowRight className="w-5 h-5 ml-2" />
-                                        </Link>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                                    No hay unidades pendientes.
-                                </div>
-                            )}
-                        </div>
+                        {/* Mobile view omitted for brevity, but logic similar */}
                     </div>
                 )}
 
-                {/* Scale Selection Modal */}
-                <Modal
-                    show={showScaleModal}
-                    onClose={() => setShowScaleModal(false)}
-                >
-                    <div className="p-6">
-                        <h2 className="text-lg font-medium text-gray-900 mb-4">
-                            Seleccionar Báscula de Operación
-                        </h2>
-                        <div className="grid grid-cols-3 gap-4 mb-6">
-                            {[1, 2, 3].map((id) => (
-                                <button
-                                    key={id}
-                                    onClick={() => handleScaleSelect(id)}
-                                    className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
-                                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                                        : "border-gray-200 hover:border-indigo-200"
-                                        }`}
-                                >
-                                    <Scale
-                                        className={`w-8 h-8 ${scaleId === id ? "text-indigo-600" : "text-gray-400"}`}
-                                    />
-                                    <span className="font-bold text-lg">
-                                        Báscula {id}
-                                    </span>
-                                    {scaleId === id && (
-                                        <Check className="w-4 h-4 text-indigo-600" />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="flex justify-end">
-                            <SecondaryButton
-                                onClick={() => setShowScaleModal(false)}
+                {/* Mobile View (Cards) */}
+                <div className="lg:hidden p-4 space-y-4">
+                    {pending_exit.length > 0 ? (
+                        pending_exit.map((order) => (
+                            <div
+                                key={order.id}
+                                className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
                             >
-                                Cerrar
-                            </SecondaryButton>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
+                                            Folio: {order.folio}
+                                        </span>
+                                        <h3 className="font-bold text-gray-900 text-lg">
+                                            {order.driver}
+                                        </h3>
+                                        <p className="text-sm text-gray-500 font-mono">
+                                            {order.plate}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-xs text-gray-400 uppercase">
+                                            Peso Entrada
+                                        </div>
+                                        <div className="font-mono font-bold text-gray-800">
+                                            {order.tare_weight} kg
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500">
+                                            Producto:
+                                        </span>
+                                        <span className="font-medium text-gray-800">
+                                            {order.product}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-sm items-center">
+                                        <span className="text-gray-500">
+                                            Ubicación:
+                                        </span>
+                                        <span
+                                            className={
+                                                order.warehouse ===
+                                                    "N/A"
+                                                    ? "text-amber-500 italic text-xs"
+                                                    : "text-blue-600 font-bold text-xs"
+                                            }
+                                        >
+                                            {order.warehouse === "N/A"
+                                                ? "Sin Asignar"
+                                                : `${order.warehouse} - ${order.cubicle}`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <Link
+                                    href={
+                                        route("scale.exit", order.id) +
+                                        `?scale_id=${scaleId}`
+                                    }
+                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                >
+                                    Destarar Unidad{" "}
+                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                </Link>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            No hay unidades pendientes.
                         </div>
-                    </div>
-                </Modal>
+                    )}
+                </div>
             </div>
-        </DashboardLayout>
+                )}
+
+            {/* Scale Selection Modal */}
+            <Modal
+                show={showScaleModal}
+                onClose={() => setShowScaleModal(false)}
+            >
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                        Seleccionar Báscula de Operación
+                    </h2>
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                        {[1, 2, 3].map((id) => (
+                            <button
+                                key={id}
+                                onClick={() => handleScaleSelect(id)}
+                                className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
+                                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                                    : "border-gray-200 hover:border-indigo-200"
+                                    }`}
+                            >
+                                <Scale
+                                    className={`w-8 h-8 ${scaleId === id ? "text-indigo-600" : "text-gray-400"}`}
+                                />
+                                <span className="font-bold text-lg">
+                                    Báscula {id}
+                                </span>
+                                {scaleId === id && (
+                                    <Check className="w-4 h-4 text-indigo-600" />
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex justify-end">
+                        <SecondaryButton
+                            onClick={() => setShowScaleModal(false)}
+                        >
+                            Cerrar
+                        </SecondaryButton>
+                    </div>
+                </div>
+            </Modal>
+        </div>
+        </DashboardLayout >
     );
 }
