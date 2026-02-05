@@ -264,13 +264,21 @@ class WeightTicketController extends Controller
 
                     // BEFORE suggesting a new entry, check if this operator already has an active order "In Plant"
                     $activeOrder = LoadingOrder::with(['client', 'product', 'vessel'])
-                        ->where('status', 'loading')
+                        ->where(function ($q) {
+                            $q->where('status', 'loading')
+                                ->orWhere('status', 'authorized')
+                                ->orWhere('destare_status', 'pending');
+                        })
+                        ->where('status', '!=', 'completed')
+                        ->where('status', '!=', 'closed')
                         ->where('tractor_plate', $operator->tractor_plate)
                         ->orderBy('created_at', 'desc')
                         ->first();
 
                     if ($activeOrder) {
                         return response()->json([
+                            'error' => 'ALERTA: El operador no termina su proceso aún o está esperando destare.',
+                            'blocked' => true,
                             'type' => 'loading_order',
                             'id' => $activeOrder->id,
                             'provider' => $activeOrder->client_name ?? ($activeOrder->client->name ?? ($operator->vessel->client->name ?? 'N/A')),
@@ -282,7 +290,7 @@ class WeightTicketController extends Controller
                             'warehouse' => $activeOrder->warehouse,
                             'cubicle' => $activeOrder->cubicle,
                             'vessel_etb' => $operator->vessel->etb,
-                            'force_burreo' => false, // Decoupled from ETB as per user request
+                            'force_burreo' => false,
                             'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
                         ]);
                     }

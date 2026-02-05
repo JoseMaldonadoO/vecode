@@ -323,6 +323,16 @@ class AptController extends Controller
                         return back()->withErrors(['qr' => 'ALERTA: El operador aún no pasa por báscula y por ende no se le puede asignar un almacén.']);
                     }
 
+                    // PENDING PROCESS CHECK: Block burreo if operator has ANY active order
+                    $activeOrder = \App\Models\LoadingOrder::where('status', '!=', 'completed')
+                        ->where('status', '!=', 'closed')
+                        ->where('tractor_plate', $operator->tractor_plate)
+                        ->exists();
+
+                    if ($activeOrder) {
+                        return back()->withErrors(['qr' => 'ALERTA: El operador no termina su proceso aún o está esperando destare. El proceso anterior debe finalizarse completamente antes de iniciar uno nuevo.']);
+                    }
+
                     try {
                         // Create new Order for this Burreo/Direct Trip
                         $order = \App\Models\LoadingOrder::create([
