@@ -13,40 +13,45 @@ class SurveillanceController extends Controller
 {
     public function index()
     {
-        // 1. In Plant: Open Logs (no exit_at)
+        // 1. Pending: Scanned but not yet authorized
+        $pending = AccessLog::with(['subject', 'user'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // 2. In Plant: Open Logs (authorized but no exit_at)
         $in_plant = AccessLog::with(['subject', 'user'])
+            ->where('status', 'in_plant')
             ->whereNull('exit_at')
             ->orderBy('entry_at', 'desc')
             ->get();
 
         return Inertia::render('Surveillance/Index', [
+            'pending_logs' => $pending,
             'in_plant' => $in_plant,
             'history' => AccessLog::with(['subject', 'user'])
+                ->where('status', 'completed')
                 ->whereNotNull('exit_at')
                 ->orderBy('exit_at', 'desc')
                 ->paginate(15)
         ]);
     }
 
-    // API to search/scan operator by QR or ID
+    // API to search/scan operator and create pending log
     public function scan(Request $request)
     {
         $rawQr = $request->input('qr');
-        // Normalize scanner input: replace common misread characters (?, ', -) with _
         $qr = strtoupper(trim($rawQr));
         $qr = str_replace(['?', "'", '-'], '_', $qr);
 
         $subject = null;
         $type = null;
 
-        // Determine Type based on QR format
         if (str_starts_with($qr, 'OP_EXIT') || str_starts_with($qr, 'OP-EXIT')) {
-            // Exit Operator Format: OP_EXIT {id}
             $id = (int) filter_var($qr, FILTER_SANITIZE_NUMBER_INT);
             $subject = ExitOperator::find($id);
             $type = 'App\Models\ExitOperator';
         } elseif (str_starts_with($qr, 'OP')) {
-            // Vessel Operator Format: OP {id} // "OP " or "OP"
             $id = (int) filter_var($qr, FILTER_SANITIZE_NUMBER_INT);
             $subject = VesselOperator::with('vessel')->find($id);
             $type = 'App\Models\VesselOperator';
@@ -55,65 +60,82 @@ class SurveillanceController extends Controller
         }
 
         if (!$subject) {
-            return response()->json(['error' => "Operador ID {$id} no encontrado. (Tipo: " . class_basename($type) . ")"], 404);
+            return response()->json(['error' => "Operador no encontrado."], 404);
         }
 
-        // Check if currently inside (Active Log)
+        if ($subject->status === 'vetoed') {
+            return response()->json(['error' => "ESTE OPERADOR SE ENCUENTRA VETADO."], 403);
+        }
+
+        // Check if currently inside (In Plant)
         $activeLog = AccessLog::where('subject_id', $subject->id)
             ->where('subject_type', $type)
+            ->where('status', 'in_plant')
             ->whereNull('exit_at')
             ->first();
 
-        return response()->json([
-            'subject' => $subject,
-            'type' => $type,
-            'active_log' => $activeLog,
-            'status' => $activeLog ? 'in_plant' : 'outside',
-            'is_vetoed' => $subject->status === 'vetoed'
-        ]);
-    }
-
-    // Register Entry
-    public function store(Request $request)
-    {
-        $request->validate([
-            'subject_id' => 'required',
-            'subject_type' => 'required',
-            'checklist_data' => 'nullable|array',
-            'authorized' => 'required|boolean'
-        ]);
-
-        if (!$request->authorized) {
-            // Could log a rejected attempt if needed
-            return back()->with('error', 'Acceso denegado (Checklist).');
+        if ($activeLog) {
+            return response()->json(['error' => "El operador ya se encuentra en planta."], 422);
         }
 
-        // Double check no active log
-        $exists = AccessLog::where('subject_id', $request->subject_id)
-            ->where('subject_type', $request->subject_type)
-            ->whereNull('exit_at')
-            ->exists();
+        // Check if already pending
+        $pendingLog = AccessLog::where('subject_id', $subject->id)
+            ->where('subject_type', $type)
+            ->where('status', 'pending')
+            ->first();
 
-        if ($exists) {
-            return back()->with('error', 'El operador ya se encuentra registrado en planta.');
+        if ($pendingLog) {
+            return response()->json(['error' => "El operador ya está en la lista de espera (Pendientes)."], 422);
         }
 
+        // Create Pending Log
         AccessLog::create([
-            'subject_id' => $request->subject_id,
-            'subject_type' => $request->subject_type,
-            'entry_at' => Carbon::now(),
-            'status' => 'in_plant',
-            'checklist_passed' => true,
-            'checklist_data' => $request->checklist_data,
+            'subject_id' => $subject->id,
+            'subject_type' => $type,
+            'status' => 'pending',
             'user_id' => auth()->id()
         ]);
 
-        return back()->with('success', 'Entrada registrada correctamente.');
+        return response()->json([
+            'message' => 'Operador agregado a la lista de pendientes.',
+            'subject' => $subject
+        ]);
     }
 
-    // Register Exit
+    // Authorize Entry (from pending)
+    public function store(Request $request)
+    {
+        $request->validate([
+            'log_id' => 'required|exists:access_logs,id',
+            'authorized' => 'required|boolean'
+        ]);
+
+        $log = AccessLog::findOrFail($request->log_id);
+
+        if ($request->authorized) {
+            $log->update([
+                'status' => 'in_plant',
+                'entry_at' => Carbon::now(),
+                'checklist_passed' => true,
+                'user_id' => auth()->id()
+            ]);
+            return back()->with('success', 'Acceso autorizado correctamente.');
+        } else {
+            $log->update([
+                'status' => 'rejected',
+                'user_id' => auth()->id()
+            ]);
+            return back()->with('warning', 'Acceso denegado.');
+        }
+    }
+
+    // Register Exit (with manual timestamp)
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'exit_at' => 'required|date'
+        ]);
+
         $log = AccessLog::findOrFail($id);
 
         if ($log->exit_at) {
@@ -121,7 +143,7 @@ class SurveillanceController extends Controller
         }
 
         $log->update([
-            'exit_at' => Carbon::now(),
+            'exit_at' => Carbon::parse($request->exit_at),
             'status' => 'completed'
         ]);
 
