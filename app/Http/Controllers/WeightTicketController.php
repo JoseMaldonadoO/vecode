@@ -276,9 +276,25 @@ class WeightTicketController extends Controller
                         ->first();
 
                     if ($activeOrder) {
+                        // ALERT LOGIC:
+                        // 1. If in APT context, only block if it already has a warehouse
+                        if ($request->input('context') === 'apt' && $activeOrder->warehouse !== null) {
+                            return response()->json([
+                                'error' => 'ALERTA: El operador no termina su proceso aún o está esperando destare. Ya cuenta con el almacén ' . $activeOrder->warehouse . ' asignado.',
+                                'blocked' => true
+                            ], 403);
+                        }
+
+                        // 2. If in Scale context (Entry), always block
+                        if ($request->input('context') !== 'apt') {
+                            return response()->json([
+                                'error' => 'ALERTA: El operador no termina su proceso aún o está esperando destare.',
+                                'blocked' => true
+                            ], 403);
+                        }
+
+                        // 3. Otherwise (In APT and NO warehouse yet), return the active order for assignment
                         return response()->json([
-                            'error' => 'ALERTA: El operador no termina su proceso aún o está esperando destare.',
-                            'blocked' => true,
                             'type' => 'loading_order',
                             'id' => $activeOrder->id,
                             'provider' => $activeOrder->client_name ?? ($activeOrder->client->name ?? ($operator->vessel->client->name ?? 'N/A')),

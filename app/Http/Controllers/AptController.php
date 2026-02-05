@@ -401,6 +401,11 @@ class AptController extends Controller
             if ($order->status !== 'loading' || !$order->weight_ticket) {
                 return back()->withErrors(['qr' => 'ALERTA: El operador aún no pasa por báscula y por ende no se le puede asignar un almacén.']);
             }
+
+            // PENDING DESTRARE CHECK: If already assigned, block re-scanning/re-assignment in APT
+            if ($order->warehouse !== null) {
+                return back()->withErrors(['qr' => 'ALERTA: El operador ya tiene un almacén asignado (' . $order->warehouse . ') y su proceso está pendiente de finalizar en Báscula (Destare).']);
+            }
         }
 
         // Validation for Cubicle (WH 4 & 5)
