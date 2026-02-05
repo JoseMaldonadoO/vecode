@@ -27,6 +27,7 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
     const [scannedType, setScannedType] = useState<string>("");
     const [showChecklist, setShowChecklist] = useState(false);
     const [checklistData, setChecklistData] = useState<any>({});
+    const [viewingLog, setViewingLog] = useState<any>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     const [showCamera, setShowCamera] = useState(false);
@@ -288,7 +289,14 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                                             {log.subject_type.includes('Vessel') ? 'Barco/Muelle' : 'Salida/Doc'}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                        <button
+                                                            onClick={() => setViewingLog(log)}
+                                                            className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded transition-colors inline-flex items-center"
+                                                        >
+                                                            <User className="w-4 h-4 mr-1" />
+                                                            Ver
+                                                        </button>
                                                         <button
                                                             onClick={() => markExit(log.id)}
                                                             className="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition-colors"
@@ -310,7 +318,7 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entrada / Salida</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Entrada / Salida</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
@@ -321,8 +329,8 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                         {history.data.map((log: any) => (
                                             <tr key={log.id} className="hover:bg-gray-50">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    <div>In: {new Date(log.entry_at).toLocaleString()}</div>
-                                                    <div className="text-gray-900 font-medium">Out: {new Date(log.exit_at).toLocaleString()}</div>
+                                                    <div>Entró: {new Date(log.entry_at).toLocaleString()}</div>
+                                                    <div className="text-gray-900 font-medium">Salió: {new Date(log.exit_at).toLocaleString()}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     {log.subject?.operator_name || log.subject?.name}
@@ -354,66 +362,167 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                 </div>
             </div>
 
-            {/* Checklist Modal */}
-            <Modal show={showChecklist} onClose={() => setShowChecklist(false)} maxWidth="2xl">
+
+            const [viewingLog, setViewingLog] = useState<AccessLog | null>(null);
+
+            // ... (inside component)
+
+            return (
+            {/* View Details Modal */}
+            <Modal show={!!viewingLog} onClose={() => setViewingLog(null)} maxWidth="2xl">
                 <div className="p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-bold text-gray-900">Validación de Acceso</h2>
-                        <button onClick={() => setShowChecklist(false)} className="text-gray-400 hover:text-gray-600">
+                        <h2 className="text-xl font-bold text-gray-900">Detalles del Operador</h2>
+                        <button onClick={() => setViewingLog(null)} className="text-gray-400 hover:text-gray-600">
                             <XCircle className="w-6 h-6" />
                         </button>
                     </div>
 
-                    {scannedSubject && (
-                        <div className="bg-gray-50 rounded-lg p-4 mb-6 flex items-start space-x-4">
-                            <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm flex-shrink-0">
-                                <User className="w-8 h-8 text-gray-500" />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900">{scannedSubject.operator_name || scannedSubject.name}</h3>
-                                <p className="text-sm text-gray-500">{scannedSubject.transport_line || scannedSubject.transporter_line}</p>
-                                <div className="mt-2 text-xs flex space-x-2">
-                                    <span className="bg-white border px-2 py-0.5 rounded">
-                                        Placa: <strong>{scannedSubject.tractor_plate}</strong>
-                                    </span>
-                                    <span className="bg-white border px-2 py-0.5 rounded">
-                                        Econ: <strong>{scannedSubject.economic_number}</strong>
-                                    </span>
-                                </div>
-                                {scannedSubject.status === 'vetoed' && (
-                                    <div className="mt-2 flex items-center text-red-600 text-sm font-bold bg-red-50 p-1 rounded">
-                                        <AlertTriangle className="w-4 h-4 mr-1" /> OPERADOR VETADO
+                    {viewingLog && viewingLog.subject && (
+                        <div className="space-y-6">
+                            <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                <div className="flex items-start space-x-6">
+                                    <div className="h-20 w-20 bg-indigo-100 rounded-full flex items-center justify-center border-4 border-white shadow-sm flex-shrink-0">
+                                        <User className="w-10 h-10 text-indigo-600" />
                                     </div>
-                                )}
+                                    <div className="flex-1">
+                                        <h3 className="text-2xl font-black text-gray-900 uppercase leading-none mb-2">
+                                            {viewingLog.subject.operator_name || viewingLog.subject.name}
+                                        </h3>
+                                        <p className="text-sm font-bold text-indigo-600 bg-indigo-50 inline-block px-2 py-1 rounded mb-3">
+                                            {viewingLog.subject.transport_line || viewingLog.subject.transporter_line}
+                                        </p>
+
+                                        <div className="grid grid-cols-2 gap-4 mt-2">
+                                            <div>
+                                                <p className="text-xs text-gray-500 uppercase font-bold">Placas</p>
+                                                <div className="flex space-x-2 mt-1">
+                                                    <span className="bg-white border px-2 py-1 rounded text-sm font-mono font-bold text-gray-800">
+                                                        {viewingLog.subject.tractor_plate}
+                                                    </span>
+                                                    {viewingLog.subject.trailer_plate && (
+                                                        <span className="bg-white border px-2 py-1 rounded text-sm font-mono text-gray-600">
+                                                            {viewingLog.subject.trailer_plate}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-gray-500 uppercase font-bold">Unidad</p>
+                                                <p className="text-sm text-gray-800 font-medium mt-1">
+                                                    {viewingLog.subject.unit_type} - {viewingLog.subject.economic_number}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-white border rounded-lg">
+                                    <p className="text-xs text-gray-500 uppercase">Hora de Entrada</p>
+                                    <p className="text-lg font-bold text-gray-900">
+                                        {new Date(viewingLog.entry_at).toLocaleString()}
+                                    </p>
+                                </div>
+                                <div className="p-4 bg-white border rounded-lg">
+                                    <p className="text-xs text-gray-500 uppercase">Autorizado Por</p>
+                                    <p className="text-base font-medium text-gray-900">
+                                        {viewingLog.user?.name || 'Sistema'}
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    <div className="space-y-4 mb-8 text-center bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-bold text-blue-800 text-lg">Validación Manual</h4>
-                        <p className="text-sm text-blue-600">
-                            Por favor verifica visualmente que el operador cumpla con el EPP requerido (Casco, Chaleco, Botas).
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="mt-8 flex justify-end">
                         <button
-                            onClick={() => submitEntry(false)}
-                            className="w-full flex items-center justify-center px-4 py-3 bg-red-100 border border-transparent rounded-lg font-semibold text-red-700 hover:bg-red-200 transition-colors"
+                            onClick={() => setViewingLog(null)}
+                            className="bg-gray-100 text-gray-700 font-bold py-2 px-6 rounded-lg hover:bg-gray-200"
                         >
-                            <XCircle className="w-5 h-5 mr-2" />
-                            Bloquear Acceso
-                        </button>
-                        <button
-                            onClick={() => submitEntry(true)}
-                            className="w-full flex items-center justify-center px-4 py-3 bg-green-600 border border-transparent rounded-lg font-semibold text-white hover:bg-green-700 transition-colors shadow-sm"
-                        >
-                            <CheckCircle className="w-5 h-5 mr-2" />
-                            Autorizar Entrada
+                            Cerrar
                         </button>
                     </div>
                 </div>
             </Modal>
-        </DashboardLayout>
+
+            {/* Authorization Modal (Existing) */}
+            <Modal show={showChecklist} onClose={() => setShowChecklist(false)} maxWidth="2xl">
+                <div className="p-6">
+                    {/* ... Header ... */}
+                    <div className="space-y-4 mb-8 text-center bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+                        <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-indigo-600">
+                            <ClipboardList className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-bold text-indigo-900 text-lg">Validación de EPP Requerdia</h4>
+                        <p className="text-indigo-700 font-medium">
+                            Realice el checklist físico de seguridad (Casco, Chaleco, Botas).
+                        </p>
+                        <p className="text-sm text-indigo-600">
+                            Si el operador cumple con todo el equipo, autorice el acceso.
+                        </p>
+                    </div>
+                    {/* ... Buttons ... */}
+                </div>
+            </Modal>
+            <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">Validación de Acceso</h2>
+                    <button onClick={() => setShowChecklist(false)} className="text-gray-400 hover:text-gray-600">
+                        <XCircle className="w-6 h-6" />
+                    </button>
+                </div>
+
+                {scannedSubject && (
+                    <div className="bg-gray-50 rounded-lg p-4 mb-6 flex items-start space-x-4">
+                        <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm flex-shrink-0">
+                            <User className="w-8 h-8 text-gray-500" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900">{scannedSubject.operator_name || scannedSubject.name}</h3>
+                            <p className="text-sm text-gray-500">{scannedSubject.transport_line || scannedSubject.transporter_line}</p>
+                            <div className="mt-2 text-xs flex space-x-2">
+                                <span className="bg-white border px-2 py-0.5 rounded">
+                                    Placa: <strong>{scannedSubject.tractor_plate}</strong>
+                                </span>
+                                <span className="bg-white border px-2 py-0.5 rounded">
+                                    Econ: <strong>{scannedSubject.economic_number}</strong>
+                                </span>
+                            </div>
+                            {scannedSubject.status === 'vetoed' && (
+                                <div className="mt-2 flex items-center text-red-600 text-sm font-bold bg-red-50 p-1 rounded">
+                                    <AlertTriangle className="w-4 h-4 mr-1" /> OPERADOR VETADO
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                <div className="space-y-4 mb-8 text-center bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-bold text-blue-800 text-lg">Validación Manual</h4>
+                    <p className="text-sm text-blue-600">
+                        Por favor verifica visualmente que el operador cumpla con el EPP requerido (Casco, Chaleco, Botas).
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                    <button
+                        onClick={() => submitEntry(false)}
+                        className="w-full flex items-center justify-center px-4 py-3 bg-red-100 border border-transparent rounded-lg font-semibold text-red-700 hover:bg-red-200 transition-colors"
+                    >
+                        <XCircle className="w-5 h-5 mr-2" />
+                        Bloquear Acceso
+                    </button>
+                    <button
+                        onClick={() => submitEntry(true)}
+                        className="w-full flex items-center justify-center px-4 py-3 bg-green-600 border border-transparent rounded-lg font-semibold text-white hover:bg-green-700 transition-colors shadow-sm"
+                    >
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Autorizar Entrada
+                    </button>
+                </div>
+            </div>
+        </Modal>
+        </DashboardLayout >
     );
 }
