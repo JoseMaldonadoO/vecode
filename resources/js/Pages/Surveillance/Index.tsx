@@ -362,12 +362,6 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                 </div>
             </div>
 
-
-            const [viewingLog, setViewingLog] = useState<AccessLog | null>(null);
-
-            // ... (inside component)
-
-            return (
             {/* View Details Modal */}
             <Modal show={!!viewingLog} onClose={() => setViewingLog(null)} maxWidth="2xl">
                 <div className="p-6">
@@ -446,83 +440,72 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                 </div>
             </Modal>
 
-            {/* Authorization Modal (Existing) */}
+            {/* Authorization Modal */}
             <Modal show={showChecklist} onClose={() => setShowChecklist(false)} maxWidth="2xl">
                 <div className="p-6">
-                    {/* ... Header ... */}
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-bold text-gray-900">Validación de Acceso</h2>
+                        <button onClick={() => setShowChecklist(false)} className="text-gray-400 hover:text-gray-600">
+                            <XCircle className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    {scannedSubject && (
+                        <div className="bg-gray-50 rounded-lg p-4 mb-6 flex items-start space-x-4">
+                            <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm flex-shrink-0">
+                                <User className="w-8 h-8 text-gray-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">{scannedSubject.operator_name || scannedSubject.name}</h3>
+                                <p className="text-sm text-gray-500">{scannedSubject.transport_line || scannedSubject.transporter_line}</p>
+                                <div className="mt-2 text-xs flex space-x-2">
+                                    <span className="bg-white border px-2 py-0.5 rounded">
+                                        Placa: <strong>{scannedSubject.tractor_plate}</strong>
+                                    </span>
+                                    <span className="bg-white border px-2 py-0.5 rounded">
+                                        Econ: <strong>{scannedSubject.economic_number}</strong>
+                                    </span>
+                                </div>
+                                {scannedSubject.status === 'vetoed' && (
+                                    <div className="mt-2 flex items-center text-red-600 text-sm font-bold bg-red-50 p-1 rounded">
+                                        <AlertTriangle className="w-4 h-4 mr-1" /> OPERADOR VETADO
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="space-y-4 mb-8 text-center bg-indigo-50 p-6 rounded-xl border border-indigo-100">
                         <div className="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3 text-indigo-600">
-                            <ClipboardList className="w-6 h-6" />
+                            <FileText className="w-6 h-6" />
                         </div>
-                        <h4 className="font-bold text-indigo-900 text-lg">Validación de EPP Requerdia</h4>
+                        <h4 className="font-bold text-indigo-900 text-lg">Validación de Acceso</h4>
                         <p className="text-indigo-700 font-medium">
-                            Realice el checklist físico de seguridad (Casco, Chaleco, Botas).
+                            Realice el checklist físico correspondiente.
                         </p>
-                        <p className="text-sm text-indigo-600">
-                            Si el operador cumple con todo el equipo, autorice el acceso.
+                        <p className="text-sm text-indigo-600 mt-2">
+                            Si el operador cumple con los requisitos, autorice el acceso.
                         </p>
                     </div>
-                    {/* ... Buttons ... */}
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <button
+                            onClick={() => submitEntry(false)}
+                            className="w-full flex items-center justify-center px-4 py-3 bg-red-100 border border-transparent rounded-lg font-semibold text-red-700 hover:bg-red-200 transition-colors"
+                        >
+                            <XCircle className="w-5 h-5 mr-2" />
+                            Bloquear Acceso
+                        </button>
+                        <button
+                            onClick={() => submitEntry(true)}
+                            className="w-full flex items-center justify-center px-4 py-3 bg-green-600 border border-transparent rounded-lg font-semibold text-white hover:bg-green-700 transition-colors shadow-sm"
+                        >
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                            Autorizar Entrada
+                        </button>
+                    </div>
                 </div>
             </Modal>
-            <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Validación de Acceso</h2>
-                    <button onClick={() => setShowChecklist(false)} className="text-gray-400 hover:text-gray-600">
-                        <XCircle className="w-6 h-6" />
-                    </button>
-                </div>
-
-                {scannedSubject && (
-                    <div className="bg-gray-50 rounded-lg p-4 mb-6 flex items-start space-x-4">
-                        <div className="h-16 w-16 bg-gray-200 rounded-full flex items-center justify-center border-2 border-white shadow-sm flex-shrink-0">
-                            <User className="w-8 h-8 text-gray-500" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-gray-900">{scannedSubject.operator_name || scannedSubject.name}</h3>
-                            <p className="text-sm text-gray-500">{scannedSubject.transport_line || scannedSubject.transporter_line}</p>
-                            <div className="mt-2 text-xs flex space-x-2">
-                                <span className="bg-white border px-2 py-0.5 rounded">
-                                    Placa: <strong>{scannedSubject.tractor_plate}</strong>
-                                </span>
-                                <span className="bg-white border px-2 py-0.5 rounded">
-                                    Econ: <strong>{scannedSubject.economic_number}</strong>
-                                </span>
-                            </div>
-                            {scannedSubject.status === 'vetoed' && (
-                                <div className="mt-2 flex items-center text-red-600 text-sm font-bold bg-red-50 p-1 rounded">
-                                    <AlertTriangle className="w-4 h-4 mr-1" /> OPERADOR VETADO
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                <div className="space-y-4 mb-8 text-center bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-bold text-blue-800 text-lg">Validación Manual</h4>
-                    <p className="text-sm text-blue-600">
-                        Por favor verifica visualmente que el operador cumpla con el EPP requerido (Casco, Chaleco, Botas).
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <button
-                        onClick={() => submitEntry(false)}
-                        className="w-full flex items-center justify-center px-4 py-3 bg-red-100 border border-transparent rounded-lg font-semibold text-red-700 hover:bg-red-200 transition-colors"
-                    >
-                        <XCircle className="w-5 h-5 mr-2" />
-                        Bloquear Acceso
-                    </button>
-                    <button
-                        onClick={() => submitEntry(true)}
-                        className="w-full flex items-center justify-center px-4 py-3 bg-green-600 border border-transparent rounded-lg font-semibold text-white hover:bg-green-700 transition-colors shadow-sm"
-                    >
-                        <CheckCircle className="w-5 h-5 mr-2" />
-                        Autorizar Entrada
-                    </button>
-                </div>
-            </div>
-        </Modal>
-        </DashboardLayout >
+        </DashboardLayout>
     );
 }
