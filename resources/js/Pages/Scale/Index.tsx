@@ -22,7 +22,8 @@ import PrimaryButton from "@/Components/PrimaryButton";
 
 import Swal from "sweetalert2";
 
-auth,
+export default function Index({
+    auth,
     pending_exit = [],
     flash,
     clients = [],
@@ -30,9 +31,9 @@ auth,
 }: {
     auth: any;
     pending_exit: any[];
-    flash ?: any;
-    clients ?: any[];
-    filters ?: { client_id: string };
+    flash?: any;
+    clients?: any[];
+    filters?: { client_id: string };
 }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
@@ -88,7 +89,6 @@ auth,
 
     // ... buttons array ...
     const buttons = [
-        // (Keep buttons same as before)
         {
             name: "Salida",
             icon: Truck,
@@ -365,7 +365,6 @@ auth,
                     )}
                 </div>
             </div>
-                )}
 
             {/* Scale Selection Modal */}
             <Modal
@@ -407,7 +406,6 @@ auth,
                     </div>
                 </div>
             </Modal>
-        </div>
-        </DashboardLayout >
+        </DashboardLayout>
     );
 }
