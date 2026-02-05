@@ -40,9 +40,18 @@ class SalesOrder extends Model
 
     public function getLoadedQuantityAttribute()
     {
-        return $this->shipments()
+        // 1. Sum programmed_tons for ENVASADO shipments (Immediate deduction)
+        $envasado = $this->shipments()
+            ->where('presentation', 'ENVASADO')
+            ->sum('programmed_tons') ?: 0;
+
+        // 2. Sum net_weight for GRANEL shipments (Only after weighing/destare)
+        $granel = $this->shipments()
+            ->where('presentation', 'GRANEL')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->sum('weight_tickets.net_weight') ?: 0;
+
+        return (float) ($envasado + $granel);
     }
 
     public function getBalanceAttribute()
