@@ -31,7 +31,7 @@ class SurveillanceController extends Controller
     // API to search/scan operator by QR or ID
     public function scan(Request $request)
     {
-        $qr = $request->input('qr');
+        $qr = trim($request->input('qr'));
 
         $subject = null;
         $type = null;
