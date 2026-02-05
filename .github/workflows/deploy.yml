@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v2
+# Force trigger: v3
 
 on:
   push:
