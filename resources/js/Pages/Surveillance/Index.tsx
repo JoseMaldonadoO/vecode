@@ -12,11 +12,13 @@ import {
     History,
     FileText,
     LogOut,
-    AlertTriangle
+    AlertTriangle,
+    Camera
 } from "lucide-react";
 import Modal from "@/Components/Modal";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { QrReader } from "react-qr-reader";
 
 export default function Index({ auth, in_plant, history }: { auth: any, in_plant: any[], history: any }) {
     const [activeTab, setActiveTab] = useState("scan");
@@ -27,19 +29,20 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
     const [checklistData, setChecklistData] = useState<any>({});
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const [showCamera, setShowCamera] = useState(false);
+
     // Auto-focus logic for scanner
     useEffect(() => {
-        if (activeTab === "scan" && !showChecklist) {
+        if (activeTab === "scan" && !showChecklist && !showCamera) {
             inputRef.current?.focus();
         }
-    }, [activeTab, showChecklist, scannedSubject]);
+    }, [activeTab, showChecklist, scannedSubject, showCamera]);
 
-    const handleScan = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!qrInput.trim()) return;
+    const processScan = async (code: string) => {
+        if (!code) return;
 
         try {
-            const response = await axios.post(route('surveillance.scan'), { qr: qrInput });
+            const response = await axios.post(route('surveillance.scan'), { qr: code });
             const data = response.data;
 
             if (data.status === 'in_plant') {
@@ -50,10 +53,12 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                     timer: 2000
                 });
                 setQrInput("");
+                setShowCamera(false);
             } else {
                 setScannedSubject(data.subject);
                 setScannedType(data.type);
                 setQrInput("");
+                setShowCamera(false);
                 setShowChecklist(true);
             }
         } catch (error: any) {
@@ -64,6 +69,23 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                 timer: 1500
             });
             setQrInput("");
+            // Keep camera open on error to try again? Or close?
+            // Usually better to keep open or delay slightly
+        }
+    };
+
+    const handleManualScan = (e: React.FormEvent) => {
+        e.preventDefault();
+        processScan(qrInput);
+    };
+
+    const handleCameraScan = (result: any, error: any) => {
+        if (!!result) {
+            processScan(result?.text);
+            setShowCamera(false);
+        }
+        if (!!error) {
+            // console.info(error);
         }
     };
 
@@ -152,31 +174,59 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                     <p className="text-gray-500">Escanea el código QR del operador (Barco o Salida)</p>
                                 </div>
 
-                                <form onSubmit={handleScan} className="w-full max-w-md">
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Search className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <input
-                                            ref={inputRef}
-                                            type="text"
-                                            value={qrInput}
-                                            onChange={(e) => setQrInput(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-4 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg shadow-sm"
-                                            placeholder="Esperando lectura de QR..."
-                                            autoComplete="off"
+                                {showCamera ? (
+                                    <div className="w-full max-w-sm mx-auto bg-black rounded-lg overflow-hidden relative">
+                                        <QrReader
+                                            onResult={handleCameraScan}
+                                            constraints={{ facingMode: "environment" }}
+                                            className="w-full h-64 object-cover"
                                         />
                                         <button
-                                            type="submit"
-                                            className="absolute inset-y-0 right-0 px-4 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 font-medium transition-colors"
+                                            onClick={() => setShowCamera(false)}
+                                            className="absolute top-2 right-2 p-2 bg-white/80 rounded-full text-gray-600 hover:bg-white"
                                         >
-                                            Buscar
+                                            <XCircle className="w-6 h-6" />
+                                        </button>
+                                        <p className="text-white text-center py-2 text-sm">Apuntando cámara...</p>
+                                    </div>
+                                ) : (
+                                    <div className="w-full max-w-md space-y-4">
+                                        <form onSubmit={handleManualScan} className="w-full">
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <Search className="h-5 w-5 text-gray-400" />
+                                                </div>
+                                                <input
+                                                    ref={inputRef}
+                                                    type="text"
+                                                    value={qrInput}
+                                                    onChange={(e) => setQrInput(e.target.value)}
+                                                    className="block w-full pl-10 pr-3 py-4 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg shadow-sm"
+                                                    placeholder="Esperando lectura de QR..."
+                                                    autoComplete="off"
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="absolute inset-y-0 right-0 px-4 bg-indigo-600 text-white rounded-r-lg hover:bg-indigo-700 font-medium transition-colors"
+                                                >
+                                                    Buscar
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                        <div className="text-center">
+                                            <span className="text-gray-400 text-sm">O usa la cámara</span>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setShowCamera(true)}
+                                            className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all group"
+                                        >
+                                            <Camera className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" />
+                                            <span className="font-medium">Abrir Cámara</span>
                                         </button>
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-2 text-center">
-                                        El cursor se mantiene activo automáticamente para escaneo continuo.
-                                    </p>
-                                </form>
+                                )}
                             </div>
                         )}
 
