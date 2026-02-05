@@ -187,7 +187,7 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                         >
                                             <XCircle className="w-6 h-6" />
                                         </button>
-                                        <p className="text-white text-center py-2 text-sm">Apuntando cámara...</p>
+                                        <p className="text-white text-center py-2 text-sm">Cámara activa - Escaneando...</p>
                                     </div>
                                 ) : (
                                     <div className="w-full max-w-md space-y-4">
