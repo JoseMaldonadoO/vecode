@@ -40,6 +40,8 @@ interface Operator {
     tractor_plate: string;
     trailer_plate: string;
     economic_number: string;
+    license: string;
+    brand_model: string;
 }
 
 export default function Create({
@@ -137,6 +139,12 @@ export default function Create({
         return () => clearTimeout(timeoutId);
     }, [queryOperator]);
 
+    useEffect(() => {
+        if (errors.carta_porte) {
+            alert(errors.carta_porte);
+        }
+    }, [errors.carta_porte]);
+
     const handleClientSelect = (client: Client | null) => {
         if (!client) return;
         setData((data) => ({
@@ -156,12 +164,10 @@ export default function Create({
             operator_name: operator.operator_name,
             transport_company: operator.transporter_line,
             unit_type: operator.unit_type,
-            tractor_plate: operator.tractor_plate,
             trailer_plate: operator.trailer_plate,
             economic_number: operator.economic_number,
-            unit_number: "", // Clear explicitly if confusing, or map economic number here? 
-            // User requirement: "modificar unidad a tipo de unidad" -> The input label "Unidad" should become "Tipo de Unidad".
-            // And "al poner el id... llene todos esos campos".
+            unit_number: operator.brand_model, // Map Brand/Model to Unit Number
+            license_number: operator.license, // Map License
         }));
     };
 
@@ -573,8 +579,8 @@ export default function Create({
                                     value={data.programmed_tons}
                                     onChange={(e) => setData("programmed_tons", e.target.value)}
                                     className={`w-full rounded-lg shadow-sm focus:ring-indigo-500 py-2.5 px-3 font-bold ${Number(data.programmed_tons) > Number(data.balance)
-                                            ? 'border-red-500 focus:border-red-500 bg-red-50'
-                                            : 'border-gray-300 focus:border-indigo-500'
+                                        ? 'border-red-500 focus:border-red-500 bg-red-50'
+                                        : 'border-gray-300 focus:border-indigo-500'
                                         }`}
                                     placeholder="0.00"
                                 />

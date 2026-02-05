@@ -228,6 +228,8 @@ class DocumentationController extends Controller
                     'tractor_plate' => $op->tractor_plate,
                     'trailer_plate' => $op->trailer_plate,
                     'economic_number' => $op->economic_number,
+                    'license' => $op->license,
+                    'brand_model' => $op->brand_model,
                 ];
             });
 
