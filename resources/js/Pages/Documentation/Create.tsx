@@ -5,7 +5,6 @@ import {
     ArrowLeft,
     Check,
     ChevronsUpDown,
-    Search,
     Ship,
     Calendar,
     Hash,
@@ -14,11 +13,11 @@ import {
     Truck,
     MapPin,
     Box,
-    Scale,
     ShoppingCart,
 } from "lucide-react";
-import { FormEventHandler, useState, Fragment } from "react";
+import { FormEventHandler, useState, Fragment, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
+import axios from "axios";
 
 interface Client {
     id: number;
@@ -30,6 +29,16 @@ interface Product {
     id: number;
     name: string;
     code: string;
+}
+
+interface Operator {
+    id: number;
+    operator_name: string;
+    transporter_line: string; // Empresa Transportista
+    unit_type: string;
+    tractor_plate: string;
+    trailer_plate: string;
+    economic_number: string;
 }
 
 export default function Create({
@@ -52,46 +61,79 @@ export default function Create({
 
         client_id: "",
         client_name: "",
+        // RFC and Address removed from UI but kept in state if needed or null
         rfc: "",
         address: "",
-        consigned_to: "",
+        consigned_to: "", // New required field
 
+        // Transporter Data
+        operator_id: "", // For search
         transport_company: "",
         operator_name: "",
-        unit_number: "",
+        unit_number: "", // Now "Economic Number" or similar? User said "Cambiar Unidad a Tipo de Unidad" but also "Unidad" (economic number?) stays?
+        // Let's map: 
+        // "Unidad" input -> displays unit_type
+        // "Num Economico" -> economic_number
+        unit_type: "",
         tractor_plate: "",
         trailer_plate: "",
-        carta_porte: "",
-        license_number: "",
-        unit_type: "",
-        economic_number: "",
-        qr_code: "", // Qr Operador input
+        carta_porte: "", // Manual
 
-        origin: "PLANTA", // Default origin?
-        destination: "",
+        // Product Data
         product: "",
-        presentation: "",
-        sacks_count: "",
-        programmed_tons: "",
-        shortage_balance: "",
-        status: "created", // For display?
+        presentation: "GRANEL", // Default
+        sack_type: "", // 25, 50, 200, 500
+        programmed_tons: "", // Manual now
+        balance: "", // Auto-filled from OV
+        destination: "",
 
-        documenter_name: auth.user.name,
-        scale_name: "",
         observations: "",
+        documenter_name: auth.user.name,
+
+        // Unused/Hidden
+        sacks_count: "",
+        shortage_balance: "",
+        origin: "PLANTA",
+        qr_code: "",
+        license_number: "",
+        status: "created",
+        scale_name: "",
+        economic_number: "",
     });
 
-    const [query, setQuery] = useState("");
+    const [queryClient, setQueryClient] = useState("");
+    const [queryOperator, setQueryOperator] = useState("");
+    const [foundOperators, setFoundOperators] = useState<Operator[]>([]);
 
+    // Filter Clients
     const filteredClients =
-        query === ""
+        queryClient === ""
             ? clients
             : clients.filter((client) =>
                 client.business_name
                     .toLowerCase()
                     .replace(/\s+/g, "")
-                    .includes(query.toLowerCase().replace(/\s+/g, "")),
+                    .includes(queryClient.toLowerCase().replace(/\s+/g, "")),
             );
+
+    // Search Operators Effect
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (queryOperator.length > 1) {
+                axios
+                    .get(route("documentation.operators.search"), {
+                        params: { q: queryOperator },
+                    })
+                    .then((response) => {
+                        setFoundOperators(response.data);
+                    })
+                    .catch((error) => console.error(error));
+            } else {
+                setFoundOperators([]);
+            }
+        }, 300);
+        return () => clearTimeout(timeoutId);
+    }, [queryOperator]);
 
     const handleClientSelect = (client: Client | null) => {
         if (!client) return;
@@ -101,6 +143,23 @@ export default function Create({
             client_name: client.business_name,
             rfc: client.rfc || "",
             address: client.address || "",
+        }));
+    };
+
+    const handleOperatorSelect = (operator: Operator | null) => {
+        if (!operator) return;
+        setData((data) => ({
+            ...data,
+            operator_id: operator.id.toString(),
+            operator_name: operator.operator_name,
+            transport_company: operator.transporter_line,
+            unit_type: operator.unit_type,
+            tractor_plate: operator.tractor_plate,
+            trailer_plate: operator.trailer_plate,
+            economic_number: operator.economic_number,
+            unit_number: "", // Clear explicitly if confusing, or map economic number here? 
+            // User requirement: "modificar unidad a tipo de unidad" -> The input label "Unidad" should become "Tipo de Unidad".
+            // And "al poner el id... llene todos esos campos".
         }));
     };
 
@@ -119,7 +178,8 @@ export default function Create({
                 rfc: so.client?.rfc || "",
                 address: so.client?.address || "",
                 product: so.product?.name || "",
-                programmed_tons: so.total_quantity.toString(),
+                balance: so.balance ? so.balance.toString() : "0",
+                programmed_tons: "", // Manual as requested
             }));
         } else {
             setData((data) => ({
@@ -130,6 +190,7 @@ export default function Create({
                 rfc: "",
                 address: "",
                 product: "",
+                balance: "",
                 programmed_tons: "",
             }));
         }
@@ -156,7 +217,6 @@ export default function Create({
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                    {/* Dark Blue Header */}
                     <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">
                         <div className="flex items-center">
                             <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
@@ -264,7 +324,7 @@ export default function Create({
                                             <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
                                                 <Combobox.Input
                                                     className="w-full border-none py-2.5 pl-10 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                                                    onChange={(event) => setQuery(event.target.value)}
+                                                    onChange={(event) => setQueryClient(event.target.value)}
                                                     displayValue={() => data.client_name}
                                                     placeholder="Buscar Cliente..."
                                                 />
@@ -275,7 +335,7 @@ export default function Create({
                                                     <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
                                                 </Combobox.Button>
                                             </div>
-                                            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterLeave={() => setQuery("")}>
+                                            <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0" afterLeave={() => setQueryClient("")}>
                                                 <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                                     {filteredClients.map((client) => (
                                                         <Combobox.Option key={client.id} value={client} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-indigo-600 text-white" : "text-gray-900"}`}>
@@ -294,34 +354,21 @@ export default function Create({
                                 )}
                             </div>
 
-                            <div>
+                            <div className="md:col-span-1">
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    RFC
+                                    Consignar a <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
-                                    value={data.rfc}
-                                    readOnly={!!data.sales_order_id}
-                                    onChange={(e) => setData("rfc", e.target.value)}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 ${data.sales_order_id ? 'bg-gray-50 text-gray-700' : ''}`}
+                                    required
+                                    value={data.consigned_to}
+                                    onChange={(e) => setData("consigned_to", e.target.value)}
+                                    placeholder="Nombre del consignatario"
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
                                 />
                             </div>
 
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Dirección
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={data.address}
-                                        readOnly={!!data.sales_order_id}
-                                        onChange={(e) => setData("address", e.target.value)}
-                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 ${data.sales_order_id ? 'bg-gray-50 text-gray-700' : ''}`}
-                                    />
-                                    <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
-                                </div>
-                            </div>
+                            {/* REMOVED FROM VIEW: RFC and ADDRESS */}
 
                             {/* SECTION: Datos del Transportista */}
                             <div className="md:col-span-2 mt-4">
@@ -331,6 +378,53 @@ export default function Create({
                                 </h4>
                             </div>
 
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Buscar Operador (Nombre o ID)
+                                </label>
+                                <Combobox onChange={handleOperatorSelect}>
+                                    <div className="relative">
+                                        <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
+                                            <Combobox.Input
+                                                className="w-full border-none py-2.5 pl-10 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                                                onChange={(event) => setQueryOperator(event.target.value)}
+                                                displayValue={() => data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : ''}
+                                                placeholder="Escribe para buscar..."
+                                                autoComplete="off"
+                                            />
+                                            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                                <Search className="w-5 h-5 text-gray-400" />
+                                            </div>
+                                            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                                <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                            </Combobox.Button>
+                                        </div>
+                                        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+                                            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                {foundOperators.length === 0 && queryOperator !== "" ? (
+                                                    <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                                                        No se encontraron operadores.
+                                                    </div>
+                                                ) : (
+                                                    foundOperators.map((operator) => (
+                                                        <Combobox.Option key={operator.id} value={operator} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-indigo-600 text-white" : "text-gray-900"}`}>
+                                                            {({ selected, active }) => (
+                                                                <>
+                                                                    <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
+                                                                        {operator.operator_name} - {operator.transporter_line}
+                                                                    </span>
+                                                                    {selected ? <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? "text-white" : "text-indigo-600"}`}><Check className="h-5 w-5" aria-hidden="true" /></span> : null}
+                                                                </>
+                                                            )}
+                                                        </Combobox.Option>
+                                                    ))
+                                                )}
+                                            </Combobox.Options>
+                                        </Transition>
+                                    </div>
+                                </Combobox>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
                                     Empresa Transportista
@@ -338,17 +432,18 @@ export default function Create({
                                 <input
                                     type="text"
                                     value={data.transport_company}
-                                    onChange={(e) => setData("transport_company", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
+                                    readOnly
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
                                 />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Carta Porte
+                                    Carta Porte <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
+                                    required
                                     value={data.carta_porte}
                                     onChange={(e) => setData("carta_porte", e.target.value)}
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
@@ -357,39 +452,38 @@ export default function Create({
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Operador
+                                    Tipo de Unidad
                                 </label>
                                 <input
                                     type="text"
-                                    value={data.operator_name}
-                                    onChange={(e) => setData("operator_name", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
+                                    value={data.unit_type}
+                                    readOnly
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Unidad
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.unit_number}
-                                        onChange={(e) => setData("unit_number", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Placas
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.tractor_plate}
-                                        onChange={(e) => setData("tractor_plate", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Placas Tractor
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.tractor_plate}
+                                    readOnly
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Placas Remolque
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.trailer_plate}
+                                    readOnly
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                />
                             </div>
 
                             {/* SECTION: Detalle del Embarque */}
@@ -418,29 +512,79 @@ export default function Create({
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Saldo OV (TM)
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.balance}
+                                    readOnly
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-indigo-50 font-black text-indigo-700"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Presentación
+                                </label>
+                                <select
+                                    value={data.presentation}
+                                    onChange={(e) => setData("presentation", e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
+                                >
+                                    <option value="GRANEL">GRANEL</option>
+                                    <option value="ENVASADO">ENVASADO</option>
+                                </select>
+                            </div>
+
+                            {data.presentation === "ENVASADO" ? (
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Ton. Programadas
+                                        Tamaño de Saco
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={data.programmed_tons}
-                                        onChange={(e) => setData("programmed_tons", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50 font-bold"
-                                    />
+                                    <select
+                                        value={data.sack_type}
+                                        onChange={(e) => setData("sack_type", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        <option value="25">25 KG</option>
+                                        <option value="50">50 KG</option>
+                                        <option value="200">200 KG</option>
+                                        <option value="500">500 KG</option>
+                                    </select>
                                 </div>
+                            ) : (
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Destino
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.destination}
-                                        onChange={(e) => setData("destination", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-                                    />
+                                    {/* Empty placeholder to keep grid alignment if needed, or just nothing */}
                                 </div>
+                            )}
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Ton. Programadas
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={data.programmed_tons}
+                                    onChange={(e) => setData("programmed_tons", e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold"
+                                    placeholder="0.00"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Destino
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.destination}
+                                    onChange={(e) => setData("destination", e.target.value)}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
+                                />
                             </div>
 
                             {/* SECTION: Observaciones */}

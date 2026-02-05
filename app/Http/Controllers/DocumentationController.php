@@ -59,7 +59,7 @@ class DocumentationController extends Controller
             // 'client_name' => 'nullable|string', // Removed: Relation based
             'rfc' => 'nullable|string',
             'address' => 'nullable|string',
-            'consigned_to' => 'nullable|string',
+            'consigned_to' => 'required|string',
             // Transport
             'transport_company' => 'nullable|string',
             'operator_name' => 'nullable|string',
@@ -76,13 +76,26 @@ class DocumentationController extends Controller
             'destination' => 'nullable|string',
             'product' => 'nullable|string', // Text snapshot or ID? Form implies text/select
             'presentation' => 'nullable|string',
+            'sack_type' => 'nullable|string', // Frontend supplemental field
             'sacks_count' => 'nullable|string',
             'programmed_tons' => 'nullable|numeric',
+            'balance' => 'nullable', // Frontend field for shortage_balance
             'shortage_balance' => 'nullable|string',
             'documenter_name' => 'nullable|string',
             'scale_name' => 'nullable|string',
             'observations' => 'nullable|string',
         ]);
+
+        // Map frontend fields to DB columns
+        $validated['shortage_balance'] = $request->input('balance');
+
+        if ($validated['presentation'] === 'ENVASADO' && $request->has('sack_type')) {
+            $validated['sacks_count'] = $request->input('sack_type') . ' KG';
+        }
+
+        // Remove auxiliary fields not in DB
+        unset($validated['sack_type']);
+        unset($validated['balance']);
 
         // If client_id is present, we might want to ensure snapshot fields are filled if empty
         // logic here...
