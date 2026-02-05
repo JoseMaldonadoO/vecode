@@ -62,15 +62,19 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                 setShowChecklist(true);
             }
         } catch (error: any) {
+            console.error("Scan Error Details:", error);
+            const errorMessage = error.response?.data?.error || 'Error de conexión o código inválido';
+
             Swal.fire({
                 icon: 'error',
-                title: 'No encontrado',
-                text: error.response?.data?.error || 'Código QR no válido',
-                timer: 1500
+                title: 'Error de Escaneo',
+                html: `<p class="text-lg">${errorMessage}</p><p class="text-xs text-gray-400 mt-2">Intento: ${code}</p>`,
+                timer: 4000,
+                showConfirmButton: true
             });
+
             setQrInput("");
-            // Keep camera open on error to try again? Or close?
-            // Usually better to keep open or delay slightly
+            // Do NOT re-focus immediately to allow reading the alert
         }
     };
 
