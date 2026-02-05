@@ -254,6 +254,26 @@ export default function Index({
                                     ))
                                 )}
                             </tbody>
+                            {/* TOTALS FOOTER */}
+                            {filteredOrders.length > 0 && (
+                                <tfoot className="bg-gray-100 font-bold border-t-2 border-indigo-200">
+                                    <tr>
+                                        <td colSpan={3} className="px-6 py-4 text-right text-sm text-indigo-900 uppercase tracking-wider">
+                                            TOTAL GENERAL
+                                        </td>
+                                        <td className="px-6 py-4 text-center text-sm text-gray-900">
+                                            {formatter.format(filteredOrders.reduce((sum, order) => sum + Number(order.total_quantity), 0))} TM
+                                        </td>
+                                        <td className="px-6 py-4 text-center text-sm text-emerald-700">
+                                            {formatter.format(filteredOrders.reduce((sum, order) => sum + Number(order.loaded_quantity), 0))} TM
+                                        </td>
+                                        <td className="px-6 py-4 text-center text-sm text-amber-700">
+                                            {formatter.format(filteredOrders.reduce((sum, order) => sum + Number(order.balance), 0))} TM
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            )}
                         </table>
                     </div>
                 </div>
