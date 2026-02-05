@@ -38,9 +38,9 @@ El agente que mueve la carga.
     -   Aplica para **TODOS** los tipos de operación (Descarga Báscula y Burreo).
     -   *Nota*: NO debe llenar automáticamente la "Fecha Salida" (`departure_date`), ya que este campo se registra hasta que el barco zarpa realmente.
 
-39: - **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
-40: 
-41: ### 📑 Orden de Venta (Sales Order - OV)
+- **Vinculación Automática**: El operador queda "asignado" a ese barco. Esto permite que en la Báscula o en el Escáner de Almacén, el sistema lo reconozca simplemente por su QR o placa, sin necesidad de re-capturar datos en cada viaje.
+
+### 📑 Orden de Venta (Sales Order - OV)
 Representa el compromiso comercial / contrato con el cliente.
 - **Registro**: Se realiza en el módulo **Comercialización**.
 - **Función**: Define el cliente, el producto y la cantidad total pactada. Una OV puede ser surtida por múltiples viajes (OE).
@@ -51,14 +51,14 @@ Representa un viaje físico particular de una unidad para surtir una OV o para d
 - **Gestión**: Se registran los datos de transporte (Chofer, Placas, Transportista).
 
 ### C. Gestión de Productos (Product Management)
-42: **Ubicación**: Módulo `Tráfico` -> `Productos`.
-43: 
-44: **Lógica del Proceso**:
-45: 1.  **Administración**: Permite dar de alta y visualizar el catálogo de productos disponibles en el sistema.
-46: 2.  **Campos**: Requiere `Código` (Identificador único), `Nombre` (Descripción comercial) y `Presentación` (Tipo de empaque por defecto, ej: Granel, Saco).
-47: 3.  **Uso**: Estos productos son seleccionados al crear Órdenes de Venta (OV) o al configurar descargas de barcos (OB).
-48: 
-49: ---
+**Ubicación**: Módulo `Tráfico` -> `Productos`.
+
+**Lógica del Proceso**:
+1.  **Administración**: Permite dar de alta y visualizar el catálogo de productos disponibles en el sistema.
+2.  **Campos**: Requiere `Código` (Identificador único), `Nombre` (Descripción comercial) y `Presentación` (Tipo de empaque por defecto, ej: Granel, Saco).
+3.  **Uso**: Estos productos son seleccionados al crear Órdenes de Venta (OV) o al configurar descargas de barcos (OB).
+
+---
 
 ## 3. Lógica de Descarga (Discharge Flows)
 
@@ -166,3 +166,63 @@ Para que la lógica sea clara, el sistema diferencia el origen del operador medi
 - Se puede consultar la información completa del operador (Empresa, Placas, Licencia) en cualquier momento mediante el botón de detalles.
 
 ---
+
+## 8. Detalle Avanzado: Comercialización y Embarques
+
+Esta sección detalla la lógica de negocio específica para el flujo de ventas, saldos y despacho de mercancía, actualizada con las reglas de validación y operación más recientes.
+
+### A. Orden de Venta (Sales Order - OV)
+Documento rector que ampara la transacción comercial.
+- **Estructura**:
+    - **Cabecera**: Cliente, Folio, Fecha.
+    - **Detalle**: Producto, Cantidad Solicitada (Toneladas), Precio Unitario.
+- **Lógica de Saldos (Balances)**:
+    - **Solicitado**: Cantidad total contratada en la OV.
+    - **Cargado (Surtiendo)**: Suma del tonelaje de todas las Órdenes de Embarque (OE) vinculadas.
+        - *Regla de Cálculo*:
+            - **Envasado (Sacos)**: Si el producto es envasado, la carga se asume completa (programada) al documentar, o se ajusta si hay proceso de conteo diferente. (Actualmente se mapea lo programado).
+            - **Granel**: Se considera el `Peso Neto` real de báscula una vez que la unidad ha salido (Ticket cerrado).
+    - **Saldo Pendiente**: `Solicitado - Cargado`.
+        - *Bloqueo*: El sistema **NO** permite crear una nueva OE si el `Saldo Pendiente` es insuficiente.
+
+### B. Orden de Embarque (Shipment Order - OE)
+Representa la instrucción logística para un viaje específico.
+
+#### 1. Reglas de Creación y Validación
+- **Vinculación Obligatoria**: Debe seleccionarse un Cliente y una OV con saldo disponible.
+- **Validación de Tonelaje**: El sistema valida estrictamente que `Toneladas Programadas` <= `Saldo Disponible de la OV`.
+- **Validación de Carta Porte**:
+    - El campo `Carta Porte` es obligatorio y funcional.
+    - **Regla de Unicidad**: No pueden existir dos OEs activas o completadas con el mismo número de Carta Porte para la misma Transportista. Se muestra una alerta inmediata si se detecta duplicidad.
+- **Datos del Consignatario (Consignee)**:
+    - Campo editable. Permite facturar al Cliente A pero entregar al Consignatario B.
+    - Se inicializa con el nombre del Cliente.
+
+#### 2. Selección de Transporte y Operador
+Flujo optimizado para Documentación:
+- **Búsqueda de Operador**:
+    - Se busca por Nombre o ID interno.
+    - Al seleccionar, se auto-completa el campo `Licencia`.
+- **Búsqueda de Unidad**:
+    - Se busca por Número Económico.
+    - Al seleccionar, se auto-completan: `Placas Tractor`, `Placas Remolque`, `Tipo de Unidad` (Tolva/Volteo) y `Marca/Modelo`.
+
+#### 3. Estados Operativos (Status)
+- **Creada**: OE generada en Documentación.
+- **En Proceso**: Unidad pesando o cargando.
+- **Completada**: Unidad despachada con peso final. Afecta saldo real (Granel).
+- **Cancelada**: Libera el saldo reservado.
+
+### C. Mapeo de Datos para Impresión (Formato Oficial)
+El formato de impresión de la OE (PDF) cumple con requisitos estrictos de imagen corporativa y legalidad:
+
+- **Estructura de Documento**:
+    - **Página 1**: Información operativa compacta, firmas, tiempos.
+    - **Página 2**: "POLÍTICA PARA EL PROCESO DE EMBARQUES" (Texto legal completo).
+- **Mapeo de Visualización**:
+    - **Unidad**: Muestra la `Marca/Modelo` del vehículo (ej: "KENWORTH T680").
+    - **Económico**: Muestra el número económico interno de la flota.
+    - **Estado**: Muestra el estado federativa de destino seleccionado.
+    - **Cálculo de Sacos**:
+        - Si la presentación es sacos (25kg, 50kg, etc.), el sistema calcula automáticamente la cantidad de sacos basada en las toneladas programadas para mostrarlo en el documento.
+        - Fórmula: `Tons * 1000 / Kg_por_saco`.
