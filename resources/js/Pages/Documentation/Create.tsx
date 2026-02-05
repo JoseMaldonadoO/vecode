@@ -14,6 +14,7 @@ import {
     MapPin,
     Box,
     ShoppingCart,
+    Search,
 } from "lucide-react";
 import { FormEventHandler, useState, Fragment, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
