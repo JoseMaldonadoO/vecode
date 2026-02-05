@@ -189,6 +189,9 @@ export default function Index({
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                        QR
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                         Operador
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
@@ -212,6 +215,9 @@ export default function Index({
                                             key={operator.id}
                                             className="hover:bg-indigo-50 transition-colors duration-150"
                                         >
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
+                                                #{operator.id}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
