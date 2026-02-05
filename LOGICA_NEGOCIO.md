@@ -140,10 +140,13 @@ Para que la lógica sea clara, el sistema diferencia el origen del operador medi
 | :--- | :--- | :--- |
 | **1. Vigilancia (Entrada)** | Escaneo -> Pendiente -> Checklist Físico -> **Autorizar**. | Escaneo -> Pendiente -> Checklist Físico -> **Autorizar**. |
 | **2. Documentación** | Generación de Orden de Embarque (OE). | Generación de OE vinculada a Orden de Venta (OV). |
-| **3. Báscula (Entrada)** | Pesaje **LLENO** (Peso Bruto). | Pesaje **VACÍO** (Tara Inicial). |
-| **4. Almacén (APT)** | Descarga de producto (Escaneo QR Ubicación). | Carga de producto (Escaneo QR Ubicación). |
-| **5. Báscula (Salida)** | Pesaje **VACÍO** (Tara Final). | Pesaje **LLENO** (Peso Neto cargado). |
+| **3. Báscula (Entrada)** | Pesaje **LLENO** (Peso Bruto). *ID vía QR*. | Pesaje **VACÍO** (Tara Inicial). *ID vía Folio OE*. |
+| **4. Almacén (APT)** | Descarga de producto (Escaneo QR Ubicación). | **PENDIENTE** (Sin proceso de carga definido). |
+| **5. Báscula (Salida)** | Pesaje **VACÍO** (Tara Final). *ID vía QR*. | Pesaje **LLENO** (Peso Neto cargado). *ID vía Folio OE*. |
 | **6. Vigilancia (Salida)** | Registro de Salida (Fecha/Hora manual). | Registro de Salida (Fecha/Hora manual). |
+
+> [!IMPORTANT]
+> **Identificación en Báscula**: A diferencia de los operadores de barco que utilizan el código QR para identificarse, los **Operadores de Salida** se identificarán en la báscula mediante el **Folio de la Orden de Embarque (OE)** generado en Documentación.
 
 ---
 
