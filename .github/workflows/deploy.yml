@@ -70,7 +70,7 @@ jobs:
           state-name: .ftp-deploy-zip-state.json
           log-level: verbose
           security: loose
-          protocol: ftp
+          protocol: ftps
           port: 21
           timeout: 600000
 
