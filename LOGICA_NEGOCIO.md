@@ -116,3 +116,44 @@ Para garantizar consistencia en todo el sistema, se establecen las siguientes re
 ### C. Tickets de Báscula (Documentos Físicos)
 -   **Unidad**: Kilogramos (KG).
 -   **Regla**: En los documentos impresos y vistas de detalle de ticket, se debe mostrar el valor crudo en KILOGRAMOS para coincidir con la lectura directa de la báscula.
+
+---
+
+## 6. Control de Accesos (Vigilancia)
+
+Módulo encargado de registrar la bitácora de entradas y salidas de personas (operadores) al recinto portuario.
+
+### Entidades y Flujo
+- **Tabla Central**: `access_logs` (Polimórfica).
+- **Controlador**: `SurveillanceController`.
+
+### Flujos de Operación
+Existen dos tipos de sujetos escaneables:
+
+#### A. Operador de Barco (`VesselOperator`)
+- **Prefijo QR**: `OP {id}`
+- **Contexto**: Unidades que ingresan para cargar/descargar un barco activo.
+- **Validación**: Deben estar vinculados a un barco con estatus ACTIVO.
+
+#### B. Operador de Salida (`ExitOperator`)
+- **Prefijo QR**: `OP_EXIT {id}`
+- **Contexto**: Unidades que ingresan solo para realizar trámites de salida o administrativos, sin vinculación directa a carga de barco en ese momento.
+- **Validación**: Verifica estatus general (no vetado).
+
+### Proceso de Registro
+1.  **Escaneo (Entrada)**:
+    -   Vigilancia escanea el QR (Cámara o USB).
+    -   Sistema detecta el tipo (Barco vs Salida).
+    -   Se muestra **Modal de Checklist** (EPP: Casco, Chaleco, Botas).
+    -   Al autorizar, se crea registro en `access_logs` con `entry_at = NOW()`.
+
+2.  **En Planta (Permanencia)**:
+    -   La unidad aparece en la pestaña "En Planta".
+    -   Estado: `in_plant`.
+
+3.  **Salida**:
+    -   Vigilancia da clic en "Marcar Salida" o rescanea el QR.
+    -   Sistema actualiza el registro existente cerrando `exit_at = NOW()`.
+    -   Estado pasa a: `completed`.
+
+---
