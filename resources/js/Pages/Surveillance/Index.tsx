@@ -322,7 +322,7 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operador</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estatus</th>
+                                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
@@ -334,6 +334,11 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                     {log.subject?.operator_name || log.subject?.name}
+                                                    {log.subject?.status === 'vetoed' && (
+                                                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                            VETADO
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {log.subject?.tractor_plate}
@@ -346,10 +351,42 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                                                         {log.subject_type.includes('Vessel') ? 'Barco' : 'Salida'}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                        Completado
-                                                    </span>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                    <button
+                                                        onClick={() => setViewingLog(log)}
+                                                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded transition-colors inline-flex items-center"
+                                                    >
+                                                        <User className="w-4 h-4 mr-1" />
+                                                        Ver
+                                                    </button>
+
+                                                    {!log.subject_type.includes('Vessel') && (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm(log.subject?.status === 'active'
+                                                                    ? `¿Está seguro que desea VETAR al operador ${log.subject?.name}?`
+                                                                    : `¿Desea ACTIVAR nuevamente al operador ${log.subject?.name}?`)) {
+                                                                    router.patch(route('documentation.exit-operators.toggle', log.subject.id));
+                                                                }
+                                                            }}
+                                                            className={`inline-flex items-center px-3 py-1 rounded transition-colors ${log.subject?.status === 'active'
+                                                                    ? 'text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100'
+                                                                    : 'text-green-600 hover:text-green-900 bg-green-50 hover:bg-green-100'
+                                                                }`}
+                                                        >
+                                                            {log.subject?.status === 'active' ? (
+                                                                <>
+                                                                    <AlertTriangle className="w-4 h-4 mr-1" />
+                                                                    Vetar
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <CheckCircle className="w-4 h-4 mr-1" />
+                                                                    Activar
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}
