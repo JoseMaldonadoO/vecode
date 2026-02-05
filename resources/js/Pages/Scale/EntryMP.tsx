@@ -406,8 +406,11 @@ export default function EntryMP({
                                         <div className="mt-4 flex justify-center">
                                             <input
                                                 type="number"
-                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm focus:ring-green-500 focus:border-green-500"
+                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm focus:ring-green-500 focus:border-green-500 disabled:opacity-50"
                                                 placeholder="Manual Admin"
+                                                value={weight}
+                                                disabled={capturedWeight !== null}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 onChange={(e) =>
                                                     setWeight(
                                                         parseFloat(
@@ -436,7 +439,8 @@ export default function EntryMP({
                                 <button
                                     onClick={handleSerialConnect}
                                     type="button"
-                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all shadow-sm ${isConnected ? "bg-green-100 text-green-700 border border-green-200" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200"}`}
+                                    disabled={capturedWeight !== null}
+                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all shadow-sm disabled:opacity-50 ${isConnected ? "bg-green-100 text-green-700 border border-green-200" : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200"}`}
                                 >
                                     <LinkIcon className="w-5 h-5 mr-2" />
                                     {isConnected ? "Conectado" : "Conectar"}
@@ -444,10 +448,11 @@ export default function EntryMP({
                                 <button
                                     type="button"
                                     onClick={handleCapture}
-                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all ${capturedWeight ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-white text-gray-700 border-gray-200"}`}
+                                    disabled={capturedWeight !== null}
+                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all disabled:opacity-50 ${capturedWeight ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-white text-gray-700 border-gray-200"}`}
                                 >
                                     <Scale className="w-5 h-5 mr-2" />
-                                    {capturedWeight ? "Recapturar" : "Capturar"}
+                                    {capturedWeight ? "Peso Capturado" : "Capturar"}
                                 </button>
                             </div>
                         </div>

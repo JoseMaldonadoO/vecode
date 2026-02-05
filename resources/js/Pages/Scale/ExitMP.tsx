@@ -335,7 +335,7 @@ export default function ExitMP({
                                     Peso Bruto (Salida)
                                 </h2>
                                 <div className="text-6xl font-mono font-bold text-[#39ff33] tracking-tighter">
-                                    {weight > 0 ? weight : "0.00"}{" "}
+                                    {capturedWeight !== null ? capturedWeight.toFixed(2) : (weight > 0 ? weight : "0.00")}{" "}
                                     <span className="text-2xl text-gray-500">
                                         kg
                                     </span>
@@ -346,8 +346,11 @@ export default function ExitMP({
                                         <div className="mt-2 flex justify-center">
                                             <input
                                                 type="number"
-                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm"
+                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm disabled:opacity-50"
                                                 placeholder="Manual Admin"
+                                                value={weight}
+                                                disabled={capturedWeight !== null}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 onChange={(e) =>
                                                     setWeight(
                                                         parseFloat(
@@ -359,11 +362,25 @@ export default function ExitMP({
                                         </div>
                                     )}
                             </div>
+                            <div className="bg-gray-800 p-3 text-center border-t border-gray-700 flex justify-between px-6 items-center">
+                                <span className="text-gray-400 text-[10px] uppercase font-black tracking-widest">
+                                    Peso Capturado:
+                                </span>
+                                <span
+                                    className={`text-xl font-bold font-mono ${capturedWeight !== null ? "text-yellow-400" : "text-gray-600"}`}
+                                >
+                                    {capturedWeight !== null
+                                        ? capturedWeight.toFixed(2)
+                                        : "---"}{" "}
+                                    kg
+                                </span>
+                            </div>
                             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3">
                                 <button
                                     onClick={handleSerialConnect}
                                     type="button"
-                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all ${isConnected ? "bg-green-100 text-green-700" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
+                                    disabled={capturedWeight !== null}
+                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all disabled:opacity-50 ${isConnected ? "bg-green-100 text-green-700" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
                                 >
                                     <LinkIcon className="w-5 h-5 mr-2" />
                                     {isConnected ? "Conectado" : "Conectar"}
@@ -371,11 +388,12 @@ export default function ExitMP({
                                 <button
                                     type="button"
                                     onClick={handleCapture}
-                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold transition-all ${capturedWeight !== null ? "bg-amber-100 border-amber-300 text-amber-700" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                                    disabled={capturedWeight !== null}
+                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold transition-all disabled:opacity-50 ${capturedWeight !== null ? "bg-amber-100 border-amber-300 text-amber-700 font-black" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
                                 >
                                     <Scale className="w-5 h-5 mr-2" />{" "}
                                     {capturedWeight !== null
-                                        ? "Recapturar"
+                                        ? "Peso Capturado"
                                         : "Capturar"}
                                 </button>
                             </div>
