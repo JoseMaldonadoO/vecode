@@ -31,7 +31,8 @@ class SurveillanceController extends Controller
     // API to search/scan operator by QR or ID
     public function scan(Request $request)
     {
-        $qr = trim($request->input('qr'));
+        $rawQr = $request->input('qr');
+        $qr = strtoupper(trim($rawQr));
 
         $subject = null;
         $type = null;
@@ -43,18 +44,16 @@ class SurveillanceController extends Controller
             $subject = ExitOperator::find($id);
             $type = 'App\Models\ExitOperator';
         } elseif (str_starts_with($qr, 'OP')) {
-            // Vessel Operator Format: OP {id}
+            // Vessel Operator Format: OP {id} // "OP " or "OP"
             $id = (int) filter_var($qr, FILTER_SANITIZE_NUMBER_INT);
             $subject = VesselOperator::with('vessel')->find($id);
             $type = 'App\Models\VesselOperator';
         } else {
-            // Fallback: Try ID search directly? 
-            // Risky if IDs overlap. Better to require prefix.
-            return response()->json(['error' => 'Formato QR no reconocido.'], 404);
+            return response()->json(['error' => "Formato QR no reconocido. Recibido: '{$rawQr}'"], 404);
         }
 
         if (!$subject) {
-            return response()->json(['error' => 'Operador no encontrado.'], 404);
+            return response()->json(['error' => "Operador ID {$id} no encontrado. (Tipo: " . class_basename($type) . ")"], 404);
         }
 
         // Check if currently inside (Active Log)
