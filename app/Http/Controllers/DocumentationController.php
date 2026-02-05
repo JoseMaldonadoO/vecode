@@ -318,4 +318,17 @@ class DocumentationController extends Controller
             'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
         ]);
     }
+
+    /**
+     * Print the Shipment Order (Orden de Embarque) in legacy format.
+     */
+    public function printOrder($id)
+    {
+        $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle'])
+            ->findOrFail($id);
+
+        return Inertia::render('Documentation/Orders/Print', [
+            'order' => $order
+        ]);
+    }
 }

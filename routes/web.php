@@ -130,6 +130,7 @@ Route::middleware('auth')->group(function () {
 
     // New Shipment Orders Report Route
     Route::get('/documentation/shipment-orders', [\App\Http\Controllers\DocumentationController::class, 'shipmentOrdersIndex'])->name('documentation.orders.index');
+    Route::get('/documentation/shipment-orders/{id}/print', [\App\Http\Controllers\DocumentationController::class, 'printOrder'])->name('documentation.orders.print');
 
     Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
 

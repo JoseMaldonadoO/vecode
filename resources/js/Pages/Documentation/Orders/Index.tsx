@@ -18,6 +18,7 @@ import {
     ShoppingCart,
     Ship,
     Check,
+    Printer,
     ChevronsUpDown,
     CheckCircle,
 } from "lucide-react";
@@ -313,6 +314,17 @@ export default function Index({
                                                 ).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <a
+                                                    href={route("documentation.orders.print", {
+                                                        id: order.id,
+                                                    })}
+                                                    target="_blank"
+                                                    className="inline-flex items-center text-gray-600 hover:text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 hover:border-gray-300 transition-all font-bold mr-2"
+                                                    title="Imprimir Orden"
+                                                >
+                                                    <Printer className="w-4 h-4 mr-1" />
+                                                    Imprimir
+                                                </a>
                                                 {order.sales_order_id ? (
                                                     <Link
                                                         href={route(
