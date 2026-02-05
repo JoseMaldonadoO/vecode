@@ -55,6 +55,7 @@ interface Order {
         name: string;
     };
     status: string;
+    date?: string;
     created_at: string;
 }
 
