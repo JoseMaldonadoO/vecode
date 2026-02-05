@@ -389,19 +389,11 @@ export default function Index({ auth, in_plant, history }: { auth: any, in_plant
                         </div>
                     )}
 
-                    <div className="space-y-4 mb-8">
-                        <h4 className="font-medium text-gray-700 border-b pb-2">Checklist de Seguridad</h4>
-
-                        {['Licencia Vigente', 'Casco de Seguridad', 'Chaleco Reflejante', 'Botas de Seguridad', 'Unidad Limpia/Vacia'].map((item) => (
-                            <label key={item} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                                    onChange={(e) => setChecklistData({ ...checklistData, [item]: e.target.checked })}
-                                />
-                                <span className="text-gray-700 font-medium">{item}</span>
-                            </label>
-                        ))}
+                    <div className="space-y-4 mb-8 text-center bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-bold text-blue-800 text-lg">Validación Manual</h4>
+                        <p className="text-sm text-blue-600">
+                            Por favor verifica visualmente que el operador cumpla con el EPP requerido (Casco, Chaleco, Botas).
+                        </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
