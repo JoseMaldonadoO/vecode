@@ -185,20 +185,31 @@ class DocumentationController extends Controller
         return back()->with('success', 'Operador registrado correctamente.');
     }
 
-    // Search Operators (used by QR Print and potentially Form)
+    // Search Operators (used by Form)
     public function searchOperators(Request $request)
     {
         $query = $request->input('q');
-        $operators = VesselOperator::where(function ($q) use ($query) {
-            $q->where('operator_name', 'like', "%{$query}%")
+
+        // El usuario se refiere a "Operadores de Salida" gestionados en ExitOperatorController
+        $operators = \App\Models\ExitOperator::where(function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
                 ->orWhere('id', $query);
         })
-            ->whereHas('vessel', function ($q) {
-                $q->active();
-            })
-            ->orderBy('operator_name')
+            ->active()
+            ->orderBy('name')
             ->limit(20)
-            ->get();
+            ->get()
+            ->map(function ($op) {
+                return [
+                    'id' => $op->id,
+                    'operator_name' => $op->name,
+                    'transporter_line' => $op->transport_line,
+                    'unit_type' => $op->unit_type,
+                    'tractor_plate' => $op->tractor_plate,
+                    'trailer_plate' => $op->trailer_plate,
+                    'economic_number' => $op->economic_number,
+                ];
+            });
 
         return response()->json($operators);
     }
