@@ -82,6 +82,13 @@ export default function Index({
             href: route("scale.entry-mp") + `?scale_id=${scaleId}`,
         },
         {
+            name: "Entrada Carga (Vacía)",
+            icon: Truck,
+            color: "bg-blue-50 text-blue-600", // Distinct color for Sales
+            hover: "hover:border-blue-500",
+            href: route("scale.entry-sale") + `?scale_id=${scaleId}`,
+        },
+        {
             name: auth.user?.roles?.includes("Admin")
                 ? "Edita / Reimprime Ticket"
                 : "Reimprime Ticket",
@@ -409,8 +416,8 @@ export default function Index({
                                     key={id}
                                     onClick={() => handleScaleSelect(id)}
                                     className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
-                                            ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                                            : "border-gray-200 hover:border-indigo-200"
+                                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                                        : "border-gray-200 hover:border-indigo-200"
                                         }`}
                                 >
                                     <Scale

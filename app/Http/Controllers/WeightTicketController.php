@@ -23,32 +23,29 @@ class WeightTicketController extends Controller
             ->get();
 
         // 2. Pending Exit (Ticket In Progress OR Status Loading)
-        // User said: "Después regresa a báscula al destare aquí necesitamos un status de las que están pendientes de destarar"
-        // Valid for Exit: Has Ticket AND Ticket Status is 'in_progress'
-        // And maybe Order Status 'loading' (which is set on Entry).
-        // Also include Warehouse/Cubicle info if available.
+        // Since we now UNIFIED the flow, ALL active tickets are attached to a LoadingOrder.
+        // So we only need to query LoadingOrder.
+
         $pending_exit = LoadingOrder::with(['client', 'driver', 'vehicle', 'product', 'weight_ticket'])
             ->whereHas('weight_ticket', function ($q) {
                 $q->where('weighing_status', 'in_progress')
-                    ->where('is_burreo', false); // EXCLUDE BURREO
+                    ->where('is_burreo', false);
             })
-            // Filter by operation type if needed (scale vs burreo)?
-            // Assuming Burreo doesn't have a weight ticket in progress in the same way, or handled differently.
             ->orderBy('entry_at', 'asc')
             ->get()
             ->map(function ($order) {
-                // Flatten for easier frontend consumption
                 return [
                     'id' => $order->id,
                     'folio' => $order->folio,
-                    'provider' => $order->client->name ?? 'N/A',
-                    'product' => $order->product->name ?? 'N/A',
+                    'provider' => $order->client_name ?? ($order->client->name ?? 'N/A'),
+                    'product' => $order->product_name ?? ($order->product->name ?? 'N/A'),
                     'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
                     'plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
                     'tare_weight' => $order->weight_ticket->tare_weight ?? 0,
                     'warehouse' => $order->warehouse ?? 'N/A',
                     'cubicle' => $order->cubicle ?? 'N/A',
                     'entry_at' => $order->entry_at,
+                    'type' => 'loading',
                 ];
             });
 
@@ -66,46 +63,89 @@ class WeightTicketController extends Controller
 
         $query = WeightTicket::with([
             'loadingOrder' => function ($q) {
+                // Vessel / Import
                 $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client']);
+            },
+            'shipmentOrder' => function ($q) {
+                // Sales / Export
+                $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order']);
             }
         ])
             ->where('is_burreo', false) // EXCLUDE BURREO
-            ->join('loading_orders', 'weight_tickets.loading_order_id', '=', 'loading_orders.id')
-            ->select('weight_tickets.*', 'loading_orders.folio', 'loading_orders.operator_name', 'loading_orders.tractor_plate')
-            ->orderBy('weight_tickets.created_at', 'desc');
+            ->orderBy('created_at', 'desc');
 
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('weight_tickets.ticket_number', 'like', "%{$search}%")
-                    ->orWhere('loading_orders.folio', 'like', "%{$search}%")
-                    ->orWhere('loading_orders.operator_name', 'like', "%{$search}%")
-                    ->orWhere('loading_orders.tractor_plate', 'like', "%{$search}%");
+                $q->where('ticket_number', 'like', "%{$search}%")
+                    ->orWhereHas('loadingOrder', function ($lo) use ($search) {
+                        $lo->where('folio', 'like', "%{$search}%")
+                            ->orWhere('operator_name', 'like', "%{$search}%")
+                            ->orWhere('tractor_plate', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('shipmentOrder', function ($so) use ($search) {
+                        $so->where('folio', 'like', "%{$search}%")
+                            ->orWhere('operator_name', 'like', "%{$search}%")
+                            ->orWhere('tractor_plate', 'like', "%{$search}%");
+                    });
             });
         }
 
         if ($request->filled('date')) {
-            $query->whereDate('weight_tickets.created_at', $request->date);
+            $query->whereDate('created_at', $request->date);
         }
 
         $tickets = $query->paginate(10)
             ->withQueryString()
             ->through(function ($ticket) {
+                // Determine source (LoadingOrder vs ShipmentOrder)
+                $order = $ticket->loadingOrder ?? $ticket->shipmentOrder;
+
+                // Common fields mapping
+                // Note: ShipmentOrder uses 'client' relation too.
+                // Product might be relation or string.
+    
+                // Fallbacks if orphaned ticket (shouldn't happen but safe to handle)
+                $folio = $order->folio ?? $ticket->folio ?? 'N/A';
+                $driver = $order->operator_name ?? ($order->driver->name ?? 'N/A');
+                $plate = $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A');
+
+                // Product
+                // LoadingOrder: product (text) or relation
+                // ShipmentOrder: product (relation or text?)
+                $productName = 'N/A';
+                if ($order) {
+                    $productName = is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A');
+                    if ($productName === 'N/A' && isset($order->product_name))
+                        $productName = $order->product_name;
+                }
+
+                $saleOrder = 'S/A';
+                if ($ticket->loadingOrder) {
+                    $saleOrder = $ticket->loadingOrder->sales_order->folio ?? 'S/A';
+                } elseif ($ticket->shipmentOrder) {
+                    $saleOrder = $ticket->shipmentOrder->sales_order->folio ?? 'S/A';
+                }
+
                 return [
-                    'id' => $ticket->loading_order_id, // Link acts on Order ID often, but Ticket ID is internal
+                    'id' => $order->id ?? $ticket->id, // Link ID. If ShipmentOrder, pass that ID.
                     'ticket_id' => $ticket->id,
-                    'folio' => $ticket->loadingOrder->folio ?? $ticket->folio,
+                    'folio' => $folio,
                     'ticket_number' => $ticket->ticket_number,
-                    'driver' => $ticket->loadingOrder->operator_name ?? 'N/A',
-                    'vehicle_plate' => $ticket->loadingOrder->tractor_plate ?? 'N/A',
-                    'product' => is_string($ticket->loadingOrder->product) ? $ticket->loadingOrder->product : ($ticket->loadingOrder->product->name ?? 'N/A'),
-                    'sale_order' => $ticket->loadingOrder->sales_order->folio ?? 'S/A',
+                    'driver' => $driver,
+                    'vehicle_plate' => $plate,
+                    'product' => $productName,
+                    'sale_order' => $saleOrder,
                     'status' => $ticket->weighing_status,
                     'entry_at' => $ticket->weigh_in_at,
                     'exit_at' => $ticket->weigh_out_at,
                     'tare_weight' => $ticket->tare_weight,
                     'gross_weight' => $ticket->gross_weight,
                     'net_weight' => $ticket->net_weight,
+                    // Pass type for frontend URL generation if needed?
+                    // Currently edit link uses /scale/tickets/{id}/edit -> calls editTicket($id)
+                    // editTicket uses LoadingOrder::find($id). I need to fix that too.
+                    'is_shipment_order' => !!$ticket->shipmentOrder,
                 ];
             });
 
@@ -117,10 +157,14 @@ class WeightTicketController extends Controller
 
     public function editTicket($id)
     {
-        // $id is loading_order_id passed from index
-        $order = LoadingOrder::with(['weight_ticket'])->findOrFail($id);
+        // Try LoadingOrder first
+        $order = LoadingOrder::with(['weight_ticket'])->find($id);
 
-        if (!$order->weight_ticket) {
+        if (!$order) {
+            $order = \App\Models\ShipmentOrder::with(['weight_ticket'])->find($id);
+        }
+
+        if (!$order || !$order->weight_ticket) {
             return back()->withErrors(['error' => 'Ticket no encontrado.']);
         }
 
@@ -132,12 +176,14 @@ class WeightTicketController extends Controller
 
     public function updateTicket(Request $request, $id)
     {
-        // $id is ticket ID (or order ID depending on route param, standard resource uses model ID)
-        // My route said /scale/tickets/{id} -> usually ticket ID.
-        // Let's assume passed ID is Ticket ID for safety, OR handle logic.
-        // But my edit link passes Order ID usually. Let's make it Order ID based to match 'id'.
+        // $id is Order ID (logic from edit link)
+        $order = LoadingOrder::with('weight_ticket')->find($id);
+        if (!$order)
+            $order = \App\Models\ShipmentOrder::with(['weight_ticket'])->find($id);
 
-        $order = LoadingOrder::with('weight_ticket')->findOrFail($id);
+        if (!$order)
+            abort(404, 'Orden no encontrada');
+
         $ticket = $order->weight_ticket;
 
         $validated = $request->validate([
@@ -234,6 +280,48 @@ class WeightTicketController extends Controller
         return Inertia::render('Scale/ExitMP', [
             'order' => $orderData,
             'active_scale_id' => (int) $request->input('scale_id', 1)
+        ]);
+    }
+
+    public function searchFolio(Request $request)
+    {
+        $folio = $request->input('folio');
+
+        if (!$folio) {
+            return response()->json(['error' => 'Por favor ingrese un folio.'], 400);
+        }
+
+        // Search in ShipmentOrders (Ordenes de Embarque) for Sales/Exit
+        $order = \App\Models\ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'sales_order'])
+            ->where('folio', $folio)
+            ->first();
+
+        if (!$order) {
+            return response()->json(['error' => 'Orden de Embarque no encontrada.'], 404);
+        }
+
+        // Check if ticket exists via weight_ticket relation
+        if ($order->weight_ticket) {
+            return response()->json(['error' => 'Esta orden ya tiene un ticket de báscula generado.'], 403);
+        }
+
+        return response()->json([
+            'id' => $order->id,
+            'folio' => $order->folio,
+            'provider' => $order->client->business_name ?? ($order->client->name ?? 'N/A'),
+            'driver' => $order->operator_name ?? ($order->driver->name ?? 'N/A'),
+            'vehicle_plate' => $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A'),
+            'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
+            'vehicle_type' => $order->unit_type ?? 'N/A',
+            'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
+            'economic_number' => $order->economic_number,
+            'product' => $order->product_name ?? ($order->product->name ?? 'N/A'), // Direct field or relation
+            'origin' => $order->origin,
+            'reference' => $order->customer_reference, // Accessor
+            'consignee' => $order->consigned_to ?? ($order->consignee ?? ''),
+            'destination' => $order->destination,
+            'bill_of_lading' => $order->carta_porte ?? ($order->bill_of_lading ?? ''),
+            'withdrawal_letter' => $order->sale_order_folio ?? '',
         ]);
     }
 
@@ -362,7 +450,7 @@ class WeightTicketController extends Controller
     public function storeEntry(Request $request)
     {
         $validated = $request->validate([
-            'shipment_order_id' => 'nullable|uuid', // Nullable for new Vessel entries
+            'shipment_order_id' => 'nullable|uuid', // Sales Order ID (ShipmentOrder)
             'vessel_id' => 'nullable|exists:vessels,id',
             // Manual / Derived Fields
             'client_id' => 'nullable|exists:clients,id',
@@ -377,117 +465,89 @@ class WeightTicketController extends Controller
             'consignee' => 'nullable|string',
             'destination' => 'nullable|string',
             'origin' => 'nullable|string',
-            'bill_of_lading' => 'required|string', // Carta Porte
+            'bill_of_lading' => 'nullable|string',
 
             // Transport info (Snapshot)
             'driver' => 'required|string',
             'vehicle_plate' => 'required|string',
             'trailer_plate' => 'nullable|string',
-            'vehicle_type' => 'required|string',
+            'vehicle_type' => 'nullable|string',
             'transport_line' => 'required|string',
             'economic_number' => 'nullable|string',
 
             // Scale info
             'tare_weight' => 'required|numeric|min:1',
-            'container_type' => 'nullable|string', // Optional now
+            'container_type' => 'nullable|string',
             'container_id' => 'nullable|string',
             'observations' => 'nullable|string',
-            'scale_id' => 'nullable|integer', // 1, 2, 3
+            'scale_id' => 'nullable|integer',
         ]);
 
         try {
             DB::transaction(function () use ($validated) {
-                $orderId = !empty($validated['shipment_order_id']) ? $validated['shipment_order_id'] : null;
+                $shipmentOrderId = !empty($validated['shipment_order_id']) ? $validated['shipment_order_id'] : null;
 
                 // Ensure nullable integer fields are strictly NULL if empty
                 $vesselId = !empty($validated['vessel_id']) ? $validated['vessel_id'] : null;
                 $productId = !empty($validated['product_id']) ? $validated['product_id'] : null;
-                $clientId = !empty($validated['client_id']) ? $validated['client_id'] : 1; // Default to 1 (General Public) if missing
+                $clientId = !empty($validated['client_id']) ? $validated['client_id'] : 1;
                 $scaleId = !empty($validated['scale_id']) ? $validated['scale_id'] : null;
 
                 $vessel = $vesselId ? Vessel::find($vesselId) : null;
-
-                if ($vessel && $vessel->apt_operation_type === 'burreo') {
-                    throw new \Exception("Este barco está en operación de BURREO y no puede registrar entrada por Báscula.");
-                }
-
                 $isBurreo = $vessel && $vessel->apt_operation_type === 'burreo';
-                $tareWeight = $validated['tare_weight'];
 
-                // If it's burreo and we have a provisional weight, use it if needed
-                if ($isBurreo && $vessel->provisional_burreo_weight > 0) {
-                    // Force provisional weight? Or only if not provided?
-                    // Usually they "skip scale", so we might need to handle that.
+                if ($isBurreo) {
+                    // Burreo Logic if needed
                 }
 
-                // If no existing Order, create one (Vessel Entry Scenario)
-                if (!$orderId) {
-                    // Generate Folio
-                    // Generate Folio
-                    // Use LockForUpdate to prevent race conditions during high concurrency
-                    // And get the MAX numeric folio instead of count()
-                    $lastFolio = LoadingOrder::where('folio', 'REGEXP', '^[0-9]+$')
-                        ->lockForUpdate() // Pessimistic lock within transaction
-                        ->max('folio');
+                // UNIFIED LOGIC: ALWAYS CREATE LOADING ORDER
+                // Whether it came from a Vessel (Import) or ShipmentOrder (Export/Sales),
+                // we create a specific operational "Trip" record (LoadingOrder).
 
-                    $nextFolioNum = 1;
-                    if ($lastFolio) {
-                        $nextFolioNum = intval($lastFolio) + 1;
-                    }
+                // Generate Folio
+                $lastFolio = LoadingOrder::where('folio', 'REGEXP', '^[0-9]+$')
+                    ->lockForUpdate()
+                    ->max('folio');
 
-                    $folio = str_pad($nextFolioNum, 4, '0', STR_PAD_LEFT);
+                $nextFolioNum = $lastFolio ? intval($lastFolio) + 1 : 1;
+                $folio = str_pad($nextFolioNum, 4, '0', STR_PAD_LEFT);
 
-                    $order = LoadingOrder::create([
-                        'id' => (string) \Illuminate\Support\Str::uuid(),
-                        'folio' => $folio,
-                        'client_id' => $clientId,
-                        // 'client_name' => $validated['provider'] ?? null, // Removed: Relation based
-                        'product_id' => $productId,
-                        'vessel_id' => $vesselId,
-                        'status' => 'loading',
-                        'entry_at' => now(),
+                $order = LoadingOrder::create([
+                    'id' => (string) \Illuminate\Support\Str::uuid(),
+                    'folio' => $folio,
+                    'client_id' => $clientId,
+                    'product_id' => $productId,
+                    'vessel_id' => $vesselId,
+                    'status' => 'loading', // or 'weighing_in'
+                    'entry_at' => now(),
 
-                        // Link to Commercial Doc if provided
-                        'shipment_order_id' => !empty($validated['shipment_order_id']) ? $validated['shipment_order_id'] : null,
+                    // Link to Sales/Export Doc if provided
+                    'shipment_order_id' => $shipmentOrderId,
 
-                        // Snapshot Fields
-                        'operator_name' => $validated['driver'],
-                        'tractor_plate' => $validated['vehicle_plate'],
-                        'trailer_plate' => $validated['trailer_plate'],
-                        'unit_type' => $validated['vehicle_type'],
-                        'transport_company' => $validated['transport_line'],
-                        'economic_number' => $validated['economic_number'] ?? null,
+                    // Snapshot Fields
+                    'operator_name' => $validated['driver'],
+                    'tractor_plate' => $validated['vehicle_plate'],
+                    'trailer_plate' => $validated['trailer_plate'],
+                    'unit_type' => $validated['vehicle_type'] ?? 'N/A',
+                    'transport_company' => $validated['transport_line'],
+                    'economic_number' => $validated['economic_number'] ?? null,
+                    'bill_of_lading' => $validated['bill_of_lading'] ?? null,
+                    'withdrawal_letter' => $validated['withdrawal_letter'],
+                    'reference' => $validated['reference'],
+                    'consignee' => $validated['consignee'],
+                    'destination' => $validated['destination'],
+                    'origin' => $validated['origin'],
+                ]);
 
-                        // New Fields
-                        'bill_of_lading' => $validated['bill_of_lading'],
-                        'withdrawal_letter' => $validated['withdrawal_letter'],
-                        'reference' => $validated['reference'],
-                        'consignee' => $validated['consignee'],
-                        'destination' => $validated['destination'],
-                        'origin' => $validated['origin'],
+                $loadingOrderId = $order->id;
 
-                        // Legacy text fallbacks if no ID
-                        // 'product' => $validated['product'] ?? null, // Removed as product_id is mandated or null
-                    ]);
-
-                    $orderId = $order->id;
-                } else {
-                    // Update existing order (if passed ID - arguably we create a new LoadingOrder even if passed ShipmentOrder ID, but this logic handled update.
-                    // IF orderId was passed, it was assumed to be ShipmentOrder ID.
-                    // BUT in separate table logic, we always CREATE a LoadingOrder for a new trip.
-                    // The only case we update is if we are editing an existing LoadingOrder?
-                    // storeEntry is "Register Entry". Usually new.
-                    // If we pass 'shipment_order_id', we should NOT update the ShipmentOrder, I should create a LoadingOrder.
-                    // So I will effectively REMOVE the else block and always create, using the passed ID as the foreign key 'shipment_order_id'.
-                }
-
-                // Create Ticket
+                // Create Ticket linked to this Loading Order
                 WeightTicket::create([
-                    'loading_order_id' => $orderId,
-                    'shipment_order_id' => $validated['shipment_order_id'] ?? null, // Legacy/Double link
+                    'loading_order_id' => $loadingOrderId,
+                    'shipment_order_id' => $shipmentOrderId, // Legacy redundancy, safe to keep or null
                     'weighmaster_id' => auth()->id(),
                     'ticket_number' => 'TK-' . time(),
-                    'tare_weight' => $validated['tare_weight'],
+                    'tare_weight' => $validated['tare_weight'], // First Weight
                     'gross_weight' => 0,
                     'net_weight' => 0,
                     'weighing_status' => 'in_progress',
@@ -509,13 +569,13 @@ class WeightTicketController extends Controller
     public function storeExit(Request $request)
     {
         $validated = $request->validate([
-            'shipment_order_id' => 'required|exists:loading_orders,id',
-            'weight' => 'required|numeric|min:0', // Exit weight (Gross or Second weight)
+            'shipment_order_id' => 'required|exists:loading_orders,id', // Input is actually LoadingOrder ID
+            'weight' => 'required|numeric|min:0',
         ]);
 
         try {
             DB::transaction(function () use ($validated) {
-                // We use 'shipment_order_id' param but it refers to LoadingOrder ID now
+                // Find LoadingOrder (Unified Flow)
                 $order = LoadingOrder::with('weight_ticket')->findOrFail($validated['shipment_order_id']);
                 $ticket = $order->weight_ticket;
 
@@ -523,37 +583,32 @@ class WeightTicketController extends Controller
                     throw new \Exception("Esta orden no tiene ticket de entrada.");
                 }
 
-                if (empty($order->warehouse)) {
+                // Validate Warehouse assignment if needed (mostly for Imports)
+                // If it's linked to a ShipmentOrder (Export), maybe skip?
+                // For now, relax or check logic.
+                if (!$order->shipment_order_id && empty($order->warehouse)) {
+                    // Only strictly enforce for Imports (no shipment_order_id)
                     throw new \Exception("ALERTA: No se puede destarar sin haber asignado Almacén en el módulo APT.");
                 }
 
-                // Calculate Net Weight (Always Positive)
-                // Typically: Net = Gross - Tare.
-                // Here: Input 'weight' is the *current* weight.
-                // If truck came in Empty (Tare) and leaves Full (Gross): Net = Current - Tare.
-                // If truck came in Full (Gross) and leaves Empty (Tare): Net = Gross - Current.
-                // We use ABS to handle both logic without complex flags, assuming Process is valid.
-                // "El sistema debe dar siempre el peso neto en positivo".
-
-                $firstWeight = $ticket->tare_weight; // Named 'tare_weight' in DB but represents First Weight
+                $firstWeight = $ticket->tare_weight;
                 $secondWeight = $validated['weight'];
                 $net = abs($secondWeight - $firstWeight);
 
                 // Update Ticket
                 $ticket->update([
-                    'gross_weight' => $secondWeight, // Store second weight here
+                    'gross_weight' => $secondWeight,
                     'net_weight' => $net,
                     'weighing_status' => 'completed',
                     'weigh_out_at' => now(),
                 ]);
 
-                // Update Order
+                // Update Order Status
                 $order->update([
                     'status' => 'completed',
-                    'destare_status' => 'completed', // Explicitly marked as destared
+                    'destare_status' => 'completed',
                 ]);
             });
-
 
             return redirect()->route('scale.ticket.print', ['id' => $validated['shipment_order_id']])->with('success', 'Salida registrada correctamente.');
 

@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, useForm } from "@inertiajs/react";
+import { Head, useForm, Link } from "@inertiajs/react";
 import {
     Scale,
-    Truck,
     Search,
     Save,
     Link as LinkIcon,
-    Box,
-    User,
-    MapPin,
-    Anchor,
     AlertCircle,
-    FileText,
     Settings,
+    ArrowLeft,
+    FileText,
+    Truck,
+    Anchor,
     Camera,
     X,
+    MapPin
 } from "lucide-react";
 import { QrReader } from "react-qr-reader";
 import InputLabel from "@/Components/InputLabel";
@@ -32,44 +31,36 @@ export default function EntrySale({
     active_scale_id?: number;
 }) {
     const [weight, setWeight] = useState<number>(0);
+    const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [qrValue, setQrValue] = useState("");
+    const [folioQuery, setFolioQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [showCamera, setShowCamera] = useState(false); // Camera State
-    const [orderDetails, setOrderDetails] = useState<any>(null); // For display only
+    const [orderDetails, setOrderDetails] = useState<any>(null);
+    const [showCamera, setShowCamera] = useState(false);
 
     // Serial Port Refs
     const portRef = useRef<any>(null);
     const readerRef = useRef<any>(null);
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        shipment_order_id: "", // Nullable/Empty if new logic
-        vessel_id: "",
-        scale_id: active_scale_id, // Use prop
+        shipment_order_id: "", // Maps to LoadingOrder ID
+        scale_id: active_scale_id,
 
-        // Manual / Derived
-        client_id: "", // provider ID
-        product_id: "",
-        provider: "", // Text fallback
-        product: "", // Text fallback
-
-        withdrawal_letter: "", // "Carta de Retiro"
-        reference: "", // "Referencia"
-        consignee: "", // "Consignado"
-        destination: "", // "Destino"
-        origin: "", // "Origen"
-        bill_of_lading: "", // "Carta Porte"
-
-        // Transport (Snapshot)
+        // Snapshot / Display Fields (Read Only)
+        provider: "",
+        product: "",
         driver: "",
         vehicle_plate: "",
         trailer_plate: "",
-        vehicle_type: "",
         transport_line: "",
-        economic_number: "",
+        origin: "",
+        reference: "",
+        consignee: "",
+        destination: "",
+        bill_of_lading: "", // Carta Porte
 
         // Scale
-        tare_weight: "",
+        tare_weight: "", // Represents the "First Weight" (Empty/Vacío) for Sales
         observations: "",
     });
 
@@ -77,22 +68,32 @@ export default function EntrySale({
         setData("scale_id", active_scale_id);
     }, [active_scale_id]);
 
-    // ... existing Serial/Search logic ...
-
-    // Inside Render, remove Selector and show static Badge
-    // ...
-    //   <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center items-center">
-    //      <div className="flex items-center gap-2 mb-2 text-gray-500 uppercase text-xs font-bold tracking-wider">
-    //          <Settings className="w-4 h-4" /> Báscula Activa
-    //      </div>
-    //      <div className="text-3xl font-bold text-indigo-600">
-    //          #{active_scale_id}
-    //      </div>
-    //   </div>
-
+    // Sync Weight to Form
     useEffect(() => {
-        setData("tare_weight", weight.toString());
-    }, [weight]);
+        if (capturedWeight !== null) {
+            setData("tare_weight", capturedWeight.toString());
+        } else {
+            setData("tare_weight", weight.toString());
+        }
+    }, [weight, capturedWeight]);
+
+    // Handle Errors
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Atención",
+                html: Object.values(errors)
+                    .map((e) => `<div class="mb-1">${e}</div>`)
+                    .join(""),
+                confirmButtonColor: "#d33",
+            });
+        }
+    }, [errors]);
+
+    const handleCapture = () => {
+        setCapturedWeight(weight);
+    };
 
     const handleSerialConnect = async () => {
         if ("serial" in navigator) {
@@ -129,80 +130,57 @@ export default function EntrySale({
         }
     };
 
-    const searchOrder = async (codeOverride?: string) => {
-        const query = codeOverride || qrValue;
-        if (!query) return;
+    const searchOrder = async () => {
+        if (!folioQuery) return;
 
         setIsLoading(true);
-        if (codeOverride) setQrValue(codeOverride); // Sync UI
 
         try {
-            const response = await axios.get(route("scale.search-qr"), {
-                params: { qr: query },
+            const response = await axios.get(route("scale.search-folio"), {
+                params: { folio: folioQuery },
             });
             const res = response.data;
             setOrderDetails(res);
 
-            if (res.type === "vessel_operator") {
-                // New Entry from Vessel Scan
-                setData((prev) => ({
-                    ...prev,
-                    shipment_order_id: "", // It's new
-                    vessel_id: res.vessel_id,
-                    client_id: res.client_id || "",
-                    product_id: res.product_id || "",
-                    provider: res.provider,
-                    product: res.product,
+            // Populate Form
+            setData((prev) => ({
+                ...prev,
+                shipment_order_id: res.id,
+                provider: res.provider || "N/A",
+                product: res.product || "N/A",
+                driver: res.driver || "N/A",
+                vehicle_plate: res.vehicle_plate || "N/A",
+                trailer_plate: res.trailer_plate || "N/A",
+                transport_line: res.transport_line || "N/A",
+                origin: res.origin || "N/A",
+                reference: res.reference || "",
+                consignee: res.consignee || "",
+                destination: res.destination || "",
+                bill_of_lading: res.bill_of_lading || "",
+            }));
 
-                    reference: res.reference || "N/A",
-                    origin: res.origin,
-                    transport_line: res.transport_line,
-                    driver: res.driver,
-                    vehicle_type: res.vehicle_type,
-                    vehicle_plate: res.vehicle_plate,
-                    trailer_plate: res.trailer_plate,
-                    economic_number: res.economic_number,
+            Swal.fire({
+                icon: "success",
+                title: "Orden Encontrada",
+                text: `Folio: ${res.folio} - ${res.driver}`,
+                timer: 1500,
+                showConfirmButton: false,
+            });
 
-                    withdrawal_letter: res.suggested_withdrawal_letter || "",
-                    // Manual fields reset
-                    consignee: "",
-                    destination: "",
-                    bill_of_lading: "",
-                }));
-            } else {
-                // Existing Shipment Order
-                setData((prev) => ({
-                    ...prev,
-                    shipment_order_id: res.id,
-                    provider: res.provider,
-                    product: res.product,
-                    origin: res.origin,
-                    transport_line: res.transporter,
-                    driver: res.driver,
-                    vehicle_plate: res.vehicle_plate,
-                    trailer_plate: res.trailer_plate,
-                    vehicle_type: res.vehicle_type,
-
-                    withdrawal_letter: res.withdrawal_letter || "",
-                    reference: res.reference || "",
-                    consignee: res.consignee || "",
-                    destination: res.destination || "",
-                    bill_of_lading: res.carta_porte || "",
-                }));
-            }
         } catch (error: any) {
             console.error("Search error:", error);
-            const errorMessage = error.response?.data?.error || "No encontrado.";
+            const errorMessage =
+                error.response?.data?.error || "Orden no encontrada.";
 
             Swal.fire({
                 icon: "warning",
-                title: "Operación Restringida",
+                title: "Búsqueda Fallida",
                 text: errorMessage,
                 confirmButtonColor: "#4f46e5",
-                confirmButtonText: "Entendido",
             });
 
             setOrderDetails(null);
+            reset("shipment_order_id", "provider", "product", "driver", "vehicle_plate");
         } finally {
             setIsLoading(false);
         }
@@ -210,133 +188,108 @@ export default function EntrySale({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Validation: Weigh > 0? User might want to save manual wait if serial fails, but generally > 0.
-        // if (weight <= 0) { alert("Peso debe ser mayor a 0."); return; }
-        if (!data.bill_of_lading) {
+        if (!data.shipment_order_id) {
             Swal.fire({
                 icon: "warning",
-                title: "Campo Requerido",
-                text: "Por favor, ingrese la Carta Porte.",
-                confirmButtonColor: "#4f46e5",
+                title: "Orden Requerida",
+                text: "Por favor busque y seleccione una orden por Folio.",
             });
             return;
         }
-        if (!data.driver) {
-            alert("Faltan datos de conductor.");
-            return;
-        }
+
         post(route("scale.entry.store"), {
             onSuccess: () => {
                 reset();
                 setOrderDetails(null);
-                setQrValue("");
+                setFolioQuery("");
+                setCapturedWeight(null);
             },
         });
     };
 
     return (
-        <DashboardLayout
-            user={auth.user}
-            header="Báscula - Salida / Carga (Peso Tara)"
-        >
-            <Head title="Salida (Carga)" />
+        <DashboardLayout user={auth.user} header="Báscula - Entrada Carga (Vacío)">
+            <Head title="Entrada Carga" />
 
-            <div className="py-6 max-w-7xl mx-auto px-4 space-y-6">
-                {/* Top Bar: Search & Scale Selector */}
-                <div className="flex flex-col md:flex-row gap-4 justify-between">
-                    {/* Search */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div className="flex items-center gap-4 w-full md:w-auto">
-                            <div className="bg-indigo-100 p-3 rounded-full">
-                                <Search className="w-6 h-6 text-indigo-600" />
+            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mb-6">
+                    <Link
+                        href={route("scale.index")}
+                        className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-1" />
+                        Volver al Panel
+                    </Link>
+                </div>
+
+                {/* Header Section */}
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-8">
+                    <div className="bg-gradient-to-r from-blue-800 to-blue-900 px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center">
+                            <div className="p-3 bg-blue-700/50 rounded-xl mr-4 shadow-inner backdrop-blur-sm">
+                                <Scale className="w-8 h-8 text-white" />
                             </div>
                             <div>
-                                <h2 className="font-bold text-gray-800 text-lg">
-                                    Búsqueda
+                                <h2 className="text-white font-bold text-2xl">
+                                    Entrada Carga (Vacío)
                                 </h2>
-                                <p className="text-sm text-gray-500">
-                                    Escanea QR de Operador (Barco) o Folio
+                                <p className="text-blue-200 text-sm">
+                                    Identificación por Folio de Orden de Embarque (OE)
                                 </p>
                             </div>
                         </div>
-                        <div className="flex gap-2 w-full md:w-auto items-center">
-                            {/* Camera Toggle */}
-                            <button
-                                type="button"
-                                onClick={() => setShowCamera(!showCamera)}
-                                className={`p-3 rounded-lg border transition-colors ${showCamera ? "bg-red-100 border-red-200 text-red-600" : "bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200"}`}
-                                title={
-                                    showCamera
-                                        ? "Cerrar Cámara"
-                                        : "Abrir Cámara"
-                                }
-                            >
-                                {showCamera ? (
-                                    <X className="w-5 h-5" />
-                                ) : (
-                                    <Camera className="w-5 h-5" />
-                                )}
-                            </button>
 
-                            <TextInput
-                                value={qrValue}
-                                onChange={(e) => setQrValue(e.target.value)}
-                                onKeyDown={(e) =>
-                                    e.key === "Enter" && searchOrder()
-                                }
-                                className="w-full md:w-64 text-lg border-indigo-200 focus:border-indigo-500"
-                                placeholder="QR / ID..."
-                                autoFocus={!showCamera}
-                            />
-                            <PrimaryButton
-                                onClick={() => searchOrder()}
-                                disabled={isLoading}
-                                className="bg-indigo-600 hover:bg-indigo-700"
-                            >
-                                {isLoading ? "..." : "Buscar"}
-                            </PrimaryButton>
+                        {/* Scale Badge */}
+                        <div className="flex items-center bg-blue-900/50 px-4 py-2 rounded-lg border border-blue-700/50">
+                            <Settings className="w-4 h-4 text-blue-300 mr-2" />
+                            <span className="text-blue-200 text-sm font-medium mr-2">
+                                Báscula Activa:
+                            </span>
+                            <span className="text-white font-bold text-lg">
+                                #{active_scale_id}
+                            </span>
                         </div>
                     </div>
 
-                    {/* Camera View */}
-                    {showCamera && (
-                        <div className="w-full max-w-sm mx-auto mb-6 bg-black rounded-lg overflow-hidden relative shadow-2xl animate-fade-in-down">
-                            <QrReader
-                                onResult={(result: any, error) => {
-                                    if (!!result) {
-                                        const text =
-                                            typeof result.getText === "function"
-                                                ? result.getText()
-                                                : result.text;
-                                        if (text) {
-                                            setQrValue(text);
-                                            setShowCamera(false);
-                                            // Auto-search can be tricky if state update isn't fast enough, so we pass text directly
-                                            // But searchOrder uses state 'qrValue'.
-                                            // We should modify searchOrder to accept an argument or use effect.
-                                            // For safety, let's just set value and let user click or trigger explicitly if we refactor.
-                                            // Actually, let's refactor searchOrder to take optional arg.
-                                            searchOrder(text);
-                                        }
-                                    }
-                                }}
-                                constraints={{ facingMode: "environment" }}
-                                videoStyle={{ width: "100%" }}
-                                className="w-full"
-                            />
-                            <p className="text-white text-center py-2 text-sm">
-                                Apunte al código QR...
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Scale Badge (Read Only) */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full md:w-64 flex flex-col justify-center items-center">
-                        <div className="flex items-center gap-2 mb-2 text-gray-500 uppercase text-xs font-bold tracking-wider">
-                            <Settings className="w-4 h-4" /> Báscula Activa
-                        </div>
-                        <div className="text-3xl font-bold text-indigo-600">
-                            #{active_scale_id}
+                    {/* Search Section */}
+                    <div className="p-6 bg-white border-b border-gray-100">
+                        <div className="flex flex-col md:flex-row gap-4 items-center">
+                            <div className="flex-1 w-full max-w-2xl">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Buscar por Folio de Orden (OE)
+                                </label>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <input
+                                            type="text"
+                                            value={folioQuery}
+                                            onChange={(e) =>
+                                                setFolioQuery(e.target.value)
+                                            }
+                                            onKeyDown={(e) =>
+                                                e.key === "Enter" &&
+                                                searchOrder()
+                                            }
+                                            className="block w-full rounded-lg border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 font-mono text-lg"
+                                            placeholder="Ej: 00123"
+                                            autoFocus
+                                        />
+                                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <Search
+                                                className="h-5 w-5 text-gray-400"
+                                                aria-hidden="true"
+                                            />
+                                        </div>
+                                    </div>
+                                    <PrimaryButton
+                                        onClick={searchOrder}
+                                        disabled={isLoading}
+                                        className="bg-blue-600 hover:bg-blue-700 h-full px-6"
+                                    >
+                                        {isLoading ? "..." : "Buscar Orden"}
+                                    </PrimaryButton>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -347,39 +300,78 @@ export default function EntrySale({
                 >
                     {/* LEFT COLUMN: Weight & Connection (4 cols) */}
                     <div className="lg:col-span-4 space-y-6">
+                        {/* Weight Display Card */}
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                            <div className="bg-gray-900 p-6 text-center">
-                                <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-1">
-                                    Peso Bruto (Entrada)
+                            <div className="bg-gray-900 p-8 text-center relative">
+                                <h2 className="text-gray-400 text-xs font-bold tracking-widest uppercase mb-2">
+                                    Peso Tara (Entrada)
                                 </h2>
-                                <div className="text-6xl font-mono font-bold text-[#39ff33] tracking-tighter">
+                                <div className="text-6xl font-mono font-bold text-[#39ff33] tracking-tighter drop-shadow-[0_0_10px_rgba(57,255,51,0.5)]">
                                     {weight > 0 ? weight : "0.00"}{" "}
                                     <span className="text-2xl text-gray-500">
                                         kg
                                     </span>
                                 </div>
+                                {auth.user?.roles?.some((r: string) =>
+                                    r.toLowerCase().includes("admin"),
+                                ) && (
+                                        <div className="mt-4 flex justify-center">
+                                            <input
+                                                type="number"
+                                                className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm focus:ring-green-500 focus:border-green-500 disabled:opacity-50"
+                                                placeholder="Manual Admin"
+                                                value={weight}
+                                                disabled={capturedWeight !== null}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                onChange={(e) =>
+                                                    setWeight(
+                                                        parseFloat(
+                                                            e.target.value,
+                                                        ) || 0,
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                            </div>
+                            <div className="bg-gray-800 p-3 text-center border-t border-gray-700 flex justify-between px-6 items-center">
+                                <span className="text-gray-400 text-xs uppercase font-semibold">
+                                    Peso Capturado:
+                                </span>
+                                <span
+                                    className={`text-xl font-bold font-mono ${capturedWeight ? "text-yellow-400" : "text-gray-600"}`}
+                                >
+                                    {capturedWeight
+                                        ? capturedWeight.toFixed(2)
+                                        : "---"}{" "}
+                                    kg
+                                </span>
                             </div>
                             <div className="p-4 bg-gray-50 grid grid-cols-2 gap-3">
                                 <button
                                     onClick={handleSerialConnect}
                                     type="button"
-                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all ${isConnected ? "bg-green-100 text-green-700" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
+                                    disabled={capturedWeight !== null}
+                                    className={`flex items-center justify-center px-4 py-3 rounded-xl font-bold transition-all shadow-sm disabled:opacity-50 ${isConnected ? "bg-green-100 text-green-700 border border-green-200" : "bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"}`}
                                 >
                                     <LinkIcon className="w-5 h-5 mr-2" />
                                     {isConnected ? "Conectado" : "Conectar"}
                                 </button>
                                 <button
                                     type="button"
-                                    className="flex items-center justify-center px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50"
+                                    onClick={handleCapture}
+                                    disabled={capturedWeight !== null}
+                                    className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all disabled:opacity-50 ${capturedWeight ? "bg-yellow-50 text-yellow-700 border-yellow-200" : "bg-white text-gray-700 border-gray-200"}`}
                                 >
-                                    <Scale className="w-5 h-5 mr-2" /> Capturar
+                                    <Scale className="w-5 h-5 mr-2" />
+                                    {capturedWeight ? "Peso Capturado" : "Capturar"}
                                 </button>
                             </div>
                         </div>
 
                         {/* Status Card */}
                         <div
-                            className={`rounded-2xl p-6 border ${orderDetails ? (orderDetails.type === "vessel_operator" ? "bg-blue-50 border-blue-200" : "bg-green-50 border-green-200") : "bg-gray-50 border-gray-200"}`}
+                            className={`rounded-2xl p-6 border shadow-sm ${orderDetails ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-200"}`}
                         >
                             <h3 className="font-bold text-gray-800 flex items-center mb-2">
                                 <AlertCircle className="w-5 h-5 mr-2" />
@@ -387,211 +379,130 @@ export default function EntrySale({
                             </h3>
                             <p className="text-sm text-gray-600">
                                 {orderDetails
-                                    ? orderDetails.type === "vessel_operator"
-                                        ? "Nueva Entrada (Barco detectado)"
-                                        : "Orden Existente (Precargada)"
-                                    : "Esperando lectura de QR..."}
+                                    ? `Orden ${orderDetails.folio} lista para pesar Tara.`
+                                    : "Ingrese un Folio para comenzar."}
                             </p>
+                        </div>
+
+                        <div className="pt-2">
+                            <PrimaryButton
+                                disabled={
+                                    processing ||
+                                    !data.shipment_order_id ||
+                                    !capturedWeight ||
+                                    capturedWeight <= 0
+                                }
+                                className="w-full h-14 text-lg bg-green-600 hover:bg-green-700 shadow-xl transform transition hover:scale-[1.01] flex justify-center items-center rounded-xl"
+                            >
+                                <Save className="w-6 h-6 mr-2" />
+                                GUARDAR TARA
+                            </PrimaryButton>
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN: Form Fields (8 cols) */}
-                    <div className="lg:col-span-8 space-y-6">
-                        {/* 1. Origen y Documentación */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4 pb-2 border-b border-gray-100">
-                                <Anchor className="w-5 h-5 mr-2 text-indigo-500" />
-                                Origen y Documentación
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <InputLabel value="Proveedor / Cliente *" />
-                                    <TextInput
-                                        value={data.provider || ""}
-                                        onChange={(e) =>
-                                            setData("provider", e.target.value)
-                                        }
-                                        readOnly={!!data.client_id}
-                                        className={`w-full ${data.client_id ? "bg-gray-50" : ""}`}
-                                    />
+                    {/* RIGHT COLUMN: Order Info (8 cols) */}
+                    <div className="lg:col-span-8 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                        {/* 1. Información General */}
+                        <div className="p-8 border-b border-gray-100">
+                            <h4 className="text-blue-800 font-bold mb-6 flex items-center bg-blue-50 p-3 rounded-lg border border-blue-100">
+                                <FileText className="w-5 h-5 mr-3" />
+                                Información de la Orden ({orderDetails?.folio || "---"})
+                            </h4>
+
+                            {!orderDetails && (
+                                <div className="text-center py-12 text-gray-400 italic bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                                    <Search className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                                    <p>Busque una orden por folio para ver sus detalles</p>
                                 </div>
-                                <div>
-                                    <InputLabel value="Producto *" />
-                                    <TextInput
-                                        value={data.product || ""}
-                                        onChange={(e) =>
-                                            setData("product", e.target.value)
-                                        }
-                                        readOnly={!!data.product_id}
-                                        className={`w-full ${data.product_id ? "bg-gray-50" : ""}`}
-                                    />
+                            )}
+
+                            {orderDetails && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <InputLabel value="Cliente Destino" className="mb-2" />
+                                            <TextInput
+                                                value={data.provider}
+                                                readOnly
+                                                className="w-full bg-gray-50 text-gray-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Producto" className="mb-2" />
+                                            <TextInput
+                                                value={data.product}
+                                                readOnly
+                                                className="w-full bg-gray-50 text-gray-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Carta Porte (Draft)" className="mb-2" />
+                                            <TextInput
+                                                value={data.bill_of_lading}
+                                                readOnly
+                                                className="w-full bg-gray-50 text-gray-600"
+                                            />
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Destino Final" className="mb-2" />
+                                            <TextInput
+                                                value={data.destination}
+                                                readOnly
+                                                className="w-full bg-gray-50 text-gray-600"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t border-gray-100 pt-6">
+                                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center">
+                                            <Truck className="w-4 h-4 mr-2" />
+                                            Transporte Asignado
+                                        </h4>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                            <div>
+                                                <span className="block text-xs text-gray-400 uppercase">Línea</span>
+                                                <span className="font-bold text-gray-800 text-sm block truncate" title={data.transport_line}>{data.transport_line}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-gray-400 uppercase">Operador</span>
+                                                <span className="font-bold text-gray-800 text-sm block truncate" title={data.driver}>{data.driver}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-gray-400 uppercase">Placas</span>
+                                                <span className="font-mono font-bold text-gray-800 text-sm">{data.vehicle_plate}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-gray-400 uppercase">Remolque</span>
+                                                <span className="font-mono font-bold text-gray-800 text-sm">{data.trailer_plate || "N/A"}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <InputLabel value="Referencia (Si Barco=N/A)" />
-                                    <TextInput
-                                        value={data.reference}
-                                        onChange={(e) =>
-                                            setData("reference", e.target.value)
-                                        }
-                                        className="w-full"
-                                        placeholder="Ej. Orden de Venta"
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel value="Carta de Retiro (Sugerido)" />
-                                    <TextInput
-                                        value={data.withdrawal_letter}
-                                        onChange={(e) =>
-                                            setData(
-                                                "withdrawal_letter",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full"
-                                        placeholder="Consecutivo..."
-                                    />
-                                </div>
-                                {/* Force Origin if needed */}
-                                <div>
-                                    <InputLabel value="Origen" />
-                                    <TextInput
-                                        value={data.origin}
-                                        onChange={(e) =>
-                                            setData("origin", e.target.value)
-                                        }
-                                        readOnly={!!orderDetails?.origin}
-                                        className="w-full bg-gray-50"
-                                    />
-                                </div>
-                            </div>
+                            )}
                         </div>
 
-                        {/* 2. Destino */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4 pb-2 border-b border-gray-100">
-                                <MapPin className="w-5 h-5 mr-2 text-red-500" />
-                                Destino
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <InputLabel value="Consignado a (Cliente Manual)" />
-                                    <TextInput
-                                        value={data.consignee}
-                                        onChange={(e) =>
-                                            setData("consignee", e.target.value)
-                                        }
-                                        className="w-full"
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel value="Destino Final" />
-                                    <TextInput
-                                        value={data.destination}
-                                        onChange={(e) =>
-                                            setData(
-                                                "destination",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3. Transporte (Read Only mostly) */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4 pb-2 border-b border-gray-100">
-                                <Truck className="w-5 h-5 mr-2 text-amber-500" />
-                                Transporte (QR)
-                            </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono bg-amber-50 p-4 rounded-xl mb-4">
-                                <div>
-                                    <span className="block text-gray-500 uppercase">
-                                        Línea
-                                    </span>
-                                    <span className="font-bold text-gray-800">
-                                        {data.transport_line || "-"}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase">
-                                        Operador
-                                    </span>
-                                    <span className="font-bold text-gray-800">
-                                        {data.driver || "-"}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase">
-                                        Placa
-                                    </span>
-                                    <span className="font-bold text-gray-800">
-                                        {data.vehicle_plate || "-"}
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase">
-                                        Remolque
-                                    </span>
-                                    <span className="font-bold text-gray-800">
-                                        {data.trailer_plate || "-"}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <InputLabel value="Carta Porte (Manual si aplica) *" />
-                                    <TextInput
-                                        value={data.bill_of_lading}
-                                        onChange={(e) =>
-                                            setData(
-                                                "bill_of_lading",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full text-sm"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 4. Báscula (Simplified) */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-                            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-4 pb-2 border-b border-gray-100">
-                                <Scale className="w-5 h-5 mr-2 text-green-600" />
+                        {/* 2. Observaciones */}
+                        <div className="p-8">
+                            <h4 className="text-blue-800 font-bold mb-4 flex items-center bg-blue-50 p-2 rounded-lg border border-blue-100 text-sm">
+                                <Settings className="w-4 h-4 mr-2" />
                                 Datos de Pesaje
-                            </h3>
-                            {/* Removed Lot/Seal/Container Type as per request */}
-                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                            </h4>
+                            <div className="grid grid-cols-1 gap-6">
                                 <div>
-                                    <InputLabel value="Observaciones" />
-                                    <TextInput
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Observaciones
+                                    </label>
+                                    <input
+                                        type="text"
                                         value={data.observations}
                                         onChange={(e) =>
-                                            setData(
-                                                "observations",
-                                                e.target.value,
-                                            )
+                                            setData("observations", e.target.value)
                                         }
-                                        className="w-full"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2.5"
                                         placeholder="Comentarios adicionales..."
                                     />
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="pt-4">
-                            <PrimaryButton
-                                disabled={
-                                    processing ||
-                                    (!data.shipment_order_id && !data.vessel_id)
-                                }
-                                className="w-full h-14 text-lg bg-green-600 hover:bg-green-700 shadow-xl transform transition hover:scale-[1.01] flex justify-center items-center"
-                            >
-                                <Save className="w-6 h-6 mr-2" />
-                                GUARDAR ENTRADA
-                            </PrimaryButton>
                         </div>
                     </div>
                 </form>
