@@ -22,7 +22,7 @@ export default function Qr({ auth, operator }: { auth: any; operator: Operator }
     useEffect(() => {
         if (operator) {
             // Generate QR Code with unique identifier
-            const qrText = `OP_EXIT ${operator.id}|${operator.name}|${operator.tractor_plate}`;
+            const qrText = `OP_EXIT ${operator.id}`;
             QRCode.toDataURL(qrText, { width: 300, margin: 1 }, (err, url) => {
                 if (!err) setQrDataUrl(url);
             });
