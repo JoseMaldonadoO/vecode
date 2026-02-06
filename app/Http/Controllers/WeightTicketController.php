@@ -622,7 +622,7 @@ class WeightTicketController extends Controller
 
     public function printTicket($id)
     {
-        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel'])
+        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel', 'shipment_order.client', 'shipment_order.product'])
             ->findOrFail($id);
 
         $ticket = $order->weight_ticket;
@@ -635,6 +635,29 @@ class WeightTicketController extends Controller
         $entryDate = $transactionEntryDate = \Carbon\Carbon::parse($ticket->weigh_in_at ?? $order->entry_at);
         $exitDate = \Carbon\Carbon::parse($ticket->weigh_out_at ?? now());
 
+        $isSale = !empty($order->shipment_order_id);
+
+        // Map Data
+        $clientName = $order->client_name ?? ($order->client->name ?? 'N/A');
+        $productName = is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A');
+        $programmedWeight = 0;
+
+        // Sales Specific Overrides
+        if ($isSale) {
+            $clientName = $order->shipment_order->client->business_name ?? ($order->shipment_order->client->name ?? $clientName);
+            $productName = $order->shipment_order->product->name ?? ($order->shipment_order->product ?? $productName);
+            $programmedWeight = $order->shipment_order->programmed_weight ?? 0;
+        } else {
+            // Vessel Fallback
+            $clientName = $order->vessel->client->name ?? $clientName;
+        }
+
+        // Observations Logic
+        $observations = $order->observation ?? '';
+        if (!$isSale && $order->vessel) {
+            $observations = 'DESCARGA DE BARCO ' . $order->vessel->name . ' ' . $observations;
+        }
+
         $data = [
             'folio' => $order->folio,
             'ticket_number' => $ticket->ticket_number,
@@ -642,22 +665,23 @@ class WeightTicketController extends Controller
             'time' => $exitDate->format('H:i:s'),
 
             'reference' => $order->reference ?? 'N/A',
-            'operation' => 'ENTRADA', // Changed from SALIDA as per user request
-            'scale_number' => $ticket->scale_id ?? 2, // Default or fetch
+            'operation' => $isSale ? 'CARGA (VENTA)' : 'DESCARGA (COMPRA)',
+            'scale_number' => $ticket->scale_id ?? 2,
 
-            'product' => is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A'),
+            'product' => $productName,
             'presentation' => $order->presentation ?? ($order->product->presentation ?? 'GRANEL'),
 
             // Weights
-            'entry_weight' => $ticket->tare_weight, // stored as tare (1st weight)
-            'exit_weight' => $ticket->gross_weight, // stored as gross (2nd weight)
-            'gross_weight' => max($ticket->tare_weight, $ticket->gross_weight), // Real Bruto is the biggest
-            'tare_weight' => min($ticket->tare_weight, $ticket->gross_weight),  // Real Tara is the smallest
+            'entry_weight' => $ticket->tare_weight,
+            'exit_weight' => $ticket->gross_weight,
+            'gross_weight' => max($ticket->tare_weight, $ticket->gross_weight),
+            'tare_weight' => min($ticket->tare_weight, $ticket->gross_weight),
             'net_weight' => $ticket->net_weight,
+            'programmed_weight' => number_format($programmedWeight, 2),
 
-            'client' => $order->client_name ?? ($order->client->name ?? ($order->vessel->client->name ?? 'N/A')),
-            'sale_order' => $order->sale_order_folio, // Use virtual attribute
-            'sale_order_reference' => $order->customer_reference, // Customer's internal OV
+            'client' => $clientName,
+            'sale_order' => $order->sale_order_folio,
+            'sale_order_reference' => $order->customer_reference,
             'withdrawal_letter' => $order->bill_of_lading ?? ($order->withdrawal_letter ?? 'N/A'),
 
             'driver' => $order->operator_name ?? 'N/A',
@@ -667,15 +691,15 @@ class WeightTicketController extends Controller
 
             'destination' => trim(($order->warehouse ?? '') . ($order->cubicle && $order->cubicle !== 'N/A' ? " - Cubículo {$order->cubicle}" : '')) ?: 'N/A',
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
-            'consignee' => 'N/A',
+            'consignee' => $order->consignee ?? 'N/A',
 
-            'observations' => trim('DESCARGA DE BARCO ' . ($order->vessel->name ?? '') . ' ' . ($order->observation ?? '')),
+            'observations' => trim($observations),
 
             'entry_at' => $entryDate->format('d/m/Y H:i'),
             'exit_at' => $exitDate->format('d/m/Y H:i'),
 
             'weighmaster' => auth()->user()->name ?? 'BASCULA',
-            'documenter' => 'DOCUMENTACIÓN', // Placeholder
+            'documenter' => 'DOCUMENTACIÓN',
         ];
 
         return Inertia::render('Scale/Ticket', [
