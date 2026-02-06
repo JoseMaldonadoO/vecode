@@ -94,11 +94,10 @@ export default function InstructionTemplate({ order }: Props) {
 
                     <div className="flex w-full justify-between items-end mb-6">
                         {/* TRACTOR (Left) */}
-                        <div className="flex flex-col items-start">
-                            {/* Label ABOVE the box, pure text, no border */}
-                            <div className="text-xs font-bold mb-1 ml-1 uppercase">TRACTOR</div>
-                            <div className="flex items-center">
-                                <div className="w-12 text-right pr-2 text-xs font-bold">PLACAS:</div>
+                        <div className="flex items-center">
+                            <div className="w-16 text-right pr-2 text-xs font-bold pt-4">PLACAS:</div>
+                            <div className="flex flex-col items-center">
+                                <div className="text-xs font-bold mb-1 uppercase">TRACTOR</div>
                                 <div className="border-2 border-black px-4 py-2 font-black text-3xl text-center min-w-[150px] uppercase bg-white">
                                     {order.tractor_plate || "N/A"}
                                 </div>
@@ -113,11 +112,10 @@ export default function InstructionTemplate({ order }: Props) {
                     </div>
 
                     {/* TRAILER ROW (Below) */}
-                    <div className="flex flex-col items-start">
-                        {/* Label ABOVE the box, pure text, no border */}
-                        <div className="text-xs font-bold mb-1 ml-1 uppercase">REMOLQUE</div>
-                        <div className="flex items-center">
-                            <div className="w-12 text-right pr-2 text-xs font-bold">PLACAS:</div>
+                    <div className="flex items-center">
+                        <div className="w-16 text-right pr-2 text-xs font-bold pt-4">PLACAS:</div>
+                        <div className="flex flex-col items-center">
+                            <div className="text-xs font-bold mb-1 uppercase">REMOLQUE</div>
                             <div className="border-2 border-black px-4 py-2 font-black text-3xl text-center min-w-[150px] uppercase bg-white">
                                 {order.trailer_plate || "N/A"}
                             </div>
