@@ -158,7 +158,6 @@ export default function Index({
                                 className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-1" />
-                                <ArrowLeft className="w-4 h-4 mr-1" />
                                 Volver a Documentación
                             </Link>
                         </div>
