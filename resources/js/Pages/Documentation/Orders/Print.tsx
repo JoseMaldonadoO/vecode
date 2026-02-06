@@ -94,10 +94,12 @@ export default function Print({ order }: Props) {
 
             <style>{`
 @media print {
-    @page { size: Letter; margin: 4mm; }
+@page { size: Letter; margin: 4mm; }
+    @page stowage { size: landscape; margin: 4mm; }
     body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
+.page-stowage-note { page: stowage; width: 270mm; } /* Force width for landscape */
 th, td { border: 1px solid black; padding: 2px 4px; }
 .bg-header { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; }
 .bg-title { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
