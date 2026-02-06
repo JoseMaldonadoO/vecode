@@ -370,6 +370,33 @@ class DocumentationController extends Controller
         $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle'])
             ->findOrFail($id);
 
+        // Patch: If plates are missing, try to find them from the Operator registry (ExitOperator or VesselOperator)
+        // Check ExitOperator first as per searchOperators method
+        if (empty($order->tractor_plate) || empty($order->trailer_plate) || $order->tractor_plate === 'N/A') {
+            $operator = \App\Models\ExitOperator::where('name', $order->operator_name)->first();
+
+            if ($operator) {
+                if (empty($order->tractor_plate) || $order->tractor_plate === 'N/A') {
+                    $order->tractor_plate = $operator->tractor_plate;
+                }
+                if (empty($order->trailer_plate) || $order->trailer_plate === 'N/A') {
+                    $order->trailer_plate = $operator->trailer_plate;
+                }
+                // Optional: Unit Type
+                if (empty($order->unit_type)) {
+                    $order->unit_type = $operator->unit_type;
+                }
+                // Optional: License
+                if (empty($order->license_number)) {
+                    $order->license_number = $operator->license;
+                }
+                // Optional: Economic
+                if (empty($order->economic_number)) {
+                    $order->economic_number = $operator->economic_number;
+                }
+            }
+        }
+
         return Inertia::render('Documentation/Orders/Print', [
             'order' => $order
         ]);
