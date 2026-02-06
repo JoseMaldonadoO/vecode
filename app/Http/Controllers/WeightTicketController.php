@@ -45,7 +45,7 @@ class WeightTicketController extends Controller
                     'warehouse' => $order->warehouse ?? 'N/A',
                     'cubicle' => $order->cubicle ?? 'N/A',
                     'entry_at' => $order->entry_at,
-                    'type' => 'loading',
+                    'type' => $order->shipment_order_id ? 'sale' : 'vessel',
                 ];
             });
 
