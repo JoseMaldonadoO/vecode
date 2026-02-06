@@ -1,7 +1,11 @@
+```typescript
 import React, { useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import InstructionTemplate from "@/Components/Print/InstructionTemplate";
 import WeightVerificationTemplate from "@/Components/Print/WeightVerificationTemplate";
+import ShipmentOrderTemplate from '@/Components/Print/ShipmentOrderTemplate';
+import PoliciesTemplate from '@/Components/Print/PoliciesTemplate';
+import StowageNoteTemplate from '@/Components/Print/StowageNoteTemplate';
 
 interface Order {
     id: string;
@@ -80,36 +84,36 @@ export default function Print({ order }: Props) {
 
     return (
         <div className="bg-gray-100 min-h-screen p-4 print:p-0 print:bg-white text-sans">
-            <Head title={`Impresión Orden ${order.folio}`} />
+            <Head title={`Impresión Orden ${ order.folio } `} />
 
             <style type="text/css" media="print">
                 {`
-                    @page { margin: 0; size: auto; }
-                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                `}
+@page { margin: 0; size: auto; }
+                    body { -webkit - print - color - adjust: exact; print - color - adjust: exact; }
+`}
             </style>
 
             <style>{`
-                @media print {
-                    @page { size: Letter; margin: 4mm; }
-                    body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                }
-                table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
-                th, td { border: 1px solid black; padding: 2px 4px; }
-                .bg-header { background-color: #a0ebac !important; color: black !important; font-weight: bold; text-align: center; }
-                .bg-title { background-color: #a0ebac !important; color: black !important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
-                .text-center { text-align: center; }
-                .text-bold { font-weight: bold; }
-                .no-border { border: none !important; }
-                .uppercase { text-transform: uppercase; }
-                .text-xs { font-size: 7px; }
-                
+@media print {
+    @page { size: Letter; margin: 4mm; }
+                    body { margin: 0; padding: 0; -webkit - print - color - adjust: exact; print - color - adjust: exact; }
+}
+                table { width: 100 %; border - collapse: collapse; font - family: Arial, sans - serif; font - size: 9px; }
+th, td { border: 1px solid black; padding: 2px 4px; }
+                .bg - header { background - color: #a0ebac!important; color: black!important; font - weight: bold; text - align: center; }
+                .bg - title { background - color: #a0ebac!important; color: black!important; font - weight: bold; text - align: center; font - size: 11px; letter - spacing: 1px; }
+                .text - center { text - align: center; }
+                .text - bold { font - weight: bold; }
+                .no - border { border: none!important; }
+                .uppercase { text - transform: uppercase; }
+                .text - xs { font - size: 7px; }
+
                 /* Policies Section Styles */
-                .policies-section table { font-size: 11px; }
-                .policies-section .policy-header { font-size: 14px; padding: 4px; }
-                .policies-section .policy-title { font-size: 16px; padding: 8px; }
-                .policies-section .policy-text { font-size: 11px; padding: 4px; line-height: 1.4; }
-            `}</style>
+                .policies - section table { font - size: 11px; }
+                .policies - section.policy - header { font - size: 14px; padding: 4px; }
+                .policies - section.policy - title { font - size: 16px; padding: 8px; }
+                .policies - section.policy - text { font - size: 11px; padding: 4px; line - height: 1.4; }
+`}</style>
 
             <div className="max-w-[215mm] mx-auto bg-white p-2">
 
@@ -119,7 +123,7 @@ export default function Print({ order }: Props) {
                     We render the [Order Page, Policy Page] pair 3 times sequentially.
                 */}
                 {[1, 2, 3].map((copyIndex) => (
-                    <React.Fragment key={`copy-${copyIndex}`}>
+                    <React.Fragment key={`copy - ${ copyIndex } `}>
 
                         {/* PAGE 1: SHIPMENT ORDER (Copy {copyIndex}) */}
                         <div className="page-shipment-order relative" style={{ pageBreakAfter: 'always' }}>
@@ -474,8 +478,15 @@ export default function Print({ order }: Props) {
 
                 {/* --- PAGE 4: WEIGHT VERIFICATION (Conditional: Envasado Only) --- */}
                 {order.presentation?.toUpperCase().includes('ENVASADO') && (
-                    <div className="page-weight-verification pt-8">
+                    <div className="page-weight-verification pt-8" style={{ pageBreakAfter: 'always' }}>
                         <WeightVerificationTemplate order={order} />
+                    </div>
+                )}
+
+                {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only) --- */}
+                {order.presentation?.toUpperCase().includes('ENVASADO') && (
+                    <div className="page-stowage-note relative pt-8">
+                        <StowageNoteTemplate order={order} />
                     </div>
                 )}
 
