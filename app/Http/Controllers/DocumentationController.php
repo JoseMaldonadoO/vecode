@@ -25,8 +25,7 @@ class DocumentationController extends Controller
     /**
      * Show the form for creating a new Shipment Order (Orden de Embarque).
      */
-    public function create()
-    {
+
     public function createOrder()
     {
         return Inertia::render('Documentation/Create', [
