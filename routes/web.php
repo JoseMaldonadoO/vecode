@@ -135,9 +135,9 @@ Route::middleware('auth')->group(function () {
 
     // New Shipment Orders Report Route
     Route::get('/documentation/shipment-orders', [\App\Http\Controllers\DocumentationController::class, 'shipmentOrdersIndex'])->name('documentation.orders.index');
+    // Print Routes
     Route::get('/documentation/shipment-orders/{id}/print', [\App\Http\Controllers\DocumentationController::class, 'printOrder'])->name('documentation.orders.print');
-
-
+    Route::get('/documentation/shipment-orders/{id}/print-instruction', [\App\Http\Controllers\DocumentationController::class, 'printInstruction'])->name('documentation.orders.print-instruction');
 
     // APT Module
     Route::get('/apt/qr', [\App\Http\Controllers\AptController::class, 'qrPrint'])->name('apt.qr');
