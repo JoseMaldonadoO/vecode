@@ -26,9 +26,9 @@ export default function InstructionTemplate({ order }: Props) {
                         <p className="text-[10px] font-bold mt-1">GLS-AP-FO-001</p>
                     </div>
 
-                    {/* Right: Truck Logo Area (LOG.png as requested) */}
-                    <div className="w-[20%] p-2 flex items-center justify-center border-l border-green-800 overflow-hidden relative">
-                        <img src="/images/LOG.png" alt="Transport" className="h-full object-contain" />
+                    {/* Right: Truck Logo Area (LOG.png) */}
+                    <div className="w-[20%] p-2 flex items-center justify-center border-l border-green-800 relative">
+                        <img src="/images/LOG.png" alt="Transport" className="max-h-full max-w-full object-contain" />
                     </div>
                 </div>
 
@@ -88,90 +88,91 @@ export default function InstructionTemplate({ order }: Props) {
             {/* TRANSPORT DETAILS SECTION */}
             <div className="mt-6 flex w-full justify-between items-start">
 
-                {/* LEFT SIDE: PLATES */}
-                <div className="w-[55%] pr-4 pt-4">
+                {/* LEFT SIDE: PLATES & ECONOMIC */}
+                <div className="w-[60%] pr-4 pt-4">
 
-                    {/* TRACTOR ROW */}
-                    <div className="flex items-center mb-6">
-                        <div className="w-24 text-right pr-3 text-xs font-bold">PLACAS:</div>
-                        <div className="relative border-2 border-black px-2 py-2 font-black text-2xl text-center min-w-[160px] uppercase">
-                            {order.tractor_plate || "N/A"}
-                            <span className="absolute -top-3 left-6 bg-white px-1 text-[10px] font-bold">TRACTOR</span>
+                    <div className="flex w-full justify-between items-end mb-6">
+                        {/* TRACTOR (Left) */}
+                        <div className="flex items-center">
+                            <div className="w-16 text-right pr-2 text-xs font-bold">PLACAS:</div>
+                            <div className="relative border-2 border-black px-4 py-3 font-black text-3xl text-center min-w-[160px] uppercase bg-white z-10">
+                                {order.tractor_plate || "N/A"}
+                                <span className="absolute -top-3 left-4 bg-white px-1 text-[10px] font-bold border border-black z-20">TRACTOR</span>
+                            </div>
+                        </div>
+
+                        {/* ECONOMICO (Center/Right) - Moved away from plates */}
+                        <div className="flex flex-col items-center px-4 pb-2">
+                            <span className="text-[10px] font-bold uppercase mb-1">ECONÓMICO</span>
+                            <span className="border-b-2 border-black font-black text-xl px-4">{order.economic_number || "00"}</span>
                         </div>
                     </div>
 
-                    {/* ECONOMICO (Floating) */}
-                    <div className="flex items-center justify-end pr-12 mb-6 -mt-10">
-                        <span className="text-xs font-bold mr-2">ECONÓMICO:</span>
-                        <span className="border-b-2 border-black font-bold px-4 text-sm">{order.economic_number || "00"}</span>
-                    </div>
-
-                    {/* TRAILER ROW */}
+                    {/* TRAILER ROW (Below) */}
                     <div className="flex items-center">
-                        <div className="w-24 text-right pr-3 text-xs font-bold">PLACAS:</div>
-                        <div className="relative border-2 border-black px-2 py-2 font-black text-2xl text-center min-w-[160px] uppercase">
+                        <div className="w-16 text-right pr-2 text-xs font-bold">PLACAS:</div>
+                        <div className="relative border-2 border-black px-4 py-3 font-black text-3xl text-center min-w-[160px] uppercase bg-white z-10">
                             {order.trailer_plate || "N/A"}
-                            <span className="absolute -top-3 left-6 bg-white px-1 text-[10px] font-bold">REMOLQUE</span>
+                            <span className="absolute -top-3 left-4 bg-white px-1 text-[10px] font-bold border border-black z-20">REMOLQUE</span>
                         </div>
                     </div>
                 </div>
 
                 {/* RIGHT SIDE: TIMES */}
-                <div className="w-[45%] flex flex-col items-end pt-2 pr-4">
-                    <div className="border border-black h-10 w-40 mb-6 relative">
-                        <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-100 px-1 text-[10px] font-bold border border-black h-4 flex items-center leading-none whitespace-nowrap">
+                <div className="w-[40%] flex flex-col items-end pt-2 pr-4">
+                    <div className="border-2 border-black h-12 w-48 mb-8 relative">
+                        <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-100 px-2 text-[11px] font-bold border-2 border-black h-5 flex items-center leading-none whitespace-nowrap">
                             HORA DE INICIO:
                         </span>
                     </div>
-                    {/* Removed bottom underline as requested, just the box */}
-                    <div className="border border-black h-10 w-40 relative">
-                        <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-100 px-1 text-[10px] font-bold border border-black h-4 flex items-center leading-none whitespace-nowrap">
+
+                    <div className="border-2 border-black h-12 w-48 relative">
+                        <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-100 px-2 text-[11px] font-bold border-2 border-black h-5 flex items-center leading-none whitespace-nowrap">
                             HORA FINAL
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div className="border-b-4 border-black my-6 w-full opacity-0"></div>
-            {/* Spacer/Separator hidden */}
+            <div className="border-b-4 border-black my-8 w-full opacity-0"></div>
 
             {/* INFO BOXES - RESTRUCTURED */}
             <div className="flex w-full mt-8 gap-4 items-stretch">
                 {/* LEFT BOX: CLIENT/TRANSPORT info */}
-                <div className="w-1/2 border border-black p-3 text-xs flex flex-col justify-center">
-                    <div className="flex mb-2 items-baseline">
+                <div className="w-1/2 border-2 border-black p-3 text-xs flex flex-col justify-center">
+                    <div className="flex mb-3 items-baseline">
                         <span className="font-bold w-24">CLIENTE:</span>
-                        <span className="font-bold uppercase flex-1 border-b border-gray-300">
+                        <span className="font-bold uppercase flex-1 border-b-2 border-gray-300">
                             {order.client_name || order.client?.business_name}
                         </span>
                     </div>
-                    <div className="flex mb-2 items-baseline">
+                    <div className="flex mb-3 items-baseline">
                         <span className="font-bold w-24">TRANSPORT:</span>
-                        <span className="uppercase flex-1 border-b border-gray-300">
+                        <span className="uppercase flex-1 border-b-2 border-gray-300">
                             {order.transport_company || order.transporter?.name}
                         </span>
                     </div>
                     <div className="flex items-baseline">
                         <span className="font-bold w-24">OPERADOR:</span>
-                        <span className="uppercase flex-1 border-b border-gray-300">
+                        <span className="uppercase flex-1 border-b-2 border-gray-300">
                             {order.operator_name}
                         </span>
                     </div>
                 </div>
 
-                {/* RIGHT BOX: WAREHOUSE (Improved) */}
-                <div className="w-1/2 border border-black text-xs flex flex-col">
-                    <div className="flex border-b border-black h-1/2">
-                        <div className="w-1/2 bg-gray-100 font-bold flex items-center justify-center border-r border-black p-2">
+                {/* RIGHT BOX: WAREHOUSE (Thicker borders) */}
+                <div className="w-1/2 border-2 border-black text-xs flex flex-col">
+                    <div className="flex border-b-2 border-black h-12">
+                        <div className="w-1/2 bg-gray-200 font-bold flex items-center justify-center border-r-2 border-black p-2 text-center">
                             ALMACÉN #
                         </div>
-                        <div className="w-1/2 p-2">
-                            {/* Blank space for number */}
+                        <div className="w-1/2 p-2 relative">
+                            {/* Blank */}
                         </div>
                     </div>
-                    <div className="h-1/2 p-2 flex items-center">
+                    <div className="flex-1 p-2 flex items-center pt-4">
                         <span className="font-bold mr-2 whitespace-nowrap">LÍNEA DE ENVASADO # GLS-APT-</span>
-                        <div className="border-b border-black flex-1"></div>
+                        <div className="border-b-2 border-black flex-1"></div>
                     </div>
                 </div>
             </div>

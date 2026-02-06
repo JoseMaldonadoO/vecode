@@ -68,9 +68,25 @@ export default function Print({ order }: Props) {
         return "N/A";
     };
 
+    const policies = [
+        "1. Presentarse con su equipo de protección personal (Casco, chaleco, lentes y zapatos de seguridad).",
+        "2. Entregar su documentación en vigilancia.",
+        "3. Ingresar a báscula para su pesaje inicial.",
+        "4. Pasar al área de carga asignada.",
+        "5. Una vez cargado, pasar a báscula para su pesaje final.",
+        "6. Recoger su documentación en vigilancia."
+    ];
+
     return (
-        <div className="bg-white min-h-screen">
-            <Head title={`Imprimir OE - ${order.folio}`} />
+        <div className="bg-gray-100 min-h-screen p-4 print:p-0 print:bg-white text-sans">
+            <Head title={`Impresión Orden ${order.folio}`} />
+
+            <style type="text/css" media="print">
+                {`
+                    @page { margin: 0; size: auto; }
+                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                `}
+            </style>
 
             <style>{`
                 @media print {
