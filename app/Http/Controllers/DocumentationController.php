@@ -27,6 +27,8 @@ class DocumentationController extends Controller
      */
     public function create()
     {
+    public function createOrder()
+    {
         return Inertia::render('Documentation/Create', [
             'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
                 return [
@@ -48,7 +50,7 @@ class DocumentationController extends Controller
     /**
      * Store a newly created Shipment Order.
      */
-    public function store(Request $request)
+    public function storeOrder(Request $request)
     {
         $validated = $request->validate([
             'folio' => 'required|unique:shipment_orders,folio',
