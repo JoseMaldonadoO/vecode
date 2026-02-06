@@ -94,21 +94,52 @@ export default function Print({ order }: Props) {
 
             <style>{`
 @media print {
-@page { size: Letter; margin: 0; } /* Zero margin to allow full control */
+    @page { size: Letter; margin: 4mm; } /* Restore default margin for other formats */
     body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
 th, td { border: 1px solid black; padding: 2px 4px; }
+
+/* Wrapper to force a new page for the Stowage Note */
+.stowage-page-wrapper {
+    page-break-before: always;
+    position: relative;
+    width: 100%;
+    height: 100vh; /* Occupy full page height */
+    overflow: hidden; 
+}
+
+/* Rotated content container */
 .rotate-landscape {
     transform: rotate(90deg);
-    transform-origin: top left;
-    width: 250mm; /* Height of letter becomes width of rotated page */
-    height: 215mm; /* Width of letter becomes height of rotated page */
+    transform-origin: bottom left; /* Pivot from bottom left corner */
+    
+    /* Target dimensions: Letter Page (215.9mm x 279.4mm) minus 4mm margins = ~208mm x ~271mm */
+    width: 260mm;  /* Width becomes the height of the paper */
+    height: 200mm; /* Height becomes the width of the paper */
+    
     position: absolute;
-    top: 4mm;
-    left: 215mm; /* Shift right to rotate back into view */
-    page-break-after: always;
+    bottom: 0;   /* Start from bottom */
+    left: 0;      /* Align left */
+    margin-bottom: 260mm; /* Push it up because of rotation? No, let's use translate */
+    
+    /* Simplified rotation placement: Move to top-left of *printed area* and rotate */
+    transform-origin: top left;
+    top: 0;
+    left: 100%; /* Move to right edge */
+    margin-left: -5mm; /* Tiny adjustment if needed */
 }
+/* Better rotation strategy for "inside margins" */
+.rotate-landscape-v2 {
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+    width: 250mm; /* The length of the landscape page */
+    height: 205mm; /* The height of the landscape page */
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+`}</style>
 .bg-header { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; }
 .bg-title { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
 .text-center { text-align: center; }
@@ -494,13 +525,16 @@ th, td { border: 1px solid black; padding: 2px 4px; }
 
                 {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only) --- */}
                 {order.presentation?.toUpperCase().includes('ENVASADO') && (
-                    <div className="rotate-landscape">
-                        <StowageNoteTemplate order={order} />
+                    <div className="stowage-page-wrapper">
+                         {/* We use a specific inner container for the rotation */}
+                        <div className="rotate-landscape-v2">
+                            <StowageNoteTemplate order={order} />
+                        </div>
                     </div>
                 )}
 
             </div>
-        </div>
+        </div >
     );
 }
 
