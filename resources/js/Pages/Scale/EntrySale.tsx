@@ -63,6 +63,7 @@ export default function EntrySale({
         // Scale
         tare_weight: "", // Represents the "First Weight" (Empty/Vacío) for Sales
         observations: "",
+        programmed_weight: "",
     });
 
     useEffect(() => {
