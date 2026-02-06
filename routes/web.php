@@ -158,6 +158,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', \App\Http\Controllers\Admin\AdminController::class);
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+    });
+
     // Shipment Orders (Documentation)
     Route::controller(\App\Http\Controllers\DocumentationController::class)->group(function () {
         Route::get('/documentation/shipment-orders', 'shipmentOrdersIndex')->name('documentation.orders.index');
