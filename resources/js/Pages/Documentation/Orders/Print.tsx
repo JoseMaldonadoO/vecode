@@ -1,4 +1,4 @@
-```typescript
+
 import React, { useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import InstructionTemplate from "@/Components/Print/InstructionTemplate";
@@ -84,7 +84,7 @@ export default function Print({ order }: Props) {
 
     return (
         <div className="bg-gray-100 min-h-screen p-4 print:p-0 print:bg-white text-sans">
-            <Head title={`Impresión Orden ${ order.folio } `} />
+            <Head title={`Impresión Orden ${order.folio} `} />
 
             <style type="text/css" media="print">
                 {`
@@ -123,7 +123,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                     We render the [Order Page, Policy Page] pair 3 times sequentially.
                 */}
                 {[1, 2, 3].map((copyIndex) => (
-                    <React.Fragment key={`copy - ${ copyIndex } `}>
+                    <React.Fragment key={`copy - ${copyIndex} `}>
 
                         {/* PAGE 1: SHIPMENT ORDER (Copy {copyIndex}) */}
                         <div className="page-shipment-order relative" style={{ pageBreakAfter: 'always' }}>
