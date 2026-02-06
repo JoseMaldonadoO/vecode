@@ -61,71 +61,80 @@ export default function StowageNoteTemplate({ order }: Props) {
                 </div>
             </div>
 
-            {/* --- TRANSPORTISTA SECTION (MATCHING IMAGE 2) --- */}
-            <div className={`flex w-full ${borderClass} border-2 mb-1 h-[15%]`}>
-                {/* Vertical Label Strip */}
-                <div className="w-[3%] bg-green-300 flex items-center justify-center border-r border-green-800">
-                    <span className="transform -rotate-90 whitespace-nowrap font-bold text-[10px]">DATOS DEL TRANSPORTISTA</span>
-                </div>
-
-                <div className="w-[97%] flex flex-col">
-                    {/* Top Row: Fletera | Unidad | Placas */}
-                    <div className="flex h-1/2 border-b border-green-800">
-                        <div className={`w-[15%] bg-green-100 flex items-center justify-center text-center font-bold text-[8px] ${borderClass} border-r px-1`}>NOMBRE DE LA FLETERA</div>
-                        <div className={`w-[45%] flex items-center justify-center font-bold uppercase text-[10px] ${borderClass} border-r`}>
-                            {order.transport_company || order.carrier?.name || "N/A"}
-                        </div>
-                        <div className={`w-[10%] bg-green-100 flex items-center justify-center text-center font-bold text-[8px] ${borderClass} border-r px-1`}>TIPO DE UNIDAD</div>
-                        <div className={`w-[10%] flex items-center justify-center font-bold uppercase text-[9px] ${borderClass} border-r`}>
-                            {order.is_full ? 'FULL' : (order.unit_type || 'SENCILLO')}
-                        </div>
-                        <div className={`w-[5%] bg-green-100 flex items-center justify-center text-center font-bold text-[8px] ${borderClass} border-r px-0.5`}>PLACAS</div>
-                        <div className={`w-[15%] flex flex-col justify-center px-1 font-bold text-[8px] leading-tight`}>
-                            <div>TRACTO: {order.tractor_plate}</div>
-                            <div>REMOLQUE: {order.trailer_plate}</div>
-                            {order.is_full && <div>REMOLQUE 2: {order.trailer2_plate}</div>}
-                        </div>
+            {/* --- TRANSPORTISTA SECTION (Standard Grid) --- */}
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[15%]`}>
+                {/* Col 1: Operator */}
+                <div className={`w-[25%] ${borderClass} border-r flex flex-col`}>
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>NOMBRE Y FIRMA DEL OPERADOR</div>
+                    <div className="flex-1 flex items-end justify-center font-bold uppercase text-[10px] pb-1 text-center leading-none">
+                        {order.operator_name || order.operator?.name || "SIN ASIGNAR"}
                     </div>
-                    {/* Bottom Row: Chofer */}
-                    <div className="flex h-1/2">
-                        <div className={`w-[15%] bg-green-100 flex items-center justify-center text-center font-bold text-[8px] ${borderClass} border-r px-1`}>NOMBRE Y FIRMA DEL CHOFER</div>
-                        <div className={`w-[85%] flex items-center justify-center font-bold uppercase text-[12px]`}>
-                            {order.operator_name || order.operator?.name || "SIN ASIGNAR"}
-                        </div>
+                </div>
+                {/* Col 2: Carrier */}
+                <div className={`w-[35%] ${borderClass} border-r flex flex-col`}>
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>NOMBRE DE LA FLETERA</div>
+                    <div className="flex-1 flex items-center justify-center font-bold uppercase text-[12px] text-center leading-none px-1">
+                        {order.transport_company || order.carrier?.name || "N/A"}
+                    </div>
+                </div>
+                {/* Col 3: Unit Type */}
+                <div className={`w-[20%] ${borderClass} border-r flex flex-col`}>
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>TIPO DE UNIDAD</div>
+                    <div className="flex-1 flex items-center justify-center font-bold uppercase text-[10px] text-center leading-none">
+                        {order.is_full ? 'FULL' : (order.unit_type || 'SENCILLO')}
+                    </div>
+                </div>
+                {/* Col 4: Plates */}
+                <div className={`w-[20%] flex flex-col`}>
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>PLACAS</div>
+                    <div className="flex-1 flex flex-col justify-center items-center font-bold text-[9px] leading-tight">
+                        <div>T: {order.tractor_plate}</div>
+                        <div>R: {order.trailer_plate}</div>
+                        {order.is_full && <div>R2: {order.trailer2_plate}</div>}
                     </div>
                 </div>
             </div>
 
-            {/* --- DATOS GENERALES --- */}
-            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[6%]`}>
-                <div className="w-[3%] bg-green-300 flex items-center justify-center border-r border-green-800">
-                    <span className="transform -rotate-90 whitespace-nowrap font-bold text-[8px]">DATOS GENERALES</span>
+            {/* --- DATOS GENERALES (Standard Grid) --- */}
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
+                {/* OV */}
+                <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
+                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE VENTA</div>
+                    <div className="flex-1 flex items-center justify-center font-bold text-[10px]">
+                        {order.sales_order?.sale_order || order.sales_order?.folio || "N/A"}
+                    </div>
                 </div>
-                <div className="w-[97%] flex">
-                    <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
-                        <div className={`bg-green-100 text-[7px] text-center ${borderClass} border-b`}>ORDEN DE VENTA</div>
-                        <div className="flex-1 flex items-center justify-center font-bold">{order.sales_order?.sale_order || order.sales_order?.folio || "N/A"}</div>
+                {/* OE */}
+                <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
+                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE EMBARQUE</div>
+                    <div className="flex-1 flex items-center justify-center font-bold text-[12px]">
+                        {order.folio}
                     </div>
-                    <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
-                        <div className={`bg-green-100 text-[7px] text-center ${borderClass} border-b`}>ORDEN DE EMBARQUE</div>
-                        <div className="flex-1 flex items-center justify-center font-bold text-xs">{order.folio}</div>
-                    </div>
-                    <div className={`w-[30%] ${borderClass} border-r flex flex-col`}>
-                        <div className={`bg-green-100 text-[7px] text-center ${borderClass} border-b`}>DESTINATARIO (CLIENTE)</div>
-                        <div className="flex-1 flex items-center justify-center font-bold uppercase text-[9px] leading-none px-1 text-center">
-                            {order.client?.business_name || order.client?.name}
+                </div>
+                {/* Destinatario (Split) */}
+                <div className={`w-[50%] ${borderClass} border-r flex flex-col`}>
+                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>DESTINATARIO</div>
+                    <div className="flex-1 flex w-full">
+                        {/* Name */}
+                        <div className={`w-[60%] ${borderClass} border-r flex flex-col justify-center`}>
+                            <div className="text-[6px] text-gray-500 text-center leading-none">NOMBRE</div>
+                            <div className="font-bold uppercase text-[10px] text-center leading-none px-1">
+                                {order.client?.business_name || order.client?.name}
+                            </div>
+                        </div>
+                        {/* Destination */}
+                        <div className={`w-[40%] flex flex-col justify-center`}>
+                            <div className="text-[6px] text-gray-500 text-center leading-none">DESTINO</div>
+                            <div className="font-bold uppercase text-[9px] text-center leading-none px-1">
+                                {order.destination || order.state}
+                            </div>
                         </div>
                     </div>
-                    <div className={`w-[20%] ${borderClass} border-r flex flex-col`}>
-                        <div className={`bg-green-100 text-[7px] text-center ${borderClass} border-b`}>DESTINO</div>
-                        <div className="flex-1 flex items-center justify-center font-bold uppercase text-[8px] leading-none px-1 text-center">
-                            {order.destination || order.state}
-                        </div>
-                    </div>
-                    <div className={`w-[20%] flex flex-col`}>
-                        <div className={`bg-green-100 text-[7px] text-center ${borderClass} border-b`}>SUPERVISOR</div>
-                        <div className="flex-1"></div>
-                    </div>
+                </div>
+                {/* Supervisor */}
+                <div className={`w-[20%] flex flex-col`}>
+                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>SUPERVISOR</div>
+                    <div className="flex-1"></div>
                 </div>
             </div>
 

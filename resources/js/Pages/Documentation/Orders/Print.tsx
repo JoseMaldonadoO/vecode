@@ -101,11 +101,10 @@ table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; 
 th, td { border: 1px solid black; padding: 2px 4px; }
 
 /* Wrapper to force a new page for the Stowage Note */
-.stowage-page-wrapper {
     page-break-before: always;
     position: relative;
     width: 100%;
-    height: 100vh; /* Occupy full page height */
+    height: 270mm; /* Fixed height slightly less than full page to prevent overflow/blank page */
     overflow: hidden; 
 }
 
