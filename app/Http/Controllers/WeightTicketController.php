@@ -665,14 +665,32 @@ class WeightTicketController extends Controller
             $observations = 'DESCARGA DE BARCO ' . $order->vessel->name . ' ' . $observations;
         }
 
+        // Destination Logic
+        $destination = trim(($order->warehouse ?? '') . ($order->cubicle && $order->cubicle !== 'N/A' ? " - Cubículo {$order->cubicle}" : '')) ?: 'N/A';
+        if ($isSale) {
+            $dest = $order->shipment_order->destination ?? ($order->destination ?? 'N/A');
+            $state = $order->shipment_order->state ?? '';
+            $destination = $state ? "$dest, $state" : $dest;
+        }
+
+        // Economic Number Logic
+        $economicNumber = $order->economic_number ?? 'N/A';
+        if ($isSale) {
+            $unitType = $order->shipment_order->unit_type ?? '';
+            // Only show economic number if unit_type is 'Volteo' (case insensitive)
+            if (stripos($unitType, 'volteo') === false) {
+                $economicNumber = 'N/A';
+            }
+        }
+
         $data = [
             'folio' => $order->folio,
             'ticket_number' => $ticket->ticket_number,
             'date' => $exitDate->format('d/m/Y'),
             'time' => $exitDate->format('H:i:s'),
 
-            'reference' => $order->reference ?? 'N/A',
-            'operation' => $isSale ? 'CARGA (VENTA)' : 'DESCARGA (COMPRA)',
+            'reference' => $isSale ? ($order->shipment_order->folio ?? 'N/A') : ($order->reference ?? 'N/A'),
+            'operation' => $isSale ? 'SALIDA' : 'DESCARGA (COMPRA)',
             'scale_number' => $ticket->scale_id ?? 2,
 
             'product' => $productName,
@@ -694,9 +712,9 @@ class WeightTicketController extends Controller
             'driver' => $order->operator_name ?? 'N/A',
             'tractor_plate' => $order->tractor_plate ?? 'N/A',
             'trailer_plate' => $order->trailer_plate ?? 'N/A',
-            'economic_number' => $order->economic_number ?? 'N/A',
+            'economic_number' => $economicNumber,
 
-            'destination' => trim(($order->warehouse ?? '') . ($order->cubicle && $order->cubicle !== 'N/A' ? " - Cubículo {$order->cubicle}" : '')) ?: 'N/A',
+            'destination' => $destination,
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
             'consignee' => $order->consignee ?? 'N/A',
 

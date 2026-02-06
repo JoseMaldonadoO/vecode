@@ -79,7 +79,7 @@ const TicketCopy: React.FC<{
                     </p>
                     <p className="text-[10px] mt-0.5">GLS-TR-FO-005.</p>
                     <div className="border border-black px-6 py-0.5 mt-1 font-bold text-[14px] uppercase tracking-widest">
-                        TICKETS DE ENTRADA
+                        TICKET DE PESO
                     </div>
                 </div>
 
@@ -282,9 +282,6 @@ const TicketCopy: React.FC<{
                     </div>
                     <div className="text-[10px] font-bold text-center mt-1 uppercase">
                         Firma del Pesador
-                    </div>
-                    <div className="text-[9px] text-red-600 font-bold">
-                        BASCULA
                     </div>
                 </div>
                 <div className="flex flex-col items-center w-[30%]">
