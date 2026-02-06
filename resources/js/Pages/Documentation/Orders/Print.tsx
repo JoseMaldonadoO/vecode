@@ -483,8 +483,5 @@ export default function Print({ order }: Props) {
         </div>
     );
 }
-            </div >
-        </div >
-    );
-}
+
 
