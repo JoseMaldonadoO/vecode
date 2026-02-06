@@ -3,8 +3,6 @@ import React, { useEffect } from "react";
 import { Head } from "@inertiajs/react";
 import InstructionTemplate from "@/Components/Print/InstructionTemplate";
 import WeightVerificationTemplate from "@/Components/Print/WeightVerificationTemplate";
-import ShipmentOrderTemplate from '@/Components/Print/ShipmentOrderTemplate';
-import PoliciesTemplate from '@/Components/Print/PoliciesTemplate';
 import StowageNoteTemplate from '@/Components/Print/StowageNoteTemplate';
 
 interface Order {
