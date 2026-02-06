@@ -142,7 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/documentation/shipment-orders/{id}', [\App\Http\Controllers\DocumentationController::class, 'updateOrder'])->name('documentation.orders.update');
     Route::patch('/documentation/shipment-orders/{id}/cancel', [\App\Http\Controllers\DocumentationController::class, 'cancelOrder'])->name('documentation.orders.cancel');
 
-    Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
+    // Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
 
     // APT Module
     Route::get('/apt/qr', [\App\Http\Controllers\AptController::class, 'qrPrint'])->name('apt.qr');
