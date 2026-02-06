@@ -109,27 +109,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
     overflow: hidden; 
 }
 
-/* Rotated content container */
-.rotate-landscape {
-    transform: rotate(90deg);
-    transform-origin: bottom left; /* Pivot from bottom left corner */
-    
-    /* Target dimensions: Letter Page (215.9mm x 279.4mm) minus 4mm margins = ~208mm x ~271mm */
-    width: 260mm;  /* Width becomes the height of the paper */
-    height: 200mm; /* Height becomes the width of the paper */
-    
-    position: absolute;
-    bottom: 0;   /* Start from bottom */
-    left: 0;      /* Align left */
-    margin-bottom: 260mm; /* Push it up because of rotation? No, let's use translate */
-    
-    /* Simplified rotation placement: Move to top-left of *printed area* and rotate */
-    transform-origin: top left;
-    top: 0;
-    left: 100%; /* Move to right edge */
-    margin-left: -5mm; /* Tiny adjustment if needed */
-}
-/* Better rotation strategy for "inside margins" */
+/* Rotated content container: Better rotation strategy for "inside margins" */
 .rotate-landscape-v2 {
     transform: rotate(90deg) translateY(-100%);
     transform-origin: top left;
@@ -139,7 +119,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
     top: 0;
     left: 0;
 }
-`}</style>
+
 .bg-header { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; }
 .bg-title { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
 .text-center { text-align: center; }
@@ -526,7 +506,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                 {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only) --- */}
                 {order.presentation?.toUpperCase().includes('ENVASADO') && (
                     <div className="stowage-page-wrapper">
-                         {/* We use a specific inner container for the rotation */}
+                        {/* We use a specific inner container for the rotation */}
                         <div className="rotate-landscape-v2">
                             <StowageNoteTemplate order={order} />
                         </div>
