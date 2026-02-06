@@ -433,6 +433,11 @@ export default function Print({ order }: Props) {
                     </table>
                 </div>
 
+                {/* --- PAGE 3: INSTRUCTION (NEW) --- */}
+                <div className="page-instruction pt-8" style={{ pageBreakBefore: 'always' }}>
+                    <InstructionTemplate order={order} />
+                </div>
+
             </div>
         </div>
     );
