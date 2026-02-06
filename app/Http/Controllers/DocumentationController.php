@@ -491,4 +491,20 @@ class DocumentationController extends Controller
 
         return back()->with('success', 'Orden de Embarque cancelada correctamente.');
     }
+
+    /**
+     * Re-open the specified Shipment Order.
+     */
+    public function reopenOrder($id)
+    {
+        $order = ShipmentOrder::findOrFail($id);
+
+        if ($order->status !== 'cancelled') {
+            return back()->with('error', 'Solo las órdenes canceladas pueden ser re-abiertas.');
+        }
+
+        $order->update(['status' => 'created']);
+
+        return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque re-abierta correctamente.');
+    }
 }

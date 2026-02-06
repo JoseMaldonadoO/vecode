@@ -26,6 +26,7 @@ import { useState, Fragment, FormEventHandler, useEffect } from "react";
 // @ts-ignore
 import { pickBy } from "lodash";
 import { Combobox, Transition } from "@headlessui/react";
+import Swal from 'sweetalert2';
 
 interface Client {
     id: number;
@@ -300,13 +301,24 @@ export default function Index({
                                                             </Link>
                                                             <button
                                                                 onClick={() => {
-                                                                    if (confirm('¿Estás seguro de cancelar esta orden de embarque?')) {
-                                                                        router.visit(route('documentation.cancel', order.id), {
-                                                                            method: 'patch',
-                                                                            preserveScroll: true,
-                                                                            preserveState: true,
-                                                                        });
-                                                                    }
+                                                                    Swal.fire({
+                                                                        title: '¿Cancelar Orden?',
+                                                                        text: "Esta acción cambiará el estatus a cancelado.",
+                                                                        icon: 'warning',
+                                                                        showCancelButton: true,
+                                                                        confirmButtonColor: '#ef4444',
+                                                                        cancelButtonColor: '#6b7280',
+                                                                        confirmButtonText: 'Sí, cancelar',
+                                                                        cancelButtonText: 'Cancelar'
+                                                                    }).then((result) => {
+                                                                        if (result.isConfirmed) {
+                                                                            router.visit(route('documentation.cancel', order.id), {
+                                                                                method: 'patch',
+                                                                                preserveScroll: true,
+                                                                                preserveState: true,
+                                                                            });
+                                                                        }
+                                                                    });
                                                                 }}
                                                                 className="text-red-600 hover:text-red-900 transition-colors"
                                                                 title="Cancelar Orden"
@@ -317,13 +329,24 @@ export default function Index({
                                                     ) : (
                                                         <button
                                                             onClick={() => {
-                                                                if (window.confirm('¿Estás seguro de re-abrir esta orden de embarque? Volverá a estar activa.')) {
-                                                                    router.visit(route('documentation.reopen', order.id), {
-                                                                        method: 'patch',
-                                                                        preserveScroll: true,
-                                                                        preserveState: true,
-                                                                    });
-                                                                }
+                                                                Swal.fire({
+                                                                    title: '¿Re-abrir Orden?',
+                                                                    text: "La orden volverá a estar activa y se podrá editar.",
+                                                                    icon: 'question',
+                                                                    showCancelButton: true,
+                                                                    confirmButtonColor: '#10b981',
+                                                                    cancelButtonColor: '#6b7280',
+                                                                    confirmButtonText: 'Sí, re-abrir',
+                                                                    cancelButtonText: 'Cancelar'
+                                                                }).then((result) => {
+                                                                    if (result.isConfirmed) {
+                                                                        router.visit(route('documentation.reopen', order.id), {
+                                                                            method: 'patch',
+                                                                            preserveScroll: true,
+                                                                            preserveState: true,
+                                                                        });
+                                                                    }
+                                                                });
                                                             }}
                                                             className="text-green-600 hover:text-green-900 transition-colors flex items-center font-bold text-xs bg-green-50 px-2 py-1 rounded border border-green-200"
                                                             title="Re-abrir Orden"
