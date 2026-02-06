@@ -370,7 +370,7 @@ class DocumentationController extends Controller
         $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle'])
             ->findOrFail($id);
 
-        // Patch: If plates are missing, try to find them from the Operator registry (ExitOperator or VesselOperator)
+        // Patch: If plates are missing, try to find them from the Operator registry (ExitOperator)
         // Check ExitOperator first as per searchOperators method
         if (empty($order->tractor_plate) || empty($order->trailer_plate) || $order->tractor_plate === 'N/A') {
             $operator = \App\Models\ExitOperator::where('name', $order->operator_name)->first();

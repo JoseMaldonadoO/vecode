@@ -164,6 +164,7 @@ export default function Create({
             operator_name: operator.operator_name,
             transport_company: operator.transporter_line,
             unit_type: operator.unit_type,
+            tractor_plate: operator.tractor_plate,
             trailer_plate: operator.trailer_plate,
             economic_number: operator.economic_number,
             unit_number: operator.brand_model, // Map Brand/Model to Unit Number
