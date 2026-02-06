@@ -148,7 +148,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/apt/scanner/{id}', [\App\Http\Controllers\AptController::class, 'destroyScan'])->name('apt.scanner.destroy');
     // Lots Management
     Route::get('/apt/lots', [\App\Http\Controllers\LotController::class, 'index'])->name('apt.lots.index');
+    Route::get('/apt/lots/create', [\App\Http\Controllers\LotController::class, 'create'])->name('apt.lots.create');
     Route::post('/apt/lots', [\App\Http\Controllers\LotController::class, 'store'])->name('apt.lots.store');
+    Route::get('/apt/lots/{lot}/edit', [\App\Http\Controllers\LotController::class, 'edit'])->name('apt.lots.edit');
     Route::put('/apt/lots/{lot}', [\App\Http\Controllers\LotController::class, 'update'])->name('apt.lots.update');
     Route::patch('/apt/lots/{lot}/toggle', [\App\Http\Controllers\LotController::class, 'toggleStatus'])->name('apt.lots.toggle');
     Route::delete('/apt/lots/{lot}', [\App\Http\Controllers\LotController::class, 'destroy'])->name('apt.lots.destroy');

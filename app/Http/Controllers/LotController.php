@@ -27,6 +27,11 @@ class LotController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return Inertia::render('APT/Lots/Create');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -47,7 +52,14 @@ class LotController extends Controller
             'created_at' => $validated['created_at'] ?? now(),
         ]);
 
-        return redirect()->back()->with('success', 'Lote creado correctamente.');
+        return redirect()->route('apt.lots.index')->with('success', 'Lote creado correctamente.');
+    }
+
+    public function edit(Lot $lot)
+    {
+        return Inertia::render('APT/Lots/Edit', [
+            'lot' => $lot
+        ]);
     }
 
     public function update(Request $request, Lot $lot)
@@ -68,7 +80,7 @@ class LotController extends Controller
             'created_at' => $validated['created_at'] ?? $lot->created_at,
         ]);
 
-        return redirect()->back()->with('success', 'Lote actualizado correctamente.');
+        return redirect()->route('apt.lots.index')->with('success', 'Lote actualizado correctamente.');
     }
 
     public function toggleStatus(Lot $lot)
