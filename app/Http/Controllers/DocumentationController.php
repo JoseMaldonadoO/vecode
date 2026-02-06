@@ -380,7 +380,7 @@ class DocumentationController extends Controller
      */
     public function editOrder($id)
     {
-        $order = ShipmentOrder::findOrFail($id);
+        $order = ShipmentOrder::with(['client', 'sales_order.client', 'product'])->findOrFail($id);
 
         // Prevent editing if closed/completed? Usually allowed but with caution.
         // For now, allow edit unless cancelled maybe.

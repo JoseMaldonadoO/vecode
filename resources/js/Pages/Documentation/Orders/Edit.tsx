@@ -208,16 +208,16 @@ export default function Edit({
                 </div>
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                    <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-8 py-6 flex items-center justify-between">
+                    <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">
                         <div className="flex items-center">
-                            <div className="p-2 bg-amber-800/30 rounded-lg mr-3 shadow-inner">
+                            <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
                                 <FileText className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h3 className="text-white font-bold text-xl">
                                     Editando Orden de Embarque
                                 </h3>
-                                <p className="text-amber-100 text-sm">
+                                <p className="text-indigo-200 text-sm">
                                     Modificando datos de folio: {order.folio}
                                 </p>
                             </div>
@@ -536,8 +536,8 @@ export default function Edit({
                                     value={data.programmed_tons}
                                     onChange={(e) => setData("programmed_tons", e.target.value)}
                                     className={`w-full rounded-lg shadow-sm focus:ring-indigo-500 py-2.5 px-3 font-bold ${Number(data.programmed_tons) > Number(availableBalance)
-                                            ? 'border-red-500 focus:border-red-500 bg-red-50'
-                                            : 'border-gray-300 focus:border-indigo-500'
+                                        ? 'border-red-500 focus:border-red-500 bg-red-50'
+                                        : 'border-gray-300 focus:border-indigo-500'
                                         }`}
                                     placeholder="0.00"
                                 />
@@ -598,7 +598,7 @@ export default function Edit({
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-sm font-bold rounded-md shadow-lg text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-4 focus:ring-amber-200 transition-all transform hover:-translate-y-0.5"
+                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-sm font-bold rounded-md shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 transition-all transform hover:-translate-y-0.5"
                             >
                                 <Save className="w-5 h-5 mr-2" />
                                 {processing ? "Guardando..." : "GUARDAR CAMBIOS"}
