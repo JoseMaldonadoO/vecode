@@ -532,11 +532,11 @@ class WeightTicketController extends Controller
                     'transport_company' => $validated['transport_line'],
                     'economic_number' => $validated['economic_number'] ?? null,
                     'bill_of_lading' => $validated['bill_of_lading'] ?? null,
-                    'withdrawal_letter' => $validated['withdrawal_letter'],
-                    'reference' => $validated['reference'],
-                    'consignee' => $validated['consignee'],
-                    'destination' => $validated['destination'],
-                    'origin' => $validated['origin'],
+                    'withdrawal_letter' => $validated['withdrawal_letter'] ?? null,
+                    'reference' => $validated['reference'] ?? null,
+                    'consignee' => $validated['consignee'] ?? null,
+                    'destination' => $validated['destination'] ?? null,
+                    'origin' => $validated['origin'] ?? null,
                 ]);
 
                 $loadingOrderId = $order->id;
