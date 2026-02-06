@@ -211,16 +211,6 @@ const TicketCopy: React.FC<{
                             {ticket.scale_number}
                         </div>
 
-                        <div className="flex justify-between">
-                            <span>TICKET No.:</span>
-                            <span className="font-bold">
-                                {ticket.ticket_number.replace("TK-", "")}
-                            </span>
-                        </div>
-                        <div className="flex justify-between">
-                            <span>VEHICULO :</span>
-                            <span>{ticket.economic_number}</span>
-                        </div>
                         <div className="flex justify-between border-b border-dotted border-gray-400 pb-1">
                             <span>ENTRADA :</span>
                             <div className="flex flex-col items-end">
