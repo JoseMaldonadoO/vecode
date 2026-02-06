@@ -88,29 +88,30 @@ export default function Print({ order }: Props) {
                 {`
 @page { margin: 0; size: auto; }
                     body { -webkit - print - color - adjust: exact; print - color - adjust: exact; }
+                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 `}
             </style>
 
             <style>{`
 @media print {
     @page { size: Letter; margin: 4mm; }
-                    body { margin: 0; padding: 0; -webkit - print - color - adjust: exact; print - color - adjust: exact; }
+    body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
-                table { width: 100 %; border - collapse: collapse; font - family: Arial, sans - serif; font - size: 9px; }
+table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
 th, td { border: 1px solid black; padding: 2px 4px; }
-                .bg - header { background - color: #a0ebac!important; color: black!important; font - weight: bold; text - align: center; }
-                .bg - title { background - color: #a0ebac!important; color: black!important; font - weight: bold; text - align: center; font - size: 11px; letter - spacing: 1px; }
-                .text - center { text - align: center; }
-                .text - bold { font - weight: bold; }
-                .no - border { border: none!important; }
-                .uppercase { text - transform: uppercase; }
-                .text - xs { font - size: 7px; }
+.bg-header { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; }
+.bg-title { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
+.text-center { text-align: center; }
+.text-bold { font-weight: bold; }
+.no-border { border: none!important; }
+.uppercase { text-transform: uppercase; }
+.text-xs { font-size: 7px; }
 
-                /* Policies Section Styles */
-                .policies - section table { font - size: 11px; }
-                .policies - section.policy - header { font - size: 14px; padding: 4px; }
-                .policies - section.policy - title { font - size: 16px; padding: 8px; }
-                .policies - section.policy - text { font - size: 11px; padding: 4px; line - height: 1.4; }
+/* Policies Section Styles */
+.policies-section table { font-size: 11px; }
+.policies-section .policy-header { font-size: 14px; padding: 4px; }
+.policies-section .policy-title { font-size: 16px; padding: 8px; }
+.policies-section .policy-text { font-size: 11px; padding: 4px; line-height: 1.4; }
 `}</style>
 
             <div className="max-w-[215mm] mx-auto bg-white p-2">
