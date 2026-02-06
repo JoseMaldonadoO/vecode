@@ -465,6 +465,7 @@ class DocumentationController extends Controller
         }
         unset($validated['sack_type']);
         unset($validated['balance']);
+        unset($validated['operator_id']); // Not a column in DB, used for UI search only
 
         $order->update($validated);
 

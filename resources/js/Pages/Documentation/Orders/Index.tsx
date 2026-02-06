@@ -72,7 +72,7 @@ interface PageProps {
     };
     filters: {
         search?: string;
-        type?: string;
+        status?: string;
     };
     clients: Client[];
     products: Product[];
@@ -92,7 +92,7 @@ export default function Index({
 }: PageProps) {
     const { flash } = usePage<any>().props;
     const [search, setSearch] = useState(filters.search || "");
-    const [type, setType] = useState(filters.type || "");
+    const [status, setStatus] = useState(filters.status || "active"); // Default to active if not present
     const [showAlert, setShowAlert] = useState(!!flash?.success);
 
     useEffect(() => {
@@ -103,20 +103,20 @@ export default function Index({
         }
     }, [flash?.success]);
 
-    const handleSearch = (newSearch?: string, newType?: string) => {
+    const handleSearch = (newSearch?: string, newStatus?: string) => {
         const s = newSearch !== undefined ? newSearch : search;
-        const t = newType !== undefined ? newType : type;
+        const st = newStatus !== undefined ? newStatus : status;
 
         router.get(
             route("documentation.orders.index"),
-            pickBy({ search: s, type: t }),
+            pickBy({ search: s, status: st }),
             { preserveState: true },
         );
     };
 
-    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
-        setType(value);
+        setStatus(value);
         handleSearch(search, value);
     };
 
@@ -154,6 +154,7 @@ export default function Index({
                                 href={route("documentation.index")}
                                 className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                             >
+                                <ArrowLeft className="w-4 h-4 mr-1" />
                                 <ArrowLeft className="w-4 h-4 mr-1" />
                                 Volver a Documentación
                             </Link>
@@ -195,8 +196,8 @@ export default function Index({
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <Filter className="w-4 h-4 text-gray-400" />
                         <select
-                            value={type} // Reused variable name 'type' for Status filter logic, but ideally should be renamed. Let's keep existing state 'type' but map it to 'status' filter request
-                            onChange={handleTypeChange}
+                            value={status}
+                            onChange={handleStatusChange}
                             className="block w-full sm:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
                         >
                             <option value="active">Órdenes Activas</option>
