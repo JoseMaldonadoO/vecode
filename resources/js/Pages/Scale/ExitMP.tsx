@@ -485,6 +485,12 @@ export default function ExitMP({
                                     </div>
                                 </div>
                                 <div>
+                                    <InputLabel value="Peso Programado" />
+                                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 font-bold text-blue-800">
+                                        {order.programmed_weight ? `${order.programmed_weight} kg` : 'N/A'}
+                                    </div>
+                                </div>
+                                <div>
                                     <InputLabel value="Referencia" />
                                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-600">
                                         {order.reference || "N/A"}

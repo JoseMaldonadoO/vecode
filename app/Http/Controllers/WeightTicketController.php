@@ -257,7 +257,7 @@ class WeightTicketController extends Controller
         $orderData = null;
 
         if ($id) {
-            $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket'])
+            $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order'])
                 ->findOrFail($id);
 
             $orderData = [
@@ -274,6 +274,7 @@ class WeightTicketController extends Controller
                 'cubicle' => $order->cubicle ?? 'N/A',
                 'reference' => $order->reference ?? '',
                 'consignee' => $order->consignee ?? '',
+                'programmed_weight' => $order->shipment_order->programmed_weight ?? 0,
             ];
         }
 
@@ -322,6 +323,7 @@ class WeightTicketController extends Controller
             'destination' => $order->destination,
             'bill_of_lading' => $order->carta_porte ?? ($order->bill_of_lading ?? ''),
             'withdrawal_letter' => $order->sale_order_folio ?? '',
+            'programmed_weight' => $order->programmed_weight ?? 0,
         ]);
     }
 
