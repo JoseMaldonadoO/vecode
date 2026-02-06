@@ -293,7 +293,7 @@ class WeightTicketController extends Controller
         }
 
         // Search in ShipmentOrders (Ordenes de Embarque) for Sales/Exit
-        $order = \App\Models\ShipmentOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'sales_order'])
+        $order = \App\Models\ShipmentOrder::with(['client', 'items.product', 'driver', 'vehicle', 'transporter', 'sales_order'])
             ->where('folio', $folio)
             ->first();
 
@@ -306,6 +306,13 @@ class WeightTicketController extends Controller
             return response()->json(['error' => 'Esta orden ya tiene un ticket de báscula generado.'], 403);
         }
 
+        // Calculate Programmed Weight and Product from Items
+        $programmedWeight = $order->items->sum('requested_quantity');
+        $productName = $order->items->first()?->product->name ?? 'N/A';
+
+        // Override if multiple items? For now just take first or comma separated. 
+        // Usually bulk is single product.
+
         return response()->json([
             'id' => $order->id,
             'folio' => $order->folio,
@@ -316,14 +323,14 @@ class WeightTicketController extends Controller
             'vehicle_type' => $order->unit_type ?? 'N/A',
             'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
             'economic_number' => $order->economic_number,
-            'product' => $order->product_name ?? ($order->product->name ?? 'N/A'), // Direct field or relation
+            'product' => $productName,
             'origin' => $order->origin,
             'reference' => $order->customer_reference, // Accessor
             'consignee' => $order->consigned_to ?? ($order->consignee ?? ''),
             'destination' => $order->destination,
             'bill_of_lading' => $order->carta_porte ?? ($order->bill_of_lading ?? ''),
             'withdrawal_letter' => $order->sale_order_folio ?? '',
-            'programmed_weight' => $order->programmed_weight ?? 0,
+            'programmed_weight' => $programmedWeight,
         ]);
     }
 
