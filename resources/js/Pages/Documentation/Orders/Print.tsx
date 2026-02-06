@@ -94,13 +94,21 @@ export default function Print({ order }: Props) {
 
             <style>{`
 @media print {
-@page { size: Letter; margin: 4mm; }
-    @page stowage { size: landscape; margin: 4mm; }
+@page { size: Letter; margin: 0; } /* Zero margin to allow full control */
     body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
-.page-stowage-note { page: stowage; width: 270mm; } /* Force width for landscape */
 th, td { border: 1px solid black; padding: 2px 4px; }
+.rotate-landscape {
+    transform: rotate(90deg);
+    transform-origin: top left;
+    width: 250mm; /* Height of letter becomes width of rotated page */
+    height: 215mm; /* Width of letter becomes height of rotated page */
+    position: absolute;
+    top: 4mm;
+    left: 215mm; /* Shift right to rotate back into view */
+    page-break-after: always;
+}
 .bg-header { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; }
 .bg-title { background-color: #a0ebac!important; color: black!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
 .text-center { text-align: center; }
@@ -486,7 +494,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
 
                 {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only) --- */}
                 {order.presentation?.toUpperCase().includes('ENVASADO') && (
-                    <div className="page-stowage-note relative pt-8">
+                    <div className="rotate-landscape">
                         <StowageNoteTemplate order={order} />
                     </div>
                 )}
@@ -494,6 +502,5 @@ th, td { border: 1px solid black; padding: 2px 4px; }
             </div>
         </div>
     );
-}
 
 
