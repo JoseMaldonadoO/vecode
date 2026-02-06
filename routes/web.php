@@ -158,6 +158,23 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', \App\Http\Controllers\Admin\AdminController::class);
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+    // Shipment Orders (Documentation)
+    Route::controller(\App\Http\Controllers\DocumentationController::class)->group(function () {
+        Route::get('/documentation/shipment-orders', 'shipmentOrdersIndex')->name('documentation.orders.index');
+        Route::get('/documentation/shipment-orders/create', 'createOrder')->name('documentation.create');
+        Route::post('/documentation/shipment-orders', 'storeOrder')->name('documentation.store');
+        Route::get('/documentation/shipment-orders/{id}/edit', 'editOrder')->name('documentation.edit');
+        Route::put('/documentation/shipment-orders/{id}', 'updateOrder')->name('documentation.update');
+        Route::patch('/documentation/shipment-orders/{id}/cancel', 'cancelOrder')->name('documentation.cancel');
+        Route::patch('/documentation/shipment-orders/{id}/reopen', 'reopenOrder')->name('documentation.reopen');
+
+        // Other methods
+        Route::get('/documentation', 'index')->name('documentation.index'); // Dashboard
+        Route::get('/documentation/qr-print', 'qrPrint')->name('documentation.qr-print');
+        Route::get('/documentation/dock', 'dock')->name('documentation.dock');
+        Route::get('/documentation/register-operator', 'createOperator')->name('documentation.register-operator');
+        Route::post('/documentation/store-operator', 'storeOperator')->name('documentation.store-operator');
+        Route::get('/documentation/print-order/{id}', 'printOrder')->name('documentation.print-order');
     });
 
     Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);

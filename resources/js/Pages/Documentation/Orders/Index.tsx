@@ -219,9 +219,6 @@ export default function Index({
                                         Orden
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                                        Tipo
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Cliente
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
@@ -250,84 +247,92 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium italic">
                                                 {order.sales_order?.folio || order.sale_order || "-"}
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">
+                                                {order.client?.business_name || "CLIENTE GENERAL"}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest ${order.operation_type ===
-                                                        "burreo"
-                                                        ? "bg-amber-100 text-amber-800"
-                                                        : "bg-blue-100 text-blue-800"
+                                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === "active" || order.status === "created"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : order.status === "cancelled"
+                                                            ? "bg-red-100 text-red-800"
+                                                            : "bg-gray-100 text-gray-800"
                                                         }`}
                                                 >
-                                                    {order.operation_type ===
-                                                        "burreo"
-                                                        ? "BURREO"
-                                                        : "BÁSCULA"}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-bold text-gray-900 uppercase">
-                                                    {order.client?.business_name}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black tracking-widest
-                                                            ${order.status === "created" ? "bg-blue-100 text-blue-800 border border-blue-200" : ""}
-                                                            ${order.status === "closed" ? "bg-red-100 text-red-800 border border-red-200" : ""}
-                                                            ${order.status === "cancelled" ? "bg-gray-100 text-gray-800 border border-gray-200" : ""}
-                                                            ${order.status === "completed" ? "bg-green-100 text-green-800 border border-green-200" : ""}
-                                                            ${order.status === "loading" ? "bg-amber-100 text-amber-800 border border-amber-200" : ""}
-                                                        `}
-                                                >
-                                                    {order.status === "created"
+                                                    {order.status === "active" || order.status === "created"
                                                         ? "ABIERTA"
-                                                        : order.status === "closed"
-                                                            ? "CERRADA"
-                                                            : order.status === "loading"
-                                                                ? "CARGANDO"
-                                                                : order.status === "cancelled"
-                                                                    ? "CANCELADA"
-                                                                    : order.status.toUpperCase()}
+                                                        : order.status === "cancelled"
+                                                            ? "CANCELADA"
+                                                            : order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
-                                                {new Date(
-                                                    order.date || order.created_at,
-                                                ).toLocaleDateString()}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {order.created_at
+                                                    ? new Date(
+                                                        order.created_at,
+                                                    ).toLocaleDateString()
+                                                    : "-"}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end space-x-2">
-                                                <a
-                                                    href={route("documentation.orders.print", { id: order.id })}
-                                                    target="_blank"
-                                                    className="inline-flex items-center text-gray-600 hover:text-gray-900 bg-white px-2 py-1.5 rounded-lg border border-gray-200 hover:border-gray-400 transition-all font-bold"
-                                                    title="Imprimir"
-                                                >
-                                                    <Printer className="w-4 h-4" />
-                                                </a>
-
-                                                {order.status !== 'cancelled' && (
-                                                    <>
-                                                        <Link
-                                                            href={route("documentation.orders.edit", { id: order.id })}
-                                                            className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-white px-2 py-1.5 rounded-lg border border-indigo-200 hover:border-indigo-400 transition-all font-bold"
-                                                            title="Editar"
-                                                        >
-                                                            <FileText className="w-4 h-4" />
-                                                        </Link>
-
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <div className="flex items-center justify-end space-x-3">
+                                                    {order.status !== 'cancelled' ? (
+                                                        <>
+                                                            <a
+                                                                href={route(
+                                                                    "documentation.print-order",
+                                                                    order.id,
+                                                                )}
+                                                                target="_blank"
+                                                                className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                                                title="Imprimir Orden"
+                                                            >
+                                                                <Printer className="w-5 h-5" />
+                                                            </a>
+                                                            <Link
+                                                                href={route(
+                                                                    "documentation.edit",
+                                                                    order.id,
+                                                                )}
+                                                                className="text-blue-600 hover:text-blue-900 transition-colors"
+                                                                title="Editar Orden"
+                                                            >
+                                                                <FileText className="w-5 h-5" />
+                                                            </Link>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (confirm('¿Estás seguro de cancelar esta orden de embarque?')) {
+                                                                        router.visit(route('documentation.cancel', order.id), {
+                                                                            method: 'patch',
+                                                                            preserveScroll: true,
+                                                                            preserveState: true,
+                                                                        });
+                                                                    }
+                                                                }}
+                                                                className="text-red-600 hover:text-red-900 transition-colors"
+                                                                title="Cancelar Orden"
+                                                            >
+                                                                <X className="w-5 h-5" />
+                                                            </button>
+                                                        </>
+                                                    ) : (
                                                         <button
                                                             onClick={() => {
-                                                                if (confirm('¿Está seguro de CANCELAR esta Orden de Embarque? Esta acción cambiará el estatus y no se podrá deshacer.')) {
-                                                                    router.patch(route("documentation.orders.cancel", { id: order.id }));
+                                                                if (confirm('¿Estás seguro de re-abrir esta orden de embarque? Volverá a estar activa.')) {
+                                                                    router.visit(route('documentation.reopen', order.id), {
+                                                                        method: 'patch',
+                                                                        preserveScroll: true,
+                                                                        preserveState: true,
+                                                                    });
                                                                 }
                                                             }}
-                                                            className="inline-flex items-center text-red-600 hover:text-red-900 bg-white px-2 py-1.5 rounded-lg border border-red-200 hover:border-red-400 transition-all font-bold"
-                                                            title="Cancelar"
+                                                            className="text-green-600 hover:text-green-900 transition-colors flex items-center font-bold text-xs bg-green-50 px-2 py-1 rounded border border-green-200"
+                                                            title="Re-abrir Orden"
                                                         >
-                                                            <X className="w-4 h-4" />
+                                                            <CheckCircle className="w-4 h-4 mr-1" />
+                                                            Re-abrir
                                                         </button>
-                                                    </>
-                                                )}
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
