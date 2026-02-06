@@ -290,17 +290,7 @@ export default function Index({
                                                             >
                                                                 <Printer className="w-5 h-5" />
                                                             </a>
-                                                            <a
-                                                                href={route(
-                                                                    "documentation.orders.print-instruction",
-                                                                    order.id,
-                                                                )}
-                                                                target="_blank"
-                                                                className="text-blue-600 hover:text-blue-900 transition-colors"
-                                                                title="Imprimir Instrucción de Carga"
-                                                            >
-                                                                <Clipboard className="w-5 h-5" />
-                                                            </a>
+
                                                             <Link
                                                                 href={route(
                                                                     "documentation.edit",

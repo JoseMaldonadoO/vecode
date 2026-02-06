@@ -96,12 +96,7 @@ export default function Print({ order }: Props) {
 
             <div className="max-w-[215mm] mx-auto bg-white p-2">
 
-                {/* --- PAGE 1: INSTRUCTION (NEW) --- */}
-                <div className="page-instruction" style={{ pageBreakAfter: 'always' }}>
-                    <InstructionTemplate order={order} />
-                </div>
-
-                {/* --- PAGE 2: SHIPMENT ORDER (OLD PAGE 1) --- */}
+                {/* --- PAGE 1: SHIPMENT ORDER --- */}
                 <div className="page-1">
 
                     {/* Header Details */}
