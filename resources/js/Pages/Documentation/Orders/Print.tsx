@@ -113,8 +113,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
 .rotate-landscape-v2 {
     transform: rotate(90deg) translateY(-100%);
     transform-origin: top left;
-    width: 250mm; /* The length of the landscape page */
-    height: 205mm; /* The height of the landscape page */
+    /* Maximize use of Letter page 215.9mm x 279.4mm minus 4mm margins */
+    width: 271mm; /* Full available height */
+    height: 208mm; /* Full available width */
     position: absolute;
     top: 0;
     left: 0;
