@@ -1,4 +1,3 @@
-```javascript
 import React from 'react';
 import { ShipmentOrder } from '@/types';
 
@@ -74,8 +73,8 @@ export default function InstructionTemplate({ order }: Props) {
                                 {order.product?.name || order.product_name || "UREA AGRICOLA"}
                             </td>
                             <td className="border border-black py-2 uppercase">
-                                {order.presentation || "ENVSADO"} 
-                                {order.sack_type ? ` - ${ order.sack_type } ` : ''}
+                                {order.presentation || "ENVSADO"}
+                                {order.sack_type ? ` - ${order.sack_type} ` : ''}
                             </td>
                             <td className="border border-black py-2">{Number(order.programmed_tons).toFixed(3)}</td>
                             <td className="border border-black py-2">{/* Manual fill */}</td>
@@ -133,7 +132,7 @@ export default function InstructionTemplate({ order }: Props) {
                 </div>
             </div>
 
-            <div className="border-b-4 border-black my-6 w-full opacity-0"></div> 
+            <div className="border-b-4 border-black my-6 w-full opacity-0"></div>
             {/* Spacer/Separator hidden */}
 
             {/* INFO BOXES - RESTRUCTURED */}
@@ -167,7 +166,7 @@ export default function InstructionTemplate({ order }: Props) {
                             ALMACÉN #
                         </div>
                         <div className="w-1/2 p-2">
-                             {/* Blank space for number */}
+                            {/* Blank space for number */}
                         </div>
                     </div>
                     <div className="h-1/2 p-2 flex items-center">
