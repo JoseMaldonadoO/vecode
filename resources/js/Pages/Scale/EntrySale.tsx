@@ -53,6 +53,7 @@ export default function EntrySale({
         vehicle_plate: "",
         trailer_plate: "",
         transport_line: "",
+        economic_number: "",
         origin: "",
         reference: "",
         consignee: "",
