@@ -159,10 +159,10 @@ const TicketCopy: React.FC<{
 
                     <div className="flex border-b border-black">
                         <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">
-                            No. de Placas:
+                            Placas (Tracto / RemOLQUE):
                         </div>
-                        <div className="w-1/4 px-1.5 py-0.5 border-r border-black font-mono">
-                            {ticket.tractor_plate}
+                        <div className="w-1/4 px-1.5 py-0.5 border-r border-black font-mono text-[10px]">
+                            {ticket.tractor_plate} / {ticket.trailer_plate}
                         </div>
                         <div className="w-1/4 font-bold border-r border-black px-1.5 py-0.5 uppercase">
                             Econo:

@@ -299,6 +299,14 @@ export default function ExitMP({
                                     <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold border border-gray-200 uppercase tracking-wider">
                                         Placa: {order.vehicle_plate}
                                     </span>
+                                    <span className="inline-flex items-center px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-100 uppercase tracking-wider">
+                                        Remolque: {order.trailer_plate || 'N/A'}
+                                    </span>
+                                    {order.economic_number && order.economic_number !== 'N/A' && (
+                                        <span className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 uppercase tracking-wider">
+                                            Econo: {order.economic_number}
+                                        </span>
+                                    )}
                                     <span className="inline-flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold border border-indigo-100 uppercase tracking-wider">
                                         Chofer: {order.driver}
                                     </span>

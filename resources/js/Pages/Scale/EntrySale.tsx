@@ -157,6 +157,8 @@ export default function EntrySale({
                 consignee: res.consignee || "",
                 destination: res.destination || "",
                 bill_of_lading: res.bill_of_lading || "",
+                programmed_weight: res.programmed_weight,
+                economic_number: res.economic_number,
             }));
 
             Swal.fire({
@@ -478,6 +480,10 @@ export default function EntrySale({
                                             <div>
                                                 <span className="block text-xs text-gray-400 uppercase">Placas</span>
                                                 <span className="font-mono font-bold text-gray-800 text-sm">{data.vehicle_plate}</span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-gray-400 uppercase">No. Económico</span>
+                                                <span className="font-mono font-bold text-gray-800 text-sm">{data.economic_number || "N/A"}</span>
                                             </div>
                                             <div>
                                                 <span className="block text-xs text-gray-400 uppercase">Remolque</span>

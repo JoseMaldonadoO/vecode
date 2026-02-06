@@ -34,16 +34,26 @@ class WeightTicketController extends Controller
             ->orderBy('entry_at', 'asc')
             ->get()
             ->map(function ($order) {
+                // Assuming $ticket is available from $order->weight_ticket
+                $ticket = $order->weight_ticket;
+                $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
+
                 return [
                     'id' => $order->id,
                     'folio' => $order->folio,
-                    'provider' => $order->client_name ?? ($order->client->name ?? 'N/A'),
-                    'product' => $order->product_name ?? ($order->product->name ?? 'N/A'),
-                    'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
-                    'plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
-                    'tare_weight' => $order->weight_ticket->tare_weight ?? 0,
-                    'warehouse' => $order->warehouse ?? 'N/A',
-                    'cubicle' => $order->cubicle ?? 'N/A',
+                    'provider' => $order->client->business_name ?? $order->client->name, // Check business_name
+                    'product' => $order->product->name ?? ($order->shipment_order->items->first()?->product->name ?? 'N/A'),
+                    'entry_weight' => $ticket->tare_weight,
+                    'vehicle_plate' => $order->tractor_plate,
+                    'trailer_plate' => $order->trailer_plate ?? 'N/A',
+                    'driver' => $operatorName,
+                    'transport_line' => $order->transport_company,
+                    'economic_number' => $order->economic_number ?? 'N/A',
+                    'warehouse' => $order->warehouse ?? 'N/A', // Assuming warehouse is directly on LoadingOrder
+                    'cubicle' => $order->cubicle ?? 'N/A', // Assuming cubicle is directly on LoadingOrder
+                    'reference' => $order->reference ?? ($order->shipment_order->customer_reference ?? 'N/A'),
+                    'consignee' => $order->consignee ?? ($order->shipment_order->consignee ?? 'N/A'),
+                    'programmed_weight' => $order->shipment_order->programmed_tons ?? ($order->shipment_order->items->sum('requested_quantity') ?? 0),
                     'entry_at' => $order->entry_at,
                     'type' => $order->shipment_order_id ? 'sale' : 'vessel',
                 ];
@@ -306,12 +316,18 @@ class WeightTicketController extends Controller
             return response()->json(['error' => 'Esta orden ya tiene un ticket de báscula generado.'], 403);
         }
 
-        // Calculate Programmed Weight and Product from Items
+        // Calculate Programmed Weight and Product from Items or Direct Columns
         $programmedWeight = $order->items->sum('requested_quantity');
-        $productName = $order->items->first()?->product->name ?? 'N/A';
+        // Fallback or Priority if programmed_tons exists and is used
+        if (isset($order->programmed_tons) && $order->programmed_tons > 0) {
+            $programmedWeight = $order->programmed_tons;
+        }
 
-        // Override if multiple items? For now just take first or comma separated. 
-        // Usually bulk is single product.
+        $productName = $order->items->first()?->product->name ?? 'N/A';
+        // Priority if product column exists directly
+        if (!empty($order->product) && is_string($order->product)) {
+            $productName = $order->product;
+        }
 
         return response()->json([
             'id' => $order->id,
@@ -322,7 +338,7 @@ class WeightTicketController extends Controller
             'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
             'vehicle_type' => $order->unit_type ?? 'N/A',
             'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
-            'economic_number' => $order->economic_number,
+            'economic_number' => $order->economic_number ?? 'N/A', // Send raw, let frontend or print logic handle N/A if needed, or handle here
             'product' => $productName,
             'origin' => $order->origin,
             'reference' => $order->customer_reference, // Accessor
