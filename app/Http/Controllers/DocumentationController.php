@@ -441,6 +441,8 @@ class DocumentationController extends Controller
             'order' => $order
         ]);
 
+    }
+
     /**
      * Show the form for editing the specified Shipment Order.
      */
