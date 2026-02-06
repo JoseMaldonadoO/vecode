@@ -28,6 +28,7 @@ export default function InstructionTemplate({ order }: Props) {
 
                     {/* Right: Truck Logo Area (LOG.png) */}
                     <div className="w-[20%] p-2 flex items-center justify-center border-l border-green-800 relative">
+                        {/* Try strict path and simplified styling */}
                         <img src="/images/LOG.png" alt="Transport" className="max-h-full max-w-full object-contain" />
                     </div>
                 </div>
@@ -74,7 +75,7 @@ export default function InstructionTemplate({ order }: Props) {
                             </td>
                             <td className="border border-black py-2 uppercase">
                                 {order.presentation || "ENVSADO"}
-                                {order.sack_type ? ` - ${order.sack_type} ` : ''}
+                                {order.sack_type ? ` - ${order.sack_type}` : ''}
                             </td>
                             <td className="border border-black py-2">{Number(order.programmed_tons).toFixed(3)}</td>
                             <td className="border border-black py-2">{/* Manual fill */}</td>
@@ -93,15 +94,18 @@ export default function InstructionTemplate({ order }: Props) {
 
                     <div className="flex w-full justify-between items-end mb-6">
                         {/* TRACTOR (Left) */}
-                        <div className="flex items-center">
-                            <div className="w-16 text-right pr-2 text-xs font-bold">PLACAS:</div>
-                            <div className="relative border-2 border-black px-4 py-3 font-black text-3xl text-center min-w-[160px] uppercase bg-white z-10">
-                                {order.tractor_plate || "N/A"}
-                                <span className="absolute -top-3 left-4 bg-white px-1 text-[10px] font-bold border border-black z-20">TRACTOR</span>
+                        <div className="flex flex-col items-start">
+                            {/* Label ABOVE the box, pure text, no border */}
+                            <div className="text-xs font-bold mb-1 ml-1 uppercase">TRACTOR</div>
+                            <div className="flex items-center">
+                                <div className="w-12 text-right pr-2 text-xs font-bold">PLACAS:</div>
+                                <div className="border-2 border-black px-4 py-2 font-black text-3xl text-center min-w-[150px] uppercase bg-white">
+                                    {order.tractor_plate || "N/A"}
+                                </div>
                             </div>
                         </div>
 
-                        {/* ECONOMICO (Center/Right) - Moved away from plates */}
+                        {/* ECONOMICO (Center/Right) */}
                         <div className="flex flex-col items-center px-4 pb-2">
                             <span className="text-[10px] font-bold uppercase mb-1">ECONÓMICO</span>
                             <span className="border-b-2 border-black font-black text-xl px-4">{order.economic_number || "00"}</span>
@@ -109,11 +113,14 @@ export default function InstructionTemplate({ order }: Props) {
                     </div>
 
                     {/* TRAILER ROW (Below) */}
-                    <div className="flex items-center">
-                        <div className="w-16 text-right pr-2 text-xs font-bold">PLACAS:</div>
-                        <div className="relative border-2 border-black px-4 py-3 font-black text-3xl text-center min-w-[160px] uppercase bg-white z-10">
-                            {order.trailer_plate || "N/A"}
-                            <span className="absolute -top-3 left-4 bg-white px-1 text-[10px] font-bold border border-black z-20">REMOLQUE</span>
+                    <div className="flex flex-col items-start">
+                        {/* Label ABOVE the box, pure text, no border */}
+                        <div className="text-xs font-bold mb-1 ml-1 uppercase">REMOLQUE</div>
+                        <div className="flex items-center">
+                            <div className="w-12 text-right pr-2 text-xs font-bold">PLACAS:</div>
+                            <div className="border-2 border-black px-4 py-2 font-black text-3xl text-center min-w-[150px] uppercase bg-white">
+                                {order.trailer_plate || "N/A"}
+                            </div>
                         </div>
                     </div>
                 </div>
