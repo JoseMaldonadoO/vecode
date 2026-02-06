@@ -22,6 +22,7 @@ import {
     ChevronsUpDown,
     CheckCircle,
     Clipboard,
+    Edit,
 } from "lucide-react";
 import { useState, Fragment, FormEventHandler, useEffect } from "react";
 // @ts-ignore
@@ -276,7 +277,7 @@ export default function Index({
                                                     : "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="flex items-center justify-end space-x-3">
+                                                <div className="flex items-center justify-end gap-2">
                                                     {order.status !== 'cancelled' ? (
                                                         <>
                                                             <a
@@ -285,10 +286,11 @@ export default function Index({
                                                                     order.id,
                                                                 )}
                                                                 target="_blank"
-                                                                className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                                                className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-indigo-200 transition-all font-bold"
                                                                 title="Imprimir Orden"
                                                             >
-                                                                <Printer className="w-5 h-5" />
+                                                                <Printer className="w-4 h-4 mr-1.5" />
+                                                                Imprimir
                                                             </a>
 
                                                             <Link
@@ -296,10 +298,11 @@ export default function Index({
                                                                     "documentation.edit",
                                                                     order.id,
                                                                 )}
-                                                                className="text-blue-600 hover:text-blue-900 transition-colors"
+                                                                className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
                                                                 title="Editar Orden"
                                                             >
-                                                                <FileText className="w-5 h-5" />
+                                                                <Edit className="w-4 h-4 mr-1.5" />
+                                                                Editar
                                                             </Link>
                                                             <button
                                                                 onClick={() => {
@@ -322,10 +325,11 @@ export default function Index({
                                                                         }
                                                                     });
                                                                 }}
-                                                                className="text-red-600 hover:text-red-900 transition-colors"
+                                                                className="inline-flex items-center text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-100 hover:border-red-300 transition-all font-bold"
                                                                 title="Cancelar Orden"
                                                             >
-                                                                <X className="w-5 h-5" />
+                                                                <X className="w-4 h-4 mr-1.5" />
+                                                                Cancelar
                                                             </button>
                                                         </>
                                                     ) : (
@@ -350,10 +354,10 @@ export default function Index({
                                                                     }
                                                                 });
                                                             }}
-                                                            className="text-green-600 hover:text-green-900 transition-colors flex items-center font-bold text-xs bg-green-50 px-2 py-1 rounded border border-green-200"
+                                                            className="inline-flex items-center text-green-600 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100 hover:bg-green-100 hover:border-green-300 transition-all font-bold"
                                                             title="Re-abrir Orden"
                                                         >
-                                                            <CheckCircle className="w-4 h-4 mr-1" />
+                                                            <CheckCircle className="w-4 h-4 mr-1.5" />
                                                             Re-abrir
                                                         </button>
                                                     )}
