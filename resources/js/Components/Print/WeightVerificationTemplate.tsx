@@ -39,7 +39,8 @@ export default function WeightVerificationTemplate({ order }: Props) {
                 </div>
                 <div className="w-[30%] flex mb-0.5 items-end justify-end pr-4">
                     <span className="mr-2">O.E.</span>
-                    <span className="font-black text-xs leading-none">{order.folio}</span>
+                    {/* UPDATED: Increased font size for OE */}
+                    <span className="font-black text-xl leading-none">{order.folio}</span>
                 </div>
                 <div className="w-[20%] flex mb-0.5 items-end">
                     <span className="mr-2">TURNO</span>
@@ -132,12 +133,15 @@ export default function WeightVerificationTemplate({ order }: Props) {
                                 <td className="border border-black" colSpan={2}></td>
                                 <td className="border border-black" colSpan={2}></td>
                             </tr>
+                            {/* UPDATED: X= Row with Right Alignment */}
                             <tr className="h-5 leading-none">
-                                <td className="border border-black font-bold text-sm">X =</td>
+                                <td className="border border-black font-bold text-sm bg-green-50">X =</td>
                                 <td className="border border-black" colSpan={6}>
-                                    <div className="flex justify-center items-center h-full">
-                                        <span className="mr-2 uppercase text-[8px]">Ton. Programadas</span>
-                                        <span className="font-bold border border-black px-2 bg-white w-20 text-[9px]">{Number(order.programmed_tons).toFixed(3)}</span>
+                                    <div className="flex justify-end items-center h-full pr-4">
+                                        <span className="mr-2 uppercase text-[8px] font-bold">TON. PROGRAMADAS</span>
+                                        <div className="border border-black px-2 bg-white w-24 text-[9px] font-bold h-full flex items-center justify-center">
+                                            {Number(order.programmed_tons).toFixed(3)}
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -149,7 +153,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                     </table>
                 </div>
 
-                {/* RIGHT COLUMN - SIGNATURES (25% width) - REMOVED FIXED HEIGHT */}
+                {/* RIGHT COLUMN - SIGNATURES (25% width) */}
                 <div className="w-[25%] flex flex-col items-center justify-center pt-8 space-y-16">
 
                     {/* SUPERVISOR */}
