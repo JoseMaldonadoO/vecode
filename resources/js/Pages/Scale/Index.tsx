@@ -115,22 +115,6 @@ export default function Index({
             href: route("scale.tickets.index"),
             subtitle: "Gestión de Tickets"
         },
-        {
-            name: "Alta lote / almacen",
-            icon: Database,
-            color: "bg-teal-50 text-teal-600",
-            hover: "hover:border-teal-500",
-            href: "#",
-            subtitle: "Gestión de Inventario"
-        },
-        {
-            name: "Cierre de Lote",
-            icon: Lock,
-            color: "bg-red-50 text-red-600",
-            hover: "hover:border-red-500",
-            href: "#",
-            subtitle: "Finalizar Lotes"
-        },
     ];
 
     return (

@@ -8,6 +8,7 @@ import {
     Anchor,
     Scan,
     LayoutDashboard,
+    Database,
 } from "lucide-react";
 
 export default function Index({ auth }: { auth: any }) {
@@ -27,6 +28,14 @@ export default function Index({ auth }: { auth: any }) {
             description: "Visualizar ocupación de almacenes y cubículos.",
             color: "bg-indigo-50 text-indigo-600",
             hover: "hover:border-indigo-500",
+        },
+        {
+            name: "Gestión de Lotes (En Desarrollo)",
+            icon: Database,
+            href: "#",
+            description: "Administración de lotes e inventarios.",
+            color: "bg-teal-50 text-teal-600",
+            hover: "hover:border-teal-500",
         },
     ];
 
