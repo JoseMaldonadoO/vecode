@@ -175,7 +175,7 @@ export default function Index({
                 </div>
 
                 {/* Filters & Actions */}
-                < div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4" >
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="relative w-full sm:w-96">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <Search className="h-5 w-5 text-gray-400" />
@@ -195,42 +195,41 @@ export default function Index({
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <Filter className="w-4 h-4 text-gray-400" />
                         <select
-                            value={type}
+                            value={type} // Reused variable name 'type' for Status filter logic, but ideally should be renamed. Let's keep existing state 'type' but map it to 'status' filter request
                             onChange={handleTypeChange}
                             className="block w-full sm:w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
                         >
-                            <option value="">Todos los tipos</option>
-                            <option value="scale">Descarga Báscula</option>
-                            <option value="burreo">Descarga Burreo</option>
+                            <option value="active">Órdenes Activas</option>
+                            <option value="cancelled">Canceladas</option>
                         </select>
                     </div>
-                </div >
+                </div>
 
                 {/* Table */}
-                < div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100" >
+                <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
-                                <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                <tr className="text-white">
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Folio
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Orden
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Tipo
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
-                                        Cliente / Barco
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                                        Cliente
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Estatus
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Fecha
                                     </th>
-                                    <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                                    <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">
                                         Acciones
                                     </th>
                                 </tr>
@@ -243,24 +242,12 @@ export default function Index({
                                             className="hover:bg-indigo-50 transition-colors duration-150"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
-                                                        {order.folio.slice(-2)}
-                                                    </div>
-                                                    <div className="ml-4">
-                                                        <div className="text-sm font-bold text-indigo-700 uppercase">
-                                                            {order.folio}
-                                                        </div>
-                                                        <div className="text-[10px] text-gray-500 font-mono">
-                                                            ID: {order.id.slice(0, 8)}
-                                                        </div>
-                                                    </div>
+                                                <div className="text-sm font-bold text-indigo-700 uppercase">
+                                                    {order.folio}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium italic">
-                                                {order.sales_order?.folio ||
-                                                    order.sale_order ||
-                                                    "-"}
+                                                {order.sales_order?.folio || order.sale_order || "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
@@ -278,14 +265,7 @@ export default function Index({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-bold text-gray-900 uppercase">
-                                                    {
-                                                        order.client
-                                                            ?.business_name
-                                                    }
-                                                </div>
-                                                <div className="text-xs text-indigo-500 font-bold mt-0.5 flex items-center">
-                                                    <Ship className="w-3 h-3 mr-1" />
-                                                    {order.vessel?.name || 'S/A'}
+                                                    {order.client?.business_name}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -293,19 +273,20 @@ export default function Index({
                                                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black tracking-widest
                                                             ${order.status === "created" ? "bg-blue-100 text-blue-800 border border-blue-200" : ""}
                                                             ${order.status === "closed" ? "bg-red-100 text-red-800 border border-red-200" : ""}
+                                                            ${order.status === "cancelled" ? "bg-gray-100 text-gray-800 border border-gray-200" : ""}
                                                             ${order.status === "completed" ? "bg-green-100 text-green-800 border border-green-200" : ""}
                                                             ${order.status === "loading" ? "bg-amber-100 text-amber-800 border border-amber-200" : ""}
                                                         `}
                                                 >
                                                     {order.status === "created"
                                                         ? "ABIERTA"
-                                                        : order.status ===
-                                                            "closed"
+                                                        : order.status === "closed"
                                                             ? "CERRADA"
-                                                            : order.status ===
-                                                                "loading"
+                                                            : order.status === "loading"
                                                                 ? "CARGANDO"
-                                                                : order.status.toUpperCase()}
+                                                                : order.status === "cancelled"
+                                                                    ? "CANCELADA"
+                                                                    : order.status.toUpperCase()}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
@@ -313,35 +294,38 @@ export default function Index({
                                                     order.date || order.created_at,
                                                 ).toLocaleDateString()}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end space-x-2">
                                                 <a
-                                                    href={route("documentation.orders.print", {
-                                                        id: order.id,
-                                                    })}
+                                                    href={route("documentation.orders.print", { id: order.id })}
                                                     target="_blank"
-                                                    className="inline-flex items-center text-gray-600 hover:text-gray-900 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 hover:border-gray-300 transition-all font-bold mr-2"
-                                                    title="Imprimir Orden"
+                                                    className="inline-flex items-center text-gray-600 hover:text-gray-900 bg-white px-2 py-1.5 rounded-lg border border-gray-200 hover:border-gray-400 transition-all font-bold"
+                                                    title="Imprimir"
                                                 >
-                                                    <Printer className="w-4 h-4 mr-1" />
-                                                    Imprimir
+                                                    <Printer className="w-4 h-4" />
                                                 </a>
-                                                {order.sales_order_id ? (
-                                                    <Link
-                                                        href={route(
-                                                            "sales.show",
-                                                            {
-                                                                sale: order.sales_order_id,
-                                                                module: "documentation",
-                                                            },
-                                                        )}
-                                                        className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
-                                                    >
-                                                        Ver Detalle
-                                                    </Link>
-                                                ) : (
-                                                    <span className="text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg text-[10px] font-bold border border-gray-100">
-                                                        SIN OV
-                                                    </span>
+
+                                                {order.status !== 'cancelled' && (
+                                                    <>
+                                                        <Link
+                                                            href={route("documentation.orders.edit", { id: order.id })}
+                                                            className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-white px-2 py-1.5 rounded-lg border border-indigo-200 hover:border-indigo-400 transition-all font-bold"
+                                                            title="Editar"
+                                                        >
+                                                            <FileText className="w-4 h-4" />
+                                                        </Link>
+
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm('¿Está seguro de CANCELAR esta Orden de Embarque? Esta acción cambiará el estatus y no se podrá deshacer.')) {
+                                                                    router.patch(route("documentation.orders.cancel", { id: order.id }));
+                                                                }
+                                                            }}
+                                                            className="inline-flex items-center text-red-600 hover:text-red-900 bg-white px-2 py-1.5 rounded-lg border border-red-200 hover:border-red-400 transition-all font-bold"
+                                                            title="Cancelar"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </>
                                                 )}
                                             </td>
                                         </tr>
@@ -357,9 +341,7 @@ export default function Index({
                                                 No se encontraron órdenes
                                             </p>
                                             <p className="text-sm">
-                                                Intenta ajustar los filtros o
-                                                verifica que existan descargas
-                                                registradas.
+                                                Intenta ajustar los filtros de estatus.
                                             </p>
                                         </td>
                                     </tr>

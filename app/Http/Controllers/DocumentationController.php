@@ -342,24 +342,21 @@ class DocumentationController extends Controller
             });
         }
 
-        if ($request->has('type') && in_array($request->input('type'), ['scale', 'burreo'])) {
-            $query->where('operation_type', $request->input('type'));
+        // Filter by Status: 'active' (default) vs 'cancelled'
+        $statusFilter = $request->input('status', 'active'); // active | cancelled
+
+        if ($statusFilter === 'cancelled') {
+            $query->where('status', 'cancelled');
+        } else {
+            // Active: created, loading, closed, completed
+            $query->whereIn('status', ['created', 'loading', 'closed', 'completed']);
         }
 
         $orders = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return Inertia::render('Documentation/Orders/Index', [
             'orders' => $orders,
-            'filters' => $request->only(['search', 'type']),
-            'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'business_name' => $client->business_name,
-                    'rfc' => $client->rfc ?? '',
-                    'address' => $client->address ?? '',
-                ];
-            }),
-            'products' => Product::all(),
+            'filters' => $request->only(['search', 'status']),
             'sales_orders' => SalesOrder::where('status', 'created')->orWhere('status', 'open')->get(),
             'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
         ]);
@@ -376,5 +373,121 @@ class DocumentationController extends Controller
         return Inertia::render('Documentation/Orders/Print', [
             'order' => $order
         ]);
+    }
+
+    /**
+     * Show the form for editing the specified Shipment Order.
+     */
+    public function editOrder($id)
+    {
+        $order = ShipmentOrder::findOrFail($id);
+
+        // Prevent editing if closed/completed? Usually allowed but with caution.
+        // For now, allow edit unless cancelled maybe.
+        if ($order->status === 'cancelled') {
+            return redirect()->route('documentation.orders.index')->withErrors(['error' => 'No se puede editar una orden cancelada.']);
+        }
+
+        return Inertia::render('Documentation/Orders/Edit', [
+            'order' => $order,
+            'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
+                return [
+                    'id' => $client->id,
+                    'business_name' => $client->business_name,
+                    'rfc' => $client->rfc ?? '',
+                    'address' => $client->address ?? '',
+                ];
+            }),
+            'products' => Product::all(),
+            'sales_orders' => SalesOrder::whereIn('status', ['created', 'open'])
+                ->orWhere('id', $order->sales_order_id) // Include current even if closed
+                ->with(['client', 'product'])
+                ->get(),
+        ]);
+    }
+
+    /**
+     * Update the specified Shipment Order in storage.
+     */
+    public function updateOrder(Request $request, $id)
+    {
+        $order = ShipmentOrder::findOrFail($id);
+
+        $validated = $request->validate([
+            // 'folio' => 'required|unique:shipment_orders,folio,' . $id, // Folio usually shouldn't change
+            'date' => 'required|date',
+            'client_id' => 'required|exists:clients,id',
+            'sales_order_id' => 'required|exists:sales_orders,id',
+            'consigned_to' => 'required|string',
+            // Transport
+            'transport_company' => 'nullable|string',
+            'operator_name' => 'nullable|string',
+            'unit_number' => 'nullable|string',
+            'tractor_plate' => 'nullable|string',
+            'trailer_plate' => 'nullable|string',
+            'carta_porte' => 'nullable|string',
+            'license_number' => 'nullable|string',
+            'unit_type' => 'nullable|string',
+            'economic_number' => 'nullable|string',
+            // Shipment
+            'destination' => 'nullable|string',
+            'product' => 'nullable|string',
+            'presentation' => 'nullable|string',
+            'sack_type' => 'nullable|string',
+            'sacks_count' => 'nullable|string',
+            'programmed_tons' => 'nullable|numeric',
+            'balance' => 'nullable',
+            'shortage_balance' => 'nullable|string',
+            'observations' => 'nullable|string',
+            'state' => 'nullable|string',
+            // Allow Operator/Unit IDs to be updated if re-selected
+            'operator_id' => 'nullable',
+        ]);
+
+        // Validate Balance again if programmed tons changed
+        if ($validated['sales_order_id'] != $order->sales_order_id || $validated['programmed_tons'] != $order->programmed_tons) {
+            $salesOrder = SalesOrder::findOrFail($validated['sales_order_id']);
+            // Re-calculate available balance logic if needed, simplify for update:
+            // If changing amount, check against current balance + previous amount (to not double count)
+            $currentAvailable = $salesOrder->balance + ($order->sales_order_id == $salesOrder->id ? $order->programmed_tons : 0);
+
+            if ($validated['programmed_tons'] > $currentAvailable) {
+                return back()->withErrors([
+                    'programmed_tons' => 'El tonelaje programado excede el saldo disponible de la OV.'
+                ])->withInput();
+            }
+        }
+
+        // Logic for Sacks
+        $validated['shortage_balance'] = $request->input('balance');
+        if ($validated['presentation'] === 'ENVASADO' && $request->has('sack_type')) {
+            $validated['sacks_count'] = $request->input('sack_type') . ' KG';
+        }
+        unset($validated['sack_type']);
+        unset($validated['balance']);
+
+        $order->update($validated);
+
+        return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque actualizada correctamente.');
+    }
+
+    /**
+     * Cancel the specified Shipment Order.
+     */
+    public function cancelOrder($id)
+    {
+        $order = ShipmentOrder::findOrFail($id);
+
+        if ($order->status === 'cancelled') {
+            return back()->with('error', 'La orden ya está cancelada.');
+        }
+
+        // Optionally: Check if it has weight tickets attached?
+        // If it has scale process, maybe prevent cancellation or require supervisor.
+        // For documentation module, we assume it can be cancelled if no irreversible physical action happened.
+
+        $order->update(['status' => 'cancelled']);
+
+        return back()->with('success', 'Orden de Embarque cancelada correctamente.');
     }
 }

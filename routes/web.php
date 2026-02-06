@@ -137,6 +137,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/documentation/shipment-orders', [\App\Http\Controllers\DocumentationController::class, 'shipmentOrdersIndex'])->name('documentation.orders.index');
     Route::get('/documentation/shipment-orders/{id}/print', [\App\Http\Controllers\DocumentationController::class, 'printOrder'])->name('documentation.orders.print');
 
+    // Edit & Cancel Routes
+    Route::get('/documentation/shipment-orders/{id}/edit', [\App\Http\Controllers\DocumentationController::class, 'editOrder'])->name('documentation.orders.edit');
+    Route::put('/documentation/shipment-orders/{id}', [\App\Http\Controllers\DocumentationController::class, 'updateOrder'])->name('documentation.orders.update');
+    Route::patch('/documentation/shipment-orders/{id}/cancel', [\App\Http\Controllers\DocumentationController::class, 'cancelOrder'])->name('documentation.orders.cancel');
+
     Route::resource('documentation', \App\Http\Controllers\DocumentationController::class);
 
     // APT Module
