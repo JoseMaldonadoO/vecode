@@ -146,6 +146,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/apt/scanner', [\App\Http\Controllers\AptController::class, 'storeScan'])->name('apt.scanner.store');
     Route::put('/apt/scanner/{id}', [\App\Http\Controllers\AptController::class, 'updateScan'])->name('apt.scanner.update');
     Route::delete('/apt/scanner/{id}', [\App\Http\Controllers\AptController::class, 'destroyScan'])->name('apt.scanner.destroy');
+    // Lots Management
+    Route::get('/apt/lots', [\App\Http\Controllers\LotController::class, 'index'])->name('apt.lots.index');
+    Route::post('/apt/lots', [\App\Http\Controllers\LotController::class, 'store'])->name('apt.lots.store');
+    Route::put('/apt/lots/{lot}', [\App\Http\Controllers\LotController::class, 'update'])->name('apt.lots.update');
+    Route::patch('/apt/lots/{lot}/toggle', [\App\Http\Controllers\LotController::class, 'toggleStatus'])->name('apt.lots.toggle');
+    Route::delete('/apt/lots/{lot}', [\App\Http\Controllers\LotController::class, 'destroy'])->name('apt.lots.destroy');
+
     Route::get('/apt/operators/search', [\App\Http\Controllers\AptController::class, 'searchOperators'])->name('apt.operators.search');
     Route::get('/apt/operator', [\App\Http\Controllers\AptController::class, 'createOperator'])->name('apt.operators.create');
     Route::post('/apt/operator', [\App\Http\Controllers\AptController::class, 'storeOperator'])->name('apt.operators.store');

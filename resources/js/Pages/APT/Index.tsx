@@ -30,9 +30,9 @@ export default function Index({ auth }: { auth: any }) {
             hover: "hover:border-indigo-500",
         },
         {
-            name: "Gestión de Lotes (En Desarrollo)",
+            name: "Gestión de Lotes",
             icon: Database,
-            href: "#",
+            href: route("apt.lots.index"),
             description: "Administración de lotes e inventarios.",
             color: "bg-teal-50 text-teal-600",
             hover: "hover:border-teal-500",
