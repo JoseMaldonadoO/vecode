@@ -332,86 +332,78 @@ export default function Index({
                                                             Re-abrir
                                                         </button>
                                                     )}
-                                                                }
-                                                            }}
-                                                    className="text-green-600 hover:text-green-900 transition-colors flex items-center font-bold text-xs bg-green-50 px-2 py-1 rounded border border-green-200"
-                                                    title="Re-abrir Orden"
-                                                        >
-                                                    <CheckCircle className="w-4 h-4 mr-1" />
-                                                    Re-abrir
-                                                </button>
-                                                    )}
-                                            </div>
-                                        </td>
-                                        </tr>
-                            ))
-                            ) : (
-                            <tr>
-                                <td
-                                    colSpan={7}
-                                    className="px-6 py-12 text-center text-gray-500"
-                                >
-                                    <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-                                    <p className="text-lg font-medium">
-                                        No se encontraron órdenes
-                                    </p>
-                                    <p className="text-sm">
-                                        Intenta ajustar los filtros de estatus.
-                                    </p>
-                                </td>
-                            </tr>
-                                )}
-                        </tbody>
-                    </table>
-                </div>
 
-                {/* Pagination */}
-                {
-                    orders.links.length > 3 && (
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 md:flex md:items-center md:justify-between">
-                            <div className="text-sm text-gray-500 mb-4 md:mb-0">
-                                Mostrando{" "}
-                                <span className="font-medium">
-                                    {orders.from}
-                                </span>{" "}
-                                a{" "}
-                                <span className="font-medium">{orders.to}</span>{" "}
-                                de{" "}
-                                <span className="font-medium">
-                                    {orders.total}
-                                </span>{" "}
-                                resultados
-                            </div>
-                            <div className="flex justify-center space-x-1">
-                                {orders.links.map((link, key) =>
-                                    link.url ? (
-                                        <Link
-                                            key={key}
-                                            href={link.url}
-                                            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                ? "bg-indigo-600 text-white shadow-sm"
-                                                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                                                }`}
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
-                                    ) : (
-                                        <span
-                                            key={key}
-                                            className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
-                                            dangerouslySetInnerHTML={{
-                                                __html: link.label,
-                                            }}
-                                        />
-                                    ),
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan={7}
+                                            className="px-6 py-12 text-center text-gray-500"
+                                        >
+                                            <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                                            <p className="text-lg font-medium">
+                                                No se encontraron órdenes
+                                            </p>
+                                            <p className="text-sm">
+                                                Intenta ajustar los filtros de estatus.
+                                            </p>
+                                        </td>
+                                    </tr>
                                 )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    {
+                        orders.links.length > 3 && (
+                            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 md:flex md:items-center md:justify-between">
+                                <div className="text-sm text-gray-500 mb-4 md:mb-0">
+                                    Mostrando{" "}
+                                    <span className="font-medium">
+                                        {orders.from}
+                                    </span>{" "}
+                                    a{" "}
+                                    <span className="font-medium">{orders.to}</span>{" "}
+                                    de{" "}
+                                    <span className="font-medium">
+                                        {orders.total}
+                                    </span>{" "}
+                                    resultados
+                                </div>
+                                <div className="flex justify-center space-x-1">
+                                    {orders.links.map((link, key) =>
+                                        link.url ? (
+                                            <Link
+                                                key={key}
+                                                href={link.url}
+                                                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
+                                                    ? "bg-indigo-600 text-white shadow-sm"
+                                                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                                                    }`}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ) : (
+                                            <span
+                                                key={key}
+                                                className="px-3 py-1 rounded-md text-sm font-medium bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ),
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )
-                }
+                        )
+                    }
+                </div >
             </div >
-        </div >
         </DashboardLayout >
     );
 }
