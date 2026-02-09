@@ -280,9 +280,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     </tr>
                                     <tr>
                                         <td className="text-center font-bold">{order.product?.code || "1073"}</td>
-                                        {/* Reverted to standard size as requested */}
-                                        <td className="text-center font-bold uppercase text-lg">{order.product?.name || "UREA AGRICOLA"}</td>
-                                        <td className="text-center font-bold text-lg">{order.programmed_tons || "0.000"}</td>
+                                        {/* Reverted to standard size (removed text-lg) */}
+                                        <td className="text-center font-bold uppercase">{order.product?.name || "UREA AGRICOLA"}</td>
+                                        <td className="text-center font-bold">{order.programmed_tons || "0.000"}</td>
                                     </tr>
                                 </table>
 
