@@ -8,6 +8,10 @@ on:
       # Retry trigger: Connection timeout detected
   workflow_dispatch:
 
+concurrency:
+  group: production
+  cancel-in-progress: true
+
 jobs:
   web-deploy:
     name: 🎉 Deploy Production (Layout Check)
