@@ -82,7 +82,7 @@ export default function Edit({
         // Product Data
         product: order.product?.name || order.product || "",
         presentation: order.presentation || "GRANEL",
-        sack_type: "", // Helper for editing sacks if needed
+        sack_type: order.sacks_count ? order.sacks_count.replace(/\D/g, '') : "", // Extract digits (e.g. "50 KG" -> "50")
         sacks_count: order.sacks_count || "",
         programmed_tons: order.programmed_tons || "",
         balance: order.shortage_balance || "", // Using shortage_balance as 'snapshot balance' for display? OR fetch current? Review controller logic
@@ -523,6 +523,7 @@ export default function Edit({
                                         <option value="50">50 KG</option>
                                         <option value="200">200 KG</option>
                                         <option value="500">500 KG</option>
+                                        <option value="1000">1000 KG</option>
                                     </select>
                                 </div>
                             )}
