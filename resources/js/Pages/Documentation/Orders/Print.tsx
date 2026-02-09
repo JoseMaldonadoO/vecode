@@ -302,14 +302,14 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 </table>
 
                                 {/* ALMACEN / ORIGEN / TIPO SACOS (Conditional) */}
-                                <table className="mb-1 border border-black">
+                                <table className="mb-1">
                                     <tr>
                                         {/* If Envasado, we split into 3 columns. If Granel, maybe just 2 or 3 blank? User said "Solo cuando es Envasado aparece Tipo de Sacos" */}
                                         <td className="bg-header text-center font-bold text-[9px] w-1/3 no-border">ALMACEN</td>
                                         <td className="bg-header text-center font-bold text-[9px] w-1/3 no-border">ORIGEN DE PRODUCTO</td>
 
                                         {order.presentation?.toUpperCase().includes('ENVASADO') ? (
-                                            <td className="text-center font-bold text-[9px] w-1/3 border-b-0">TIPO DE SACOS</td>
+                                            <td className="bg-header text-center font-bold text-[9px] w-1/3 no-border">TIPO DE SACOS</td>
                                         ) : (
                                             <td className="no-border w-1/3"></td>
                                         )}
@@ -351,7 +351,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 <table className="mb-1 mt-4">
                                     <tr>
                                         {/* DOCUMENTADOR */}
-                                        <td className="w-1/2 p-0 align-top border border-black">
+                                        <td className="w-1/2 p-0 align-top">
                                             <div className="bg-header w-full py-0.5 text-center">DOCUMENTADOR</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.documenter_name}</div>
@@ -360,8 +360,8 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         </td>
                                         <td className="no-border w-4"></td>
                                         {/* SUPERVISOR */}
-                                        <td className="w-1/2 p-0 align-top border border-black">
-                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">SUPERVISOR DE EMBARQUE</div>
+                                        <td className="w-1/2 p-0 align-top">
+                                            <div className="bg-header w-full py-0.5 text-center">SUPERVISOR DE EMBARQUE</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="border-t border-black w-3/4 mx-auto text-[8px]"></div>
                                             </div>
@@ -372,7 +372,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 <table className="mb-1">
                                     <tr>
                                         {/* BASCULA */}
-                                        <td className="w-1/2 p-0 align-top border border-black">
+                                        <td className="w-1/2 p-0 align-top">
                                             <div className="bg-header w-full py-0.5 text-center">OPERADOR DE BASCULA</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.scale_name}</div>
@@ -381,7 +381,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         </td>
                                         <td className="no-border w-4"></td>
                                         {/* OPERADOR UNIDAD */}
-                                        <td className="w-1/2 p-0 align-top border border-black">
+                                        <td className="w-1/2 p-0 align-top">
                                             <div className="bg-header w-full py-0.5 text-center">OPERADOR DE UNIDAD</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.operator_name}</div>
@@ -393,7 +393,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
 
                                 {/* SECURITY & AUTH - Single Box Style */}
                                 <div className="flex justify-center my-2">
-                                    <div className="w-1/3 border border-black p-0">
+                                    <div className="w-1/3 p-0">
                                         <div className="bg-header border-b border-black text-center text-[9px] font-bold py-0.5">Seguridad Física</div>
                                         <div className="h-8"></div>
                                         <div className="text-center font-bold text-[8px] border-t border-black pt-1 mb-1">
