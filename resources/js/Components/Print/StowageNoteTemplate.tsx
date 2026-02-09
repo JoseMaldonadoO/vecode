@@ -62,33 +62,34 @@ export default function StowageNoteTemplate({ order }: Props) {
                 </div>
             </div>
 
-            {/* --- TRANSPORTISTA SECTION (Standard Grid) --- */}
-            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[13%]`}>
+            {/* --- DATOS DEL TRANSPORTISTA --- */}
+            <div className={`w-full ${borderClass} bg-green-200 text-center font-bold text-[8px] p-0.5 border-b-0`}>DATOS DEL TRANSPORTISTA</div>
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {/* Col 1: Operator */}
                 <div className={`w-[25%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>NOMBRE Y FIRMA DEL OPERADOR</div>
-                    <div className="flex-1 flex items-end justify-center font-bold uppercase text-[10px] pb-1 text-center leading-none">
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>NOMBRE Y FIRMA DEL OPERADOR</div>
+                    <div className="flex-1 flex items-end justify-center font-bold uppercase text-[9px] pb-1 text-center leading-none">
                         {order.operator_name || order.operator?.name || "SIN ASIGNAR"}
                     </div>
                 </div>
                 {/* Col 2: Carrier */}
                 <div className={`w-[35%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>NOMBRE DE LA FLETERA</div>
-                    <div className="flex-1 flex items-center justify-center font-bold uppercase text-[12px] text-center leading-none px-1">
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>NOMBRE DE LA FLETERA</div>
+                    <div className="flex-1 flex items-center justify-center font-bold uppercase text-[10px] text-center leading-none px-1">
                         {order.transport_company || order.carrier?.name || "N/A"}
                     </div>
                 </div>
                 {/* Col 3: Unit Type */}
                 <div className={`w-[20%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>TIPO DE UNIDAD</div>
-                    <div className="flex-1 flex items-center justify-center font-bold uppercase text-[10px] text-center leading-none">
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>TIPO DE UNIDAD</div>
+                    <div className="flex-1 flex items-center justify-center font-bold uppercase text-[9px] text-center leading-none">
                         {order.is_full ? 'FULL' : (order.unit_type || 'SENCILLO')}
                     </div>
                 </div>
                 {/* Col 4: Plates */}
                 <div className={`w-[20%] flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>PLACAS</div>
-                    <div className="flex-1 flex flex-col justify-center items-center font-bold text-[9px] leading-tight">
+                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>PLACAS</div>
+                    <div className="flex-1 flex flex-col justify-center items-center font-bold text-[8px] leading-tight">
                         <div>T: {order.tractor_plate}</div>
                         <div>R: {order.trailer_plate}</div>
                         {order.is_full && <div>R2: {order.trailer2_plate}</div>}
@@ -96,7 +97,8 @@ export default function StowageNoteTemplate({ order }: Props) {
                 </div>
             </div>
 
-            {/* --- DATOS GENERALES (Standard Grid) --- */}
+            {/* --- DATOS GENERALES --- */}
+            <div className={`w-full ${borderClass} bg-green-200 text-center font-bold text-[8px] p-0.5 border-b-0`}>DATOS GENERALES</div>
             <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {/* OV */}
                 <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
@@ -162,8 +164,8 @@ export default function StowageNoteTemplate({ order }: Props) {
                         ))}
                     </tbody>
                 </table>
-                {/* Floating Box */}
-                <div className="absolute -right-1 top-2 w-32 h-10 border-2 border-black bg-white rounded-2xl z-10"></div>
+                {/* Floating Box - Moved up slightly higher than the table */}
+                <div className="absolute -right-1 top-0 w-32 h-8 border-2 border-black bg-white rounded-2xl z-10"></div>
             </div>
 
             {/* --- PRODUCT TABLE --- */}
@@ -275,8 +277,11 @@ export default function StowageNoteTemplate({ order }: Props) {
                             <div className={`w-1/2 bg-gray-50 ${borderClass} border-r flex items-center justify-center font-bold text-center`}>LIMITES</div>
                             <div className="w-1/2 flex items-center justify-center font-bold text-xs">0-0</div>
                         </div>
-                        <div className="bg-green-200 h-6 flex items-center justify-center text-center font-bold leading-none px-1">
-                            IM EMBARQUE ESTIMADO
+                        <div className="flex h-6 border-t border-green-800">
+                            <div className="bg-green-200 w-2/3 flex items-center justify-center text-[6px] font-bold leading-none px-1 border-r border-green-800 text-center">
+                                TM EMBARQUE ESTIMADO
+                            </div>
+                            <div className="w-1/3 bg-white"></div>
                         </div>
                     </div>
                 </div>
