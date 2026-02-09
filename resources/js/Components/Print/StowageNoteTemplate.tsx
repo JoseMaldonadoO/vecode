@@ -142,30 +142,37 @@ export default function StowageNoteTemplate({ order }: Props) {
             </div>
 
             {/* --- GRID E- --- */}
-            <div className="w-full mb-1 relative flex-1 min-h-0">
-                <div className="text-center font-bold text-base leading-none">E-</div>
-                <table className="w-full h-[calc(100%-16px)] border-collapse border border-green-800 text-center text-[7px]">
-                    <thead>
-                        <tr>
-                            <th className="border border-green-800 w-5 bg-gray-100"></th>
-                            {gridCols.map(col => (
-                                <th key={col} className="border border-green-800 bg-gray-100 h-2">{col}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {gridRows.map(rowLabel => (
-                            <tr key={rowLabel} className="h-4">
-                                <td className="border border-green-800 bg-gray-100 font-bold">{rowLabel}</td>
+            <div className="w-full mb-1 flex flex-1 min-h-0">
+                {/* Table Container - Takes up most space */}
+                <div className="w-[92%] h-full flex flex-col">
+                    <div className="text-center font-bold text-base leading-none">E-</div>
+                    <table className="w-full flex-1 border-collapse border border-green-800 text-center text-[7px]">
+                        <thead>
+                            <tr>
+                                <th className="border border-green-800 w-5 bg-gray-100"></th>
                                 {gridCols.map(col => (
-                                    <td key={`${rowLabel}-${col}`} className="border border-green-800"></td>
+                                    <th key={col} className="border border-green-800 bg-gray-100 h-2">{col}</th>
                                 ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {/* Floating Box - Moved up slightly higher than the table */}
-                <div className="absolute -right-1 top-0 w-32 h-8 border-2 border-black bg-white rounded-2xl z-10"></div>
+                        </thead>
+                        <tbody>
+                            {gridRows.map(rowLabel => (
+                                <tr key={rowLabel} className="h-4">
+                                    <td className="border border-green-800 bg-gray-100 font-bold">{rowLabel}</td>
+                                    {gridCols.map(col => (
+                                        <td key={`${rowLabel}-${col}`} className="border border-green-800"></td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Box Container - Reserved space to right prevents overlap */}
+                <div className="w-[8%] flex justify-center pt-5">
+                    {/* The floating box - vertical position adjusted via pt-5 to be 'where marked' (not too high, not too low) */}
+                    <div className="w-[90%] h-8 border-2 border-black bg-white rounded-2xl"></div>
+                </div>
             </div>
 
             {/* --- PRODUCT TABLE --- */}
