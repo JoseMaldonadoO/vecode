@@ -42,7 +42,7 @@ class WeightTicketController extends Controller
                     'id' => $order->id,
                     'folio' => $order->folio,
                     'provider' => $order->client->business_name ?? $order->client->name, // Check business_name
-                    'product' => $order->product->name ?? ($order->shipment_order->items->first()?->product->name ?? 'N/A'),
+                    'product' => $order->product->name ?? ($order->shipment_order?->items->first()?->product->name ?? 'N/A'),
                     'entry_weight' => $ticket->tare_weight,
                     'vehicle_plate' => $order->tractor_plate,
                     'trailer_plate' => $order->trailer_plate ?? 'N/A',
@@ -51,9 +51,9 @@ class WeightTicketController extends Controller
                     'economic_number' => $order->economic_number ?? 'N/A',
                     'warehouse' => $order->warehouse ?? 'N/A', // Assuming warehouse is directly on LoadingOrder
                     'cubicle' => $order->cubicle ?? 'N/A', // Assuming cubicle is directly on LoadingOrder
-                    'reference' => $order->reference ?? ($order->shipment_order->customer_reference ?? 'N/A'),
-                    'consignee' => $order->consignee ?? ($order->shipment_order->consignee ?? 'N/A'),
-                    'programmed_weight' => $order->shipment_order->programmed_tons ?? ($order->shipment_order->items->sum('requested_quantity') ?? 0),
+                    'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
+                    'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
+                    'programmed_weight' => $order->shipment_order?->programmed_tons ?? ($order->shipment_order?->items?->sum('requested_quantity') ?? 0),
                     'entry_at' => $order->entry_at,
                     'type' => $order->shipment_order_id ? 'sale' : 'vessel',
                 ];
