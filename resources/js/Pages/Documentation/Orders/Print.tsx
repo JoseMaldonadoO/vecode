@@ -57,17 +57,30 @@ export default function Print({ order }: Props) {
     }, []);
 
     const calculateSacks = () => {
-        if (order.sacks_count) return order.sacks_count;
-        if (!order.programmed_tons || !order.presentation) return "N/A";
-
+        if (!order.programmed_tons) return "0";
         const tons = parseFloat(order.programmed_tons);
-        if (isNaN(tons)) return "N/A";
+        if (isNaN(tons)) return "0";
 
-        if (order.presentation.includes("25")) return (tons * 40).toFixed(0);
-        if (order.presentation.includes("50")) return (tons * 20).toFixed(0);
-        if (order.presentation.includes("200")) return (tons * 5).toFixed(0);
-        if (order.presentation.includes("500")) return (tons * 2).toFixed(0);
-        if (order.presentation.includes("1000")) return (tons * 1).toFixed(0);
+        // Logic: Controller saves Sack Size (e.g. "50 KG") in 'sacks_count' column.
+        // We parse that string to get the divisor.
+        if (order.sacks_count && order.sacks_count.includes("KG")) {
+            const size = parseInt(order.sacks_count.replace("KG", "").trim());
+            if (!isNaN(size) && size > 0) {
+                // tons * 1000 / size_kg = count
+                return ((tons * 1000) / size).toFixed(0);
+            }
+        }
+
+        // Fallback for legacy or if sacks_count just holds a number (unlikely given controller)
+        // Or if presentation string holds the key (legacy fallback)
+        if (order.presentation?.includes("25")) return (tons * 40).toFixed(0);
+        if (order.presentation?.includes("50")) return (tons * 20).toFixed(0);
+        if (order.presentation?.includes("200")) return (tons * 5).toFixed(0);
+        if (order.presentation?.includes("500")) return (tons * 2).toFixed(0);
+        if (order.presentation?.includes("1000")) return (tons * 1).toFixed(0);
+
+        // If simply just valid sacks_count (maybe it WAS a number in old records)
+        if (order.sacks_count) return order.sacks_count;
 
         return "N/A";
     };
