@@ -302,11 +302,11 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 </table>
 
                                 {/* ALMACEN / ORIGEN / TIPO SACOS (Conditional) */}
-                                <table className="mb-1">
+                                <table className="mb-1 border border-black">
                                     <tr>
                                         {/* If Envasado, we split into 3 columns. If Granel, maybe just 2 or 3 blank? User said "Solo cuando es Envasado aparece Tipo de Sacos" */}
-                                        <td className="text-center font-bold text-[9px] w-1/3 border-b-0">ALMACEN</td>
-                                        <td className="text-center font-bold text-[9px] w-1/3 border-b-0">ORIGEN DE PRODUCTO</td>
+                                        <td className="bg-header text-center font-bold text-[9px] w-1/3 no-border">ALMACEN</td>
+                                        <td className="bg-header text-center font-bold text-[9px] w-1/3 no-border">ORIGEN DE PRODUCTO</td>
 
                                         {order.presentation?.toUpperCase().includes('ENVASADO') ? (
                                             <td className="text-center font-bold text-[9px] w-1/3 border-b-0">TIPO DE SACOS</td>
@@ -352,7 +352,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     <tr>
                                         {/* DOCUMENTADOR */}
                                         <td className="w-1/2 p-0 align-top border border-black">
-                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">DOCUMENTADOR</div>
+                                            <div className="bg-header w-full py-0.5 text-center">DOCUMENTADOR</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.documenter_name}</div>
                                                 <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
