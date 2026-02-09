@@ -99,6 +99,7 @@ export default function Print({ order }: Props) {
 }
 table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
 th, td { border: 1px solid black; padding: 2px 4px; }
+.no-border { border: none !important; }
 
 /* Wrapper to force a new page for the Stowage Note */
 .stowage-page-wrapper {
@@ -393,7 +394,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
 
                                 {/* SECURITY & AUTH - Single Box Style */}
                                 <div className="flex justify-center my-2">
-                                    <div className="w-1/3 p-0">
+                                    <div className="w-1/3 p-0 no-border">
                                         <div className="bg-header border-b border-black text-center text-[9px] font-bold py-0.5">Seguridad Física</div>
                                         <div className="h-8"></div>
                                         <div className="text-center font-bold text-[8px] border-t border-black pt-1 mb-1">
