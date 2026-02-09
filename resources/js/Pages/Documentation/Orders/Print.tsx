@@ -101,6 +101,7 @@ table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; 
 th, td { border: 1px solid black; padding: 2px 4px; }
 
 /* Wrapper to force a new page for the Stowage Note */
+.stowage-page-wrapper {
     page-break-before: always;
     position: relative;
     width: 100%;
@@ -113,8 +114,8 @@ th, td { border: 1px solid black; padding: 2px 4px; }
     transform: rotate(90deg) translateY(-100%);
     transform-origin: top left;
     /* Maximize use of Letter page 215.9mm x 279.4mm minus 4mm margins */
-    width: 271mm; /* Full available height */
-    height: 208mm; /* Full available width */
+    width: 271mm; /* Full available height of sheet (landscape width) */
+    height: 206mm; /* Full available width of sheet (landscape height) */
     position: absolute;
     top: 0;
     left: 0;

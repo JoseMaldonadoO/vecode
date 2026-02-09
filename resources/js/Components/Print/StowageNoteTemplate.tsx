@@ -27,7 +27,8 @@ export default function StowageNoteTemplate({ order }: Props) {
     return (
         // Wrapper that simulates a landscape page on a portrait sheet if needed, or just fills the landscape page
         // The rotation logic will be handled in Print.tsx via CSS class .rotate-landscape
-        <div className="w-full h-full bg-white font-sans text-[10px] text-black leading-tight p-2 box-border">
+        <div className="w-full h-full bg-white font-sans text-[10px] text-black leading-tight p-1 box-border flex flex-col">
+            {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
             <div className={`flex w-full ${borderClass} border-2 mb-1 h-[12%]`}>
@@ -62,7 +63,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             </div>
 
             {/* --- TRANSPORTISTA SECTION (Standard Grid) --- */}
-            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[15%]`}>
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[13%]`}>
                 {/* Col 1: Operator */}
                 <div className={`w-[25%] ${borderClass} border-r flex flex-col`}>
                     <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[8px] p-0.5`}>NOMBRE Y FIRMA DEL OPERADOR</div>
@@ -139,20 +140,20 @@ export default function StowageNoteTemplate({ order }: Props) {
             </div>
 
             {/* --- GRID E- --- */}
-            <div className="w-full mb-1 relative">
-                <div className="text-center font-bold text-base mb-0.5">E-</div>
-                <table className="w-full border-collapse border border-green-800 text-center text-[7px]">
+            <div className="w-full mb-1 relative flex-1 min-h-0">
+                <div className="text-center font-bold text-base leading-none">E-</div>
+                <table className="w-full h-[calc(100%-16px)] border-collapse border border-green-800 text-center text-[7px]">
                     <thead>
                         <tr>
                             <th className="border border-green-800 w-5 bg-gray-100"></th>
                             {gridCols.map(col => (
-                                <th key={col} className="border border-green-800 bg-gray-100 h-3">{col}</th>
+                                <th key={col} className="border border-green-800 bg-gray-100 h-2">{col}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
                         {gridRows.map(rowLabel => (
-                            <tr key={rowLabel} className="h-3">
+                            <tr key={rowLabel} className="h-4">
                                 <td className="border border-green-800 bg-gray-100 font-bold">{rowLabel}</td>
                                 {gridCols.map(col => (
                                     <td key={`${rowLabel}-${col}`} className="border border-green-800"></td>
@@ -162,11 +163,11 @@ export default function StowageNoteTemplate({ order }: Props) {
                     </tbody>
                 </table>
                 {/* Floating Box */}
-                <div className="absolute -right-1 top-6 w-20 h-10 border-2 border-black bg-white rounded-lg z-10"></div>
+                <div className="absolute -right-1 top-4 w-20 h-10 border-2 border-black bg-white rounded-lg z-10"></div>
             </div>
 
             {/* --- PRODUCT TABLE --- */}
-            <table className={`w-full border-collapse ${borderClass} border-2 text-[8px] mb-1 leading-none`}>
+            <table className={`w-full border-collapse ${borderClass} border-2 text-[8px] mb-1 leading-none h-[12%]`}>
                 <thead>
                     <tr className="bg-green-200 text-center font-bold">
                         <th className={`${borderClass} w-[10%]`}>CODIGO</th>
@@ -199,7 +200,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             </table>
 
             {/* --- FOOTER SECTION (Compact) --- */}
-            <div className={`flex w-full ${borderClass} border-2 mt-0.5`}>
+            <div className={`flex w-full ${borderClass} border-2 h-[20%]`}>
                 {/* Quality / Comments */}
                 <div className={`w-[35%] ${borderClass} border-r-2 flex flex-col p-1`}>
                     <div className={`bg-green-100 ${borderClass} text-[7px] font-bold text-center mb-0.5`}>CALIDAD DE PRODUCTO Y CANTIDAD DE SACOS</div>
@@ -215,7 +216,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                     </div>
 
                     <div className={`bg-green-100 ${borderClass} text-[7px] font-bold text-center mb-0.5`}>COMENTARIOS</div>
-                    <div className={`h-4 ${borderClass}`}></div>
+                    <div className={`flex-1 ${borderClass}`}></div>
                 </div>
 
                 {/* Weights & Validation */}
@@ -225,7 +226,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                             Registro de pesos en caso de revision de peso de sacos (Muestreo del embarque) kg
                         </div>
                         <div className="flex-1">
-                            <table className={`w-full border-collapse ${borderClass} border-b text-center text-[8px]`}>
+                            <table className={`w-full h-full border-collapse ${borderClass} text-center text-[8px]`}>
                                 <tbody>
                                     {weightRegistrationRows.map((row, idx) => (
                                         <React.Fragment key={idx}>
@@ -234,7 +235,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                                                     <td key={label} className={`${borderClass} w-[10%]`}>{label}</td>
                                                 ))}
                                             </tr>
-                                            <tr className="h-4">
+                                            <tr className="flex-1">
                                                 {row.labels.map(label => (
                                                     <td key={`val-${label}`} className={borderClass}></td>
                                                 ))}
@@ -244,7 +245,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="bg-green-200 text-[5px] font-bold text-center p-0.5 h-full flex items-center justify-center leading-none">
+                        <div className="bg-green-200 text-[5px] font-bold text-center p-0.5 flex items-center justify-center leading-none">
                             NOTA: CUALQUIER FALTANTE DEBERÁ ACOMPAÑARSE DE ESTA NOTA INDICANDO LUGAR EXACTO.
                         </div>
                     </div>
