@@ -67,6 +67,7 @@ export default function Print({ order }: Props) {
         if (order.presentation.includes("50")) return (tons * 20).toFixed(0);
         if (order.presentation.includes("200")) return (tons * 5).toFixed(0);
         if (order.presentation.includes("500")) return (tons * 2).toFixed(0);
+        if (order.presentation.includes("1000")) return (tons * 1).toFixed(0);
 
         return "N/A";
     };

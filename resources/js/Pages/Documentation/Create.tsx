@@ -562,6 +562,7 @@ export default function Create({
                                         <option value="50">50 KG</option>
                                         <option value="200">200 KG</option>
                                         <option value="500">500 KG</option>
+                                        <option value="1000">1000 KG</option>
                                     </select>
                                 </div>
                             ) : (
