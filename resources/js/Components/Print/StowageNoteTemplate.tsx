@@ -102,7 +102,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                 <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
                     <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE VENTA</div>
                     <div className="flex-1 flex items-center justify-center font-bold text-[10px]">
-                        {order.sales_order?.sale_order || order.sales_order?.folio || "N/A"}
+                        {order.sales_order?.folio || order.sales_order?.sale_order || "N/A"}
                     </div>
                 </div>
                 {/* OE */}
@@ -163,7 +163,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                     </tbody>
                 </table>
                 {/* Floating Box */}
-                <div className="absolute -right-1 top-4 w-20 h-10 border-2 border-black bg-white rounded-lg z-10"></div>
+                <div className="absolute -right-1 top-2 w-32 h-10 border-2 border-black bg-white rounded-2xl z-10"></div>
             </div>
 
             {/* --- PRODUCT TABLE --- */}
@@ -187,17 +187,27 @@ export default function StowageNoteTemplate({ order }: Props) {
                         <td className={borderClass}></td>
                         <td className={borderClass}></td>
                     </tr>
-                    {['LINEA 1', 'LINEA 2', 'LINEA 3', 'LINEA 4'].map((line, idx) => (
-                        <tr key={idx} className="h-3">
-                            <td className={`${borderClass} bg-gray-100 font-bold text-center text-[7px] uppercase`}>
-                                {idx === 0 ? 'NO. DE LOTE' : idx === 1 ? 'VERIFICADOR' : ''}
-                            </td>
-                            <td className={`${borderClass} text-center font-bold uppercase`}>{line}</td>
-                            <td className={borderClass} colSpan={4}></td>
-                        </tr>
-                    ))}
                 </tbody>
             </table>
+
+            {/* Lot / Verificador / Line Row: Horizontal Boxes */}
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[6%]`}>
+                {[
+                    { label: 'NO. DE LOTE', width: '15%' },
+                    { label: 'VERIFICADOR', width: '20%' },
+                    { label: 'LINEA 1', width: '16.25%' },
+                    { label: 'LINEA 2', width: '16.25%' },
+                    { label: 'LINEA 3', width: '16.25%' },
+                    { label: 'LINEA 4', width: '16.25%' }
+                ].map((col, idx) => (
+                    <div key={idx} className={`flex flex-col ${idx < 5 ? borderClass + ' border-r' : ''}`} style={{ width: col.width }}>
+                        <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase`}>
+                            {col.label}
+                        </div>
+                        <div className="flex-1"></div>
+                    </div>
+                ))}
+            </div>
 
             {/* --- FOOTER SECTION (Compact) --- */}
             <div className={`flex w-full ${borderClass} border-2 h-[20%]`}>
