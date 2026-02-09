@@ -57,6 +57,19 @@ export default function Edit({
     products: Product[];
     sales_orders: any[];
 }) {
+    // Helper to find partial match for product
+    const findProduct = () => {
+        const pName = order.product?.name || order.product || "";
+        if (!pName) return "";
+        // Try exact match
+        if (products.some(p => p.name === pName)) return pName;
+        // Try trimmed match
+        const found = products.find(p => p.name.trim() === pName.trim());
+        if (found) return found.name;
+        // Return original if no match found (it will show as selected if value matches, otherwise redundant)
+        return pName;
+    };
+
     const { data, setData, put, processing, errors } = useForm({
         folio: order.folio,
         sales_order_id: order.sales_order_id?.toString() || "",
@@ -80,7 +93,7 @@ export default function Edit({
         economic_number: order.economic_number || "",
 
         // Product Data
-        product: order.product?.name || order.product || "",
+        product: findProduct(),
         presentation: order.presentation || "GRANEL",
         sack_type: order.sacks_count ? order.sacks_count.replace(/\D/g, '') : "", // Extract digits (e.g. "50 KG" -> "50")
         sacks_count: order.sacks_count || "",
