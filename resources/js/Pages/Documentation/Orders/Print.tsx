@@ -280,8 +280,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     </tr>
                                     <tr>
                                         <td className="text-center font-bold">{order.product?.code || "1073"}</td>
-                                        <td className="text-center font-bold uppercase text-xl">{order.product?.name || "UREA AGRICOLA"}</td>
-                                        <td className="text-center font-black text-xl">{order.programmed_tons || "0.000"}</td>
+                                        {/* Reverted to standard size as requested */}
+                                        <td className="text-center font-bold uppercase text-lg">{order.product?.name || "UREA AGRICOLA"}</td>
+                                        <td className="text-center font-bold text-lg">{order.programmed_tons || "0.000"}</td>
                                     </tr>
                                 </table>
 
@@ -372,7 +373,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     <tr>
                                         {/* BASCULA */}
                                         <td className="w-1/2 p-0 align-top border border-black">
-                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">OPERADOR DE BASCULA</div>
+                                            <div className="bg-header w-full py-0.5 text-center">OPERADOR DE BASCULA</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.scale_name}</div>
                                                 <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
@@ -381,7 +382,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td className="no-border w-4"></td>
                                         {/* OPERADOR UNIDAD */}
                                         <td className="w-1/2 p-0 align-top border border-black">
-                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">OPERADOR DE UNIDAD</div>
+                                            <div className="bg-header w-full py-0.5 text-center">OPERADOR DE UNIDAD</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.operator_name}</div>
                                                 <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
@@ -416,7 +417,8 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 {/* OBSERVATIONS */}
                                 <table className="mb-1">
                                     <tr>
-                                        <th className="bg-header text-left pl-2 py-0.5">OBSERVACIONES:</th>
+                                        {/* Removed border-b-2!/border-black! classes if any, used standard bg-header without border-b */}
+                                        <th className="bg-header text-left pl-2 py-0.5 border-b-0">OBSERVACIONES:</th>
                                     </tr>
                                     <tr className="h-8">
                                         <td className="align-top text-[8px] uppercase p-1">{order.observations}</td>
