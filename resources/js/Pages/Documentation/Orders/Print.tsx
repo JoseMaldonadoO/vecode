@@ -183,7 +183,8 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td className="bg-header w-24 text-left pl-2">CLIENTE :</td>
                                         <td className="font-bold pl-2 uppercase">{order.client.business_name}</td>
                                         <td rowSpan={4} className="w-24 text-center no-border p-1">
-                                            <img src="/images/logo_proagro.png" alt="PROAGRO" className="h-10 mx-auto object-contain" />
+                                            {/* Larger Logo as requested */}
+                                            <img src="/images/logo_proagro.png" alt="PROAGRO" className="h-20 mx-auto object-contain" />
                                         </td>
                                     </tr>
                                     <tr>
@@ -199,8 +200,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td className="font-bold pl-2 text-[8px] uppercase flex justify-between items-center border-none p-0">
                                             <span>{order.consigned_to || "N/A"}</span>
                                             <div className="flex items-center border-l border-black pl-2 h-full">
-                                                <span className="bg-header px-1 border border-black mr-1 h-full flex items-center">PEDIDO:</span>
-                                                <span className="px-1">{order.sales_order?.sale_order || "N/A"}</span>
+                                                {/* Bold/Larger Pedido */}
+                                                <span className="bg-header px-1 border border-black mr-1 h-full flex items-center font-black text-[10px]">PEDIDO:</span>
+                                                <span className="px-1 font-black text-[10px]">{order.sales_order?.sale_order || "N/A"}</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -237,6 +239,15 @@ th, td { border: 1px solid black; padding: 2px 4px; }
 
                                                     <td className="bg-header w-24 border-t-0 text-center">TIPO DE UNIDAD:</td>
                                                     <td className="text-center font-bold border-t-0 border-r-0">{order.unit_type || "VOLTEO"}</td>
+
+                                                    {/* NEW: ESTADO FIELD matching logic for visual space if needed, otherwise already covered by previous layout logic? 
+                                                        Wait, user asked for "Embarque" fields to be same size. 
+                                                        Current layout has "TIPO DE UNIDAD" and "ESTADO" in this row in original code, let's preserve or enhance.
+                                                        Checking original code... it had TRACTOR, ECONÓMICO, TIPO DE UNIDAD. 
+                                                        Then REMOLQUE, DESTINO, ESTADO.
+                                                        I will keep the structure but ensure font weights/sizes match user request "DEL MISMO TAMAÑO QUE LO DE CLIENTE".
+                                                        The fonts are already generally consistent (9px/10px). I'll ensure headers are exact.
+                                                    */}
                                                 </tr>
                                             </table>
                                         </td>
@@ -260,7 +271,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 </table>
 
                                 {/* SHIPMENT SECTION */}
-                                <div className="bg-header border border-black border-b-0 text-[10px] py-0.5">DEL EMBARQUE</div>
+                                <div className="bg-header border border-black border-b-0 text-[10px] py-0.5 font-bold">DEL EMBARQUE</div>
                                 <table className="mb-1">
                                     <tr>
                                         <td className="bg-header text-center w-24">CÓDIGO</td>
@@ -269,8 +280,8 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     </tr>
                                     <tr>
                                         <td className="text-center font-bold">{order.product?.code || "1073"}</td>
-                                        <td className="text-center font-bold uppercase text-lg">{order.product?.name || "UREA AGRICOLA"}</td>
-                                        <td className="text-center font-bold text-lg">{order.programmed_tons || "0.000"}</td>
+                                        <td className="text-center font-bold uppercase text-xl">{order.product?.name || "UREA AGRICOLA"}</td>
+                                        <td className="text-center font-black text-xl">{order.programmed_tons || "0.000"}</td>
                                     </tr>
                                 </table>
 
@@ -289,75 +300,102 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     </tr>
                                 </table>
 
-                                {/* ALMACEN / ORIGEN CHECKBOXES */}
+                                {/* ALMACEN / ORIGEN / TIPO SACOS (Conditional) */}
                                 <table className="mb-1">
                                     <tr>
-                                        <td className="text-center font-bold text-[9px] w-1/3">ALMACEN</td>
-                                        <td className="text-center font-bold text-[9px] w-1/3">ORIGEN DE PRODUCTO</td>
-                                        <td className="no-border w-1/3"></td>
+                                        {/* If Envasado, we split into 3 columns. If Granel, maybe just 2 or 3 blank? User said "Solo cuando es Envasado aparece Tipo de Sacos" */}
+                                        <td className="text-center font-bold text-[9px] w-1/3 border-b-0">ALMACEN</td>
+                                        <td className="text-center font-bold text-[9px] w-1/3 border-b-0">ORIGEN DE PRODUCTO</td>
+
+                                        {order.presentation?.toUpperCase().includes('ENVASADO') ? (
+                                            <td className="text-center font-bold text-[9px] w-1/3 border-b-0">TIPO DE SACOS</td>
+                                        ) : (
+                                            <td className="no-border w-1/3"></td>
+                                        )}
                                     </tr>
                                     <tr>
-                                        <td className="text-center align-middle py-1">
+                                        <td className="text-center align-middle py-1 border-t-0">
                                             <span className="inline-block border border-black w-3 h-3 align-middle mr-1"></span> 1
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 2
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 3
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 4
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 5
                                         </td>
-                                        <td className="text-center align-middle py-1">
+                                        <td className="text-center align-middle py-1 border-t-0">
                                             UREA I <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span>
                                             UREA II <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span>
                                         </td>
-                                        <td className="no-border">
-                                            <div className="border-b border-black w-full h-full"></div>
-                                        </td>
+
+                                        {order.presentation?.toUpperCase().includes('ENVASADO') ? (
+                                            <td className="text-left align-middle py-1 border-t-0 pl-2">
+                                                <div className="flex items-center mb-0.5">
+                                                    <span className="inline-block border border-black w-3 h-3 mr-1"></span>
+                                                    <span className="text-[8px] font-bold mr-1">PROPIO COD</span>
+                                                    <span className="border-b border-black w-8"></span>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <span className="inline-block border border-black w-3 h-3 mr-1"></span>
+                                                    <span className="text-[8px] font-bold">CLIENTE</span>
+                                                </div>
+                                            </td>
+                                        ) : (
+                                            <td className="no-border">
+                                                <div className="border-b border-black w-full h-full"></div>
+                                            </td>
+                                        )}
                                     </tr>
                                 </table>
 
-                                {/* SIGNATURES */}
+                                {/* SIGNATURES - CLEAN BOADER STYLE (Only outer box border) */}
                                 <table className="mb-1 mt-4">
                                     <tr>
-                                        <td className="bg-header text-center w-1/2 py-0.5 rounded-t-lg">DOCUMENTADOR</td>
-                                        <td className="no-border w-8"></td>
-                                        <td className="bg-header text-center w-1/2 py-0.5 rounded-t-lg">SUPERVISOR DE EMBARQUE</td>
-                                    </tr>
-                                    <tr className="h-16">
-                                        <td className="align-bottom text-center pb-2">
-                                            <div className="uppercase text-[9px] font-bold mb-1">{order.documenter_name}</div>
-                                            <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
+                                        {/* DOCUMENTADOR */}
+                                        <td className="w-1/2 p-0 align-top border border-black">
+                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">DOCUMENTADOR</div>
+                                            <div className="h-16 flex flex-col justify-end text-center pb-2">
+                                                <div className="uppercase text-[9px] font-bold mb-1">{order.documenter_name}</div>
+                                                <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
+                                            </div>
                                         </td>
-                                        <td className="no-border"></td>
-                                        <td className="align-bottom text-center pb-2">
-                                            <div className="border-t border-black w-3/4 mx-auto text-[8px]"></div>
+                                        <td className="no-border w-4"></td>
+                                        {/* SUPERVISOR */}
+                                        <td className="w-1/2 p-0 align-top border border-black">
+                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">SUPERVISOR DE EMBARQUE</div>
+                                            <div className="h-16 flex flex-col justify-end text-center pb-2">
+                                                <div className="border-t border-black w-3/4 mx-auto text-[8px]"></div>
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
 
                                 <table className="mb-1">
                                     <tr>
-                                        <td className="bg-header text-center w-1/2 py-0.5 rounded-t-lg">OPERADOR DE BASCULA</td>
-                                        <td className="no-border w-8"></td>
-                                        <td className="bg-header text-center w-1/2 py-0.5 rounded-t-lg">OPERADOR DE UNIDAD</td>
-                                    </tr>
-                                    <tr className="h-16">
-                                        <td className="align-bottom text-center pb-2">
-                                            <div className="uppercase text-[9px] font-bold mb-1">{order.scale_name}</div>
-                                            <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
+                                        {/* BASCULA */}
+                                        <td className="w-1/2 p-0 align-top border border-black">
+                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">OPERADOR DE BASCULA</div>
+                                            <div className="h-16 flex flex-col justify-end text-center pb-2">
+                                                <div className="uppercase text-[9px] font-bold mb-1">{order.scale_name}</div>
+                                                <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
+                                            </div>
                                         </td>
-                                        <td className="no-border"></td>
-                                        <td className="align-bottom text-center pb-2">
-                                            <div className="uppercase text-[9px] font-bold mb-1">{order.operator_name}</div>
-                                            <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
+                                        <td className="no-border w-4"></td>
+                                        {/* OPERADOR UNIDAD */}
+                                        <td className="w-1/2 p-0 align-top border border-black">
+                                            <div className="bg-header w-full border-b border-black py-0.5 text-center">OPERADOR DE UNIDAD</div>
+                                            <div className="h-16 flex flex-col justify-end text-center pb-2">
+                                                <div className="uppercase text-[9px] font-bold mb-1">{order.operator_name}</div>
+                                                <div className="border-t border-black w-3/4 mx-auto text-[8px]">Firma</div>
+                                            </div>
                                         </td>
                                     </tr>
                                 </table>
 
-                                {/* SECURITY & AUTH */}
+                                {/* SECURITY & AUTH - Single Box Style */}
                                 <div className="flex justify-center my-2">
-                                    <div className="w-1/3">
-                                        <div className="bg-header border border-black text-center text-[9px] font-bold py-0.5 rounded-t-lg">Seguridad Física</div>
-                                        <div className="h-8 border border-black border-t-0 mb-1"></div>
-                                        <div className="text-center font-bold text-[8px] border-t border-black pt-1">
+                                    <div className="w-1/3 border border-black p-0">
+                                        <div className="bg-header border-b border-black text-center text-[9px] font-bold py-0.5">Seguridad Física</div>
+                                        <div className="h-8"></div>
+                                        <div className="text-center font-bold text-[8px] border-t border-black pt-1 mb-1">
                                             Nombre y firma de quien autoriza la salida
                                         </div>
                                     </div>
