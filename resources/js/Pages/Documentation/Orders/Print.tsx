@@ -316,20 +316,20 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         )}
                                     </tr>
                                     <tr>
-                                        <td className="text-center align-middle py-1 border-t-0">
+                                        <td className="text-center align-middle py-1 border-t-0 no-border">
                                             <span className="inline-block border border-black w-3 h-3 align-middle mr-1"></span> 1
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 2
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 3
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 4
                                             <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span> 5
                                         </td>
-                                        <td className="text-center align-middle py-1 border-t-0">
+                                        <td className="text-center align-middle py-1 border-t-0 no-border">
                                             UREA I <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span>
                                             UREA II <span className="inline-block border border-black w-3 h-3 align-middle mx-1"></span>
                                         </td>
 
                                         {order.presentation?.toUpperCase().includes('ENVASADO') ? (
-                                            <td className="text-left align-middle py-1 border-t-0 pl-2">
+                                            <td className="text-left align-middle py-1 border-t-0 pl-2 no-border">
                                                 <div className="flex items-center mb-0.5">
                                                     <span className="inline-block border border-black w-3 h-3 mr-1"></span>
                                                     <span className="text-[8px] font-bold mr-1">PROPIO COD</span>
@@ -352,7 +352,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 <table className="mb-1 mt-4">
                                     <tr>
                                         {/* DOCUMENTADOR */}
-                                        <td className="w-1/2 p-0 align-top">
+                                        <td className="w-1/2 p-0 align-top no-border">
                                             <div className="bg-header w-full py-0.5 text-center">DOCUMENTADOR</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.documenter_name}</div>
@@ -361,7 +361,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         </td>
                                         <td className="no-border w-4"></td>
                                         {/* SUPERVISOR */}
-                                        <td className="w-1/2 p-0 align-top">
+                                        <td className="w-1/2 p-0 align-top no-border">
                                             <div className="bg-header w-full py-0.5 text-center">SUPERVISOR DE EMBARQUE</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="border-t border-black w-3/4 mx-auto text-[8px]"></div>
@@ -373,7 +373,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 <table className="mb-1">
                                     <tr>
                                         {/* BASCULA */}
-                                        <td className="w-1/2 p-0 align-top">
+                                        <td className="w-1/2 p-0 align-top no-border">
                                             <div className="bg-header w-full py-0.5 text-center">OPERADOR DE BASCULA</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.scale_name}</div>
@@ -382,7 +382,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         </td>
                                         <td className="no-border w-4"></td>
                                         {/* OPERADOR UNIDAD */}
-                                        <td className="w-1/2 p-0 align-top">
+                                        <td className="w-1/2 p-0 align-top no-border">
                                             <div className="bg-header w-full py-0.5 text-center">OPERADOR DE UNIDAD</div>
                                             <div className="h-16 flex flex-col justify-end text-center pb-2">
                                                 <div className="uppercase text-[9px] font-bold mb-1">{order.operator_name}</div>
@@ -419,10 +419,10 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 <table className="mb-1">
                                     <tr>
                                         {/* Removed border-b-2!/border-black! classes if any, used standard bg-header without border-b */}
-                                        <th className="bg-header text-left pl-2 py-0.5 border-b-0">OBSERVACIONES:</th>
+                                        <th className="bg-header text-left pl-2 py-0.5 no-border">OBSERVACIONES:</th>
                                     </tr>
                                     <tr className="h-8">
-                                        <td className="align-top text-[8px] uppercase p-1">{order.observations}</td>
+                                        <td className="align-top text-[8px] uppercase p-1 no-border">{order.observations}</td>
                                     </tr>
                                 </table>
                             </div>
