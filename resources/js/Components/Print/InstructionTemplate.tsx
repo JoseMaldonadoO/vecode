@@ -98,7 +98,7 @@ export default function InstructionTemplate({ order }: Props) {
                             <div className="w-16 text-right pr-2 text-[10px] pt-4">PLACAS:</div>
                             <div className="flex flex-col items-center">
                                 <div className="text-[10px] mb-1 uppercase">TRACTOR</div>
-                                <div className="border border-black px-4 py-1 font-bold text-xl text-center min-w-[120px] uppercase bg-white">
+                                <div className="border border-black px-4 py-1 font-normal text-sm text-center min-w-[120px] uppercase bg-white">
                                     {order.tractor_plate || "N/A"}
                                 </div>
                             </div>
@@ -107,7 +107,7 @@ export default function InstructionTemplate({ order }: Props) {
                         {/* ECONOMICO (Center/Right) */}
                         <div className="flex flex-col items-center px-4 pb-1">
                             <span className="text-[9px] uppercase mb-1">ECONÓMICO</span>
-                            <span className="border-b border-black font-bold text-lg px-4">{order.economic_number || "00"}</span>
+                            <span className="border-b border-black font-normal text-sm px-4">{order.economic_number || "00"}</span>
                         </div>
                     </div>
 
@@ -116,7 +116,7 @@ export default function InstructionTemplate({ order }: Props) {
                         <div className="w-16 text-right pr-2 text-[10px] pt-4">PLACAS:</div>
                         <div className="flex flex-col items-center">
                             <div className="text-[10px] mb-1 uppercase">REMOLQUE</div>
-                            <div className="border border-black px-4 py-1 font-bold text-xl text-center min-w-[120px] uppercase bg-white">
+                            <div className="border border-black px-4 py-1 font-normal text-sm text-center min-w-[120px] uppercase bg-white">
                                 {order.trailer_plate || "N/A"}
                             </div>
                         </div>
