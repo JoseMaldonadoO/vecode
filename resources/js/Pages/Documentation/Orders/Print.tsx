@@ -359,7 +359,6 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                             </td>
                                         ) : (
                                             <td className="no-border">
-                                                <div className="border-b border-black w-full h-full"></div>
                                             </td>
                                         )}
                                     </tr>
