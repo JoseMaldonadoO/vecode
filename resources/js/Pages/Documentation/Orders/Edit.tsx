@@ -96,8 +96,8 @@ export default function Edit({
         // Product Data
         product: findProduct(),
         presentation: order.presentation || "GRANEL",
-        sack_type: order.sacks_count ? order.sacks_count.replace(/\D/g, '') : "", // Extract digits (e.g. "50 KG" -> "50")
-        sacks_count: order.sacks_count || "",
+        sack_type: (order.sacks_count_raw || order.sacks_count || "").toString().replace(/\D/g, ''),
+        sacks_count: order.sacks_count_raw || order.sacks_count || "",
         programmed_tons: order.programmed_tons || "",
         balance: order.shortage_balance || "", // Using shortage_balance as 'snapshot balance' for display? OR fetch current? Review controller logic
         destination: order.destination || "",

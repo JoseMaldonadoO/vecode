@@ -476,6 +476,7 @@ class DocumentationController extends Controller
         return Inertia::render('Documentation/Orders/Edit', [
             'order' => $order->toArray() + [
                 'product_text' => $order->getAttributes()['product'] ?? null,
+                'sacks_count_raw' => $order->getAttributes()['sacks_count'] ?? null,
             ],
             'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
                 return [
