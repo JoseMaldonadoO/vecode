@@ -245,7 +245,7 @@ export default function Index({
                                                             : "--"}
                                                     </td>
                                                     <td className="px-3 py-4 whitespace-nowrap text-[10px] text-gray-900 font-bold font-mono">
-                                                        {v.docking_date || "--"}
+                                                        {v.docking_date ? v.docking_date.substring(0, 16) : "--"}
                                                     </td>
                                                     <td className="px-3 py-4 whitespace-nowrap text-xs text-gray-900 font-bold font-mono text-center">
                                                         {v.dock ? (
@@ -264,8 +264,7 @@ export default function Index({
                                                         {v.etc || "--"}
                                                     </td>
                                                     <td className="px-3 py-4 whitespace-nowrap text-[10px] text-gray-600 font-mono">
-                                                        {v.departure_date ||
-                                                            "--"}
+                                                        {v.departure_date ? v.departure_date.substring(0, 16) : "--"}
                                                     </td>
                                                     <td className="px-3 py-4 whitespace-nowrap">
                                                         <span
