@@ -215,12 +215,12 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     </tr>
                                     <tr>
                                         <td className="bg-header text-left pl-2">CONSIGNADO:</td>
-                                        <td className="font-bold pl-2 text-[8px] uppercase flex justify-between items-center border-none p-0">
+                                        <td className="font-bold pl-2 text-[8px] uppercase flex justify-between items-center p-0">
                                             <span>{order.consigned_to || "N/A"}</span>
-                                            <div className="flex items-center border-l border-black pl-2 h-full">
+                                            <div className="flex items-center border-l border-black pl-0 h-full">
                                                 {/* Bold/Larger Pedido */}
-                                                <span className="bg-header px-1 border border-black mr-1 h-full flex items-center font-black text-[10px]">PEDIDO:</span>
-                                                <span className="px-1 font-black text-[10px]">{order.sales_order?.sale_order || "N/A"}</span>
+                                                <span className="bg-header px-1 border-r border-black mr-0 h-full flex items-center font-black text-[10px]">PEDIDO:</span>
+                                                <span className="px-2 font-black text-[10px] flex items-center h-full">{order.sales_order?.sale_order || "N/A"}</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -249,14 +249,14 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td colSpan={4} className="p-0 border-0">
                                             <table className="w-full border-none">
                                                 <tr className="border-none">
-                                                    <td className="bg-header w-24 border-t-0 border-l-0 border-r text-left pl-2">TRACTOR:</td>
-                                                    <td className="text-center font-bold border-t-0">{order.tractor_plate || "N/A"}</td>
+                                                    <td className="bg-header w-24 border-r border-b text-left pl-2">TRACTOR:</td>
+                                                    <td className="text-center font-bold border-r border-b">{order.tractor_plate || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 border-t-0 text-center">ECONÓMICO:</td>
-                                                    <td className="text-center font-bold border-t-0">{order.economic_number || "N/A"}</td>
+                                                    <td className="bg-header w-24 border-r border-b text-center">ECONÓMICO:</td>
+                                                    <td className="text-center font-bold border-r border-b">{order.economic_number || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 border-t-0 text-center">TIPO DE UNIDAD:</td>
-                                                    <td className="text-center font-bold border-t-0 border-r-0">{order.unit_type || "VOLTEO"}</td>
+                                                    <td className="bg-header w-24 border-r border-b text-center">TIPO DE UNIDAD:</td>
+                                                    <td className="text-center font-bold border-b">{order.unit_type || "VOLTEO"}</td>
 
                                                     {/* NEW: ESTADO FIELD matching logic for visual space if needed, otherwise already covered by previous layout logic? 
                                                         Wait, user asked for "Embarque" fields to be same size. 
@@ -274,14 +274,14 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td colSpan={4} className="p-0 border-0">
                                             <table className="w-full border-none">
                                                 <tr className="border-none">
-                                                    <td className="bg-header w-24 border-t-0 border-l-0 border-r text-left pl-2">REMOLQUE:</td>
-                                                    <td className="text-center font-bold border-t-0">{order.trailer_plate || "N/A"}</td>
+                                                    <td className="bg-header w-24 border-r text-left pl-2">REMOLQUE:</td>
+                                                    <td className="text-center font-bold border-r">{order.trailer_plate || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 border-t-0 text-center">DESTINO:</td>
-                                                    <td className="text-center font-bold border-t-0 uppercase">{order.destination || "N/A"}</td>
+                                                    <td className="bg-header w-24 border-r text-center">DESTINO:</td>
+                                                    <td className="text-center font-bold border-r uppercase">{order.destination || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 border-t-0 text-center">ESTADO:</td>
-                                                    <td className="text-center font-bold border-t-0 border-r-0 uppercase">{order.state || "MX"}</td>
+                                                    <td className="bg-header w-24 border-r text-center">ESTADO:</td>
+                                                    <td className="text-center font-bold uppercase">{order.state || "MX"}</td>
                                                 </tr>
                                             </table>
                                         </td>
