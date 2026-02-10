@@ -241,7 +241,8 @@ export default function ExitMP({
 
     // Net Weight Calculation (Preview)
     // Always Positive logic: abs(Current - Entry)
-    const currentWeight = weight > 0 ? weight : 0;
+    // FIX: Use capturedWeight if available to stabilize calculation
+    const currentWeight = capturedWeight !== null ? capturedWeight : (weight > 0 ? weight : 0);
     const entryWeight = parseFloat(order.entry_weight) || 0;
     const netWeight = Math.abs(currentWeight - entryWeight);
 
