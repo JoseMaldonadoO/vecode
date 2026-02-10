@@ -215,13 +215,14 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                     </tr>
                                     <tr>
                                         <td className="bg-header text-left pl-2">CONSIGNADO:</td>
-                                        <td className="font-bold pl-2 uppercase flex justify-between items-center p-0">
-                                            <span>{order.consigned_to || "N/A"}</span>
-                                            <div className="flex items-center border-l pl-0 h-full">
-                                                {/* Standard Bold/Size Pedido */}
-                                                <span className="bg-header px-1 border-r mr-0 h-full flex items-center font-bold text-[9px]">PEDIDO:</span>
-                                                <span className="px-2 font-bold text-[9px] flex items-center h-full">{order.sales_order?.sale_order || "N/A"}</span>
-                                            </div>
+                                        <td className="p-0 border-0">
+                                            <table className="w-full h-full border-none">
+                                                <tr className="border-none">
+                                                    <td className="font-bold pl-2 uppercase border-none text-[9px]">{order.consigned_to || "N/A"}</td>
+                                                    <td className="bg-header w-auto border-l border-gray-400 font-bold px-2 text-[9px] text-right">PEDIDO:</td>
+                                                    <td className="font-bold px-2 text-[9px] w-16 text-center border-none flex items-center justify-center">{order.sales_order?.sale_order || "N/A"}</td>
+                                                </tr>
+                                            </table>
                                         </td>
                                     </tr>
                                 </table>
