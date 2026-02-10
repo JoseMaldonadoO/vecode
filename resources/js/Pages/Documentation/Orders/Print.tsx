@@ -41,7 +41,10 @@ interface Order {
     origin?: string;
     documenter_name?: string;
     scale_name?: string;
+    scale_name?: string;
     observations?: string;
+    product_code?: string;
+    product_text?: string;
 }
 
 interface Props {
@@ -294,9 +297,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td className="bg-header text-center w-32">TONS. PROGRAMADAS</td>
                                     </tr>
                                     <tr>
-                                        <td className="text-center font-bold">{order.product?.code || "1073"}</td>
+                                        <td className="text-center font-bold">{order.product_code || order.product?.code || "N/A"}</td>
                                         {/* Reverted to standard size (removed text-lg) */}
-                                        <td className="text-center font-bold uppercase">{order.product?.name || "UREA AGRICOLA"}</td>
+                                        <td className="text-center font-bold uppercase">{order.product_text || order.product?.name || "N/A"}</td>
                                         <td className="text-center font-bold">{order.programmed_tons || "0.000"}</td>
                                     </tr>
                                 </table>
