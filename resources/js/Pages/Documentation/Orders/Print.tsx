@@ -247,17 +247,17 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                         <td className="text-center font-bold uppercase">{order.license_number || "N/A"}</td>
                                     </tr>
                                     <tr>
-                                        <td colSpan={4} className="p-0 border-0">
+                                        <td colSpan={4} className="p-0 border">
                                             <table className="w-full border-none">
                                                 <tr className="border-none">
-                                                    <td className="bg-header w-24 text-left pl-2">TRACTOR:</td>
-                                                    <td className="text-center font-bold">{order.tractor_plate || "N/A"}</td>
+                                                    <td className="bg-header w-24 text-left pl-2 border-l-0 border-t-0">TRACTOR:</td>
+                                                    <td className="text-center font-bold border-t-0">{order.tractor_plate || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 text-center">ECONÓMICO:</td>
-                                                    <td className="text-center font-bold">{order.economic_number || "N/A"}</td>
+                                                    <td className="bg-header w-24 text-center border-t-0">ECONÓMICO:</td>
+                                                    <td className="text-center font-bold border-t-0">{order.economic_number || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 text-center">TIPO DE UNIDAD:</td>
-                                                    <td className="text-center font-bold">{order.unit_type || "VOLTEO"}</td>
+                                                    <td className="bg-header w-24 text-center border-t-0">TIPO DE UNIDAD:</td>
+                                                    <td className="text-center font-bold border-r-0 border-t-0">{order.unit_type || "VOLTEO"}</td>
 
                                                     {/* NEW: ESTADO FIELD matching logic for visual space if needed, otherwise already covered by previous layout logic? 
                                                         Wait, user asked for "Embarque" fields to be same size. 
