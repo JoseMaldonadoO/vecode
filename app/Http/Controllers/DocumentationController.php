@@ -591,11 +591,6 @@ class DocumentationController extends Controller
             return back()->with('error', 'Solo las órdenes canceladas pueden ser re-abiertas.');
         }
 
-        // Validate Balance availability
-        if ($order->programmed_tons > $order->sales_order->balance) {
-            return back()->with('error', 'No hay saldo suficiente en la Orden de Venta para reabrir esta orden (' . number_format($order->programmed_tons, 3) . ' TM requeridas).');
-        }
-
         $order->update(['status' => 'created']);
 
         return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque re-abierta correctamente.');
