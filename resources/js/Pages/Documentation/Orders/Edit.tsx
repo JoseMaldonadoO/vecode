@@ -59,14 +59,15 @@ export default function Edit({
 }) {
     // Helper to find partial match for product
     const findProduct = () => {
-        const pName = order.product?.name || order.product || "";
+        // Priority: product_text (from column), then product.name (relation), then product (if string)
+        const pName = order.product_text || order.product?.name || order.product || "";
         if (!pName) return "";
         // Try exact match
         if (products.some(p => p.name === pName)) return pName;
         // Try trimmed match
         const found = products.find(p => p.name.trim() === pName.trim());
         if (found) return found.name;
-        // Return original if no match found (it will show as selected if value matches, otherwise redundant)
+        // Return original
         return pName;
     };
 

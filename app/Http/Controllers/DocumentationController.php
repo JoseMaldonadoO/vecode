@@ -457,7 +457,9 @@ class DocumentationController extends Controller
         }
 
         return Inertia::render('Documentation/Orders/Edit', [
-            'order' => $order,
+            'order' => $order->toArray() + [
+                'product_text' => $order->getAttributes()['product'] ?? null,
+            ],
             'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
                 return [
                     'id' => $client->id,
@@ -468,7 +470,7 @@ class DocumentationController extends Controller
             }),
             'products' => Product::all(),
             'sales_orders' => SalesOrder::whereIn('status', ['created', 'open'])
-                ->orWhere('id', $order->sales_order_id) // Include current even if closed
+                ->orWhere('id', $order->sales_order_id)
                 ->with(['client', 'product'])
                 ->get(),
         ]);
