@@ -357,7 +357,7 @@ export default function ExitMP({
                                                 className="w-32 bg-gray-800 text-white border-gray-700 text-center rounded-lg text-sm disabled:opacity-50"
                                                 placeholder="Manual Admin"
                                                 value={weight}
-                                                disabled={capturedWeight !== null}
+                                                disabled={false}
                                                 onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 onChange={(e) =>
                                                     setWeight(
@@ -396,12 +396,12 @@ export default function ExitMP({
                                 <button
                                     type="button"
                                     onClick={handleCapture}
-                                    disabled={capturedWeight !== null}
+                                    disabled={false}
                                     className={`flex items-center justify-center px-4 py-3 border rounded-xl font-bold transition-all disabled:opacity-50 ${capturedWeight !== null ? "bg-amber-100 border-amber-300 text-amber-700 font-black" : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"}`}
                                 >
                                     <Scale className="w-5 h-5 mr-2" />{" "}
                                     {capturedWeight !== null
-                                        ? "Peso Capturado"
+                                        ? "Recapturar"
                                         : "Capturar"}
                                 </button>
                             </div>
