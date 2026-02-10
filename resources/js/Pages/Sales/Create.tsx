@@ -185,25 +185,25 @@ export default function Create({
                                         autoComplete="off"
                                     />
                                     <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    {isFolioFocused && suggested_folios.length > 0 && (
+                                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                            <ul>
+                                                {suggested_folios.map((suggestion, index) => (
+                                                    <li
+                                                        key={index}
+                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-700 font-medium"
+                                                        onClick={() => {
+                                                            setData("folio", suggestion);
+                                                            setIsFolioFocused(false);
+                                                        }}
+                                                    >
+                                                        {suggestion} <span className="text-xs text-indigo-500 ml-2 font-bold">(Sugerido)</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
-                                {isFolioFocused && suggested_folios.length > 0 && (
-                                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                                        <ul>
-                                            {suggested_folios.map((suggestion, index) => (
-                                                <li
-                                                    key={index}
-                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm text-gray-700 font-medium"
-                                                    onClick={() => {
-                                                        setData("folio", suggestion);
-                                                        setIsFolioFocused(false);
-                                                    }}
-                                                >
-                                                    {suggestion} <span className="text-xs text-indigo-500 ml-2 font-bold">(Sugerido)</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
                             </div>
 
                             <div>
