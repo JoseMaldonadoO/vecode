@@ -218,9 +218,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td className="font-bold pl-2 text-[8px] uppercase flex justify-between items-center p-0">
                                             <span>{order.consigned_to || "N/A"}</span>
                                             <div className="flex items-center border-l border-black pl-0 h-full">
-                                                {/* Bold/Larger Pedido */}
-                                                <span className="bg-header px-1 border-r border-black mr-0 h-full flex items-center font-black text-[10px]">PEDIDO:</span>
-                                                <span className="px-2 font-black text-[10px] flex items-center h-full">{order.sales_order?.sale_order || "N/A"}</span>
+                                                {/* Standard Bold/Size Pedido */}
+                                                <span className="bg-header px-1 border-r border-black mr-0 h-full flex items-center font-bold text-[9px]">PEDIDO:</span>
+                                                <span className="px-2 font-bold text-[9px] flex items-center h-full">{order.sales_order?.sale_order || "N/A"}</span>
                                             </div>
                                         </td>
                                     </tr>
