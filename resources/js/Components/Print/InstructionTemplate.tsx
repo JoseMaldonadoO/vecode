@@ -69,7 +69,7 @@ export default function InstructionTemplate({ order }: Props) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr className="text-center font-normal text-xs h-12">
+                        <tr className="text-center font-normal text-sm h-14">
                             <td className="border border-black py-2 px-1 uppercase leading-tight">
                                 {order.product?.name || order.product_name || "UREA AGRICOLA"}
                             </td>
