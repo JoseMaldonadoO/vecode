@@ -58,11 +58,6 @@ export default function Edit({
     sales_orders: any[];
 }) {
     // Helper to find partial match for product
-    console.log("Edit Order Sacks Debug:", {
-        raw: order.sacks_count_raw,
-        normal: order.sacks_count,
-        parsed: (order.sacks_count_raw || order.sacks_count || "").toString().replace(/\D/g, '')
-    });
     const findProduct = () => {
         // Priority: product_text (from column), then product.name (relation), then product (if string)
         const pName = order.product_text || order.product?.name || order.product || "";
@@ -113,6 +108,7 @@ export default function Edit({
     });
 
     const [queryClient, setQueryClient] = useState("");
+    const [queryProduct, setQueryProduct] = useState(""); // Not used much if simple select
     const [queryOperator, setQueryOperator] = useState("");
     const [foundOperators, setFoundOperators] = useState<Operator[]>([]);
 
