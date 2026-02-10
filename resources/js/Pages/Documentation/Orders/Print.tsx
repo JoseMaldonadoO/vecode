@@ -41,7 +41,7 @@ interface Order {
     origin?: string;
     documenter_name?: string;
     scale_name?: string;
-    scale_name?: string;
+
     observations?: string;
     product_code?: string;
     product_text?: string;
