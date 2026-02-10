@@ -123,7 +123,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
     page-break-before: always;
     position: relative;
     width: 100%;
-    height: 270mm; /* Fixed height slightly less than full page to prevent overflow/blank page */
+    height: 250mm; /* Reduced from 270mm to prevent overflow/blank page */
     overflow: hidden; 
 }
 
