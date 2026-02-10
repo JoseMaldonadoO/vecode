@@ -27,7 +27,7 @@ export default function StowageNoteTemplate({ order }: Props) {
     return (
         // Wrapper that simulates a landscape page on a portrait sheet if needed, or just fills the landscape page
         // The rotation logic will be handled in Print.tsx via CSS class .rotate-landscape
-        <div className="w-full h-[98%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col">
+        <div className="w-full h-[95%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col overflow-hidden">
             {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
@@ -175,29 +175,27 @@ export default function StowageNoteTemplate({ order }: Props) {
                 </div>
             </div>
 
-            {/* --- PRODUCT TABLE --- */}
-            <table className={`w-full border-collapse ${borderClass} border-2 text-[8px] mb-1 leading-none h-[12%]`}>
-                <thead>
-                    <tr className="bg-gray-100 text-center font-bold text-[7px] uppercase">
-                        <th className={`${borderClass} w-[10%] p-0.5`}>CODIGO</th>
-                        <th className={`${borderClass} w-[30%] p-0.5`}>PRODUCTO</th>
-                        <th className={`${borderClass} w-[15%] p-0.5`}>NO. DE ALMACEN</th>
-                        <th className={`${borderClass} w-[10%] p-0.5`}>TOTAL SACOS</th>
-                        <th className={`${borderClass} w-[10%] p-0.5`}>AJUSTE</th>
-                        <th className={`${borderClass} w-[25%] p-0.5`}>JUSTIFICAR</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr className="h-5 font-bold text-center">
-                        <td className={borderClass}>{order.product?.code || "1073"}</td>
-                        <td className={`${borderClass} uppercase text-[9px]`}>{order.product?.name || "UREA AGRICOLA"}</td>
-                        <td className={borderClass}></td>
-                        <td className={borderClass}>{order.sacks_count || "N/A"} <span className="text-[6px]">KG</span></td>
-                        <td className={borderClass}></td>
-                        <td className={borderClass}></td>
-                    </tr>
-                </tbody>
-            </table>
+            {/* --- PRODUCT TABLE / BOXES --- */}
+            {/* Replaced table with flex boxes to match LINEA 1 style as requested */}
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[10%]`}>
+                {[
+                    { label: 'CÓDIGO', width: '15%', value: order.product?.code || "" }, // Removed 1073 hardcode
+                    { label: 'DESCRIPCIÓN DEL PRODUCTO', width: '45%', value: order.product?.name || "UREA AGRICOLA" },
+                    { label: 'NO. DE ALMACEN', width: '15%', value: "" },
+                    { label: 'TOTAL DE SACOS', width: '10%', value: order.sacks_count || order.sales_order?.quantity_bags || "" }, // Linked to OE sacks
+                    { label: 'AJUSTE', width: '15%', value: "" },
+                    { label: 'JUSTIFICAR', width: '15%', value: "" }
+                ].map((col, idx) => (
+                    <div key={idx} className={`flex flex-col ${idx < 5 ? borderClass + ' border-r' : ''}`} style={{ width: col.width }}>
+                        <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase`}>
+                            {col.label}
+                        </div>
+                        <div className="flex-1 flex items-center justify-center font-bold text-[9px] text-center p-1 leading-none uppercase">
+                            {col.value}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
             {/* Lot / Verificador / Line Row: Horizontal Boxes */}
             <div className={`w-full ${borderClass} border-2 mb-1 flex h-[6%]`}>
