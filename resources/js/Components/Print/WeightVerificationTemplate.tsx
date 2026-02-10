@@ -35,7 +35,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
             <div className="flex flex-wrap w-full font-bold mb-1 text-[9px] uppercase">
                 <div className="w-1/2 flex mb-0.5 items-end">
                     <span className="w-16">PRODUCTO:</span>
-                    <span className="border-b border-black flex-1 leading-none">{order.product?.name || "UREA AGRICOLA"}</span>
+                    <span className="border-b border-black flex-1 leading-none">{order.product_text || order.product?.name || order.product || ""}</span>
                 </div>
                 <div className="w-[30%] flex mb-0.5 items-end justify-end pr-4">
                     <span className="mr-2">O.E.</span>

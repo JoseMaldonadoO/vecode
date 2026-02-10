@@ -454,8 +454,25 @@ class DocumentationController extends Controller
             }
         }
 
+        // Lookup Product Code if relation is missing
+        $productCode = 'N/A';
+        $productText = $order->getAttributes()['product'] ?? '';
+
+        if (is_object($order->product) && $order->product instanceof \App\Models\Product) {
+            $productCode = $order->product->code;
+            $productText = $order->product->name;
+        } elseif ($productText) {
+            $p = \App\Models\Product::where('name', $productText)->first();
+            if ($p) {
+                $productCode = $p->code;
+            }
+        }
+
         return Inertia::render('Documentation/Orders/PrintInstruction', [
-            'order' => $order
+            'order' => $order->toArray() + [
+                'product_code' => $productCode,
+                'product_text' => $productText,
+            ]
         ]);
 
     }
