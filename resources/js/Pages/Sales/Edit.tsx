@@ -65,13 +65,13 @@ export default function Edit({
         query === ""
             ? clients
             : clients.filter(
-                  (client) =>
-                      client.business_name
-                          .toLowerCase()
-                          .replace(/\s+/g, "")
-                          .includes(query.toLowerCase().replace(/\s+/g, "")) ||
-                      client.id.toString().includes(query),
-              );
+                (client) =>
+                    client.business_name
+                        .toLowerCase()
+                        .replace(/\s+/g, "")
+                        .includes(query.toLowerCase().replace(/\s+/g, "")) ||
+                    client.id.toString().includes(query),
+            );
 
     const selectedClient =
         clients.find((c) => c.id.toString() === data.client_id) || null;
@@ -182,7 +182,7 @@ export default function Edit({
                                             placeholder="Ej. OV-2025-01"
                                             required
                                             readOnly // Folio is usually not editable if it's already set, but user original had it as input. Keeping readOnly or not?
-                                            // User original code for Edit had it as input. I'll make it normal input but with normal font.
+                                        // User original code for Edit had it as input. I'll make it normal input but with normal font.
                                         />
                                         <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
@@ -261,6 +261,7 @@ export default function Edit({
                                                         )
                                                     }
                                                     placeholder="Buscar por ID o Nombre..."
+                                                    autoComplete="off"
                                                 />
                                                 <div className="absolute inset-y-0 left-0 flex items-center pl-3">
                                                     <User className="w-5 h-5 text-gray-400" />
@@ -296,10 +297,9 @@ export default function Edit({
                                                                     className={({
                                                                         active,
                                                                     }) =>
-                                                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                                                            active
-                                                                                ? "bg-indigo-600 text-white"
-                                                                                : "text-gray-900"
+                                                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${active
+                                                                            ? "bg-indigo-600 text-white"
+                                                                            : "text-gray-900"
                                                                         }`
                                                                     }
                                                                     value={
@@ -312,11 +312,10 @@ export default function Edit({
                                                                     }) => (
                                                                         <>
                                                                             <span
-                                                                                className={`block truncate ${
-                                                                                    selected
+                                                                                className={`block truncate ${selected
                                                                                         ? "font-normal"
                                                                                         : "font-normal"
-                                                                                }`}
+                                                                                    }`}
                                                                             >
                                                                                 <span className="font-normal mr-2">
                                                                                     {
@@ -331,11 +330,10 @@ export default function Edit({
                                                                             </span>
                                                                             {selected ? (
                                                                                 <span
-                                                                                    className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-                                                                                        active
+                                                                                    className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active
                                                                                             ? "text-white"
                                                                                             : "text-indigo-600"
-                                                                                    }`}
+                                                                                        }`}
                                                                                 >
                                                                                     <Check
                                                                                         className="h-5 w-5"

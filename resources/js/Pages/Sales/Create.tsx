@@ -238,6 +238,7 @@ export default function Create({
                                                 displayValue={(client: Client | null) => client ? `${client.id} - ${client.business_name}` : ""}
                                                 onChange={(event) => setQuery(event.target.value)}
                                                 placeholder="Buscar cliente..."
+                                                autoComplete="off"
                                             />
                                             <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
