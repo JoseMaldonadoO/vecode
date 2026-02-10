@@ -197,8 +197,8 @@ export default function Index({
                                     <ArrowLeft className="w-6 h-6 mr-1" />
                                     <span className="font-medium">Volver</span>
                                 </button>
-                                <h2 className="text-xl font-bold text-gray-800 flex items-center border-l-2 border-gray-200 pl-4">
-                                    <Truck className="w-6 h-6 mr-2 text-green-600" />
+                                <h2 className="text-xl font-bold text-gray-800 flex items-center border-l-4 border-indigo-500 pl-4">
+                                    <Truck className="w-6 h-6 mr-2 text-indigo-600" />
                                     Pendientes de Salida
                                 </h2>
                             </div>
@@ -222,38 +222,38 @@ export default function Index({
                         </div>
 
                         <div className="hidden lg:block overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-gray-50 text-gray-600 text-sm uppercase font-bold">
+                            <table className="w-full text-left border-collapse">
+                                <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900 text-white shadow-lg">
                                     <tr>
-                                        <th className="p-4">Tipo</th>
-                                        <th className="p-4">Folio</th>
-                                        <th className="p-4">Cliente / Chofer</th>
-                                        <th className="p-4">Producto</th>
-                                        <th className="p-4">Peso Entrada</th>
-                                        <th className="p-4">Ubicación</th>
-                                        <th className="p-4 text-center">Acción</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider rounded-tl-lg">Tipo</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Folio</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente / Chofer</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Peso Entrada</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Ubicación</th>
+                                        <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider rounded-tr-lg">Acción</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-gray-100 bg-white">
                                     {pending_exit.length > 0 ? (
                                         pending_exit.map((order) => (
-                                            <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="p-4 text-center">
+                                            <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
+                                                <td className="px-6 py-4 text-center">
                                                     {order.type === 'sale' ? (
                                                         <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold uppercase">VENTA</span>
                                                     ) : (
                                                         <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold uppercase">BARCO</span>
                                                     )}
                                                 </td>
-                                                <td className="p-4 font-mono font-bold text-indigo-600">{order.folio}</td>
-                                                <td className="p-4">
+                                                <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
+                                                <td className="px-6 py-4">
                                                     <div className="text-xs text-gray-500 mb-1">{order.provider}</div>
                                                     <div className="font-bold text-gray-800">{order.driver}</div>
                                                     <div className="text-sm text-gray-500 font-mono">{order.plate}</div>
                                                 </td>
-                                                <td className="p-4 text-gray-700">{order.product}</td>
-                                                <td className="p-4 font-mono font-bold">{order.tare_weight} kg</td>
-                                                <td className="p-4">
+                                                <td className="px-6 py-4 text-gray-700">{order.product}</td>
+                                                <td className="px-6 py-4 font-mono font-bold">{order.tare_weight} kg</td>
+                                                <td className="px-6 py-4">
                                                     <div className="flex items-center text-sm">
                                                         <Warehouse className="w-4 h-4 mr-2 text-gray-400" />
                                                         <span className={order.warehouse === "N/A" ? "text-amber-500 italic" : "text-blue-600 font-bold"}>
@@ -261,18 +261,24 @@ export default function Index({
                                                         </span>
                                                     </div>
                                                 </td>
-                                                <td className="p-4 text-center">
+                                                <td className="px-6 py-4 text-center">
                                                     <Link
                                                         href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                        className="inline-flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition"
+                                                        className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
                                                     >
-                                                        Destarar <ArrowRight className="w-4 h-4 ml-2" />
+                                                        Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
                                                     </Link>
                                                 </td>
                                             </tr>
                                         ))
                                     ) : (
-                                        <tr><td colSpan={7} className="p-8 text-center text-gray-400 italic">No hay unidades pendientes.</td></tr>
+                                        <tr>
+                                            <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                                                <Truck className="mx-auto h-12 w-12 text-indigo-200 mb-3" />
+                                                <p className="text-lg font-medium text-gray-900">No hay unidades pendientes</p>
+                                                <p className="text-sm text-gray-500">Las unidades en planta aparecerán aquí.</p>
+                                            </td>
+                                        </tr>
                                     )}
                                 </tbody>
                             </table>
