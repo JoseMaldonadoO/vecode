@@ -220,7 +220,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                                 <tr className="border-none">
                                                     <td className="font-bold pl-2 uppercase border-none text-[9px] w-full">{order.consigned_to || "N/A"}</td>
                                                     <td className="bg-header w-auto border-l border-r border-gray-400 font-bold px-1 text-[9px] text-right whitespace-nowrap">PEDIDO:</td>
-                                                    <td className="font-bold px-1 text-[9px] w-12 text-center border-none flex items-center justify-center">{order.sales_order?.sale_order || "N/A"}</td>
+                                                    <td className="font-bold px-1 text-[9px] w-auto min-w-[3rem] text-center border-none flex items-center justify-center">{order.sales_order?.sale_order || "N/A"}</td>
                                                 </tr>
                                             </table>
                                         </td>
