@@ -11,9 +11,9 @@ export default function WeightVerificationTemplate({ order }: Props) {
     return (
         <div className="w-full h-full bg-white px-4 py-2 font-sans text-xs">
             {/* COMPACT HEADER */}
-            <div className="flex w-full border-b-2 border-green-800 h-20 mb-1">
+            <div className="flex w-full h-20 mb-1">
                 {/* Left: Proagro Logo Area */}
-                <div className="w-[20%] p-1 flex items-center justify-center border-r border-green-800">
+                <div className="w-[20%] p-1 flex items-center justify-center">
                     <img src="/images/logo_proagro.png" alt="ProAgro" className="h-full object-contain" />
                 </div>
 
@@ -26,7 +26,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                 </div>
 
                 {/* Right: Truck Logo Area */}
-                <div className="w-[20%] p-1 flex items-center justify-center border-l border-green-800">
+                <div className="w-[20%] p-1 flex items-center justify-center">
                     <img src="/images/LOG.png" alt="Transport" className="max-h-full max-w-full object-contain" />
                 </div>
             </div>
