@@ -46,16 +46,16 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
 
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                     {/* Header with Gradient */}
-                    <div className="bg-gradient-to-r from-teal-800 to-teal-900 px-8 py-6 flex items-center justify-between">
+                    <div className="bg-gradient-to-r from-indigo-800 to-indigo-900 px-8 py-6 flex items-center justify-between">
                         <div className="flex items-center">
-                            <div className="p-2 bg-teal-700 rounded-lg mr-3 shadow-inner">
+                            <div className="p-2 bg-indigo-700 rounded-lg mr-3 shadow-inner">
                                 <Database className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h3 className="text-white font-bold text-xl">
                                     Editar Lote
                                 </h3>
-                                <p className="text-teal-200 text-sm">
+                                <p className="text-indigo-200 text-sm">
                                     Modificación de datos del lote
                                 </p>
                             </div>
@@ -68,7 +68,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                             {/* General Info */}
                             <div className="md:col-span-2">
                                 <h4 className="text-gray-900 font-bold mb-4 flex items-center text-lg border-b pb-2">
-                                    <Hash className="w-5 h-5 mr-2 text-teal-600" />
+                                    <Hash className="w-5 h-5 mr-2 text-indigo-600" />
                                     Identificación
                                 </h4>
                             </div>
@@ -79,7 +79,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                                     <TextInput
                                         value={data.folio}
                                         onChange={(e) => setData("folio", e.target.value)}
-                                        className="w-full pl-10 font-bold text-gray-800"
+                                        className="w-full pl-10 font-bold text-gray-800 focus:border-indigo-500 focus:ring-indigo-500"
                                         placeholder="Ej: LOTE-2026-001"
                                     />
                                     <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
@@ -94,7 +94,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                                         type="datetime-local"
                                         value={data.created_at}
                                         onChange={(e) => setData("created_at", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2.5 pl-10"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
                                     />
                                     <Calendar className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
@@ -104,7 +104,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                             {/* Location Info */}
                             <div className="md:col-span-2 mt-4">
                                 <h4 className="text-gray-900 font-bold mb-4 flex items-center text-lg border-b pb-2">
-                                    <MapPin className="w-5 h-5 mr-2 text-teal-600" />
+                                    <MapPin className="w-5 h-5 mr-2 text-indigo-600" />
                                     Ubicación y Origen
                                 </h4>
                             </div>
@@ -115,7 +115,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                                     <select
                                         value={data.plant_origin}
                                         onChange={(e) => setData("plant_origin", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2.5 pl-10 bg-white"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-white"
                                     >
                                         <option value="UREA 1">UREA 1</option>
                                         <option value="UREA 2">UREA 2</option>
@@ -131,7 +131,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                                     <select
                                         value={data.warehouse}
                                         onChange={(e) => setData("warehouse", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2.5 pl-10 bg-white"
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-white"
                                     >
                                         {[1, 2, 3, 4, 5].map((n) => (
                                             <option key={n} value={`Almacen ${n}`}>{`Almacén ${n}`}</option>
@@ -150,7 +150,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                                         <select
                                             value={data.cubicle}
                                             onChange={(e) => setData("cubicle", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-2.5 pl-10 bg-white"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-white"
                                         >
                                             <option value="">Seleccione...</option>
                                             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
@@ -172,7 +172,7 @@ export default function Edit({ auth, lot }: { auth: any; lot: any }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-sm font-bold rounded-md shadow-lg text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-200 transition-all transform hover:-translate-y-0.5"
+                                className="inline-flex items-center px-8 py-3.5 border border-transparent text-sm font-bold rounded-md shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 transition-all transform hover:-translate-y-0.5"
                             >
                                 <Save className="w-5 h-5 mr-2" />
                                 {processing ? "Guardando..." : "ACTUALIZAR LOTE"}

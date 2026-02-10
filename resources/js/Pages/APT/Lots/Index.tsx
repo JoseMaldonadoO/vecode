@@ -118,13 +118,13 @@ export default function Index({ auth, lots, filters }: PageProps) {
                 {/* Dynamic Alert */}
                 {showAlert && flash?.success && (
                     <div className="fixed top-24 right-8 z-50 animate-fade-in-right">
-                        <div className="bg-white border-l-4 border-teal-500 rounded-lg shadow-2xl p-4 flex items-center max-w-md">
-                            <div className="bg-teal-100 p-2 rounded-full mr-4">
-                                <CheckCircle className="w-6 h-6 text-teal-600" />
+                        <div className="bg-white border-l-4 border-green-500 rounded-lg shadow-2xl p-4 flex items-center max-w-md">
+                            <div className="bg-green-100 p-2 rounded-full mr-4">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
                             </div>
                             <div className="flex-1 mr-4">
-                                <h4 className="text-teal-900 font-bold text-sm">Operación Exitosa</h4>
-                                <p className="text-teal-700 text-xs font-medium">{flash.success}</p>
+                                <h4 className="text-green-900 font-bold text-sm">Operación Exitosa</h4>
+                                <p className="text-green-700 text-xs font-medium">{flash.success}</p>
                             </div>
                             <button
                                 onClick={() => setShowAlert(false)}
@@ -148,15 +148,15 @@ export default function Index({ auth, lots, filters }: PageProps) {
                                 Volver a APT
                             </Link>
                         </div>
-                        <h2 className="text-2xl font-bold leading-7 text-teal-900 sm:text-3xl sm:truncate flex items-center">
-                            <Database className="mr-3 h-8 w-8 text-teal-600" />
+                        <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
+                            <Database className="mr-3 h-8 w-8 text-indigo-600" />
                             Gestión de Lotes
                         </h2>
                     </div>
                     <div className="mt-4 flex md:mt-0 md:ml-4">
                         <Link
                             href={route("apt.lots.create")}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-all transform hover:-translate-y-0.5"
+                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
                         >
                             <Plus className="w-5 h-5 mr-2" />
                             Crear Nuevo Lote
@@ -172,7 +172,7 @@ export default function Index({ auth, lots, filters }: PageProps) {
                         </div>
                         <input
                             type="text"
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition-shadow"
+                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow"
                             placeholder="Buscar por folio, almacén..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -185,7 +185,7 @@ export default function Index({ auth, lots, filters }: PageProps) {
                 <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gradient-to-r from-teal-800 to-teal-900">
+                            <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr className="text-white">
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Folio</th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Ubicación</th>
@@ -198,9 +198,9 @@ export default function Index({ auth, lots, filters }: PageProps) {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {lots.data.length > 0 ? (
                                     lots.data.map((lot) => (
-                                        <tr key={lot.id} className="hover:bg-teal-50 transition-colors duration-150">
+                                        <tr key={lot.id} className="hover:bg-indigo-50 transition-colors duration-150">
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-bold text-teal-700 uppercase">
+                                                <div className="text-sm font-bold text-indigo-700 uppercase">
                                                     {lot.folio}
                                                 </div>
                                             </td>
@@ -264,7 +264,7 @@ export default function Index({ auth, lots, filters }: PageProps) {
                                                     {/* Edit */}
                                                     <Link
                                                         href={route("apt.lots.edit", lot.id)}
-                                                        className="inline-flex items-center text-teal-600 hover:text-teal-900 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-100 hover:border-teal-300 transition-all font-bold"
+                                                        className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
                                                         title="Editar Lote"
                                                     >
                                                         <Edit className="w-4 h-4 mr-1.5" />
@@ -312,7 +312,7 @@ export default function Index({ auth, lots, filters }: PageProps) {
                                             key={key}
                                             href={link.url}
                                             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                    ? "bg-teal-600 text-white shadow-sm"
+                                                    ? "bg-indigo-600 text-white shadow-sm"
                                                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
                                                 }`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
