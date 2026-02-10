@@ -27,7 +27,7 @@ export default function StowageNoteTemplate({ order }: Props) {
     return (
         // Wrapper that simulates a landscape page on a portrait sheet if needed, or just fills the landscape page
         // The rotation logic will be handled in Print.tsx via CSS class .rotate-landscape
-        <div className="w-full h-full bg-white font-sans text-[10px] text-black leading-tight p-1 box-border flex flex-col">
+        <div className="w-full h-[98%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col">
             {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
@@ -178,13 +178,13 @@ export default function StowageNoteTemplate({ order }: Props) {
             {/* --- PRODUCT TABLE --- */}
             <table className={`w-full border-collapse ${borderClass} border-2 text-[8px] mb-1 leading-none h-[12%]`}>
                 <thead>
-                    <tr className="bg-green-200 text-center font-bold">
-                        <th className={`${borderClass} w-[10%]`}>CODIGO</th>
-                        <th className={`${borderClass} w-[30%]`}>PRODUCTO</th>
-                        <th className={`${borderClass} w-[15%]`}>NO. DE ALMACEN</th>
-                        <th className={`${borderClass} w-[10%]`}>TOTAL SACOS</th>
-                        <th className={`${borderClass} w-[10%]`}>AJUSTE</th>
-                        <th className={`${borderClass} w-[25%]`}>JUSTIFICAR</th>
+                    <tr className="bg-gray-100 text-center font-bold text-[7px] uppercase">
+                        <th className={`${borderClass} w-[10%] p-0.5`}>CODIGO</th>
+                        <th className={`${borderClass} w-[30%] p-0.5`}>PRODUCTO</th>
+                        <th className={`${borderClass} w-[15%] p-0.5`}>NO. DE ALMACEN</th>
+                        <th className={`${borderClass} w-[10%] p-0.5`}>TOTAL SACOS</th>
+                        <th className={`${borderClass} w-[10%] p-0.5`}>AJUSTE</th>
+                        <th className={`${borderClass} w-[25%] p-0.5`}>JUSTIFICAR</th>
                     </tr>
                 </thead>
                 <tbody>
