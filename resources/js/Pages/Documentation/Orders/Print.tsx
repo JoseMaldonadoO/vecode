@@ -115,7 +115,7 @@ export default function Print({ order }: Props) {
     body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 table { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; font-size: 9px; }
-th, td { border: 1px solid black; padding: 2px 4px; }
+th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 */
 .no-border { border: none !important; }
 
 /* Wrapper to force a new page for the Stowage Note */
@@ -169,7 +169,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                             {/* Optional Watermark for copies if needed, currently clean */}
                             <div className="page-1">
                                 {/* Header Details */}
-                                <div className="border border-black mb-1 p-1 text-center">
+                                <div className="border border-gray-400 mb-1 p-1 text-center">
                                     <div className="font-bold text-sm">PROAGROINDUSTRIA S.A. DE C.V.</div>
                                     <div className="text-[10px] text-green-700 font-semibold">Carretera Coatzacoalcos-villahermosa Km 5 centro, Coatzacoalcos, Ver. CP. 96400 RFC: PRO140101</div>
                                     <div className="text-[10px] text-green-700 font-semibold mb-1">Tel. (921) 689 0382</div>
@@ -177,7 +177,7 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 </div>
 
                                 {/* MAIN TITLE BAR */}
-                                <div className="bg-title border border-black py-0.5 mb-1">
+                                <div className="bg-title border border-gray-400 py-0.5 mb-1">
                                     ORDEN DE EMBARQUE
                                 </div>
 
@@ -218,9 +218,9 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         <td className="p-0 border-0">
                                             <table className="w-full h-full border-none">
                                                 <tr className="border-none">
-                                                    <td className="font-bold pl-2 uppercase border-none text-[9px]">{order.consigned_to || "N/A"}</td>
-                                                    <td className="bg-header w-auto border-l border-gray-400 font-bold px-2 text-[9px] text-right">PEDIDO:</td>
-                                                    <td className="font-bold px-2 text-[9px] w-16 text-center border-none flex items-center justify-center">{order.sales_order?.sale_order || "N/A"}</td>
+                                                    <td className="font-bold pl-2 uppercase border-none text-[9px] w-full">{order.consigned_to || "N/A"}</td>
+                                                    <td className="bg-header w-auto border-l border-r border-gray-400 font-bold px-1 text-[9px] text-right whitespace-nowrap">PEDIDO:</td>
+                                                    <td className="font-bold px-1 text-[9px] w-12 text-center border-none flex items-center justify-center">{order.sales_order?.sale_order || "N/A"}</td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -349,12 +349,12 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                         {order.presentation?.toUpperCase().includes('ENVASADO') ? (
                                             <td className="text-left align-middle py-1 border-t-0 pl-2 no-border">
                                                 <div className="flex items-center mb-0.5">
-                                                    <span className="inline-block border border-black w-3 h-3 mr-1"></span>
+                                                    <span className="inline-block border border-gray-400 w-3 h-3 mr-1"></span>
                                                     <span className="text-[8px] font-bold mr-1">PROPIO COD</span>
-                                                    <span className="border-b border-black w-8"></span>
+                                                    <span className="border-b border-gray-400 w-8"></span>
                                                 </div>
                                                 <div className="flex items-center">
-                                                    <span className="inline-block border border-black w-3 h-3 mr-1"></span>
+                                                    <span className="inline-block border border-gray-400 w-3 h-3 mr-1"></span>
                                                     <span className="text-[8px] font-bold">CLIENTE</span>
                                                 </div>
                                             </td>
@@ -424,11 +424,11 @@ th, td { border: 1px solid black; padding: 2px 4px; }
                                 <div className="flex justify-between w-full px-4 text-[9px] font-bold mb-2">
                                     <div className="flex items-end">
                                         <span>Hora inicial de carga:</span>
-                                        <div className="border-b border-black w-24 mx-2"></div>
+                                        <div className="border-b border-gray-400 w-24 mx-2"></div>
                                     </div>
                                     <div className="flex items-end">
                                         <span>Hora final de carga:</span>
-                                        <div className="border-b border-black w-24 mx-2"></div>
+                                        <div className="border-b border-gray-400 w-24 mx-2"></div>
                                     </div>
                                 </div>
 
