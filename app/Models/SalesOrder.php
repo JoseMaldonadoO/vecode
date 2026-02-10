@@ -53,6 +53,9 @@ class SalesOrder extends Model
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
             ->sum('weight_tickets.net_weight') ?: 0;
 
+        // Convert KG to Tons for Granel sum
+        $granel = $granel / 1000;
+
         return (float) ($envasado + $granel);
     }
 
