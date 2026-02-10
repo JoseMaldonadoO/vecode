@@ -207,7 +207,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             {/* --- PRODUCT TABLE / BOXES --- */}
             <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {[
-                    { label: 'CÓDIGO', width: '15%', value: order.product?.code || (order.product?.name?.includes('UREA AGRICOLA') ? '1001' : '') },
+                    { label: 'CÓDIGO', width: '15%', value: order.product?.code || order.product_code || "" },
                     { label: 'DESCRIPCIÓN DEL PRODUCTO', width: '40%', value: order.product?.name || "UREA AGRICOLA" },
                     { label: 'NO. DE ALMACEN', width: '15%', value: "" },
                     { label: 'TOTAL DE SACOS', width: '10%', value: calculateSacks() },
