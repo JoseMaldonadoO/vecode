@@ -24,10 +24,37 @@ export default function StowageNoteTemplate({ order }: Props) {
     const borderClass = "border border-green-800";
     const headerClass = "bg-green-200 font-bold text-center border border-green-800 text-[9px] uppercase";
 
+    // Helper function to calculate sacks exactly like Print.tsx
+    const calculateSacks = () => {
+        if (!order.programmed_tons) return "0";
+        const tons = parseFloat(order.programmed_tons);
+        if (isNaN(tons)) return "0";
+
+        // If sacks_count has "KG", it is a size, so we calculate count
+        if (order.sacks_count && order.sacks_count.includes("KG")) {
+            const size = parseInt(order.sacks_count.replace("KG", "").trim());
+            if (!isNaN(size) && size > 0) {
+                return ((tons * 1000) / size).toFixed(0);
+            }
+        }
+
+        // Fallbacks based on presentation string
+        if (order.presentation?.includes("25")) return (tons * 40).toFixed(0);
+        if (order.presentation?.includes("50")) return (tons * 20).toFixed(0);
+        if (order.presentation?.includes("200")) return (tons * 5).toFixed(0);
+        if (order.presentation?.includes("500")) return (tons * 2).toFixed(0);
+        if (order.presentation?.includes("1000")) return (tons * 1).toFixed(0);
+
+        // If it is just a number
+        if (order.sacks_count) return order.sacks_count;
+
+        return "N/A";
+    };
+
     return (
         // Wrapper that simulates a landscape page on a portrait sheet if needed, or just fills the landscape page
         // The rotation logic will be handled in Print.tsx via CSS class .rotate-landscape
-        <div className="w-full h-[90%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col overflow-hidden">
+        <div className="w-full h-[88%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col overflow-hidden">
             {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
@@ -181,11 +208,11 @@ export default function StowageNoteTemplate({ order }: Props) {
             <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {[
                     { label: 'CÓDIGO', width: '15%', value: order.product?.code || (order.product?.name?.includes('UREA AGRICOLA') ? '1001' : '') },
-                    { label: 'DESCRIPCIÓN DEL PRODUCTO', width: '45%', value: order.product?.name || "UREA AGRICOLA" },
+                    { label: 'DESCRIPCIÓN DEL PRODUCTO', width: '40%', value: order.product?.name || "UREA AGRICOLA" },
                     { label: 'NO. DE ALMACEN', width: '15%', value: "" },
-                    { label: 'TOTAL DE SACOS', width: '10%', value: order.sacks_count || order.sales_order?.quantity_bags || "" }, // Linked to OE sacks
-                    { label: 'AJUSTE', width: '15%', value: "" },
-                    { label: 'JUSTIFICAR', width: '15%', value: "" }
+                    { label: 'TOTAL DE SACOS', width: '10%', value: calculateSacks() },
+                    { label: 'AJUSTE', width: '10%', value: "" },
+                    { label: 'JUSTIFICAR', width: '10%', value: "" }
                 ].map((col, idx) => (
                     <div key={idx} className={`flex flex-col ${idx < 5 ? borderClass + ' border-r' : ''}`} style={{ width: col.width }}>
                         <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase h-4 flex items-center justify-center`}>
