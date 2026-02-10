@@ -205,7 +205,7 @@ export default function Edit({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route("documentation.orders.update", order.id));
+        put(route("documentation.update", order.id));
     };
 
     return (
