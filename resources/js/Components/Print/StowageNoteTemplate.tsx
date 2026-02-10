@@ -27,7 +27,7 @@ export default function StowageNoteTemplate({ order }: Props) {
     return (
         // Wrapper that simulates a landscape page on a portrait sheet if needed, or just fills the landscape page
         // The rotation logic will be handled in Print.tsx via CSS class .rotate-landscape
-        <div className="w-full h-[95%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col overflow-hidden">
+        <div className="w-full h-[90%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col overflow-hidden">
             {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
@@ -177,9 +177,10 @@ export default function StowageNoteTemplate({ order }: Props) {
 
             {/* --- PRODUCT TABLE / BOXES --- */}
             {/* Replaced table with flex boxes to match LINEA 1 style as requested */}
-            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[10%]`}>
+            {/* --- PRODUCT TABLE / BOXES --- */}
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {[
-                    { label: 'CÓDIGO', width: '15%', value: order.product?.code || "" }, // Removed 1073 hardcode
+                    { label: 'CÓDIGO', width: '15%', value: order.product?.code || (order.product?.name?.includes('UREA AGRICOLA') ? '1001' : '') },
                     { label: 'DESCRIPCIÓN DEL PRODUCTO', width: '45%', value: order.product?.name || "UREA AGRICOLA" },
                     { label: 'NO. DE ALMACEN', width: '15%', value: "" },
                     { label: 'TOTAL DE SACOS', width: '10%', value: order.sacks_count || order.sales_order?.quantity_bags || "" }, // Linked to OE sacks
@@ -187,7 +188,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                     { label: 'JUSTIFICAR', width: '15%', value: "" }
                 ].map((col, idx) => (
                     <div key={idx} className={`flex flex-col ${idx < 5 ? borderClass + ' border-r' : ''}`} style={{ width: col.width }}>
-                        <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase`}>
+                        <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase h-4 flex items-center justify-center`}>
                             {col.label}
                         </div>
                         <div className="flex-1 flex items-center justify-center font-bold text-[9px] text-center p-1 leading-none uppercase">
@@ -198,7 +199,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             </div>
 
             {/* Lot / Verificador / Line Row: Horizontal Boxes */}
-            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[6%]`}>
+            <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {[
                     { label: 'NO. DE LOTE', width: '15%' },
                     { label: 'VERIFICADOR', width: '20%' },
@@ -208,7 +209,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                     { label: 'LINEA 4', width: '16.25%' }
                 ].map((col, idx) => (
                     <div key={idx} className={`flex flex-col ${idx < 5 ? borderClass + ' border-r' : ''}`} style={{ width: col.width }}>
-                        <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase`}>
+                        <div className={`bg-gray-100 ${borderClass} border-b text-center font-bold text-[7px] p-0.5 uppercase h-4 flex items-center justify-center`}>
                             {col.label}
                         </div>
                         <div className="flex-1"></div>
