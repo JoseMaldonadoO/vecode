@@ -215,11 +215,11 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                     </tr>
                                     <tr>
                                         <td className="bg-header text-left pl-2">CONSIGNADO:</td>
-                                        <td className="p-0 border-0">
+                                        <td className="p-0 border">
                                             <table className="w-full h-full border-none">
                                                 <tr className="border-none">
                                                     <td className="font-bold pl-2 uppercase border-none text-[9px] w-full">{order.consigned_to || "N/A"}</td>
-                                                    <td className="bg-header w-auto border-l border-r border-gray-400 font-bold px-1 text-[9px] text-right whitespace-nowrap">PEDIDO:</td>
+                                                    <td className="bg-header w-auto border-l border-r border-[#9ca3af] font-bold px-1 text-[9px] text-right whitespace-nowrap">PEDIDO:</td>
                                                     <td className="font-bold px-1 text-[9px] w-auto min-w-[3rem] text-center border-none flex items-center justify-center">{order.sales_order?.sale_order || "N/A"}</td>
                                                 </tr>
                                             </table>
@@ -228,7 +228,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                 </table>
 
                                 {/* TRANSPORTER SECTION */}
-                                <div className="bg-header border border-black border-b-0 text-[10px] py-0.5">DEL TRANSPORTISTA</div>
+                                <div className="bg-header border border-[#9ca3af] border-b-0 text-[10px] py-0.5">DEL TRANSPORTISTA</div>
                                 <table className="mb-1">
                                     <tr>
                                         <td className="bg-header w-24 text-left pl-2">TRANSPORTE:</td>
@@ -272,17 +272,17 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colSpan={4} className="p-0 border-0">
+                                        <td colSpan={4} className="p-0 border">
                                             <table className="w-full border-none">
                                                 <tr className="border-none">
-                                                    <td className="bg-header w-24 text-left pl-2">REMOLQUE:</td>
-                                                    <td className="text-center font-bold">{order.trailer_plate || "N/A"}</td>
+                                                    <td className="bg-header w-24 text-left pl-2 border-l-0 border-b-0">REMOLQUE:</td>
+                                                    <td className="text-center font-bold border-b-0">{order.trailer_plate || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 text-center">DESTINO:</td>
-                                                    <td className="text-center font-bold uppercase">{order.destination || "N/A"}</td>
+                                                    <td className="bg-header w-24 text-center border-b-0">DESTINO:</td>
+                                                    <td className="text-center font-bold uppercase border-b-0">{order.destination || "N/A"}</td>
 
-                                                    <td className="bg-header w-24 text-center">ESTADO:</td>
-                                                    <td className="text-center font-bold uppercase">{order.state || "MX"}</td>
+                                                    <td className="bg-header w-24 text-center border-b-0">ESTADO:</td>
+                                                    <td className="text-center font-bold uppercase border-r-0 border-b-0">{order.state || "MX"}</td>
                                                 </tr>
                                             </table>
                                         </td>
@@ -290,7 +290,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                 </table>
 
                                 {/* SHIPMENT SECTION */}
-                                <div className="bg-header border border-black border-b-0 text-[10px] py-0.5 font-bold">DEL EMBARQUE</div>
+                                <div className="bg-header border border-[#9ca3af] border-b-0 text-[10px] py-0.5 font-bold">DEL EMBARQUE</div>
                                 <table className="mb-1">
                                     <tr>
                                         <td className="bg-header text-center w-24">CÓDIGO</td>
