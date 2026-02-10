@@ -39,8 +39,8 @@ export default function WeightVerificationTemplate({ order }: Props) {
                 </div>
                 <div className="w-[30%] flex mb-0.5 items-end justify-end pr-4">
                     <span className="mr-2">O.E.</span>
-                    {/* UPDATED: Increased font size for OE */}
-                    <span className="font-black text-xl leading-none">{order.folio}</span>
+                    {/* UPDATED: Decreased font size for OE as requested */}
+                    <span className="font-bold text-base leading-none">{order.folio}</span>
                 </div>
                 <div className="w-[20%] flex mb-0.5 items-end">
                     <span className="mr-2">TURNO</span>
