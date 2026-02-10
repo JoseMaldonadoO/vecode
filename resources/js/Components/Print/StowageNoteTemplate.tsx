@@ -58,7 +58,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
-            <div className={`flex w-full ${borderClass} border-2 mb-1 h-[12%]`}>
+            <div className={`flex w-full ${borderClass} border-2 mb-1 h-[10%]`}>
                 {/* Logo Section */}
                 <div className={`w-[20%] ${borderClass} border-r-2 p-1 flex flex-col items-center justify-center`}>
                     <img src="/images/logo_proagro.png" alt="ProAgro" className="h-10 object-contain mb-1" />
@@ -245,7 +245,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             </div>
 
             {/* --- FOOTER SECTION (Compact) --- */}
-            <div className={`flex w-full ${borderClass} border-2 h-[20%]`}>
+            <div className={`flex w-full ${borderClass} border-2 h-[18%]`}>
                 {/* Quality / Comments */}
                 <div className={`w-[35%] ${borderClass} border-r-2 flex flex-col p-1`}>
                     <div className={`bg-green-100 ${borderClass} text-[7px] font-bold text-center mb-0.5`}>CALIDAD DE PRODUCTO Y CANTIDAD DE SACOS</div>
