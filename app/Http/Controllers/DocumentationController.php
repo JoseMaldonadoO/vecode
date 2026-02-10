@@ -402,7 +402,7 @@ class DocumentationController extends Controller
         $productCode = 'N/A';
         $productText = $order->getAttributes()['product'] ?? '';
 
-        if ($order->product) {
+        if (is_object($order->product) && $order->product instanceof \App\Models\Product) {
             $productCode = $order->product->code;
             $productText = $order->product->name;
         } elseif ($productText) {
