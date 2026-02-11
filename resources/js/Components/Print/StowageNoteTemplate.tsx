@@ -59,21 +59,21 @@ export default function StowageNoteTemplate({ order }: Props) {
 
             {/* --- HEADER --- */}
             {/* --- HEADER --- */}
-            <div className={`flex w-full mb-1 h-[7%]`}>
-                {/* Logo Section - No Borders, No Text below */}
-                <div className={`w-[20%] p-1 flex flex-col items-center justify-center`}>
-                    <img src="/images/logo_proagro.png" alt="ProAgro" className="h-8 object-contain mb-1" />
+            <div className={`flex w-full mb-1 h-[6%]`}>
+                {/* Logo Section - No Borders, Compact */}
+                <div className={`w-[20%] p-0.5 flex flex-col items-center justify-center`}>
+                    <img src="/images/logo_proagro.png" alt="ProAgro" className="h-6 object-contain" />
                 </div>
 
-                {/* Title Section - No Borders */}
-                <div className={`w-[60%] flex flex-col items-center justify-center py-1`}>
-                    <h1 className="text-lg font-bold uppercase">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
-                    <h2 className="text-sm font-bold uppercase">GLS-AP-FO-002</h2>
-                    <h2 className="text-lg font-bold uppercase">NOTA DE ESTIBA A CAMIÓN</h2>
+                {/* Title Section - No Borders, Compact Fonts */}
+                <div className={`w-[60%] flex flex-col items-center justify-center py-0.5`}>
+                    <h1 className="text-base font-bold uppercase tracking-tight leading-none">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
+                    <h2 className="text-[10px] font-bold uppercase leading-none mt-0.5">GLS-AP-FO-002</h2>
+                    <h2 className="text-base font-bold uppercase leading-none mt-0.5">NOTA DE ESTIBA A CAMIÓN</h2>
                 </div>
 
                 {/* Meta Data Section - Kept Borders */}
-                <div className="w-[20%] flex flex-col text-[9px]">
+                <div className="w-[20%] flex flex-col text-[8px]">
                     <div className={`flex-1 flex ${borderClass} border-b`}>
                         <div className={`w-[40%] bg-green-200 font-bold flex items-center justify-center ${borderClass} border-r`}>FECHA</div>
                         <div className="w-[60%] flex items-center justify-center font-bold px-1"></div>
