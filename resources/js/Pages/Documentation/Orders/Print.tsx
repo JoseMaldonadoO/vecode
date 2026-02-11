@@ -123,7 +123,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
     page-break-before: always;
     position: relative;
     width: 100%;
-    height: 255mm; /* Reduced to 255mm to prevent cutoff at the bottom margin */
+    height: 275mm; /* Increased to 275mm to FULLY fit the 271mm rotated content without cutoff */
     overflow: hidden; 
 }
 
@@ -131,9 +131,9 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
 .rotate-landscape-v2 {
     transform: rotate(90deg) translateY(-100%);
     transform-origin: top left;
-    /* Maximize use of Letter page 215.9mm x 279.4mm minus 4mm margins */
-    width: 271mm; /* Full available height of sheet (landscape width) */
-    height: 206mm; /* Full available width of sheet (landscape height) */
+    width: 271mm; /* Full width (becomes height) */
+    height: 206mm; /* Full height (becomes width) */
+}
     position: absolute;
     top: 0;
     left: 0;
