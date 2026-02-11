@@ -10,15 +10,15 @@ export default function WeightVerificationTemplate({ order }: Props) {
 
     return (
         <div className="w-full h-full bg-white px-4 py-2 font-sans text-xs">
-            {/* COMPACT HEADER */}
-            <div className="flex w-full h-20 mb-1">
+            {/* HEADER - RESTORED BORDERS */}
+            <div className="flex w-full h-20 mb-1 border border-black">
                 {/* Left: Proagro Logo Area */}
-                <div className="w-[20%] p-1 flex items-center justify-center">
+                <div className="w-[20%] p-1 flex items-center justify-center border-r border-black">
                     <img src="/images/logo_proagro.png" alt="ProAgro" className="h-full object-contain" />
                 </div>
 
                 {/* Center: Title Area */}
-                <div className="w-[60%] flex flex-col items-center justify-center py-1">
+                <div className="w-[60%] flex flex-col items-center justify-center py-1 border-r border-black">
                     <h1 className="text-xs font-bold tracking-wider">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
                     <h2 className="text-[8px] font-bold mt-0.5">ALMACÉN DE PRODUCTO TERMINADO</h2>
                     <h2 className="text-base font-bold mt-0.5 uppercase">VERIFICACION DE PESO DE SACOS</h2>
