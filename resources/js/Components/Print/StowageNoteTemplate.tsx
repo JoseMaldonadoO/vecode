@@ -60,9 +60,9 @@ export default function StowageNoteTemplate({ order }: Props) {
             {/* --- HEADER --- */}
             {/* --- HEADER --- */}
             <div className={`flex w-full mb-1 h-[6%]`}>
-                {/* Logo Section - No Borders, Compact */}
+                {/* Logo Section - No Borders, Compact - ENLARGED LOGO */}
                 <div className={`w-[20%] p-0.5 flex flex-col items-center justify-center`}>
-                    <img src="/images/logo_proagro.png" alt="ProAgro" className="h-6 object-contain" />
+                    <img src="/images/logo_proagro.png" alt="ProAgro" className="h-full object-contain scale-125 origin-center" />
                 </div>
 
                 {/* Title Section - No Borders, Compact Fonts */}
