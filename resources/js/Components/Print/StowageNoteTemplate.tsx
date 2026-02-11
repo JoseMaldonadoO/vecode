@@ -58,21 +58,21 @@ export default function StowageNoteTemplate({ order }: Props) {
             {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
 
             {/* --- HEADER --- */}
-            <div className={`flex w-full ${borderClass} border-2 mb-1 h-[7%]`}>
-                {/* Logo Section */}
-                <div className={`w-[20%] ${borderClass} border-r-2 p-1 flex flex-col items-center justify-center`}>
+            {/* --- HEADER --- */}
+            <div className={`flex w-full mb-1 h-[7%]`}>
+                {/* Logo Section - No Borders, No Text below */}
+                <div className={`w-[20%] p-1 flex flex-col items-center justify-center`}>
                     <img src="/images/logo_proagro.png" alt="ProAgro" className="h-8 object-contain mb-1" />
-                    <div className="text-[8px] font-bold text-green-800 leading-none text-center">PRO <br /> AGROINDUSTRIA</div>
                 </div>
 
-                {/* Title Section */}
-                <div className={`w-[60%] ${borderClass} border-r-2 flex flex-col items-center justify-center py-1`}>
+                {/* Title Section - No Borders */}
+                <div className={`w-[60%] flex flex-col items-center justify-center py-1`}>
                     <h1 className="text-lg font-bold uppercase">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
                     <h2 className="text-sm font-bold uppercase">GLS-AP-FO-002</h2>
                     <h2 className="text-lg font-bold uppercase">NOTA DE ESTIBA A CAMIÓN</h2>
                 </div>
 
-                {/* Meta Data Section */}
+                {/* Meta Data Section - Kept Borders */}
                 <div className="w-[20%] flex flex-col text-[9px]">
                     <div className={`flex-1 flex ${borderClass} border-b`}>
                         <div className={`w-[40%] bg-green-200 font-bold flex items-center justify-center ${borderClass} border-r`}>FECHA</div>
