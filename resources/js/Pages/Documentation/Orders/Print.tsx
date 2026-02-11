@@ -123,7 +123,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
     page-break-before: always;
     position: relative;
     width: 100%;
-    height: 270mm; /* Reduced to 270mm to fit exactly in printable area (approx 271.4mm) without blank page, avoiding cutoff */
+    height: 264mm; /* Reduced to 264mm to fit exactly in printable area without blank page */
     overflow: hidden; 
 }
 
@@ -131,7 +131,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
 .rotate-landscape-v2 {
     transform: rotate(90deg) translateY(-100%);
     transform-origin: top left;
-    width: 271mm; /* Full available width (becomes height) - slight overlap allowed or cropped by 1mm if strictly 270mm container */
+    width: 264mm; /* Full available width (becomes height) */
     height: 206mm; /* Full available height (becomes width) */
     position: absolute;
     top: 0;
