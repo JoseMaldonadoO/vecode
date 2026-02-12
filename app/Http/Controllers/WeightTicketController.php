@@ -669,7 +669,7 @@ class WeightTicketController extends Controller
         if ($isSale) {
             $clientName = $order->shipment_order->client->business_name ?? ($order->shipment_order->client->name ?? $clientName);
             $productName = $order->shipment_order->product->name ?? ($order->shipment_order->product ?? $productName);
-            $programmedWeight = $order->shipment_order->programmed_weight ?? 0;
+            $programmedWeight = $order->shipment_order->programmed_tons ?? 0;
         } else {
             // Vessel Fallback
             $clientName = $order->vessel->client->name ?? $clientName;
