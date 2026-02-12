@@ -51,6 +51,7 @@ class DocumentationController extends Controller
      */
     public function storeOrder(Request $request)
     {
+        \Log::info('Store Order Request Data:', $request->all());
         $validated = $request->validate([
             'folio' => 'required|unique:shipment_orders,folio',
             'date' => 'required|date',
