@@ -42,7 +42,7 @@ class DocumentationController extends Controller
             'sales_orders' => SalesOrder::with(['client', 'product'])
                 ->whereIn('status', ['created', 'open'])
                 ->get(),
-            'default_folio' => 'PA' . date('Y') . '-' . str_pad(ShipmentOrder::count() + 1, 4, '0', STR_PAD_LEFT),
+            'default_folio' => 'PA' . date('Y') . '-' . str_pad((ShipmentOrder::max('id') ?? 0) + 1, 4, '0', STR_PAD_LEFT),
         ]);
     }
 
