@@ -133,9 +133,14 @@ export default function EntryMP({
                         }
                     }
                 }
-            } catch (error) {
-                console.error("Serial error:", error);
-                alert("Error al conectar: " + error);
+            } catch (error: any) {
+                if (error.name === 'NotFoundError') {
+                    // User cancelled the selection, ignore
+                    console.log('User cancelled serial port selection');
+                    return;
+                }
+                console.error("Error connecting to serial port:", error);
+                alert("Error al conectar con la báscula. Verifique la conexión.");
             }
         } else {
             alert("API Web Serial no soportada.");
@@ -225,6 +230,15 @@ export default function EntryMP({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+        if ((capturedWeight || 0) <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El peso capturado no puede ser 0. Por favor, capture el peso correctamente.',
+            });
+            return;
+        }
+
         if (!data.bill_of_lading) {
             Swal.fire({
                 icon: "warning",

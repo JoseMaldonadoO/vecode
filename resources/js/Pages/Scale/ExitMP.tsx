@@ -103,9 +103,12 @@ export default function ExitMP({
                         }
                     }
                 }
-            } catch (error) {
-                console.error("Serial error:", error);
-                alert("Error al conectar: " + error);
+            } catch (error: any) {
+                if (error.name === 'NotFoundError') {
+                    return;
+                }
+                console.error("Error connecting to serial port:", error);
+                alert("Error al conectar con la báscula. Verifique la conexión.");
             }
         } else {
             alert("API Web Serial no soportada.");
@@ -114,10 +117,16 @@ export default function ExitMP({
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (weight <= 0) {
-            alert("Peso debe ser mayor a 0.");
+
+        if ((capturedWeight || 0) <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El peso de salida no puede ser 0.',
+            });
             return;
         }
+
         post(route("scale.exit.store"));
     };
 
