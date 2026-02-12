@@ -103,6 +103,15 @@ export default function EntryMP({
         }
     }, [errors]);
 
+    // Cleanup serial port on unmount
+    useEffect(() => {
+        return () => {
+            if (portRef.current) {
+                portRef.current.close().catch(console.error);
+            }
+        };
+    }, []);
+
     const handleCapture = () => {
         setCapturedWeight(weight);
     };

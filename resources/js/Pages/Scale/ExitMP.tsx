@@ -77,6 +77,15 @@ export default function ExitMP({
         setCapturedWeight(weight);
     };
 
+    // Cleanup serial port on unmount
+    useEffect(() => {
+        return () => {
+            if (portRef.current) {
+                portRef.current.close().catch(console.error);
+            }
+        };
+    }, []);
+
     const handleSerialConnect = async () => {
         if ("serial" in navigator) {
             try {
