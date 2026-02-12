@@ -49,7 +49,10 @@ class SalesOrder extends Model
         $granel = $this->shipments()
             ->where('presentation', 'GRANEL')
             ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->sum('weight_tickets.net_weight') ?: 0;
+            ->sum('weight_tickets.net_weight');
+
+        // Convert KG to Tons (1 Ton = 1000 KG)
+        $granel = $granel > 0 ? $granel / 1000 : 0;
 
         return (float) ($envasado + $granel);
     }
