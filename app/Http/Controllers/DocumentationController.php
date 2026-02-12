@@ -42,7 +42,22 @@ class DocumentationController extends Controller
             'sales_orders' => SalesOrder::with(['client', 'product'])
                 ->whereIn('status', ['created', 'open'])
                 ->get(),
-            'default_folio' => 'PA' . date('Y') . '-' . str_pad((ShipmentOrder::max('id') ?? 0) + 1, 4, '0', STR_PAD_LEFT),
+            'default_folio' => function () {
+                $lastOrder = ShipmentOrder::where('folio', 'like', 'PA' . date('Y') . '-%')
+                    ->orderBy('folio', 'desc')
+                    ->first();
+
+                $nextNumber = 1;
+                if ($lastOrder) {
+                    // Extract number from PA2026-XXXX
+                    $parts = explode('-', $lastOrder->folio);
+                    if (count($parts) === 2 && is_numeric($parts[1])) {
+                        $nextNumber = intval($parts[1]) + 1;
+                    }
+                }
+
+                return 'PA' . date('Y') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+            },
         ]);
     }
 
