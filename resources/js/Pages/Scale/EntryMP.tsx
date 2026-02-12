@@ -139,6 +139,10 @@ export default function EntryMP({
                     console.log('User cancelled serial port selection');
                     return;
                 }
+                if (error.name === 'InvalidStateError') {
+                    console.log("Port already open, ignoring.");
+                    return;
+                }
                 console.error("Error connecting to serial port:", error);
                 alert("Error al conectar con la báscula. Verifique la conexión.");
             }

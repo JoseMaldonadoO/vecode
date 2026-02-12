@@ -123,7 +123,14 @@ export default function EntrySale({
                         }
                     }
                 }
-            } catch (error) {
+            } catch (error: any) {
+                if (error.name === 'NotFoundError') {
+                    return;
+                }
+                if (error.name === 'InvalidStateError') {
+                    console.log("Port already open, ignoring.");
+                    return;
+                }
                 console.error("Serial error:", error);
                 alert("Error al conectar: " + error);
             }
@@ -197,6 +204,15 @@ export default function EntrySale({
                 icon: "warning",
                 title: "Orden Requerida",
                 text: "Por favor busque y seleccione una orden por Folio.",
+            });
+            return;
+        }
+
+        if ((capturedWeight || 0) <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El peso capturado no puede ser 0.',
             });
             return;
         }
