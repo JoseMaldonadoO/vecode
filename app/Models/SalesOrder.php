@@ -43,12 +43,14 @@ class SalesOrder extends Model
         // 1. Get ALL ENVASADO shipments (Immediate deduction based on program)
         $envasado = $this->shipments()
             ->where('presentation', 'ENVASADO')
+            ->where('status', '!=', 'cancelled') // Exclude cancelled
             ->sum('programmed_tons') ?: 0;
 
         // 2. Get ALL GRANEL shipments (Weighed OR Programmed)
         $granelShipments = $this->shipments()
             ->with(['weight_ticket']) // Eager load weight ticket
             ->where('presentation', 'GRANEL')
+            ->where('status', '!=', 'cancelled') // Exclude cancelled
             ->get();
 
         $granelTotal = 0;

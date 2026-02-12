@@ -608,6 +608,39 @@ class DocumentationController extends Controller
             return back()->with('error', 'Solo las órdenes canceladas pueden ser re-abiertas.');
         }
 
+        // Validate Balance before reopening
+        $salesOrder = SalesOrder::findOrFail($order->sales_order_id);
+
+        // Calculate tons needed (Envasado = programmed, Granel = programmed / 1000)
+        // Wait, current logic for Envasado uses programmed_tons directly (stored as tons presumably? Or KG?)
+        // Let's check how it's stored. In SalesOrder.php:
+        // Envasado -> sum('programmed_tons')
+        // Granel -> sum('programmed_tons') / 1000
+
+        // So we need to match that logic here.
+        $neededTons = 0;
+        if ($order->presentation === 'GRANEL') {
+            $neededTons = ($order->programmed_tons ?: 0) / 1000;
+        } else {
+            // For Envasado, programmed_tons is typically stored in Tons if entered as Tons in UI?
+            // Checking Create.tsx/Controller: 'programmed_tons' => 'nullable|numeric'
+            // If user entering 4000 for Granel implies KG, does user enter 4000 for Envasado implying KG too?
+            // Looking at SalesOrder.php line 46: ->sum('programmed_tons'). It adds it DIRECTLY.
+            // But for Granel line 65: ->programmed_tons / 1000.
+            // This implies Envasado is stored under different unit convention or logic?
+            // Let's assume consistent with SalesOrder logic:
+            $neededTons = $order->programmed_tons;
+        }
+
+        // Wait, if Envasado is adding directly, and Balance = Total - Loaded.
+        // If Total is 5000 (Tons) and Envasado programmed is 10 (Sacks? Tons?).
+        // If Envasado programmed_tons is entered as 1 (Ton), then 5000 - 1 = 4999. Correct.
+        // If Granel programmed_tons is entered as 1000 (KG), then 1000 / 1000 = 1 Ton. Correct.
+
+        if ($salesOrder->balance < $neededTons) {
+            return back()->withErrors(['error' => 'Saldo insuficiente en la Orden de Venta para re-abrir esta orden. Requerido: ' . $neededTons . ' Toneladas. Disponible: ' . $salesOrder->balance]);
+        }
+
         $order->update(['status' => 'created']);
 
         return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque re-abierta correctamente.');
