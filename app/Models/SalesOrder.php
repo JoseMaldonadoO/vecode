@@ -40,21 +40,33 @@ class SalesOrder extends Model
 
     public function getLoadedQuantityAttribute()
     {
-        // 1. Sum programmed_tons for ENVASADO shipments (Immediate deduction)
+        // 1. Get ALL ENVASADO shipments (Immediate deduction based on program)
         $envasado = $this->shipments()
             ->where('presentation', 'ENVASADO')
             ->sum('programmed_tons') ?: 0;
 
-        // 2. Sum net_weight for GRANEL shipments (Only after weighing/destare)
-        $granel = $this->shipments()
+        // 2. Get ALL GRANEL shipments (Weighed OR Programmed)
+        $granelShipments = $this->shipments()
+            ->with(['weight_ticket']) // Eager load weight ticket
             ->where('presentation', 'GRANEL')
-            ->join('weight_tickets', 'shipment_orders.id', '=', 'weight_tickets.shipment_order_id')
-            ->sum('weight_tickets.net_weight');
+            ->get();
 
-        // Convert KG to Tons (1 Ton = 1000 KG)
-        $granel = $granel > 0 ? $granel / 1000 : 0;
+        $granelTotal = 0;
 
-        return (float) ($envasado + $granel);
+        foreach ($granelShipments as $shipment) {
+            // Check if we have a VALID weight ticket with net_weight > 0
+            if ($shipment->weight_ticket && $shipment->weight_ticket->net_weight > 0) {
+                // Use ACTUAL weight (converted from KG to Tons)
+                $granelTotal += ($shipment->weight_ticket->net_weight / 1000);
+            } else {
+                // Use PROGRAMMED weight as placeholder (reservation)
+                // This ensures the balance drops immediately upon creating the order
+                // Convert KG to Tons (1 Ton = 1000 KG)
+                $granelTotal += (($shipment->programmed_tons ?: 0) / 1000);
+            }
+        }
+
+        return (float) ($envasado + $granelTotal);
     }
 
     public function getBalanceAttribute()
