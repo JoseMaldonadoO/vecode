@@ -880,7 +880,7 @@ export default function Dashboard({
                                     Progreso
                                 </span>
                                 <span className="text-xs font-bold text-slate-400">
-                                    {formatNumber(effectiveTotal)} / {formatNumber(vessel?.programmed_tonnage || 0)}
+                                    {formatNumber(effectiveTotal / 1000)} / {formatNumber(vessel?.programmed_tonnage || 0)}
                                 </span>
                             </div>
                             {/* Simple Progress Bar */}
@@ -894,12 +894,12 @@ export default function Dashboard({
                             <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-200">
                                 <div>
                                     <p className="text-[10px] text-slate-400 font-bold uppercase">Descargado</p>
-                                    <p className="text-sm font-black text-slate-800">{formatNumber(effectiveTotal)} TM</p>
+                                    <p className="text-sm font-black text-slate-800">{formatNumber(effectiveTotal / 1000)} TM</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[10px] text-amber-500 font-bold uppercase">Pendiente</p>
                                     <p className="text-sm font-black text-amber-600">
-                                        {vessel?.programmed_tonnage ? formatNumber(Math.max(0, parseFloat(vessel.programmed_tonnage) - effectiveTotal)) : 0} TM
+                                        {vessel?.programmed_tonnage ? formatNumber(Math.max(0, parseFloat(vessel.programmed_tonnage) - (effectiveTotal / 1000))) : 0} TM
                                     </p>
                                 </div>
                             </div>
