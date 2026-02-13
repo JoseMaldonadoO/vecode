@@ -119,10 +119,13 @@ export default function Create({
         setIsProcessingQr(true);
 
         // Parse: support both "OP_EXIT 3" and "OP_EXIT 3|JUAN|..."
-        // 1. Remove "OP_EXIT " prefix (case insensitive)
+        // Also support "OP?EXIT" which can happen with bad keyboard layouts on scanners (US vs ES)
         let cleanText = text.trim();
-        if (cleanText.toUpperCase().startsWith("OP_EXIT")) {
-            cleanText = cleanText.substring(7).trim(); // Remove "OP_EXIT" (7 chars)
+
+        // Remove "OP_EXIT" prefix (or "OP?EXIT" / "OP'EXIT") and handle pipes
+        if (cleanText.toUpperCase().startsWith("OP")) {
+            // Replace "OP_EXIT", "OP?EXIT", "OP'EXIT", etc. with empty string
+            cleanText = cleanText.replace(/^OP[_\?'\-]EXIT\s*/i, "");
         }
 
         // 2. If it contains pipes, take the first part
@@ -481,8 +484,8 @@ export default function Create({
                                                 }
                                             }}
                                             className={`w-full rounded-lg border-2 shadow-sm py-2.5 pl-10 pr-10 outline-none transition-all ${data.operator_id
-                                                    ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
-                                                    : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
+                                                ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
+                                                : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
                                                 }`}
                                             placeholder={data.operator_id ? "Operador Seleccionado" : "Escanee código QR aquí..."}
                                             autoComplete="off"
