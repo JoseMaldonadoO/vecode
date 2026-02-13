@@ -857,107 +857,51 @@ export default function Dashboard({
                     </div>
 
                     {/* Column 3: Stats & Visuals */}
-                    <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 flex flex-col items-center text-center h-full">
-                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2">
+                    <div className="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 flex flex-col items-center text-center h-full relative overflow-hidden">
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2 z-10">
                             Porcentaje de Descarga
                         </h3>
 
-                        <div className="text-5xl font-black text-green-600 tracking-tighter mb-8">
+                        <div className="text-5xl font-black text-green-600 tracking-tighter mb-4 z-10">
                             {stats.progress_percent || 0}%
                         </div>
 
                         {/* Ship Graphic Container */}
-                        <div className="relative w-full max-w-[300px] aspect-[4/3] flex items-end justify-center mb-8">
-                            {/* Ship SVG */}
-                            <svg
-                                viewBox="0 0 200 120"
-                                className="w-full h-auto drop-shadow-2xl z-10"
-                            >
-                                {/* Ship Base */}
-                                <path
-                                    d="M20,80 L180,80 L160,110 L40,110 Z"
-                                    fill="#94a3b8"
-                                />
-                                {/* Containers Stack 1 */}
-                                <rect
-                                    x="50"
-                                    y="55"
-                                    width="20"
-                                    height="25"
-                                    fill="#cbd5e1"
-                                />
-                                <rect
-                                    x="75"
-                                    y="45"
-                                    width="25"
-                                    height="35"
-                                    fill="#94a3b8"
-                                />
-                                {/* Bridge */}
-                                <rect
-                                    x="110"
-                                    y="40"
-                                    width="30"
-                                    height="40"
-                                    fill="#cbd5e1"
-                                />
-                                <rect
-                                    x="118"
-                                    y="25"
-                                    width="14"
-                                    height="15"
-                                    fill="#94a3b8"
-                                />
-                                <rect
-                                    x="123"
-                                    y="10"
-                                    width="4"
-                                    height="15"
-                                    fill="#64748b"
-                                />
-                                {/* Detail dots */}
-                                <circle cx="130" cy="95" r="2" fill="white" />
-                                <circle cx="140" cy="95" r="2" fill="white" />
-                                <circle cx="150" cy="95" r="2" fill="white" />
-                            </svg>
+                        <div className="flex-1 flex flex-col items-center justify-center w-full z-10">
+                            <div className="animate-float my-4">
+                                <Ship className="w-48 h-48 text-[#1e3a8a] drop-shadow-2xl" strokeWidth={0.8} />
+                            </div>
                         </div>
 
-                        {/* Progress Bar */}
-                        <div className="w-full bg-blue-100 h-16 rounded-xl border border-blue-200 relative overflow-hidden mb-6">
-                            <div
-                                className="h-full bg-blue-500 flex items-center justify-center text-white font-black text-lg transition-all duration-1000 ease-out"
-                                style={{
-                                    width: `${Math.min(stats.progress_percent || 0, 100)}%`,
-                                }}
-                            ></div>
-                            <div className="absolute inset-0 flex items-center justify-between px-4">
-                                <span className="text-xs font-bold text-blue-900/50 uppercase">
+                        {/* Stats Footer: Programmed vs Downloaded vs Pending */}
+                        <div className="w-full bg-slate-50 rounded-xl p-4 border border-slate-100 z-10 mt-auto">
+                            <div className="flex justify-between items-end mb-2">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                                     Progreso
                                 </span>
-                                <span className="text-xs font-bold text-blue-900/50">
-                                    {formatTonnes(stats.total_tonnage || 0)} /{" "}
-                                    {formatMT(vessel?.programmed_tonnage || 0)}
+                                <span className="text-xs font-bold text-slate-400">
+                                    {formatNumber(stats.total_downloaded)} / {formatNumber(vessel?.programmed_tonnage || 0)}
                                 </span>
                             </div>
-                        </div>
+                            {/* Simple Progress Bar */}
+                            <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out"
+                                    style={{ width: `${Math.min(100, stats.progress_percent || 0)}%` }}
+                                ></div>
+                            </div>
 
-                        <div className="w-full mt-auto pt-6 border-t border-gray-100">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-sm font-bold text-gray-500 uppercase">
-                                    Descargado:
-                                </span>
-                                <span className="text-xl font-black text-gray-900 font-mono">
-                                    {formatTonnes(effectiveTotal || 0)} TM
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm font-bold text-gray-400 uppercase">
-                                    Total Programado:
-                                </span>
-                                <span className="text-sm font-bold text-gray-500 font-mono">
-                                    {formatMT(vessel?.programmed_tonnage || 0)}{" "}
-                                    TM
-                                </span>
+                            <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-200">
+                                <div>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase">Descargado</p>
+                                    <p className="text-sm font-black text-slate-800">{formatNumber(stats.total_downloaded)} TM</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] text-amber-500 font-bold uppercase">Pendiente</p>
+                                    <p className="text-sm font-black text-amber-600">
+                                        {vessel?.programmed_tonnage ? formatNumber(Math.max(0, vessel.programmed_tonnage - stats.total_downloaded)) : 0} TM
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
