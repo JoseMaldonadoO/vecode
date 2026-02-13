@@ -183,16 +183,7 @@ export default function Create({
                     .includes(queryClient.toLowerCase().replace(/\s+/g, "")),
             );
 
-    // Filter Clients
-    const filteredClients =
-        queryClient === ""
-            ? clients
-            : clients.filter((client) =>
-                client.business_name
-                    .toLowerCase()
-                    .replace(/\s+/g, "")
-                    .includes(queryClient.toLowerCase().replace(/\s+/g, "")),
-            );
+
 
     // Removed specific Search Operators Effect as we scan on Enter now
 
@@ -486,8 +477,8 @@ export default function Create({
                                             }
                                         }}
                                         className={`w-full rounded-lg border-2 shadow-sm py-2.5 pl-10 pr-10 outline-none transition-all ${data.operator_id
-                                                ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
-                                                : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
+                                            ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
+                                            : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
                                             }`}
                                         placeholder={data.operator_id ? "Operador Seleccionado" : "Escanee código QR aquí..."}
                                         autoComplete="off"
