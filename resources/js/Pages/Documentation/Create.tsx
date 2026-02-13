@@ -15,10 +15,12 @@ import {
     Box,
     ShoppingCart,
     Search,
+    Scan,
 } from "lucide-react";
 import { FormEventHandler, useState, Fragment, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import axios from "axios";
+import QrScannerModal from "@/Components/QrScannerModal";
 
 interface Client {
     id: number;
@@ -108,6 +110,45 @@ export default function Create({
     const [queryClient, setQueryClient] = useState("");
     const [queryOperator, setQueryOperator] = useState("");
     const [foundOperators, setFoundOperators] = useState<Operator[]>([]);
+    const [showQrScanner, setShowQrScanner] = useState(false);
+
+    // QR Scan Handler
+    const handleQrScan = async (text: string | null) => {
+        if (!text) return;
+
+        // Parse: Remove "OP " prefix if present (e.g. "OP 123" -> "123")
+        const cleanText = text.trim().replace(/^OP\s+/i, "");
+
+        try {
+            // Search by ID first (assuming text is ID)
+            const response = await axios.get(route("documentation.operators.search"), {
+                params: { q: cleanText },
+            });
+
+            const operators = response.data;
+            // Try to find exact match by ID or Name
+            const exactMatch = operators.find((op: Operator) =>
+                op.id.toString() === cleanText || op.operator_name.toLowerCase() === cleanText.toLowerCase()
+            );
+
+            if (exactMatch) {
+                handleOperatorSelect(exactMatch);
+                setShowQrScanner(false);
+                // Optional: Show success toast
+            } else if (operators.length > 0) {
+                // If multiple found but not exact, maybe just fill the first one?
+                // Or let user choose? For now, let's pick first if it's a good match
+                handleOperatorSelect(operators[0]);
+                setShowQrScanner(false);
+            } else {
+                alert("Operador no encontrado con el código: " + text);
+                setShowQrScanner(false); // Close or keep open? Keep open to retry
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error al buscar operador via QR");
+        }
+    };
 
     // Filter Clients
     const filteredClients =
@@ -388,9 +429,19 @@ export default function Create({
                             </div>
 
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Buscar Operador (Nombre o ID)
-                                </label>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-sm font-bold text-gray-700">
+                                        Buscar Operador (Nombre o ID)
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowQrScanner(true)}
+                                        className="text-xs flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded transition-colors"
+                                    >
+                                        <Scan className="w-3 h-3 mr-1" />
+                                        Escanear QR
+                                    </button>
+                                </div>
                                 <Combobox onChange={handleOperatorSelect}>
                                     <div className="relative">
                                         <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
@@ -652,6 +703,13 @@ export default function Create({
                     </form>
                 </div>
             </div>
+
+            <QrScannerModal
+                isOpen={showQrScanner}
+                onClose={() => setShowQrScanner(false)}
+                onScan={handleQrScan}
+                title="Escanear Operador"
+            />
         </DashboardLayout>
     );
 }
