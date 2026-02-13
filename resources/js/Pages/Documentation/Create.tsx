@@ -167,9 +167,11 @@ export default function Create({
     };
 
     // Handle physical scanner input (Enter key)
-    const handleQrInputSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleQrScan(qrInput);
+    const handleQrInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleQrScan(qrInput);
+        }
     };
 
     // Filter Clients
@@ -435,31 +437,69 @@ export default function Create({
                                 </h4>
                             </div>
 
-                            <div className="flex justify-between items-center mb-1">
-                                <label className="block text-sm font-bold text-gray-700">
-                                    Escanear Operador (QR)
-                                </label>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowQrScanner(true)}
-                                    className="text-xs flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded transition-colors"
-                                >
-                                    <Scan className="w-3 h-3 mr-1" />
-                                    Usar Cámara
-                                </button>
-                            </div>
-                            <form onSubmit={handleQrInputSubmit} className="relative">
+                            <div className="md:col-span-2">
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-sm font-bold text-gray-700">
+                                        Escanear Operador (QR)
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowQrScanner(true)}
+                                        className="text-xs flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded transition-colors"
+                                    >
+                                        <Scan className="w-3 h-3 mr-1" />
+                                        Usar Cámara
+                                    </button>
+                                </div>
                                 <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : qrInput}
-                                        onChange={(e) => {
-                                            // If operator is NOT selected, allow typing
-                                            if (!data.operator_id) {
-                                                setQrInput(e.target.value);
-                                            } else {
-                                                // If operator IS selected, clearing it resets the selection
-                                                if (e.target.value === "") {
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : qrInput}
+                                            onKeyDown={handleQrInputKeyDown}
+                                            onChange={(e) => {
+                                                // If operator is NOT selected, allow typing
+                                                if (!data.operator_id) {
+                                                    setQrInput(e.target.value);
+                                                } else {
+                                                    // If operator IS selected, clearing it resets the selection
+                                                    if (e.target.value === "") {
+                                                        setData(d => ({
+                                                            ...d,
+                                                            operator_id: "",
+                                                            operator_name: "",
+                                                            transport_company: "",
+                                                            unit_type: "",
+                                                            tractor_plate: "",
+                                                            trailer_plate: "",
+                                                            economic_number: "",
+                                                            unit_number: "",
+                                                            license_number: "",
+                                                        }));
+                                                        setQrInput("");
+                                                    }
+                                                }
+                                            }}
+                                            className={`w-full rounded-lg border-2 shadow-sm py-2.5 pl-10 pr-10 outline-none transition-all ${data.operator_id
+                                                    ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
+                                                    : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
+                                                }`}
+                                            placeholder={data.operator_id ? "Operador Seleccionado" : "Escanee código QR aquí..."}
+                                            autoComplete="off"
+                                            autoFocus={!data.operator_id}
+                                        />
+                                        <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                            {data.operator_id ? (
+                                                <Check className="w-5 h-5 text-green-600" />
+                                            ) : (
+                                                <Scan className="w-5 h-5 text-gray-400" />
+                                            )}
+                                        </div>
+                                        {/* Clear Button if operator is selected */}
+                                        {data.operator_id && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
                                                     setData(d => ({
                                                         ...d,
                                                         operator_id: "",
@@ -473,58 +513,23 @@ export default function Create({
                                                         license_number: "",
                                                     }));
                                                     setQrInput("");
-                                                }
-                                            }
-                                        }}
-                                        className={`w-full rounded-lg border-2 shadow-sm py-2.5 pl-10 pr-10 outline-none transition-all ${data.operator_id
-                                            ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
-                                            : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
-                                            }`}
-                                        placeholder={data.operator_id ? "Operador Seleccionado" : "Escanee código QR aquí..."}
-                                        autoComplete="off"
-                                        autoFocus={!data.operator_id}
-                                    />
-                                    <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                        {data.operator_id ? (
-                                            <Check className="w-5 h-5 text-green-600" />
-                                        ) : (
-                                            <Scan className="w-5 h-5 text-gray-400" />
+                                                    setTimeout(() => document.querySelector<HTMLInputElement>('input[placeholder="Escanee código QR aquí..."]')?.focus(), 100);
+                                                }}
+                                                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-red-500"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                </svg>
+                                            </button>
                                         )}
                                     </div>
-                                    {/* Clear Button if operator is selected */}
-                                    {data.operator_id && (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setData(d => ({
-                                                    ...d,
-                                                    operator_id: "",
-                                                    operator_name: "",
-                                                    transport_company: "",
-                                                    unit_type: "",
-                                                    tractor_plate: "",
-                                                    trailer_plate: "",
-                                                    economic_number: "",
-                                                    unit_number: "",
-                                                    license_number: "",
-                                                }));
-                                                setQrInput("");
-                                                setTimeout(() => document.querySelector<HTMLInputElement>('input[placeholder="Escanee código QR aquí..."]')?.focus(), 100);
-                                            }}
-                                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-red-500"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
+                                    {!data.operator_id && (
+                                        <p className="text-xs text-indigo-500 mt-1 font-medium animate-pulse">
+                                            Escanee con lector físico o presione Enter tras escribir.
+                                        </p>
                                     )}
                                 </div>
-                                {!data.operator_id && (
-                                    <p className="text-xs text-indigo-500 mt-1 font-medium animate-pulse">
-                                        Escanee con lector físico o presione Enter tras escribir.
-                                    </p>
-                                )}
-                            </form>
+                            </div>
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
