@@ -116,8 +116,19 @@ export default function Create({
     const handleQrScan = async (text: string | null) => {
         if (!text) return;
 
-        // Parse: Remove "OP " prefix if present (e.g. "OP 123" -> "123")
-        const cleanText = text.trim().replace(/^OP\s+/i, "");
+        // Parse: support both "OP_EXIT 3" and "OP_EXIT 3|JUAN|..."
+        // 1. Remove "OP_EXIT " prefix (case insensitive)
+        let cleanText = text.trim();
+        if (cleanText.toUpperCase().startsWith("OP_EXIT")) {
+            cleanText = cleanText.substring(7).trim(); // Remove "OP_EXIT" (7 chars)
+        }
+
+        // 2. If it contains pipes, take the first part
+        if (cleanText.includes("|")) {
+            cleanText = cleanText.split("|")[0].trim();
+        }
+
+        // Now cleanText should be just the ID (e.g., "3")
 
         try {
             // Search by ID first (assuming text is ID)
@@ -126,9 +137,9 @@ export default function Create({
             });
 
             const operators = response.data;
-            // Try to find exact match by ID or Name
+            // Try to find exact match by ID
             const exactMatch = operators.find((op: Operator) =>
-                op.id.toString() === cleanText || op.operator_name.toLowerCase() === cleanText.toLowerCase()
+                op.id.toString() === cleanText
             );
 
             if (exactMatch) {
@@ -141,8 +152,8 @@ export default function Create({
                 handleOperatorSelect(operators[0]);
                 setShowQrScanner(false);
             } else {
-                alert("Operador no encontrado con el código: " + text);
-                setShowQrScanner(false); // Close or keep open? Keep open to retry
+                alert("Operador no encontrado con el código: " + text + " (ID extraído: " + cleanText + ")");
+                // Keep modal open to retry
             }
         } catch (error) {
             console.error(error);
