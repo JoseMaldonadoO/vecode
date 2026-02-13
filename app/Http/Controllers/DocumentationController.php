@@ -669,4 +669,20 @@ class DocumentationController extends Controller
 
         return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque re-abierta correctamente.');
     }
+
+    public function checkCartaPorte(Request $request)
+    {
+        $cartaPorte = $request->input('carta_porte');
+        $transportCompany = $request->input('transport_company');
+
+        if (!$cartaPorte || !$transportCompany) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = ShipmentOrder::where('carta_porte', $cartaPorte)
+            ->where('transport_company', $transportCompany)
+            ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
 }
