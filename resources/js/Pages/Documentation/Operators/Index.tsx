@@ -316,11 +316,10 @@ export default function Index({
                                                             router.delete(route("documentation.operators.destroy", operator.id));
                                                         }
                                                     }}
-                                                    className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors ml-2"
+                                                    className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-md hover:bg-red-100 transition-colors ml-2"
                                                     title="Eliminar Operador"
                                                 >
-                                                    <Trash2 className="w-4 h-4 mr-1.5" />
-                                                    Eliminar
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </td>
                                         </tr>
