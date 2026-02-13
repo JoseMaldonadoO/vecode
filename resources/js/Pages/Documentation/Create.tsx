@@ -108,13 +108,15 @@ export default function Create({
     });
 
     const [queryClient, setQueryClient] = useState("");
-    const [queryOperator, setQueryOperator] = useState("");
-    const [foundOperators, setFoundOperators] = useState<Operator[]>([]);
+    const [qrInput, setQrInput] = useState(""); // Replaces queryOperator
+    // const [foundOperators, setFoundOperators] = useState<Operator[]>([]); // Removed as we don't list search results anymore
     const [showQrScanner, setShowQrScanner] = useState(false);
+    const [isProcessingQr, setIsProcessingQr] = useState(false);
 
-    // QR Scan Handler
+    // QR Scan Handler (Used by both Camera and Physical Scanner)
     const handleQrScan = async (text: string | null) => {
-        if (!text) return;
+        if (!text || isProcessingQr) return;
+        setIsProcessingQr(true);
 
         // Parse: support both "OP_EXIT 3" and "OP_EXIT 3|JUAN|..."
         // 1. Remove "OP_EXIT " prefix (case insensitive)
@@ -145,20 +147,29 @@ export default function Create({
             if (exactMatch) {
                 handleOperatorSelect(exactMatch);
                 setShowQrScanner(false);
+                setQrInput(""); // Clear input after successful scan
                 // Optional: Show success toast
             } else if (operators.length > 0) {
-                // If multiple found but not exact, maybe just fill the first one?
-                // Or let user choose? For now, let's pick first if it's a good match
+                // If multiple found but not exact, fill first
                 handleOperatorSelect(operators[0]);
                 setShowQrScanner(false);
+                setQrInput("");
             } else {
                 alert("Operador no encontrado con el código: " + text + " (ID extraído: " + cleanText + ")");
-                // Keep modal open to retry
+                // Keep modal open or input focused to retry
             }
         } catch (error) {
             console.error(error);
             alert("Error al buscar operador via QR");
+        } finally {
+            setIsProcessingQr(false);
         }
+    };
+
+    // Handle physical scanner input (Enter key)
+    const handleQrInputSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleQrScan(qrInput);
     };
 
     // Filter Clients
@@ -172,24 +183,18 @@ export default function Create({
                     .includes(queryClient.toLowerCase().replace(/\s+/g, "")),
             );
 
-    // Search Operators Effect
-    useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            if (queryOperator.length > 1) {
-                axios
-                    .get(route("documentation.operators.search"), {
-                        params: { q: queryOperator },
-                    })
-                    .then((response) => {
-                        setFoundOperators(response.data);
-                    })
-                    .catch((error) => console.error(error));
-            } else {
-                setFoundOperators([]);
-            }
-        }, 300);
-        return () => clearTimeout(timeoutId);
-    }, [queryOperator]);
+    // Filter Clients
+    const filteredClients =
+        queryClient === ""
+            ? clients
+            : clients.filter((client) =>
+                client.business_name
+                    .toLowerCase()
+                    .replace(/\s+/g, "")
+                    .includes(queryClient.toLowerCase().replace(/\s+/g, "")),
+            );
+
+    // Removed specific Search Operators Effect as we scan on Enter now
 
     useEffect(() => {
         if (errors.carta_porte) {
@@ -439,62 +444,96 @@ export default function Create({
                                 </h4>
                             </div>
 
-                            <div className="md:col-span-2">
-                                <div className="flex justify-between items-center mb-1">
-                                    <label className="block text-sm font-bold text-gray-700">
-                                        Buscar Operador (Nombre o ID)
-                                    </label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowQrScanner(true)}
-                                        className="text-xs flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded transition-colors"
-                                    >
-                                        <Scan className="w-3 h-3 mr-1" />
-                                        Escanear QR
-                                    </button>
-                                </div>
-                                <Combobox onChange={handleOperatorSelect}>
-                                    <div className="relative">
-                                        <div className="relative w-full cursor-default overflow-hidden rounded-lg border border-gray-300 bg-white text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm">
-                                            <Combobox.Input
-                                                className="w-full border-none py-2.5 pl-10 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-                                                onChange={(event) => setQueryOperator(event.target.value)}
-                                                displayValue={() => data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : ''}
-                                                placeholder="Escribe para buscar..."
-                                                autoComplete="off"
-                                            />
-                                            <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                                <Search className="w-5 h-5 text-gray-400" />
-                                            </div>
-                                            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-                                                <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                            </Combobox.Button>
-                                        </div>
-                                        <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                                            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                                {foundOperators.length === 0 && queryOperator !== "" ? (
-                                                    <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                                                        No se encontraron operadores.
-                                                    </div>
-                                                ) : (
-                                                    foundOperators.map((operator) => (
-                                                        <Combobox.Option key={operator.id} value={operator} className={({ active }) => `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? "bg-indigo-600 text-white" : "text-gray-900"}`}>
-                                                            {({ selected, active }) => (
-                                                                <>
-                                                                    <span className={`block truncate ${selected ? "font-medium" : "font-normal"}`}>
-                                                                        {operator.operator_name} - {operator.transporter_line}
-                                                                    </span>
-                                                                    {selected ? <span className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active ? "text-white" : "text-indigo-600"}`}><Check className="h-5 w-5" aria-hidden="true" /></span> : null}
-                                                                </>
-                                                            )}
-                                                        </Combobox.Option>
-                                                    ))
-                                                )}
-                                            </Combobox.Options>
-                                        </Transition>
-                                    </div>
-                                </Combobox>
+                            <div className="flex justify-between items-center mb-1">
+                                <label className="block text-sm font-bold text-gray-700">
+                                    Escanear Operador (QR)
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowQrScanner(true)}
+                                    className="text-xs flex items-center text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-2 py-1 rounded transition-colors"
+                                >
+                                    <Scan className="w-3 h-3 mr-1" />
+                                    Usar Cámara
+                                </button>
                             </div>
+                            <form onSubmit={handleQrInputSubmit} className="relative">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : qrInput}
+                                        onChange={(e) => {
+                                            // If operator is NOT selected, allow typing
+                                            if (!data.operator_id) {
+                                                setQrInput(e.target.value);
+                                            } else {
+                                                // If operator IS selected, clearing it resets the selection
+                                                if (e.target.value === "") {
+                                                    setData(d => ({
+                                                        ...d,
+                                                        operator_id: "",
+                                                        operator_name: "",
+                                                        transport_company: "",
+                                                        unit_type: "",
+                                                        tractor_plate: "",
+                                                        trailer_plate: "",
+                                                        economic_number: "",
+                                                        unit_number: "",
+                                                        license_number: "",
+                                                    }));
+                                                    setQrInput("");
+                                                }
+                                            }
+                                        }}
+                                        className={`w-full rounded-lg border-2 shadow-sm py-2.5 pl-10 pr-10 outline-none transition-all ${data.operator_id
+                                                ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
+                                                : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
+                                            }`}
+                                        placeholder={data.operator_id ? "Operador Seleccionado" : "Escanee código QR aquí..."}
+                                        autoComplete="off"
+                                        autoFocus={!data.operator_id}
+                                    />
+                                    <div className="absolute inset-y-0 left-0 flex items-center pl-3">
+                                        {data.operator_id ? (
+                                            <Check className="w-5 h-5 text-green-600" />
+                                        ) : (
+                                            <Scan className="w-5 h-5 text-gray-400" />
+                                        )}
+                                    </div>
+                                    {/* Clear Button if operator is selected */}
+                                    {data.operator_id && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setData(d => ({
+                                                    ...d,
+                                                    operator_id: "",
+                                                    operator_name: "",
+                                                    transport_company: "",
+                                                    unit_type: "",
+                                                    tractor_plate: "",
+                                                    trailer_plate: "",
+                                                    economic_number: "",
+                                                    unit_number: "",
+                                                    license_number: "",
+                                                }));
+                                                setQrInput("");
+                                                setTimeout(() => document.querySelector<HTMLInputElement>('input[placeholder="Escanee código QR aquí..."]')?.focus(), 100);
+                                            }}
+                                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-red-500"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                                {!data.operator_id && (
+                                    <p className="text-xs text-indigo-500 mt-1 font-medium animate-pulse">
+                                        Escanee con lector físico o presione Enter tras escribir.
+                                    </p>
+                                )}
+                            </form>
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
