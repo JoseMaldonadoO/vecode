@@ -240,42 +240,30 @@ export default function Dashboard({
                 {/* Top Bar: Title & Selectors */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#1e3a8a] text-white p-6 rounded-3xl shadow-xl">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10 overflow-hidden relative">
-                            {/* Animated Ship Icon - Dark Blue */}
-                            <div className="animate-float relative z-10">
-                                <Ship className="w-12 h-12 text-[#1e3a8a] drop-shadow-md" strokeWidth={1.5} />
-                            </div>
-                            {/* Water effect behind/below */}
-                            <div className="absolute bottom-0 left-0 right-0 h-3 bg-blue-400/20 blur-sm animate-pulse" />
+                        <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/10">
+                            <Anchor className="w-8 h-8 text-blue-200" />
                         </div>
                         <div>
-                            <h1 className="text-xl md:text-3xl font-black tracking-tight flex flex-col md:block">
-                                <span>Resumen-Descarga</span>
-                                <span className="hidden md:inline"> </span>
+                            <h1 className="text-2xl md:text-3xl font-black tracking-tight">
+                                Resumen-Descarga de barco{" "}
                                 <span className="text-blue-300">
                                     {vessel?.name || "---"}
                                 </span>
                             </h1>
-                            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 mt-1 text-xs md:text-sm font-bold uppercase tracking-widest text-blue-200">
-                                <span>
-                                    {vessel?.dock ? `Muelle ${vessel.dock}` : "Sin muelle"}
-                                </span>
-                                <span className="hidden md:inline">•</span>
-                                <span>
-                                    ETA: {vessel?.eta ? String(vessel.eta).substring(0, 10) : "--"}
-                                </span>
-                                <span className="hidden md:inline">•</span>
-                                <span className="text-white bg-blue-500/30 px-2 py-0.5 rounded border border-blue-400/30">
-                                    Programado: {vessel?.programmed_tonnage ? formatNumber(vessel.programmed_tonnage) : 0} MT
-                                </span>
-                                <span className="text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/30">
-                                    Pendiente: {vessel?.programmed_tonnage ? formatNumber(Math.max(0, vessel.programmed_tonnage - stats.total_downloaded)) : 0} MT
-                                </span>
-                            </div>
+                            <p className="text-blue-200 text-xs font-bold uppercase tracking-widest mt-1">
+                                {vessel?.dock
+                                    ? `Muelle ${vessel.dock}`
+                                    : "Sin muelle asignado"}{" "}
+                                • ETA:{" "}
+                                {vessel?.eta
+                                    ? String(vessel.eta).substring(0, 10)
+                                    : "--"}
+                            </p>
                         </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
+                        {/* ... buttons ... */}
                         {/* Unicorn Mode Toggle */}
                         <div className="bg-white/10 p-1 rounded-xl flex items-center border border-white/10">
                             <button
