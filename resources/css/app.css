@@ -78,12 +78,12 @@
   select,
   textarea,
   [role="button"] {
-    cursor: url('/VECODE/images/cursor.png') 16 16, url('/images/cursor.png') 16 16, pointer;
+    cursor: url('/VECODE/images/cursor.png?v=2') 16 16, url('/images/cursor.png?v=2') 16 16, pointer;
   }
 
   body {
     @apply bg-background text-foreground;
-    cursor: url('/VECODE/images/cursor.png') 16 16, url('/images/cursor.png') 16 16, auto;
+    cursor: url('/VECODE/images/cursor.png?v=2') 16 16, url('/images/cursor.png?v=2') 16 16, auto;
   }
 
   /* Hide number input spin buttons */
