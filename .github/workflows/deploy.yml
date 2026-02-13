@@ -78,7 +78,7 @@ jobs:
           security: loose
           protocol: ftps
           port: 21
-          timeout: 600000
+          timeout: 1200000
 
       - name: 🚀 Extract and Fix permissions
         run: |
