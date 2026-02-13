@@ -210,10 +210,12 @@ class DashboardController extends Controller
 
         // 2. Burreo: Count unique Economic Numbers that have at least one trip (LoadingOrder) for this vessel
         // This represents the fleet of trucks currently working on the Burreo for this vessel.
+        // FILTER: Only count units that have actual activity (weighing/loading/completed), ignoring 'created' or 'authorized' if they haven't moved.
         $burreoInCircuit = LoadingOrder::where('vessel_id', $vesselId)
             ->where('operation_type', 'burreo')
             ->whereNotNull('economic_number')
             ->where('economic_number', '!=', '')
+            ->whereIn('status', ['weighing_in', 'loading', 'weighing_out', 'completed'])
             ->distinct()
             ->count('economic_number');
 
