@@ -12,6 +12,7 @@ import {
     ShieldCheck,
     CheckCircle,
     X,
+    Trash2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 // @ts-ignore
@@ -320,6 +321,18 @@ export default function Index({
                                                         </>
                                                     )}
                                                 </Link>
+
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm("¿Estás seguro de que deseas eliminar este operador? Esta acción no se puede deshacer.")) {
+                                                            router.delete(route("documentation.exit-operators.destroy", operator.id));
+                                                        }
+                                                    }}
+                                                    className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-lg border border-red-100 hover:border-red-300 transition-all font-bold ml-2"
+                                                    title="Eliminar Operador"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
                                             </td>
                                         </tr>
                                     ))
@@ -375,6 +388,6 @@ export default function Index({
                     )}
                 </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }

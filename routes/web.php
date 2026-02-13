@@ -132,6 +132,7 @@ Route::middleware('auth')->group(function () {
     // For update, I'll use put for consistency or patch
     Route::put('/documentation/exit-operators/{id}', [\App\Http\Controllers\ExitOperatorController::class, 'update'])->name('documentation.exit-operators.update');
     Route::patch('/documentation/exit-operators/{id}/toggle', [\App\Http\Controllers\ExitOperatorController::class, 'toggleStatus'])->name('documentation.exit-operators.toggle');
+    Route::delete('/documentation/exit-operators/{id}', [\App\Http\Controllers\ExitOperatorController::class, 'destroy'])->name('documentation.exit-operators.destroy');
     Route::get('/documentation/exit-operators/{id}/qr', [\App\Http\Controllers\ExitOperatorController::class, 'qr'])->name('documentation.exit-operators.qr');
 
     // New Shipment Orders Report Route

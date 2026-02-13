@@ -125,4 +125,12 @@ class ExitOperatorController extends Controller
             'operator' => $operator,
         ]);
     }
+
+    public function destroy($id)
+    {
+        $operator = ExitOperator::findOrFail($id);
+        $operator->delete();
+
+        return redirect()->route('documentation.exit-operators.index')->with('success', 'Operador eliminado correctamente.');
+    }
 }
