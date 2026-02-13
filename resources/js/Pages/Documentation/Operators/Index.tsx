@@ -226,7 +226,7 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
                                                 #{operator.id}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
                                                         {operator.operator_name.charAt(
@@ -242,10 +242,10 @@ export default function Index({
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            <td className="px-6 py-4 text-sm text-gray-600">
                                                 {operator.transporter_line}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900">
                                                     {operator.unit_type}
                                                 </div>
@@ -254,7 +254,7 @@ export default function Index({
                                                     {operator.tractor_plate}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900">
                                                     {operator.vessel ? (
                                                         operator.vessel.name
@@ -276,7 +276,7 @@ export default function Index({
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-2">
+                                            <td className="px-6 py-4 text-sm font-medium flex items-center gap-2 flex-wrap">
                                                 {/* Print QR Button */}
                                                 <Link
                                                     href={route("documentation.qr", {
