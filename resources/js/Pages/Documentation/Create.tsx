@@ -458,7 +458,7 @@ export default function Create({
                                     <div className="relative">
                                         <input
                                             type="text"
-                                            value={data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : qrInput}
+                                            value={data.operator_name ? data.operator_name : qrInput}
                                             onKeyDown={handleQrInputKeyDown}
                                             onChange={(e) => {
                                                 // If operator is NOT selected, allow typing
