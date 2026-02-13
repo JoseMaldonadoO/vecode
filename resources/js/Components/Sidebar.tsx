@@ -38,7 +38,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
 
     return (
         <div className={cn(
-            "flex flex-col bg-slate-900/95 backdrop-blur-sm text-white shadow-2xl transition-all duration-300 ease-in-out overflow-hidden border-r border-slate-800",
+            "sidebar-container flex flex-col bg-slate-900/95 backdrop-blur-sm text-white shadow-2xl transition-all duration-300 ease-in-out overflow-hidden border-r border-slate-800",
             !isMobile && "h-full w-full", // Let layout control width
             isMobile && "h-full w-full",
             className
