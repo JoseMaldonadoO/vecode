@@ -199,13 +199,26 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units in Circuit (Live status, restricted to vessel but usually ignores date filter for current state)
-        $liveQuery = LoadingOrder::where('vessel_id', $vesselId);
-        if ($warehouse)
-            $liveQuery->where('warehouse', $warehouse);
+        // Units in Circuit
+        // 1. Scale/Standard: Active orders in the yard (authorized -> weighing_out)
+        $scaleInCircuit = LoadingOrder::where('vessel_id', $vesselId)
+            ->where(function ($q) {
+                $q->whereNull('operation_type')->orWhere('operation_type', 'scale');
+            })
+            ->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])
+            ->count();
 
-        $unitsInCircuit = (clone $liveQuery)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count();
-        $unitsDischarging = (clone $liveQuery)->where('status', 'loading')->count();
+        // 2. Burreo: Count unique Economic Numbers that have at least one trip (LoadingOrder) for this vessel
+        // This represents the fleet of trucks currently working on the Burreo for this vessel.
+        $burreoInCircuit = LoadingOrder::where('vessel_id', $vesselId)
+            ->where('operation_type', 'burreo')
+            ->whereNotNull('economic_number')
+            ->where('economic_number', '!=', '')
+            ->distinct()
+            ->count('economic_number');
+
+        $unitsInCircuit = $scaleInCircuit + $burreoInCircuit;
+        // $unitsDischarging removed as per request
 
         // Total Tonnes (Net Weight from Tickets in Kg)
         $totalTonnage = (clone $baseQuery)
@@ -299,7 +312,7 @@ class DashboardController extends Controller
             'stats' => [
                 'trips_completed' => $tripsCompleted,
                 'units_in_circuit' => $unitsInCircuit,
-                'units_discharging' => $unitsDischarging,
+                // 'units_discharging' => $unitsDischarging, // Removed
                 'total_tonnage' => $totalTonnage,
                 'total_scale' => $totalScale,
                 'total_burreo' => $totalBurreo,

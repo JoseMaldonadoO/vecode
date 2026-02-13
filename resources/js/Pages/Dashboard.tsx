@@ -433,7 +433,7 @@ export default function Dashboard({
                     {/* Column 1 & 2: KPIs + Main Chart + Bottom Cards */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* KPI Cards Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-l-blue-600 flex flex-col items-center justify-center text-center">
                                 <h3 className="text-4xl font-black text-gray-800 tracking-tight">
                                     {formatNumber(stats.trips_completed)}
@@ -448,14 +448,6 @@ export default function Dashboard({
                                 </h3>
                                 <p className="text-sm font-bold text-gray-400 uppercase tracking-wide mt-1">
                                     Unidades en Circuito
-                                </p>
-                            </div>
-                            <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-l-orange-500 flex flex-col items-center justify-center text-center">
-                                <h3 className="text-4xl font-black text-gray-800 tracking-tight">
-                                    {formatNumber(stats.units_discharging)}
-                                </h3>
-                                <p className="text-sm font-bold text-gray-400 uppercase tracking-wide mt-1">
-                                    Unidades en Proceso
                                 </p>
                             </div>
                         </div>
