@@ -11,6 +11,7 @@ import {
     ArrowRight,
     ArrowLeftCircle,
     Printer,
+    Trash2,
 } from "lucide-react";
 import { useState } from "react";
 // @ts-ignore
@@ -308,6 +309,19 @@ export default function Index({
                                                         Editar
                                                     </span>
                                                 )}
+
+                                                <button
+                                                    onClick={() => {
+                                                        if (confirm("¿Estás seguro de que deseas eliminar este operador? Esta acción no se puede deshacer.")) {
+                                                            router.delete(route("documentation.operators.destroy", operator.id));
+                                                        }
+                                                    }}
+                                                    className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors ml-2"
+                                                    title="Eliminar Operador"
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-1.5" />
+                                                    Eliminar
+                                                </button>
                                             </td>
                                         </tr>
                                     ))

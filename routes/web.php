@@ -122,6 +122,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/documentation/operators', [\App\Http\Controllers\DocumentationController::class, 'operatorsIndex'])->name('documentation.operators.index');
     Route::get('/documentation/operators/{id}/edit', [\App\Http\Controllers\DocumentationController::class, 'editOperator'])->name('documentation.operators.edit');
     Route::put('/documentation/operators/{id}', [\App\Http\Controllers\DocumentationController::class, 'updateOperator'])->name('documentation.operators.update');
+    Route::delete('/documentation/operators/{id}', [\App\Http\Controllers\DocumentationController::class, 'destroyOperator'])->name('documentation.operators.destroy');
 
     // Exit Operators (Operadores de Salida)
     Route::get('/documentation/exit-operators', [\App\Http\Controllers\ExitOperatorController::class, 'index'])->name('documentation.exit-operators.index');

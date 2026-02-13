@@ -337,6 +337,14 @@ class DocumentationController extends Controller
         return redirect()->route('documentation.operators.index')->with('success', 'Operador actualizado correctamente.');
     }
 
+    public function destroyOperator($id)
+    {
+        $operator = VesselOperator::findOrFail($id);
+        $operator->delete();
+
+        return redirect()->route('documentation.operators.index')->with('success', 'Operador eliminado correctamente.');
+    }
+
     /**
      * Display a report of shipment orders (OB).
      */
