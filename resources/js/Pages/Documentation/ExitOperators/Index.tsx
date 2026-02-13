@@ -219,7 +219,7 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
                                                 #{operator.id}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <div className="flex items-center">
                                                     <div className="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
                                                         {operator.name.charAt(0)}
@@ -234,11 +234,11 @@ export default function Index({
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900 font-medium">{operator.transport_line}</div>
                                                 <div className="text-xs text-gray-500 italic">Real: {operator.real_transport_line}</div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 <div className="text-sm text-gray-900 font-medium">
                                                     {operator.unit_type} - {operator.brand_model}
                                                 </div>
@@ -246,7 +246,7 @@ export default function Index({
                                                     Tracto: {operator.tractor_plate} | Rem: {operator.trailer_plate || 'N/A'}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="px-6 py-4">
                                                 {operator.status === 'active' ? (
                                                     <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 flex items-center w-fit">
                                                         <ShieldCheck className="w-3 h-3 mr-1" />
@@ -259,80 +259,82 @@ export default function Index({
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex items-center gap-2">
-                                                {operator.status === 'active' ? (
-                                                    <>
-                                                        <Link
-                                                            href={route("documentation.exit-operators.qr", operator.id)}
-                                                            className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-indigo-200 transition-all font-bold"
-                                                        >
-                                                            <Printer className="w-4 h-4 mr-1.5" />
-                                                            QR
-                                                        </Link>
-
-                                                        <Link
-                                                            href={route("documentation.exit-operators.edit", operator.id)}
-                                                            className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
-                                                        >
-                                                            <Edit className="w-4 h-4 mr-1.5" />
-                                                            Editar
-                                                        </Link>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <button
-                                                            disabled
-                                                            title="Operador Vetado - No se puede generar QR"
-                                                            className="inline-flex items-center text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed font-bold"
-                                                        >
-                                                            <Printer className="w-4 h-4 mr-1.5" />
-                                                            QR
-                                                        </button>
-
-                                                        <button
-                                                            disabled
-                                                            title="Operador Vetado - No se puede editar"
-                                                            className="inline-flex items-center text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed font-bold"
-                                                        >
-                                                            <Edit className="w-4 h-4 mr-1.5" />
-                                                            Editar
-                                                        </button>
-                                                    </>
-                                                )}
-
-                                                <Link
-                                                    href={route("documentation.exit-operators.toggle", operator.id)}
-                                                    method="patch"
-                                                    as="button"
-                                                    className={`inline-flex items-center px-3 py-1.5 rounded-lg border transition-all font-bold ${operator.status === 'active'
-                                                        ? 'text-red-600 bg-red-50 border-red-100 hover:bg-red-100 hover:border-red-300'
-                                                        : 'text-green-600 bg-green-50 border-green-100 hover:bg-green-100 hover:border-green-300'
-                                                        }`}
-                                                >
+                                            <td className="px-6 py-4 text-sm font-medium">
+                                                <div className="flex items-center gap-2">
                                                     {operator.status === 'active' ? (
                                                         <>
-                                                            <ShieldAlert className="w-4 h-4 mr-1.5" />
-                                                            Vetar
+                                                            <Link
+                                                                href={route("documentation.exit-operators.qr", operator.id)}
+                                                                className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-indigo-200 transition-all font-bold"
+                                                            >
+                                                                <Printer className="w-4 h-4 mr-1.5" />
+                                                                QR
+                                                            </Link>
+
+                                                            <Link
+                                                                href={route("documentation.exit-operators.edit", operator.id)}
+                                                                className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
+                                                            >
+                                                                <Edit className="w-4 h-4 mr-1.5" />
+                                                                Editar
+                                                            </Link>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ShieldCheck className="w-4 h-4 mr-1.5" />
-                                                            Activar
+                                                            <button
+                                                                disabled
+                                                                title="Operador Vetado - No se puede generar QR"
+                                                                className="inline-flex items-center text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed font-bold"
+                                                            >
+                                                                <Printer className="w-4 h-4 mr-1.5" />
+                                                                QR
+                                                            </button>
+
+                                                            <button
+                                                                disabled
+                                                                title="Operador Vetado - No se puede editar"
+                                                                className="inline-flex items-center text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 cursor-not-allowed font-bold"
+                                                            >
+                                                                <Edit className="w-4 h-4 mr-1.5" />
+                                                                Editar
+                                                            </button>
                                                         </>
                                                     )}
-                                                </Link>
 
-                                                <button
-                                                    onClick={() => {
-                                                        if (confirm("¿Estás seguro de que deseas eliminar este operador? Esta acción no se puede deshacer.")) {
-                                                            router.delete(route("documentation.exit-operators.destroy", operator.id));
-                                                        }
-                                                    }}
-                                                    className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-lg border border-red-100 hover:border-red-300 transition-all font-bold ml-2"
-                                                    title="Eliminar Operador"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                    <Link
+                                                        href={route("documentation.exit-operators.toggle", operator.id)}
+                                                        method="patch"
+                                                        as="button"
+                                                        className={`inline-flex items-center px-3 py-1.5 rounded-lg border transition-all font-bold ${operator.status === 'active'
+                                                            ? 'text-red-600 bg-red-50 border-red-100 hover:bg-red-100 hover:border-red-300'
+                                                            : 'text-green-600 bg-green-50 border-green-100 hover:bg-green-100 hover:border-green-300'
+                                                            }`}
+                                                    >
+                                                        {operator.status === 'active' ? (
+                                                            <>
+                                                                <ShieldAlert className="w-4 h-4 mr-1.5" />
+                                                                Vetar
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <ShieldCheck className="w-4 h-4 mr-1.5" />
+                                                                Activar
+                                                            </>
+                                                        )}
+                                                    </Link>
+
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm("¿Estás seguro de que deseas eliminar este operador? Esta acción no se puede deshacer.")) {
+                                                                router.delete(route("documentation.exit-operators.destroy", operator.id));
+                                                            }
+                                                        }}
+                                                        className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-lg border border-red-100 hover:border-red-300 transition-all font-bold ml-2"
+                                                        title="Eliminar Operador"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
