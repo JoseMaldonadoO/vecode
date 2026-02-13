@@ -23,6 +23,8 @@ class Vessel extends Model
         'draft_weight' => 'decimal:2',
     ];
 
+    protected $appends = ['is_active'];
+
     public function getIsActiveAttribute()
     {
         if (!$this->departure_date) {
