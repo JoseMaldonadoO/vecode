@@ -3,12 +3,14 @@ import { PropsWithChildren, useState } from 'react';
 import { User } from '@/types';
 import { Menu, X, LogOut } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import { ClickAnimation } from '@/Components/ClickAnimation';
 
 export default function DashboardLayout({ user, header, children }: PropsWithChildren<{ user?: User, header?: React.ReactNode }>) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
+            <ClickAnimation />
             {/* Desktop Sidebar - Sticky to push content */}
             <div className="hidden md:flex w-20 hover:w-64 flex-col sticky top-0 h-screen z-50 transition-all duration-300 ease-in-out group flex-shrink-0 print:hidden">
                 <Sidebar />

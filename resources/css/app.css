@@ -73,6 +73,12 @@
 
   body {
     @apply bg-background text-foreground;
+    cursor: url('/images/cursor.png') 16 16, auto;
+  }
+
+  /* Ensure cursor applies to interactive elements too */
+  a, button, input, select, textarea, [role="button"] {
+     cursor: url('/images/cursor.png') 16 16, pointer;
   }
 
   /* Hide number input spin buttons */
