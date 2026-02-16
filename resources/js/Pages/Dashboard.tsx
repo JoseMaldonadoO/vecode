@@ -31,6 +31,7 @@ export default function Dashboard({
 }: any) {
     const [localFilters, setLocalFilters] = useState(filters);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [showAllCubicles, setShowAllCubicles] = useState(false);
 
     // Auto-refresh every 30 seconds
     useEffect(() => {
@@ -830,13 +831,13 @@ export default function Dashboard({
                         </div>
 
                         {/* Breakdown by Cubicle (Bottom Cards) */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 transition-all duration-500 ease-in-out">
                             {charts.by_cubicle
-                                .slice(0, 3)
+                                .slice(0, showAllCubicles ? undefined : 3)
                                 .map((item: any, idx: number) => (
                                     <div
                                         key={idx}
-                                        className="bg-[#1e40af] text-white p-4 rounded-xl shadow-lg relative overflow-hidden group flex flex-col justify-between h-32"
+                                        className="bg-[#1e40af] text-white p-4 rounded-xl shadow-lg relative overflow-hidden group flex flex-col justify-between h-32 animate-in fade-in zoom-in duration-300"
                                     >
                                         <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -mr-5 -mt-5 blur-xl group-hover:bg-white/10 transition-colors"></div>
                                         <p className="text-3xl font-black font-mono tracking-tight group-hover:scale-105 transition-transform origin-left mt-2">
@@ -847,11 +848,18 @@ export default function Dashboard({
                                         </h4>
                                     </div>
                                 ))}
-                            {/* Show 'More' card if > 3 */}
+
+                            {/* Toggle Card */}
                             {charts.by_cubicle.length > 3 && (
-                                <div className="bg-gray-100 text-gray-500 p-4 rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-widest border border-dashed border-gray-300 h-32">
-                                    + {charts.by_cubicle.length - 3} más...
-                                </div>
+                                <button
+                                    onClick={() => setShowAllCubicles(!showAllCubicles)}
+                                    className="bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-blue-600 p-4 rounded-xl flex flex-col items-center justify-center font-bold text-xs uppercase tracking-widest border border-dashed border-gray-300 hover:border-blue-300 h-32 transition-all duration-300 group"
+                                >
+                                    <div className="mb-2 p-2 rounded-full bg-gray-200 group-hover:bg-blue-100 transition-colors">
+                                        <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${showAllCubicles ? 'rotate-180' : ''}`} />
+                                    </div>
+                                    {showAllCubicles ? "Ver menos" : `+ ${charts.by_cubicle.length - 3} más...`}
+                                </button>
                             )}
                         </div>
                     </div>
