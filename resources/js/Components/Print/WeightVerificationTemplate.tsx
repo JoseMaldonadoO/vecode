@@ -11,6 +11,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
 
     const bgColor = !tenant || tenant?.slug === 'proagro' ? 'bg-green-100' : (tenant?.primary_color ? '' : 'bg-green-100');
     const headerBgColor = !tenant || tenant?.slug === 'proagro' ? 'bg-gray-200' : (tenant?.primary_color ? 'bg-gray-200' : 'bg-green-200');
+    const accentColor = !tenant || tenant?.slug === 'proagro' ? 'bg-green-100' : (tenant?.primary_color ? 'bg-gray-100' : 'bg-green-100');
 
     // Generate 40 rows for the table
     const rows = Array.from({ length: 40 }, (_, i) => i + 1);
