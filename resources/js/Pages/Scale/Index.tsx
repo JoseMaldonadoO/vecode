@@ -366,126 +366,127 @@ export default function Index({
                             </div>
                             {/* Mobile view omitted for brevity, but logic similar */}
                         </div>
+                    </div>
                 )}
 
-                        {/* Mobile View (Cards) */}
-                        <div className="lg:hidden p-4 space-y-4">
-                            {pending_exit.length > 0 ? (
-                                pending_exit.map((order) => (
-                                    <div
-                                        key={order.id}
-                                        className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
-                                                    Folio: {order.folio}
-                                                </span>
-                                                <h3 className="font-bold text-gray-900 text-lg">
-                                                    {order.driver}
-                                                </h3>
-                                                <p className="text-sm text-gray-500 font-mono">
-                                                    {order.plate}
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="text-xs text-gray-400 uppercase">
-                                                    Peso Entrada
-                                                </div>
-                                                <div className="font-mono font-bold text-gray-800">
-                                                    {order.entry_weight} kg
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-gray-500">
-                                                    Producto:
-                                                </span>
-                                                <span className="font-medium text-gray-800">
-                                                    {order.product}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between text-sm items-center">
-                                                <span className="text-gray-500">
-                                                    Ubicación:
-                                                </span>
-                                                <span
-                                                    className={
-                                                        order.warehouse ===
-                                                            "N/A"
-                                                            ? "text-amber-500 italic text-xs"
-                                                            : "text-blue-600 font-bold text-xs"
-                                                    }
-                                                >
-                                                    {order.warehouse === "N/A"
-                                                        ? "Sin Asignar"
-                                                        : `${order.warehouse} - ${order.cubicle}`}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <Link
-                                            href={
-                                                route("scale.exit", order.id) +
-                                                `?scale_id=${scaleId}`
-                                            }
-                                            className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
-                                        >
-                                            Destarar Unidad{" "}
-                                            <ArrowRight className="w-5 h-5 ml-2" />
-                                        </Link>
+                {/* Mobile View (Cards) */}
+                <div className="lg:hidden p-4 space-y-4">
+                    {pending_exit.length > 0 ? (
+                        pending_exit.map((order) => (
+                            <div
+                                key={order.id}
+                                className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
+                                            Folio: {order.folio}
+                                        </span>
+                                        <h3 className="font-bold text-gray-900 text-lg">
+                                            {order.driver}
+                                        </h3>
+                                        <p className="text-sm text-gray-500 font-mono">
+                                            {order.plate}
+                                        </p>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                                    No hay unidades pendientes.
+                                    <div className="text-right">
+                                        <div className="text-xs text-gray-400 uppercase">
+                                            Peso Entrada
+                                        </div>
+                                        <div className="font-mono font-bold text-gray-800">
+                                            {order.entry_weight} kg
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
+
+                                <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-500">
+                                            Producto:
+                                        </span>
+                                        <span className="font-medium text-gray-800">
+                                            {order.product}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between text-sm items-center">
+                                        <span className="text-gray-500">
+                                            Ubicación:
+                                        </span>
+                                        <span
+                                            className={
+                                                order.warehouse ===
+                                                    "N/A"
+                                                    ? "text-amber-500 italic text-xs"
+                                                    : "text-blue-600 font-bold text-xs"
+                                            }
+                                        >
+                                            {order.warehouse === "N/A"
+                                                ? "Sin Asignar"
+                                                : `${order.warehouse} - ${order.cubicle}`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <Link
+                                    href={
+                                        route("scale.exit", order.id) +
+                                        `?scale_id=${scaleId}`
+                                    }
+                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                >
+                                    Destarar Unidad{" "}
+                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                </Link>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            No hay unidades pendientes.
                         </div>
-                    </div>
+                    )}
+                </div>
+            </div>
 
             {/* Scale Selection Modal */}
-                <Modal
-                    show={showScaleModal}
-                    onClose={() => setShowScaleModal(false)}
-                >
-                    <div className="p-6">
-                        <h2 className="text-lg font-medium text-gray-900 mb-4">
-                            Seleccionar Báscula de Operación
-                        </h2>
-                        <div className="grid grid-cols-3 gap-4 mb-6">
-                            {[1, 2, 3].map((id) => (
-                                <button
-                                    key={id}
-                                    onClick={() => handleScaleSelect(id)}
-                                    className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
-                                        ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                                        : "border-gray-200 hover:border-indigo-200"
-                                        }`}
-                                >
-                                    <Scale
-                                        className={`w-8 h-8 ${scaleId === id ? "text-indigo-600" : "text-gray-400"}`}
-                                    />
-                                    <span className="font-bold text-lg">
-                                        Báscula {id}
-                                    </span>
-                                    {scaleId === id && (
-                                        <Check className="w-4 h-4 text-indigo-600" />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                        <div className="flex justify-end">
-                            <SecondaryButton
-                                onClick={() => setShowScaleModal(false)}
+            <Modal
+                show={showScaleModal}
+                onClose={() => setShowScaleModal(false)}
+            >
+                <div className="p-6">
+                    <h2 className="text-lg font-medium text-gray-900 mb-4">
+                        Seleccionar Báscula de Operación
+                    </h2>
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                        {[1, 2, 3].map((id) => (
+                            <button
+                                key={id}
+                                onClick={() => handleScaleSelect(id)}
+                                className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
+                                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                                    : "border-gray-200 hover:border-indigo-200"
+                                    }`}
                             >
-                                Cerrar
-                            </SecondaryButton>
-                        </div>
+                                <Scale
+                                    className={`w-8 h-8 ${scaleId === id ? "text-indigo-600" : "text-gray-400"}`}
+                                />
+                                <span className="font-bold text-lg">
+                                    Báscula {id}
+                                </span>
+                                {scaleId === id && (
+                                    <Check className="w-4 h-4 text-indigo-600" />
+                                )}
+                            </button>
+                        ))}
                     </div>
-                </Modal>
+                    <div className="flex justify-end">
+                        <SecondaryButton
+                            onClick={() => setShowScaleModal(false)}
+                        >
+                            Cerrar
+                        </SecondaryButton>
+                    </div>
+                </div>
+            </Modal>
         </DashboardLayout >
     );
 }
