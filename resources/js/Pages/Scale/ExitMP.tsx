@@ -520,10 +520,7 @@ export default function ExitMP({
                                 <div>
                                     <InputLabel value="Peso Programado" />
                                     <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 font-bold text-blue-800">
-                                        {order.type === 'sale'
-                                            ? (order.programmed_tons ? `${Number(order.programmed_tons).toLocaleString()} TM` : 'N/A')
-                                            : (order.programmed_weight ? `${Number(order.programmed_weight).toLocaleString()} kg` : 'N/A')
-                                        }
+                                        {order.programmed_weight ? `${Number(order.programmed_weight).toLocaleString()} ${order.type === 'sale' ? 'TM' : 'kg'}` : 'N/A'}
                                     </div>
                                 </div>
                                 <div>

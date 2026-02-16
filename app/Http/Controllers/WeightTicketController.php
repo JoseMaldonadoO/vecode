@@ -378,13 +378,14 @@ class WeightTicketController extends Controller
                 }
             }
 
-            // Programmed weight logic (consistent with index)
+            // Programmed weight logic (In Tons for Sales/Salida as requested)
             $progWeight = 0;
             if ($order->shipment_order_id && $order->shipment_order) {
                 if ($order->shipment_order->programmed_tons > 0) {
-                    $progWeight = $order->shipment_order->programmed_tons * 1000; // Tons to KG for display
+                    $progWeight = $order->shipment_order->programmed_tons; // Already in Tons
                 } else {
-                    $progWeight = $order->shipment_order->items->sum('requested_quantity') ?? 0; // Already in KG
+                    $totalKg = $order->shipment_order->items->sum('requested_quantity') ?? 0;
+                    $progWeight = $totalKg > 0 ? ($totalKg / 1000) : 0; // Convert to Tons
                 }
             }
 
