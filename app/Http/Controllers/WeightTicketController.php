@@ -78,9 +78,24 @@ class WeightTicketController extends Controller
             // Determine Product Name
             $productName = $order->product->name ?? 'N/A';
             if ($productName === 'N/A' && $order->shipment_order) {
-                $item = $order->shipment_order->items->first();
-                if ($item && $item->product) {
-                    $productName = $item->product->name;
+                // Try to get from items
+                if ($order->shipment_order->items && $order->shipment_order->items->isNotEmpty()) {
+                    $item = $order->shipment_order->items->first();
+                    if ($item && $item->product) {
+                        $productName = $item->product->name;
+                    }
+                }
+            }
+
+            // Programmed Weight Logic (Convert to Tons)
+            $programmedWeight = 0;
+            if ($order->shipment_order) {
+                if ($order->shipment_order->programmed_tons > 0) {
+                    $programmedWeight = $order->shipment_order->programmed_tons; // Already in Tons
+                } else {
+                    // fallback to requested_quantity (usually in KG) -> divide by 1000
+                    $totalKg = $order->shipment_order->items->sum('requested_quantity') ?? 0;
+                    $programmedWeight = $totalKg > 0 ? ($totalKg / 1000) : 0;
                 }
             }
 
@@ -99,7 +114,7 @@ class WeightTicketController extends Controller
                 'cubicle' => $order->cubicle ?? 'N/A',
                 'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
                 'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
-                'programmed_weight' => $order->shipment_order?->programmed_tons ?? ($order->shipment_order?->items?->sum('requested_quantity') ?? 0),
+                'programmed_weight' => $programmedWeight,
                 'entry_at' => $order->entry_at, // Timestamp for timer
                 'type' => $order->shipment_order_id ? 'sale' : 'vessel',
             ];
