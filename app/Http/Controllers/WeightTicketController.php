@@ -80,15 +80,21 @@ class WeightTicketController extends Controller
 
             // 1. Direct Product on LoadingOrder
             if ($order->product) {
+                // Eager loaded or accessed via relation
                 $productName = $order->product->name;
             }
             // 2. Product via ShipmentOrder -> Items
-            elseif ($order->shipment_order) {
-                if ($order->shipment_order->items && $order->shipment_order->items->isNotEmpty()) {
-                    $item = $order->shipment_order->items->first();
-                    if ($item && $item->product) {
-                        $productName = $item->product->name;
-                    }
+            elseif ($order->shipment_order && $order->shipment_order->items->isNotEmpty()) {
+                $item = $order->shipment_order->items->first();
+                if ($item && $item->product) {
+                    $productName = $item->product->name;
+                }
+            }
+            // 3. Product via ShipmentOrder -> SalesOrder -> Items (Fallback)
+            elseif ($order->shipment_order && $order->shipment_order->sales_order && $order->shipment_order->sales_order->items->isNotEmpty()) {
+                $item = $order->shipment_order->sales_order->items->first();
+                if ($item && $item->product) {
+                    $productName = $item->product->name;
                 }
             }
 
