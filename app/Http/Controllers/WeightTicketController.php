@@ -438,10 +438,15 @@ class WeightTicketController extends Controller
         }
 
         // Calculate Programmed Weight and Product from Items or Direct Columns
-        $programmedWeight = $order->items->sum('requested_quantity');
-        // Fallback or Priority if programmed_tons exists and is used
+        $programmedWeight = 0;
+
+        // Priority to programmed_tons (already in Tons)
         if (isset($order->programmed_tons) && $order->programmed_tons > 0) {
-            $programmedWeight = $order->programmed_tons;
+            $programmedWeight = (float) $order->programmed_tons;
+        } else {
+            // Fallback to items sum (usually in KG) -> convert to Tons
+            $totalKg = $order->items->sum('requested_quantity') ?? 0;
+            $programmedWeight = $totalKg > 0 ? ($totalKg / 1000) : 0;
         }
 
         $productName = $order->items->first()?->product->name ?? 'N/A';

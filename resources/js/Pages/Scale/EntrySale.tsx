@@ -486,11 +486,9 @@ export default function EntrySale({
                                         </div>
                                         <div>
                                             <InputLabel value="Peso Programado" className="mb-2" />
-                                            <TextInput
-                                                value={orderDetails?.programmed_weight ? `${orderDetails.programmed_weight} kg` : "N/A"}
-                                                readOnly
-                                                className="w-full bg-blue-50 text-blue-800 font-bold border-blue-200"
-                                            />
+                                            <div className="text-xl font-bold text-blue-900 p-2.5 rounded-lg bg-blue-50 text-blue-800 font-bold border border-blue-200">
+                                                {orderDetails?.programmed_weight ? `${orderDetails.programmed_weight} TM` : "N/A"}
+                                            </div>
                                         </div>
                                     </div>
 
