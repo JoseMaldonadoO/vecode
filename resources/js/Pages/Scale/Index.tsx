@@ -242,67 +242,65 @@ export default function Index({
                     </div>
                 ) : (
                     /* Table View with Filters */
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-gray-50 gap-4">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {/* Back Button */}
-                                    <button
-                                        onClick={() => setViewMode("menu")}
-                                        className="flex items-center text-gray-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm text-sm font-medium mr-4"
-                                    >
-                                        <ArrowLeft className="w-4 h-4 mr-1" />
-                                        Volver
-                                    </button>
-
-                                    <h2 className="text-xl font-bold text-gray-800 flex items-center border-l-4 border-indigo-500 pl-4">
-                                        <Truck className="w-6 h-6 mr-2 text-indigo-600" />
-                                        Pendientes de Salida
-                                    </h2>
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {/* Warehouse Filter */}
-                                    <select
-                                        value={selectedWarehouse}
-                                        onChange={(e) => handleFilterChange('warehouse', e.target.value)}
-                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
-                                    >
-                                        <option value="">Almacén</option>
-                                        {warehouses?.map((w) => (
-                                            <option key={w} value={w}>{w}</option>
-                                        ))}
-                                    </select>
-
-                                    {/* Product Filter */}
-                                    <select
-                                        value={selectedProduct}
-                                        onChange={(e) => handleFilterChange('product_id', e.target.value)}
-                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
-                                    >
-                                        <option value="">Producto</option>
-                                        {products?.map((p) => (
-                                            <option key={p.id} value={p.id}>{p.name}</option>
-                                        ))}
-                                    </select>
-
-                                    {/* Client Filter */}
-                                    <select
-                                        value={selectedClient}
-                                        onChange={(e) => handleFilterChange('client_id', e.target.value)}
-                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
-                                    >
-                                        <option value="">Cliente</option>
-                                        {clients?.map((c) => (
-                                            <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
-                                        ))}
-                                    </select>
-                                    <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm">
-                                        {pending_exit.length}
-                                    </span>
-                                </div>
+                                <button
+                                    onClick={() => setViewMode("menu")}
+                                    className="flex items-center text-gray-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm text-sm font-medium"
+                                >
+                                    <ArrowLeft className="w-4 h-4 mr-1" />
+                                    Volver
+                                </button>
+                                <h2 className="text-xl font-bold text-gray-800 flex items-center border-l-4 border-indigo-500 pl-4">
+                                    <Truck className="w-6 h-6 mr-2 text-indigo-600" />
+                                    Pendientes de Salida
+                                </h2>
                             </div>
 
+                            <div className="flex flex-wrap items-center gap-2">
+                                {/* Warehouse Filter */}
+                                <select
+                                    value={selectedWarehouse}
+                                    onChange={(e) => handleFilterChange('warehouse', e.target.value)}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
+                                >
+                                    <option value="">Almacén</option>
+                                    {warehouses?.map((w) => (
+                                        <option key={w} value={w}>{w}</option>
+                                    ))}
+                                </select>
+
+                                {/* Product Filter */}
+                                <select
+                                    value={selectedProduct}
+                                    onChange={(e) => handleFilterChange('product_id', e.target.value)}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
+                                >
+                                    <option value="">Producto</option>
+                                    {products?.map((p) => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+
+                                {/* Client Filter */}
+                                <select
+                                    value={selectedClient}
+                                    onChange={(e) => handleFilterChange('client_id', e.target.value)}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
+                                >
+                                    <option value="">Cliente</option>
+                                    {clients?.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
+                                    ))}
+                                </select>
+                                <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm">
+                                    {pending_exit.length}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900 text-white shadow-lg">
