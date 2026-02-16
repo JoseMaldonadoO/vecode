@@ -90,11 +90,18 @@ class WeightTicketController extends Controller
                     $productName = $item->product->name;
                 }
             }
-            // 3. Product via ShipmentOrder -> SalesOrder -> Items (Fallback)
-            elseif ($order->shipment_order && $order->shipment_order->sales_order && $order->shipment_order->sales_order->items->isNotEmpty()) {
-                $item = $order->shipment_order->sales_order->items->first();
-                if ($item && $item->product) {
-                    $productName = $item->product->name;
+            // 3. Product via ShipmentOrder -> SalesOrder (Fallback)
+            elseif ($order->shipment_order && $order->shipment_order->sales_order) {
+                // Check direct product relation first
+                if ($order->shipment_order->sales_order->product) {
+                    $productName = $order->shipment_order->sales_order->product->name;
+                }
+                // If SalesOrder has items (legacy or different structure), check safely
+                elseif (method_exists($order->shipment_order->sales_order, 'items') && $order->shipment_order->sales_order->items()->exists()) {
+                    $item = $order->shipment_order->sales_order->items->first();
+                    if ($item && $item->product) {
+                        $productName = $item->product->name;
+                    }
                 }
             }
 
