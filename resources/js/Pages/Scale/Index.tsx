@@ -22,24 +22,71 @@ import PrimaryButton from "@/Components/PrimaryButton";
 
 import Swal from "sweetalert2";
 
+const Timer = ({ entryAt }: { entryAt: string }) => {
+    const [time, setTime] = useState("");
+
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            const start = new Date(entryAt);
+            const diff = now.getTime() - start.getTime();
+
+            if (diff < 0) {
+                setTime("0m");
+                return;
+            }
+
+            const diffMinutes = Math.floor(diff / (1000 * 60));
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+
+            if (hours > 0) {
+                setTime(`${hours}h ${minutes}m`);
+            } else {
+                setTime(`${minutes}m`);
+            }
+        };
+
+        updateTime();
+        // Update every minute (60000ms)
+        const interval = setInterval(updateTime, 60000);
+        return () => clearInterval(interval);
+    }, [entryAt]);
+
+    return (
+        <span className="font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded inline-flex items-center gap-1">
+            <Activity className="w-3 h-3 animate-pulse" />
+            {time}
+        </span>
+    );
+};
+
 export default function Index({
     auth,
     pending_exit = [],
     flash,
     clients = [],
-    filters = { client_id: '' }
+    products = [],
+    warehouses = [],
+    filters = { client_id: '', product_id: '', warehouse: '' }
 }: {
     auth: any;
     pending_exit: any[];
     flash?: any;
     clients?: any[];
-    filters?: { client_id: string };
+    products?: any[];
+    warehouses?: string[];
+    filters?: { client_id: string, product_id: string, warehouse: string };
 }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
     const [viewMode, setViewMode] = useState<"menu" | "table">("menu");
+    // Filters State
     const [selectedClient, setSelectedClient] = useState(filters?.client_id || '');
+    const [selectedProduct, setSelectedProduct] = useState(filters?.product_id || '');
+    const [selectedWarehouse, setSelectedWarehouse] = useState(filters?.warehouse || '');
+
     const [searchTerm, setSearchTerm] = useState(''); // Local search for convenience
 
     useEffect(() => {
@@ -67,12 +114,20 @@ export default function Index({
     }, [flash]);
 
     // Handle Filter Change
-    const handleClientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const val = e.target.value;
-        setSelectedClient(val);
+    const handleFilterChange = (key: string, value: string) => {
+        // Update local state
+        if (key === 'client_id') setSelectedClient(value);
+        if (key === 'product_id') setSelectedProduct(value);
+        if (key === 'warehouse') setSelectedWarehouse(value);
+
         // Reload with Inertia
         import('@inertiajs/react').then(({ router }) => {
-            router.get(route(route().current() as string), { client_id: val, view: 'table' }, {
+            router.get(route(route().current() as string), {
+                view: 'table',
+                client_id: key === 'client_id' ? value : selectedClient,
+                product_id: key === 'product_id' ? value : selectedProduct,
+                warehouse: key === 'warehouse' ? value : selectedWarehouse,
+            }, {
                 preserveState: true,
                 preserveScroll: true,
                 replace: true
@@ -203,14 +258,38 @@ export default function Index({
                                 </h2>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {/* Warehouse Filter */}
+                                <select
+                                    value={selectedWarehouse}
+                                    onChange={(e) => handleFilterChange('warehouse', e.target.value)}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
+                                >
+                                    <option value="">Almacén</option>
+                                    {warehouses?.map((w) => (
+                                        <option key={w} value={w}>{w}</option>
+                                    ))}
+                                </select>
+
+                                {/* Product Filter */}
+                                <select
+                                    value={selectedProduct}
+                                    onChange={(e) => handleFilterChange('product_id', e.target.value)}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
+                                >
+                                    <option value="">Producto</option>
+                                    {products?.map((p) => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+
                                 {/* Client Filter */}
                                 <select
                                     value={selectedClient}
-                                    onChange={handleClientChange}
-                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 min-w-[200px]"
+                                    onChange={(e) => handleFilterChange('client_id', e.target.value)}
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
                                 >
-                                    <option value="">Todos los Clientes</option>
+                                    <option value="">Cliente</option>
                                     {clients?.map((c) => (
                                         <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
                                     ))}
@@ -230,7 +309,8 @@ export default function Index({
                                         <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente / Chofer</th>
                                         <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
                                         <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Peso Entrada</th>
-                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Ubicación</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Ton. Prog.</th>
+                                        <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Tiempo en Planta</th>
                                         <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider rounded-tr-lg">Acción</th>
                                     </tr>
                                 </thead>
@@ -253,13 +333,11 @@ export default function Index({
                                                 </td>
                                                 <td className="px-6 py-4 text-gray-700">{order.product}</td>
                                                 <td className="px-6 py-4 font-mono font-bold">{order.tare_weight} kg</td>
+                                                <td className="px-6 py-4 font-mono font-bold text-gray-700">
+                                                    {order.programmed_weight ? order.programmed_weight.toLocaleString() : '---'} kg
+                                                </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="flex items-center text-sm">
-                                                        <Warehouse className="w-4 h-4 mr-2 text-gray-400" />
-                                                        <span className={order.warehouse === "N/A" ? "text-amber-500 italic" : "text-blue-600 font-bold"}>
-                                                            {order.warehouse === "N/A" ? "Sin Asignar" : `${order.warehouse} - ${order.cubicle}`}
-                                                        </span>
-                                                    </div>
+                                                    <Timer entryAt={order.entry_at} />
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <Link

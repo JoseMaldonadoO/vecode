@@ -13,7 +13,7 @@ use App\Models\ShipmentOrder;
 
 class WeightTicketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // 1. Pending Entry (Authorized but no Ticket)
         $pending_entry = LoadingOrder::with(['client', 'driver', 'vehicle', 'product'])
@@ -23,45 +23,95 @@ class WeightTicketController extends Controller
             ->get();
 
         // 2. Pending Exit (Ticket In Progress OR Status Loading)
-        // Since we now UNIFIED the flow, ALL active tickets are attached to a LoadingOrder.
-        // So we only need to query LoadingOrder.
-
-        $pending_exit = LoadingOrder::with(['client', 'driver', 'vehicle', 'product', 'weight_ticket'])
+        $query = LoadingOrder::with([
+            'client',
+            'driver',
+            'vehicle',
+            'product',
+            'weight_ticket',
+            'shipment_order.items.product' // Eager load for correct product name if needed
+        ])
             ->whereHas('weight_ticket', function ($q) {
                 $q->where('weighing_status', 'in_progress')
                     ->where('is_burreo', false);
-            })
-            ->orderBy('entry_at', 'asc')
-            ->get()
-            ->map(function ($order) {
-                // Assuming $ticket is available from $order->weight_ticket
-                $ticket = $order->weight_ticket;
-                $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
-
-                return [
-                    'id' => $order->id,
-                    'folio' => $order->folio,
-                    'provider' => $order->client->business_name ?? $order->client->name, // Check business_name
-                    'product' => $order->product->name ?? ($order->shipment_order?->items->first()?->product->name ?? 'N/A'),
-                    'entry_weight' => $ticket->tare_weight,
-                    'vehicle_plate' => $order->tractor_plate,
-                    'trailer_plate' => $order->trailer_plate ?? 'N/A',
-                    'driver' => $operatorName,
-                    'transport_line' => $order->transport_company,
-                    'economic_number' => $order->economic_number ?? 'N/A',
-                    'warehouse' => $order->warehouse ?? 'N/A', // Assuming warehouse is directly on LoadingOrder
-                    'cubicle' => $order->cubicle ?? 'N/A', // Assuming cubicle is directly on LoadingOrder
-                    'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
-                    'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
-                    'programmed_weight' => $order->shipment_order?->programmed_tons ?? ($order->shipment_order?->items?->sum('requested_quantity') ?? 0),
-                    'entry_at' => $order->entry_at,
-                    'type' => $order->shipment_order_id ? 'sale' : 'vessel',
-                ];
             });
+
+        // Apply Filters
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
+
+        if ($request->filled('product_id')) {
+            // Check both direct product and shipment order product
+            $query->where(function ($q) use ($request) {
+                $q->where('product_id', $request->product_id)
+                    ->orWhereHas('shipment_order.items', function ($sub) use ($request) {
+                        $sub->where('product_id', $request->product_id);
+                    });
+            });
+        }
+
+        if ($request->filled('warehouse')) {
+            $query->where('warehouse', $request->warehouse);
+        }
+
+        $pending_exit_collection = $query->orderBy('entry_at', 'asc')->get();
+
+        // Extract options for filters from the UNFILTERED list (or separate query)
+        // For simplicity, we can fetch all active clients/products or just distincts from the main query without filters.
+        // Let's stick to passing all options or distincts.
+        // For this iteration, let's just pass the filtered list and maybe all Clients/Products for the dropdowns.
+        $all_pending = LoadingOrder::whereHas('weight_ticket', function ($q) {
+            $q->where('weighing_status', 'in_progress')
+                ->where('is_burreo', false);
+        })->with('client', 'product')->get();
+
+        $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
+        $products = \App\Models\Product::where('status', 'active')->orderBy('name')->get(['id', 'name']); // Or distinct from pending
+        $clients = \App\Models\Client::where('status', 'active')->orderBy('business_name')->get(['id', 'business_name']);
+
+
+        $pending_exit = $pending_exit_collection->map(function ($order) {
+            $ticket = $order->weight_ticket;
+            $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
+
+            // Determine Product Name
+            $productName = $order->product->name ?? 'N/A';
+            if ($productName === 'N/A' && $order->shipment_order) {
+                $item = $order->shipment_order->items->first();
+                if ($item && $item->product) {
+                    $productName = $item->product->name;
+                }
+            }
+
+            return [
+                'id' => $order->id,
+                'folio' => $order->folio,
+                'provider' => $order->client_name,
+                'product' => $productName,
+                'entry_weight' => $ticket->tare_weight,
+                'vehicle_plate' => $order->tractor_plate,
+                'trailer_plate' => $order->trailer_plate ?? 'N/A',
+                'driver' => $operatorName,
+                'transport_line' => $order->transport_company,
+                'economic_number' => $order->economic_number ?? 'N/A',
+                'warehouse' => $order->warehouse ?? 'N/A',
+                'cubicle' => $order->cubicle ?? 'N/A',
+                'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
+                'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
+                'programmed_weight' => $order->shipment_order?->programmed_tons ?? ($order->shipment_order?->items?->sum('requested_quantity') ?? 0),
+                'entry_at' => $order->entry_at, // Timestamp for timer
+                'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+            ];
+        });
 
         return Inertia::render('Scale/Index', [
             'pending_entry' => $pending_entry,
-            'pending_exit' => $pending_exit
+            'pending_exit' => $pending_exit,
+            'clients' => $clients,
+            'products' => $products,
+            'warehouses' => $warehouses,
+            'filters' => $request->only(['client_id', 'product_id', 'warehouse']),
         ]);
     }
 
