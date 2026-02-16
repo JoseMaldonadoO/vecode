@@ -305,16 +305,16 @@ export default function Index({
 
                             <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
-                                    <thead className="bg-gray-50 border-b border-gray-200">
+                                    <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900 text-white shadow-lg">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Folio</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente / Chofer</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peso Entrada</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ton. Prog.</th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiempo en Planta</th>
-                                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider rounded-tl-lg">Tipo</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Folio</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente / Chofer</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Peso Entrada</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Ton. Prog.</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Tiempo en Planta</th>
+                                            <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider rounded-tr-lg">Acción</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 bg-white">
