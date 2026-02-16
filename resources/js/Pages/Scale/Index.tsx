@@ -82,6 +82,8 @@ export default function Index({
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
     const [viewMode, setViewMode] = useState<"menu" | "table">("menu");
+    // State for Operation Type (Venta vs Barco)
+    const [operationType, setOperationType] = useState<'sale' | 'vessel'>('sale');
     // Filters State
     const [selectedClient, setSelectedClient] = useState(filters?.client_id || '');
     const [selectedProduct, setSelectedProduct] = useState(filters?.product_id || '');
@@ -268,8 +270,8 @@ export default function Index({
                                 <button
                                     onClick={() => setOperationType('sale')}
                                     className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${operationType === 'sale'
-                                            ? 'bg-white text-indigo-600 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'bg-white text-indigo-600 shadow-sm'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                 >
                                     VENTA
@@ -277,8 +279,8 @@ export default function Index({
                                 <button
                                     onClick={() => setOperationType('vessel')}
                                     className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${operationType === 'vessel'
-                                            ? 'bg-white text-indigo-600 shadow-sm'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'bg-white text-indigo-600 shadow-sm'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                 >
                                     BARCO
