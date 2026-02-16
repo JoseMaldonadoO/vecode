@@ -65,6 +65,16 @@ class LoadingOrder extends Model
         return $this->hasOne(AptScan::class); // usually one per trip
     }
 
+    public function vessel_operator()
+    {
+        return $this->belongsTo(VesselOperator::class);
+    }
+
+    public function exit_operator()
+    {
+        return $this->belongsTo(ExitOperator::class);
+    }
+
     public function loading_operation()
     {
         return $this->hasOne(LoadingOperation::class);

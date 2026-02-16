@@ -15,8 +15,10 @@ return new class extends Migration {
             $table->timestamp('entry_at')->nullable()->change();
         });
 
-        // Add 'pending' to Enum using raw SQL
-        DB::statement("ALTER TABLE access_logs MODIFY COLUMN status ENUM('in_plant', 'completed', 'rejected', 'authorized', 'pending') NOT NULL DEFAULT 'in_plant'");
+        // Add 'pending' to Enum using raw SQL only if and only if we are in MySQL
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE access_logs MODIFY COLUMN status ENUM('in_plant', 'completed', 'rejected', 'authorized', 'pending') NOT NULL DEFAULT 'in_plant'");
+        }
     }
 
     /**
@@ -28,6 +30,8 @@ return new class extends Migration {
             $table->timestamp('entry_at')->useCurrent()->change();
         });
 
-        DB::statement("ALTER TABLE access_logs MODIFY COLUMN status ENUM('in_plant', 'completed', 'rejected', 'authorized') NOT NULL DEFAULT 'in_plant'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE access_logs MODIFY COLUMN status ENUM('in_plant', 'completed', 'rejected', 'authorized') NOT NULL DEFAULT 'in_plant'");
+        }
     }
 };

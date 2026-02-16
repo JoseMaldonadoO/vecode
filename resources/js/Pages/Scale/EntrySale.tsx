@@ -64,6 +64,8 @@ export default function EntrySale({
         tare_weight: "", // Represents the "First Weight" (Empty/Vacío) for Sales
         observations: "",
         programmed_weight: "",
+        product_id: "",
+        exit_operator_id: "",
     });
 
     useEffect(() => {
@@ -177,6 +179,8 @@ export default function EntrySale({
                 bill_of_lading: res.bill_of_lading || "",
                 programmed_weight: res.programmed_weight,
                 economic_number: res.economic_number,
+                product_id: res.product_id || "",
+                exit_operator_id: res.exit_operator_id || "",
             }));
 
             Swal.fire({

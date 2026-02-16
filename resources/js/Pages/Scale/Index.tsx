@@ -364,7 +364,7 @@ export default function Index({
                                                     </td>
                                                     {/* Línea de Transporte */}
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-sm">
-                                                        {order.transport_line || 'N/A'}
+                                                        {order.real_transport_line || 'N/A'}
                                                     </td>
                                                     {/* Producto */}
                                                     <td className="px-6 py-4 text-gray-800 font-bold">{order.product}</td>
@@ -431,7 +431,7 @@ export default function Index({
                                             <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-500">Transp.:</span>
-                                                    <span className="font-medium text-gray-800">{order.transport_line || 'N/A'}</span>
+                                                    <span className="font-medium text-gray-800">{order.real_transport_line || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
                                                     <span className="text-gray-500">Producto:</span>

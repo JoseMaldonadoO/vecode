@@ -73,6 +73,7 @@ export default function EntryMP({
         // Scale
         tare_weight: "",
         observations: "",
+        vessel_operator_id: "",
     });
 
     useEffect(() => {
@@ -184,6 +185,7 @@ export default function EntryMP({
                     product_id: res.product_id || "",
                     provider: res.provider,
                     product: res.product,
+                    vessel_operator_id: res.vessel_operator_id_val || "",
 
                     origin: res.origin || res.reference || "",
                     reference: "N/A",

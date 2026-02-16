@@ -29,23 +29,32 @@ class WeightTicketController extends Controller
             'vehicle',
             'product',
             'weight_ticket',
-            'shipment_order.items.product' // Eager load for correct product name if needed
+            'exit_operator',
+            'vessel_operator',
+            'shipment_order.items.product'
         ])
             ->whereHas('weight_ticket', function ($q) {
                 $q->where('weighing_status', 'in_progress')
                     ->where('is_burreo', false);
             });
 
-        // Apply Filters
         if ($request->filled('client_id')) {
-            $query->where('client_id', $request->client_id);
+            $query->where(function ($q) use ($request) {
+                $q->where('client_id', $request->client_id)
+                    ->orWhereHas('shipment_order', function ($sub) use ($request) {
+                        $sub->where('client_id', $request->client_id);
+                    });
+            });
         }
 
         if ($request->filled('product_id')) {
-            // Check both direct product and shipment order product
+            // Check direct, shipment order items, and sales order product
             $query->where(function ($q) use ($request) {
                 $q->where('product_id', $request->product_id)
                     ->orWhereHas('shipment_order.items', function ($sub) use ($request) {
+                        $sub->where('product_id', $request->product_id);
+                    })
+                    ->orWhereHas('shipment_order.sales_order', function ($sub) use ($request) {
                         $sub->where('product_id', $request->product_id);
                     });
             });
@@ -133,8 +142,11 @@ class WeightTicketController extends Controller
                 'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
                 'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
                 'programmed_weight' => $programmedWeight,
-                'entry_at' => $order->entry_at, // Timestamp for timer
+                'entry_at' => $order->entry_at,
                 'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+                'real_transport_line' => $order->shipment_order_id
+                    ? ($order->exit_operator->real_transport_line ?? $order->transport_company)
+                    : ($order->vessel_operator->transporter_line ?? $order->transport_company),
             ];
         });
 
@@ -412,6 +424,9 @@ class WeightTicketController extends Controller
             $productName = $order->product;
         }
 
+        $productId = $order->items->first()?->product_id;
+        $operatorId = \App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('id');
+
         return response()->json([
             'id' => $order->id,
             'folio' => $order->folio,
@@ -421,10 +436,12 @@ class WeightTicketController extends Controller
             'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
             'vehicle_type' => $order->unit_type ?? 'N/A',
             'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
-            'economic_number' => $order->economic_number ?? 'N/A', // Send raw, let frontend or print logic handle N/A if needed, or handle here
+            'economic_number' => $order->economic_number ?? 'N/A',
             'product' => $productName,
+            'product_id' => $productId,
+            'exit_operator_id' => $operatorId,
             'origin' => $order->origin,
-            'reference' => $order->customer_reference, // Accessor
+            'reference' => $order->customer_reference,
             'consignee' => $order->consigned_to ?? ($order->consignee ?? ''),
             'destination' => $order->destination,
             'bill_of_lading' => $order->carta_porte ?? ($order->bill_of_lading ?? ''),
@@ -545,8 +562,9 @@ class WeightTicketController extends Controller
                         'suggested_withdrawal_letter' => $suggestedWithdrawal,
                         'status' => 'new_entry',
                         'vessel_etb' => $operator->vessel->etb,
-                        'force_burreo' => false, // Decoupled from ETB as per user request
+                        'force_burreo' => false,
                         'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
+                        'vessel_operator_id_val' => $operator->id, // Added this to be explicit
                     ]);
                 }
             }
@@ -589,6 +607,8 @@ class WeightTicketController extends Controller
             'container_id' => 'nullable|string',
             'observations' => 'nullable|string',
             'scale_id' => 'nullable|integer',
+            'exit_operator_id' => 'nullable|exists:exit_operators,id',
+            'vessel_operator_id' => 'nullable|exists:vessel_operators,id',
         ]);
 
         try {
@@ -600,6 +620,8 @@ class WeightTicketController extends Controller
                 $productId = !empty($validated['product_id']) ? $validated['product_id'] : null;
                 $clientId = !empty($validated['client_id']) ? $validated['client_id'] : 1;
                 $scaleId = !empty($validated['scale_id']) ? $validated['scale_id'] : null;
+                $exitOperatorId = !empty($validated['exit_operator_id']) ? $validated['exit_operator_id'] : null;
+                $vesselOperatorId = !empty($validated['vessel_operator_id']) ? $validated['vessel_operator_id'] : null;
 
                 $vessel = $vesselId ? Vessel::find($vesselId) : null;
                 $isBurreo = $vessel && $vessel->apt_operation_type === 'burreo';
@@ -645,6 +667,8 @@ class WeightTicketController extends Controller
                     'consignee' => $validated['consignee'] ?? null,
                     'destination' => $validated['destination'] ?? null,
                     'origin' => $validated['origin'] ?? null,
+                    'exit_operator_id' => $exitOperatorId,
+                    'vessel_operator_id' => $vesselOperatorId,
                 ]);
 
                 $loadingOrderId = $order->id;
