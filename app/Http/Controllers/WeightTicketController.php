@@ -145,8 +145,10 @@ class WeightTicketController extends Controller
                 'entry_at' => $order->entry_at,
                 'type' => $order->shipment_order_id ? 'sale' : 'vessel',
                 'real_transport_line' => $order->shipment_order_id
-                    ? ($order->exit_operator->real_transport_line ?? $order->transport_company)
-                    : ($order->vessel_operator->transporter_line ?? $order->transport_company),
+                    ? ($order->exit_operator->real_transport_line ??
+                        (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('real_transport_line') ?? $order->transport_company))
+                    : ($order->vessel_operator->transporter_line ??
+                        (\App\Models\VesselOperator::where('operator_name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('transporter_line') ?? $order->transport_company)),
             ];
         });
 
@@ -425,7 +427,21 @@ class WeightTicketController extends Controller
         }
 
         $productId = $order->items->first()?->product_id;
-        $operatorId = \App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('id');
+
+        // Flexible matching for ExitOperator
+        $operatorName = trim($order->operator_name);
+        $tractorPlate = preg_replace('/[^A-Za-z0-9]/', '', $order->tractor_plate);
+
+        $exitOperator = \App\Models\ExitOperator::where('name', 'like', "%{$operatorName}%")
+            ->get()
+            ->filter(function ($op) use ($tractorPlate) {
+                $opPlate = preg_replace('/[^A-Za-z0-9]/', '', $op->tractor_plate);
+                return $opPlate === $tractorPlate;
+            })
+            ->first();
+
+        $operatorId = $exitOperator?->id;
+        $transportLine = $exitOperator?->real_transport_line ?? ($order->transport_company ?? ($order->transporter->name ?? 'N/A'));
 
         return response()->json([
             'id' => $order->id,
@@ -435,7 +451,7 @@ class WeightTicketController extends Controller
             'vehicle_plate' => $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A'),
             'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
             'vehicle_type' => $order->unit_type ?? 'N/A',
-            'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
+            'transport_line' => $transportLine,
             'economic_number' => $order->economic_number ?? 'N/A',
             'product' => $productName,
             'product_id' => $productId,
