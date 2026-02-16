@@ -465,7 +465,7 @@ export default function EntrySale({
                                             />
                                         </div>
                                         <div>
-                                            <InputLabel value="Carta Porte (Draft)" className="mb-2" />
+                                            <InputLabel value="Carta Porte" className="mb-2" />
                                             <TextInput
                                                 value={data.bill_of_lading}
                                                 readOnly
