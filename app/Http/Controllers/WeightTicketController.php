@@ -67,8 +67,8 @@ class WeightTicketController extends Controller
         })->with('client', 'product')->get();
 
         $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
-        $products = \App\Models\Product::where('status', 'active')->orderBy('name')->get(['id', 'name']); // Or distinct from pending
-        $clients = \App\Models\Client::where('status', 'active')->orderBy('business_name')->get(['id', 'business_name']);
+        $products = \App\Models\Product::orderBy('name')->get(['id', 'name']);
+        $clients = \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']);
 
 
         $pending_exit = $pending_exit_collection->map(function ($order) {
