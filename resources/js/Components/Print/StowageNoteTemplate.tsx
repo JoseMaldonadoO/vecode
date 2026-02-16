@@ -17,10 +17,10 @@ export default function StowageNoteTemplate({ order }: Props) {
         { labels: ['X11', 'X12', 'X13', 'X14', 'X15', 'X16', 'X17', 'X18', 'X19', 'X20'] },
     ];
 
-    const borderClass = `border ${tenant?.slug === 'proagro' ? 'border-green-800' : 'border-gray-800'}`;
+    const borderClass = `border ${!tenant || tenant?.slug === 'proagro' ? 'border-green-800' : (tenant?.primary_color ? 'border-gray-800' : 'border-green-800')}`;
     const headerClass = `bg-gray-100 font-bold text-center ${borderClass} text-[9px] uppercase`;
-    const bgColor = tenant?.slug === 'proagro' ? 'bg-green-200' : 'bg-gray-200';
-    const accentColor = tenant?.slug === 'proagro' ? 'bg-green-100' : 'bg-gray-100';
+    const bgColor = !tenant || tenant?.slug === 'proagro' ? 'bg-green-200' : (tenant?.primary_color ? 'bg-gray-200' : 'bg-green-200');
+    const accentColor = !tenant || tenant?.slug === 'proagro' ? 'bg-green-100' : (tenant?.primary_color ? 'bg-gray-100' : 'bg-green-100');
 
     // Helper function to calculate sacks exactly like Print.tsx
     const calculateSacks = () => {
@@ -60,7 +60,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                 {/* Title Section */}
                 <div className={`w-[60%] flex flex-col items-center justify-center py-0.5`}>
                     <h1 className="text-base font-bold uppercase tracking-tight leading-none">{tenant?.name || 'PRO-AGROINDUSTRIA, S.A. DE C.V.'}</h1>
-                    <h2 className="text-[10px] font-bold uppercase leading-none mt-0.5">{tenant?.slug === 'proagro' ? 'GLS-AP-FO-002' : 'VCD-AP-FO-002'}</h2>
+                    <h2 className="text-[10px] font-bold uppercase leading-none mt-0.5">{!tenant || tenant?.slug === 'proagro' ? 'GLS-AP-FO-002' : 'VCD-AP-FO-002'}</h2>
                     <h2 className="text-base font-bold uppercase leading-none mt-0.5">NOTA DE ESTIBA A CAMIÓN</h2>
                 </div>
 

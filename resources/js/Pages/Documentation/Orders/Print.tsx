@@ -140,8 +140,8 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
     left: 0;
 }
 
-.bg-header { background-color: ${tenant?.secondary_color || '#a0ebac'}33!important; color: black!important; font-weight: bold; text-align: center; }
-.bg-title { background-color: ${tenant?.primary_color || '#a0ebac'}!important; color: white!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
+.bg-header { background-color: ${tenant?.primary_color ? tenant.primary_color + '33' : '#15803d33'}!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
+.bg-title { background-color: ${tenant?.primary_color || '#15803d'}!important; color: white!important; font-weight: bold; text-align: center; font-size: 11px; letter-spacing: 1px; }
 .text-center { text-align: center; }
 .text-bold { font-weight: bold; }
 .no-border { border: none!important; }
@@ -173,14 +173,14 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                 <div className="border border-gray-400 mb-1 p-1 text-center">
                                     <div className="font-bold text-sm">{tenant?.name || 'PROAGROINDUSTRIA S.A. DE C.V.'}</div>
                                     <div className="text-[10px] text-green-700 font-semibold" style={{ color: tenant?.primary_color || '#15803d' }}>
-                                        {tenant?.slug === 'proagro'
+                                        {!tenant || tenant?.slug === 'proagro'
                                             ? 'Carretera Coatzacoalcos-villahermosa Km 5 centro, Coatzacoalcos, Ver. CP. 96400 RFC: PRO140101'
                                             : `RFC: ${tenant?.slug === 'proagro' ? 'PRO140101' : 'VCD140101'} | ${tenant?.domain || 'VECODE.COM'}`}
                                     </div>
                                     <div className="text-[10px] text-green-700 font-semibold mb-1" style={{ color: tenant?.primary_color || '#15803d' }}>
-                                        {tenant?.slug === 'proagro' ? 'Tel. (921) 689 0382' : ''}
+                                        {!tenant || tenant?.slug === 'proagro' ? 'Tel. (921) 689 0382' : ''}
                                     </div>
-                                    <div className="text-[9px] font-bold italic">{tenant?.slug === 'proagro' ? 'GLS-DD-FO-001' : 'VCD-DD-FO-001'}</div>
+                                    <div className="text-[9px] font-bold italic">{!tenant || tenant?.slug === 'proagro' ? 'GLS-DD-FO-001' : 'VCD-DD-FO-001'}</div>
                                 </div>
 
                                 {/* MAIN TITLE BAR */}
@@ -322,7 +322,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                     <tr>
                                         <td className="text-center font-bold uppercase">{order.presentation || "GRANEL"}</td>
                                         <td className="text-center font-bold">{calculateSacks()}</td>
-                                        <td className="text-center font-bold uppercase">{order.origin || (tenant?.slug === 'proagro' ? 'PROAGROINDUSTRIA' : tenant?.name)}</td>
+                                        <td className="text-center font-bold uppercase">{order.origin || (!tenant || tenant?.slug === 'proagro' ? 'PROAGROINDUSTRIA' : tenant?.name)}</td>
                                         <td className="text-center font-bold"></td>
                                     </tr>
                                 </table>
@@ -466,10 +466,10 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                                 <td className="w-3/4 border-0 border-b border-r bg-white font-bold pl-4 py-2 text-sm!">
                                                     <div className="text-lg">{tenant?.name || 'PROAGROINDUSTRIA, S.A. DE C.V.'}</div>
                                                     <div className="font-normal mt-1">
-                                                        {tenant?.slug === 'proagro' ? 'Carretera Coatzacoalcos-Villahermosa km 5, Centro.' : (tenant?.domain || 'VECODE.COM')}
+                                                        {!tenant || tenant?.slug === 'proagro' ? 'Carretera Coatzacoalcos-Villahermosa km 5, Centro.' : (tenant?.domain || 'VECODE.COM')}
                                                     </div>
-                                                    <div className="font-normal">{tenant?.slug === 'proagro' ? 'Coatzacoalcos, Ver., CP 96400' : ''}</div>
-                                                    <div className="font-normal">RFC: {tenant?.slug === 'proagro' ? 'PRO140101QY9' : 'VCD140101'}</div>
+                                                    <div className="font-normal">{!tenant || tenant?.slug === 'proagro' ? 'Coatzacoalcos, Ver., CP 96400' : ''}</div>
+                                                    <div className="font-normal">RFC: {!tenant || tenant?.slug === 'proagro' ? 'PRO140101QY9' : 'VCD140101'}</div>
                                                 </td>
                                                 <td className="w-1/4 border-0 border-b text-center align-middle" rowSpan={4}>
                                                     <img src={tenant?.logo || "/images/logo_proagro.png"} alt="LOGO" className="h-16 mx-auto object-contain" />
@@ -498,7 +498,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                     <td className="border text-center">1</td>
                                 </tr>
                                 <tr><td colSpan={4} className="text-center font-bold text-blue-800 tracking-widest py-1 no-border text-sm policy-header">ALCANCE</td></tr>
-                                <tr><td colSpan={4} className="p-2 text-justify border text-black policy-text">La Presente política es aplicable a los diferentes grupos de interés que forman parte del proceso de los embarques de producto terminado dentro de las instalaciones de {tenant?.name || 'la empresa'}, con especial énfasis en el operador de las líneas transportistas que ingresan a las instalaciones.</td></tr>
+                                <tr><td colSpan={4} className="p-2 text-justify border text-black policy-text">La Presente política es aplicable a los diferentes grupos de interés que forman parte del proceso de los embarques de producto terminado dentro de las instalaciones de {!tenant || tenant?.slug === 'proagro' ? 'Proagroindustria, S.A. de C.V.' : (tenant?.name || 'la empresa')}, con especial énfasis en el operador de las líneas transportistas que ingresan a las instalaciones.</td></tr>
                                 <tr><td colSpan={4} className="text-center font-bold text-blue-800 tracking-widest py-1 no-border text-sm policy-header">DECLARACIÓN DE LA POLÍTICA</td></tr>
                                 <tr><td colSpan={4} className="p-2 text-justify border text-black policy-text">La presente política se realiza como medida para salvaguardar y cumplir con las buenas prácticas de comportamiento, seguridad del personal, protección a instalaciones e infraestructura.</td></tr>
                             </table>

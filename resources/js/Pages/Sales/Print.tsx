@@ -49,8 +49,8 @@ export default function Print({ order }: { order: Order }) {
                     <div className="w-1/2">
                         <div className="mb-4">
                             <img
-                                src={tenant?.logo || "/images/logovecode.png"}
-                                alt={tenant?.name || "Logo"}
+                                src={tenant?.logo || "/img/Proagro2.png"}
+                                alt={tenant?.name || "Proagroindustria"}
                                 className="h-16 object-contain"
                                 onError={(e) => {
                                     e.currentTarget.src = "/img/Proagro2.png";
@@ -61,15 +61,15 @@ export default function Print({ order }: { order: Order }) {
                             <p className="font-bold">
                                 {tenant?.name || 'Proagroindustria S.A. de C.V.'}
                             </p>
-                            <p>{tenant?.slug === 'proagro' ? 'Carretera Coatzacoalcos-villahermosa Km 5' : 'SISTEMA DE GESTIÓN LOGÍSTICA'}</p>
-                            <p>{tenant?.slug === 'proagro' ? 'interior complejo petroquimico pajaritos' : (tenant?.domain || 'VECODE.COM')}</p>
-                            <p>{tenant?.slug === 'proagro' ? 'Coatzacoalcos, Veracruz' : ''}</p>
+                            <p>{!tenant || tenant?.slug === 'proagro' ? 'Carretera Coatzacoalcos-villahermosa Km 5' : 'SISTEMA DE GESTIÓN LOGÍSTICA'}</p>
+                            <p>{!tenant || tenant?.slug === 'proagro' ? 'interior complejo petroquimico pajaritos' : (tenant?.domain || 'VECODE.COM')}</p>
+                            <p>{!tenant || tenant?.slug === 'proagro' ? 'Coatzacoalcos, Veracruz' : ''}</p>
                         </div>
                     </div>
 
                     <div className="w-1/2 flex flex-col items-end">
                         <div className="w-64 border border-black">
-                            <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center font-bold py-1">
+                            <div style={{ backgroundColor: tenant?.primary_color || '#15803d' }} className="text-white text-center font-bold py-1">
                                 Orden de venta
                             </div>
                             <table className="w-full text-sm border-collapse">
@@ -115,7 +115,7 @@ export default function Print({ order }: { order: Order }) {
                 </div>
                 {/* Datos del Cliente Section */}
                 <div className="mb-6">
-                    <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                    <div style={{ backgroundColor: tenant?.primary_color || '#15803d' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Datos del cliente
                     </div>
                     <table className="w-full border-collapse border border-black text-xs">
@@ -182,7 +182,7 @@ export default function Print({ order }: { order: Order }) {
                 {/* Product Table */}
                 <div className="mb-6 print:mb-4">
                     <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
-                        <thead style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center">
+                        <thead style={{ backgroundColor: tenant?.primary_color || '#15803d' }} className="text-white text-center">
                             <tr>
                                 <th className="border border-black py-1 w-[60%]">
                                     Descripción
@@ -216,7 +216,7 @@ export default function Print({ order }: { order: Order }) {
                 </div>
                 {/* Observations */}
                 <div className="mb-10">
-                    <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                    <div style={{ backgroundColor: tenant?.primary_color || '#15803d' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Observaciones
                     </div>
                     <div className="border border-black min-h-[6rem] p-3 text-[13px] font-normal whitespace-pre-line">
@@ -234,19 +234,19 @@ export default function Print({ order }: { order: Order }) {
                         </div>
                     </div>
 
-                    <div className="mb-4 font-bold" style={{ color: tenant?.primary_color || '#312e81' }}>
-                        {tenant?.slug === 'proagro' ? 'www.pro-agroindustria.com' : (tenant?.domain || 'VECODE.COM')}
+                    <div className="mb-4 font-bold" style={{ color: tenant?.primary_color || '#15803d' }}>
+                        {!tenant || tenant?.slug === 'proagro' ? 'www.pro-agroindustria.com' : (tenant?.domain || 'VECODE.COM')}
                     </div>
 
                     <div className="text-xs text-gray-700 flex justify-between items-end">
                         <div className="text-left space-y-1">
                             <div>
-                                {tenant?.slug === 'proagro' ? 'Venta y cobranza:' : 'Contacto:'}
+                                {!tenant || tenant?.slug === 'proagro' ? 'Venta y cobranza:' : 'Contacto:'}
                                 <span className="ml-2">
-                                    {tenant?.slug === 'proagro' ? 'oscar.mendez@pro-agroindustria.com' : `soporte@${tenant?.domain || 'vecode.com'}`}
+                                    {!tenant || tenant?.slug === 'proagro' ? 'oscar.mendez@pro-agroindustria.com' : `soporte@${tenant?.domain || 'vecode.com'}`}
                                 </span>
                             </div>
-                            {tenant?.slug === 'proagro' && (
+                            {(!tenant || tenant?.slug === 'proagro') && (
                                 <>
                                     <div>
                                         Asst. Adtvo.:{" "}
@@ -268,12 +268,12 @@ export default function Print({ order }: { order: Order }) {
                             {/* Small Logo Repeat */}
                             <div className="mb-2">
                                 <img
-                                    src={tenant?.logo || "/images/logovecode.png"}
+                                    src={tenant?.logo || "/img/Proagro2.png"}
                                     alt="Logo"
                                     className="h-8 object-contain"
                                 />
                             </div>
-                            <div className="mt-2 text-right">{tenant?.slug === 'proagro' ? 'DCM-FO-001' : 'VCD-SA-FO-001'}</div>
+                            <div className="mt-2 text-right">{!tenant || tenant?.slug === 'proagro' ? 'DCM-FO-001' : 'VCD-SA-FO-001'}</div>
                         </div>
                     </div>
                 </div>

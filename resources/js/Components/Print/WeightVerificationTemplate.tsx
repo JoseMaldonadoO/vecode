@@ -9,7 +9,8 @@ export default function WeightVerificationTemplate({ order }: Props) {
     const { props } = usePage<any>();
     const tenant = props.tenant;
 
-    const bgColor = tenant?.slug === 'proagro' ? 'bg-green-100' : 'bg-gray-100';
+    const bgColor = !tenant || tenant?.slug === 'proagro' ? 'bg-green-100' : (tenant?.primary_color ? '' : 'bg-green-100');
+    const headerBgColor = !tenant || tenant?.slug === 'proagro' ? 'bg-gray-200' : (tenant?.primary_color ? 'bg-gray-200' : 'bg-green-200');
 
     // Generate 40 rows for the table
     const rows = Array.from({ length: 40 }, (_, i) => i + 1);
@@ -28,7 +29,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                     <h1 className="text-xs font-bold tracking-wider uppercase">{tenant?.name || 'PRO-AGROINDUSTRIA, S.A. DE C.V.'}</h1>
                     <h2 className="text-[8px] font-bold mt-0.5">ALMACÉN DE PRODUCTO TERMINADO</h2>
                     <h2 className="text-base font-bold mt-0.5 uppercase">VERIFICACION DE PESO DE SACOS</h2>
-                    <p className="text-[8px] font-bold mt-0.5">{tenant?.slug === 'proagro' ? 'GLS-AP-FO-003' : 'VCD-AP-FO-003'}</p>
+                    <p className="text-[8px] font-bold mt-0.5">{!tenant || tenant?.slug === 'proagro' ? 'GLS-AP-FO-003' : 'VCD-AP-FO-003'}</p>
                 </div>
 
                 {/* Right: Secondary Logo Area */}
@@ -68,7 +69,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
 
             <div className="flex justify-end mb-1">
                 <div className="border border-black p-0.5 w-24">
-                    <div className="bg-gray-200 text-center font-bold text-[8px] border-b border-black leading-none">FECHA</div>
+                    <div className={`${headerBgColor} text-center font-bold text-[8px] border-b border-black leading-none`}>FECHA</div>
                     <div className="text-center font-bold h-4 flex items-center justify-center">
                         {/* Blank for manual entry */}
                     </div>
@@ -81,16 +82,16 @@ export default function WeightVerificationTemplate({ order }: Props) {
                 <div className="w-[70%]">
                     <table className="w-full border-collapse border border-black text-center text-[8px]">
                         <thead>
-                            <tr className="bg-gray-200 leading-3">
+                            <tr className={`${headerBgColor} leading-3`}>
                                 <th rowSpan={3} className="border border-black w-6">N°</th>
                                 <th colSpan={6} className="border border-black">VERIFICACIÓN DE PESO DE SACOS</th>
                             </tr>
-                            <tr className="bg-green-100 leading-3">
+                            <tr className={`${bgColor} leading-3`}>
                                 <th colSpan={2} className="border border-black">LIMITE INFERIOR</th>
                                 <th colSpan={2} className="border border-black">LIMITE DE CONTROL</th>
                                 <th colSpan={2} className="border border-black">LIMITE SUPERIOR</th>
                             </tr>
-                            <tr className="bg-gray-200 leading-3">
+                            <tr className={`${headerBgColor} leading-3`}>
                                 <th colSpan={2} className="border border-black">LIC</th>
                                 <th colSpan={2} className="border border-black">LC</th>
                                 <th colSpan={2} className="border border-black">LSC</th>
@@ -101,7 +102,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                                 <th colSpan={2} className="border border-black font-bold">25.080</th>
                                 <th colSpan={2} className="border border-black font-bold">25.250</th>
                             </tr>
-                            <tr className="font-bold bg-gray-100 leading-3">
+                            <tr className={`font-bold ${accentColor} leading-3`}>
                                 <th className="border border-black"></th>
                                 <th className="border border-black w-[15%]">ENSC.01</th>
                                 <th className="border border-black w-[15%]">ENSC.02</th>
@@ -124,7 +125,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                                 </tr>
                             ))}
                             {/* TOTALS ROW */}
-                            <tr className="h-4 bg-green-100 leading-none">
+                            <tr className={`h-4 ${bgColor} leading-none`}>
                                 <td className="border border-black font-bold text-sm">∑=</td>
                                 <td className="border border-black"></td>
                                 <td className="border border-black"></td>
@@ -133,7 +134,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                                 <td className="border border-black"></td>
                                 <td className="border border-black"></td>
                             </tr>
-                            <tr className="h-4 bg-gray-200 leading-none">
+                            <tr className={`h-4 ${headerBgColor} leading-none`}>
                                 <td className="border border-black font-bold text-[8px]">∑Total=</td>
                                 <td className="border border-black" colSpan={2}></td>
                                 <td className="border border-black" colSpan={2}></td>
@@ -141,7 +142,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                             </tr>
                             {/* UPDATED: X= Row with Right Alignment */}
                             <tr className="h-5 leading-none">
-                                <td className="border border-black font-bold text-sm bg-green-50">X =</td>
+                                <td className={`border border-black font-bold text-sm ${bgColor.replace('100', '50')}`}>X =</td>
                                 <td className="border border-black" colSpan={6}>
                                     <div className="flex justify-end items-center h-full pr-4">
                                         <span className="mr-2 uppercase text-[8px] font-bold">TON. PROGRAMADAS</span>
@@ -151,7 +152,7 @@ export default function WeightVerificationTemplate({ order }: Props) {
                                     </div>
                                 </td>
                             </tr>
-                            <tr className="h-4 bg-gray-100 leading-none">
+                            <tr className={`h-4 ${accentColor} leading-none`}>
                                 <td className="border border-black font-bold text-[8px]">Peso=</td>
                                 <td className="border border-black" colSpan={6}></td>
                             </tr>
