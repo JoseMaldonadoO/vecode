@@ -76,9 +76,14 @@ class WeightTicketController extends Controller
             $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
 
             // Determine Product Name
-            $productName = $order->product->name ?? 'N/A';
-            if ($productName === 'N/A' && $order->shipment_order) {
-                // Try to get from items
+            $productName = 'N/A';
+
+            // 1. Direct Product on LoadingOrder
+            if ($order->product) {
+                $productName = $order->product->name;
+            }
+            // 2. Product via ShipmentOrder -> Items
+            elseif ($order->shipment_order) {
                 if ($order->shipment_order->items && $order->shipment_order->items->isNotEmpty()) {
                     $item = $order->shipment_order->items->first();
                     if ($item && $item->product) {
