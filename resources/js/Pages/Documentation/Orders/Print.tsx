@@ -99,6 +99,9 @@ export default function Print({ order }: Props) {
         "6. Recoger su documentación en vigilancia."
     ];
 
+    // Check if Consignee is SADER (case insensitive)
+    const isSader = order.consigned_to?.toUpperCase().includes('SADER');
+
     return (
         <div className="bg-gray-100 min-h-screen p-4 print:p-0 print:bg-white text-sans">
             <Head title={`Impresión Orden ${order.folio} `} />
@@ -571,8 +574,8 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                     </div>
                 )}
 
-                {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only) --- */}
-                {order.presentation?.toUpperCase().includes('ENVASADO') && (
+                {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only AND NOT SADER) --- */}
+                {order.presentation?.toUpperCase().includes('ENVASADO') && !isSader && (
                     <div className="stowage-page-wrapper">
                         {/* We use a specific inner container for the rotation */}
                         <div className="rotate-landscape-v2">
