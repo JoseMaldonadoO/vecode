@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Printer, Truck } from 'lucide-react';
 import { ShipmentOrder } from '@/types';
 
@@ -8,6 +8,8 @@ interface Props {
 }
 
 export default function PrintInstruction({ order }: Props) {
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
 
     useEffect(() => {
         // Auto-print on load if desired, or just let user click
@@ -42,25 +44,24 @@ export default function PrintInstruction({ order }: Props) {
                 {/* HEADERS */}
                 <div className="border border-green-800 relative">
                     {/* Top Row: Logos & Titles - Flexbox handled */}
-                    <div className="flex w-full border-b border-green-800">
-                        {/* Left: Proagro Logo Area */}
-                        <div className="w-[20%] p-2 flex items-center justify-center border-r border-green-800">
-                            <img src="/images/logovecode.png" alt="ProAgro" className="h-12 object-contain" />
+                    <div className="flex w-full border-b border-green-800" style={{ borderColor: tenant?.primary_color || '#166534' }}>
+                        {/* Left: Logo Area */}
+                        <div className="w-[20%] p-2 flex items-center justify-center border-r border-green-800" style={{ borderColor: tenant?.primary_color || '#166534' }}>
+                            <img src={tenant?.logo || "/images/logovecode.png"} alt={tenant?.name || "Logo"} className="h-12 object-contain" />
                         </div>
 
                         {/* Center: Title Area */}
                         <div className="w-[60%] flex flex-col items-center justify-center py-2">
-                            <h1 className="text-sm font-bold tracking-wider">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
-                            <h2 className="text-xs font-bold mt-1">ALMACÉN DE PRODUCTO TERMINADO</h2>
+                            <h1 className="text-sm font-bold tracking-wider">{tenant?.name || 'PRO-AGROINDUSTRIA, S.A. DE C.V.'}</h1>
+                            <h2 className="text-xs font-bold mt-1 uppercase">{tenant?.slug === 'proagro' ? 'ALMACÉN DE PRODUCTO TERMINADO' : 'SISTEMA DE GESTIÓN LOGÍSTICA'}</h2>
                             <h2 className="text-lg font-black mt-1 uppercase">INSTRUCCIÓN DE CARGA</h2>
-                            <p className="text-[10px] font-bold mt-1">GLS-AP-FO-001</p>
+                            <p className="text-[10px] font-bold mt-1">{tenant?.slug === 'proagro' ? 'GLS-AP-FO-001' : 'VCD-LG-FO-001'}</p>
                         </div>
 
                         {/* Right: Truck Logo Area */}
-                        <div className="w-[20%] p-2 flex items-center justify-center border-l border-green-800 overflow-hidden relative">
+                        <div className="w-[20%] p-2 flex items-center justify-center border-l border-green-800 overflow-hidden relative" style={{ borderColor: tenant?.primary_color || '#166534' }}>
                             {/* Placeholder Truck Icon if image missing */}
                             <Truck className="w-16 h-16 text-gray-800 stroke-1" />
-                            {/* If image existed: <img src="/images/truck_logo.png" className="w-full h-auto" /> */}
                         </div>
                     </div>
 
@@ -198,7 +199,7 @@ export default function PrintInstruction({ order }: Props) {
                 <div className="mt-24 flex justify-between px-8 text-xs font-bold text-center uppercase">
                     <div className="w-5/12">
                         <div className="border-t border-black pt-1">
-                            SUPERVISIÓN DE PRO-AGROINDUSTRIA
+                            SUPERVISIÓN DE {tenant?.slug === 'proagro' ? 'PRO-AGROINDUSTRIA' : (tenant?.name || 'LA EMPRESA')}
                         </div>
                     </div>
                     <div className="w-5/12">

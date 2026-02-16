@@ -1,4 +1,4 @@
-import React from 'react';
+import { usePage } from '@inertiajs/react';
 import { ShipmentOrder } from '@/types';
 
 interface Props {
@@ -6,24 +6,26 @@ interface Props {
 }
 
 export default function InstructionTemplate({ order }: Props) {
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
 
     return (
         <div className="w-full h-full bg-white text-black font-sans box-border text-[11px]" style={{ pageBreakAfter: 'always' }}>
             {/* HEADERS */}
-            <div className="border border-green-800 relative">
+            <div className="border border-green-800 relative" style={{ borderColor: tenant?.primary_color || '#166534' }}>
                 {/* Top Row: Logos & Titles */}
-                <div className="flex w-full border-b border-green-800 h-24">
-                    {/* Left: Proagro Logo Area */}
-                    <div className="w-[20%] p-2 flex items-center justify-center border-r border-green-800">
-                        <img src="/images/logo_proagro.png" alt="ProAgro" className="h-full object-contain" />
+                <div className="flex w-full border-b h-24" style={{ borderColor: tenant?.primary_color || '#166534' }}>
+                    {/* Left: Logo Area */}
+                    <div className="w-[20%] p-2 flex items-center justify-center border-r" style={{ borderColor: tenant?.primary_color || '#166534' }}>
+                        <img src={tenant?.logo || "/images/logo_proagro.png"} alt={tenant?.slug === 'proagro' ? "ProAgro" : "Logo"} className="h-full object-contain" />
                     </div>
 
                     {/* Center: Title Area */}
                     <div className="w-[60%] flex flex-col items-center justify-center py-2">
-                        <h1 className="text-xs font-medium tracking-wider">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
-                        <h2 className="text-[9px] font-normal mt-1">ALMACÉN DE PRODUCTO TERMINADO</h2>
+                        <h1 className="text-xs font-medium tracking-wider">{tenant?.name || 'PRO-AGROINDUSTRIA, S.A. DE C.V.'}</h1>
+                        <h2 className="text-[9px] font-normal mt-1">{tenant?.slug === 'proagro' ? 'ALMACÉN DE PRODUCTO TERMINADO' : 'SISTEMA DE GESTIÓN LOGÍSTICA'}</h2>
                         <h2 className="text-lg font-bold mt-1 uppercase">INSTRUCCIÓN DE CARGA</h2>
-                        <p className="text-[9px] font-normal mt-1">GLS-AP-FO-001</p>
+                        <p className="text-[9px] font-normal mt-1">{tenant?.slug === 'proagro' ? 'GLS-AP-FO-001' : 'VCD-LG-FO-001'}</p>
                     </div>
 
                     {/* Right: Truck Logo Area (LOG.png) */}
@@ -186,7 +188,7 @@ export default function InstructionTemplate({ order }: Props) {
             <div className="mt-20 flex justify-between px-16 text-[9px] font-medium text-center uppercase">
                 <div className="w-5/12">
                     <div className="border-t border-black pt-1">
-                        SUPERVISIÓN DE PRO-AGROINDUSTRIA
+                        SUPERVISIÓN DE {tenant?.slug === 'proagro' ? 'PRO-AGROINDUSTRIA' : (tenant?.name || 'LA EMPRESA')}
                     </div>
                 </div>
                 <div className="w-5/12">

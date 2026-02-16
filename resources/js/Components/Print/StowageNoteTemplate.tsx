@@ -1,16 +1,13 @@
 import React from 'react';
+import { usePage } from '@inertiajs/react';
 
 interface Props {
     order: any;
 }
 
 export default function StowageNoteTemplate({ order }: Props) {
-    // Strategy Change: Instead of relying on @page landscape (which is breaking into 3 pages),
-    // we will render this on a standard page but ROTATE the content 90 degrees.
-    // This ensures it fits on one sheet regardless of printer auto-rotation logic.
-
-    // Standard Letter dimensions: 215.9mm x 279.4mm
-    // We will creaete a container of 279mm x 215mm and rotate it.
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
 
     const gridCols = Array.from({ length: 24 }, (_, i) => i + 1);
     const gridRows = ['H-1', 'H-2', 'H-3', 'H-4', 'H-5', 'H-6'];
@@ -20,9 +17,10 @@ export default function StowageNoteTemplate({ order }: Props) {
         { labels: ['X11', 'X12', 'X13', 'X14', 'X15', 'X16', 'X17', 'X18', 'X19', 'X20'] },
     ];
 
-    // Helper classes
-    const borderClass = "border border-green-800";
-    const headerClass = "bg-green-200 font-bold text-center border border-green-800 text-[9px] uppercase";
+    const borderClass = `border ${tenant?.slug === 'proagro' ? 'border-green-800' : 'border-gray-800'}`;
+    const headerClass = `bg-gray-100 font-bold text-center ${borderClass} text-[9px] uppercase`;
+    const bgColor = tenant?.slug === 'proagro' ? 'bg-green-200' : 'bg-gray-200';
+    const accentColor = tenant?.slug === 'proagro' ? 'bg-green-100' : 'bg-gray-100';
 
     // Helper function to calculate sacks exactly like Print.tsx
     const calculateSacks = () => {
@@ -52,70 +50,64 @@ export default function StowageNoteTemplate({ order }: Props) {
     };
 
     return (
-        // Wrapper that simulates a landscape page on a portrait sheet if needed, or just fills the landscape page
-        // The rotation logic will be handled in Print.tsx via CSS class .rotate-landscape
         <div className="w-full h-[88%] bg-white font-sans text-[10px] text-black leading-tight p-2 box-border flex flex-col overflow-hidden">
-            {/* Using flex column to distribute space more evenly if needed, or specific percentages that add up to 100% */}
-
-            {/* --- HEADER --- */}
-            {/* --- HEADER --- */}
             <div className={`flex w-full mb-1 h-[6%]`}>
-                {/* Logo Section - No Borders, Compact - ENLARGED LOGO */}
+                {/* Logo Section */}
                 <div className={`w-[20%] p-0.5 flex flex-col items-center justify-center`}>
-                    <img src="/images/logo_proagro.png" alt="ProAgro" className="h-full object-contain scale-125 origin-center" />
+                    <img src={tenant?.logo || "/images/logo_proagro.png"} alt="Logo" className="h-full object-contain scale-125 origin-center" />
                 </div>
 
-                {/* Title Section - No Borders, Compact Fonts */}
+                {/* Title Section */}
                 <div className={`w-[60%] flex flex-col items-center justify-center py-0.5`}>
-                    <h1 className="text-base font-bold uppercase tracking-tight leading-none">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
-                    <h2 className="text-[10px] font-bold uppercase leading-none mt-0.5">GLS-AP-FO-002</h2>
+                    <h1 className="text-base font-bold uppercase tracking-tight leading-none">{tenant?.name || 'PRO-AGROINDUSTRIA, S.A. DE C.V.'}</h1>
+                    <h2 className="text-[10px] font-bold uppercase leading-none mt-0.5">{tenant?.slug === 'proagro' ? 'GLS-AP-FO-002' : 'VCD-AP-FO-002'}</h2>
                     <h2 className="text-base font-bold uppercase leading-none mt-0.5">NOTA DE ESTIBA A CAMIÓN</h2>
                 </div>
 
                 {/* Meta Data Section - Kept Borders */}
                 <div className="w-[20%] flex flex-col text-[8px]">
                     <div className={`flex-1 flex ${borderClass} border-b`}>
-                        <div className={`w-[40%] bg-green-200 font-bold flex items-center justify-center ${borderClass} border-r`}>FECHA</div>
+                        <div className={`w-[40%] ${bgColor} font-bold flex items-center justify-center ${borderClass} border-r`}>FECHA</div>
                         <div className="w-[60%] flex items-center justify-center font-bold px-1"></div>
                     </div>
                     <div className={`flex-1 flex ${borderClass} border-b`}>
-                        <div className={`w-[40%] bg-green-200 font-bold flex items-center justify-center ${borderClass} border-r`}>TURNO</div>
+                        <div className={`w-[40%] ${bgColor} font-bold flex items-center justify-center ${borderClass} border-r`}>TURNO</div>
                         <div className="w-[60%] flex items-center justify-center px-1"></div>
                     </div>
                     <div className={`flex-1 flex ${borderClass}`}>
-                        <div className={`w-[40%] bg-green-200 font-bold flex items-center justify-center ${borderClass} border-r`}>HORA</div>
+                        <div className={`w-[40%] ${bgColor} font-bold flex items-center justify-center ${borderClass} border-r`}>HORA</div>
                         <div className="w-[60%] flex items-center justify-center px-1"></div>
                     </div>
                 </div>
             </div>
 
             {/* --- DATOS DEL TRANSPORTISTA --- */}
-            <div className={`w-full ${borderClass} bg-green-200 text-center font-bold text-[8px] p-0.5 border-b-0`}>DATOS DEL TRANSPORTISTA</div>
+            <div className={`w-full ${borderClass} ${bgColor} text-center font-bold text-[8px] p-0.5 border-b-0`}>DATOS DEL TRANSPORTISTA</div>
             <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {/* Col 1: Operator */}
                 <div className={`w-[25%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>NOMBRE Y FIRMA DEL OPERADOR</div>
+                    <div className={`${bgColor} ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>NOMBRE Y FIRMA DEL OPERADOR</div>
                     <div className="flex-1 flex items-end justify-center font-bold uppercase text-[9px] pb-1 text-center leading-none">
                         {order.operator_name || order.operator?.name || "SIN ASIGNAR"}
                     </div>
                 </div>
                 {/* Col 2: Carrier */}
                 <div className={`w-[35%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>NOMBRE DE LA FLETERA</div>
+                    <div className={`${bgColor} ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>NOMBRE DE LA FLETERA</div>
                     <div className="flex-1 flex items-center justify-center font-bold uppercase text-[10px] text-center leading-none px-1">
                         {order.transport_company || order.carrier?.name || "N/A"}
                     </div>
                 </div>
                 {/* Col 3: Unit Type */}
                 <div className={`w-[20%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>TIPO DE UNIDAD</div>
+                    <div className={`${bgColor} ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>TIPO DE UNIDAD</div>
                     <div className="flex-1 flex items-center justify-center font-bold uppercase text-[9px] text-center leading-none">
                         {order.is_full ? 'FULL' : (order.unit_type || 'SENCILLO')}
                     </div>
                 </div>
                 {/* Col 4: Plates */}
                 <div className={`w-[20%] flex flex-col`}>
-                    <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>PLACAS</div>
+                    <div className={`${bgColor} ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>PLACAS</div>
                     <div className="flex-1 flex flex-col justify-center items-center font-bold text-[8px] leading-tight">
                         <div>T: {order.tractor_plate}</div>
                         <div>R: {order.trailer_plate}</div>
@@ -125,25 +117,25 @@ export default function StowageNoteTemplate({ order }: Props) {
             </div>
 
             {/* --- DATOS GENERALES --- */}
-            <div className={`w-full ${borderClass} bg-green-200 text-center font-bold text-[8px] p-0.5 border-b-0`}>DATOS GENERALES</div>
+            <div className={`w-full ${borderClass} ${bgColor} text-center font-bold text-[8px] p-0.5 border-b-0`}>DATOS GENERALES</div>
             <div className={`w-full ${borderClass} border-2 mb-1 flex h-[8%]`}>
                 {/* OV */}
                 <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE VENTA</div>
+                    <div className={`${bgColor} text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE VENTA</div>
                     <div className="flex-1 flex items-center justify-center font-bold text-[10px]">
                         {order.sales_order?.folio || order.sales_order?.sale_order || "N/A"}
                     </div>
                 </div>
                 {/* OE */}
                 <div className={`w-[15%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE EMBARQUE</div>
+                    <div className={`${bgColor} text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>ORDEN DE EMBARQUE</div>
                     <div className="flex-1 flex items-center justify-center font-bold text-[12px]">
                         {order.folio}
                     </div>
                 </div>
                 {/* Destinatario (Split) */}
                 <div className={`w-[50%] ${borderClass} border-r flex flex-col`}>
-                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>DESTINATARIO</div>
+                    <div className={`${bgColor} text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>DESTINATARIO</div>
                     <div className="flex-1 flex w-full">
                         {/* Name */}
                         <div className={`w-[60%] ${borderClass} border-r flex flex-col justify-center`}>
@@ -163,7 +155,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                 </div>
                 {/* Supervisor */}
                 <div className={`w-[20%] flex flex-col`}>
-                    <div className={`bg-green-200 text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>SUPERVISOR</div>
+                    <div className={`${bgColor} text-[8px] text-center font-bold ${borderClass} border-b p-0.5`}>SUPERVISOR</div>
                     <div className="flex-1"></div>
                 </div>
             </div>
@@ -248,7 +240,7 @@ export default function StowageNoteTemplate({ order }: Props) {
             <div className={`flex w-full ${borderClass} border-2 h-[18%]`}>
                 {/* Quality / Comments */}
                 <div className={`w-[35%] ${borderClass} border-r-2 flex flex-col p-1`}>
-                    <div className={`bg-green-100 ${borderClass} text-[7px] font-bold text-center mb-0.5`}>CALIDAD DE PRODUCTO Y CANTIDAD DE SACOS</div>
+                    <div className={`${accentColor} ${borderClass} text-[7px] font-bold text-center mb-0.5`}>CALIDAD DE PRODUCTO Y CANTIDAD DE SACOS</div>
                     <p className="text-[7px] text-justify mb-2 px-1 leading-none">
                         Confirmo que el número de sacos cargados corresponden a la cantidad establecida.
                     </p>
@@ -260,14 +252,14 @@ export default function StowageNoteTemplate({ order }: Props) {
                         <div className="text-[6px]">Nombre y firma del chofer</div>
                     </div>
 
-                    <div className={`bg-green-100 ${borderClass} text-[7px] font-bold text-center mb-0.5`}>COMENTARIOS</div>
+                    <div className={`${accentColor} ${borderClass} text-[7px] font-bold text-center mb-0.5`}>COMENTARIOS</div>
                     <div className={`flex-1 ${borderClass}`}></div>
                 </div>
 
                 {/* Weights & Validation */}
                 <div className="w-[65%] flex">
                     <div className={`w-[70%] ${borderClass} border-r flex flex-col`}>
-                        <div className={`bg-green-200 ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>
+                        <div className={`${bgColor} ${borderClass} border-b text-center font-bold text-[7px] p-0.5`}>
                             Registro de pesos en caso de revision de peso de sacos (Muestreo del embarque) kg
                         </div>
                         <div className="flex-1">
@@ -275,7 +267,7 @@ export default function StowageNoteTemplate({ order }: Props) {
                                 <tbody>
                                     {weightRegistrationRows.map((row, idx) => (
                                         <React.Fragment key={idx}>
-                                            <tr className="bg-green-50 font-bold h-3">
+                                            <tr className={`${accentColor} font-bold h-3`}>
                                                 {row.labels.map(label => (
                                                     <td key={label} className={`${borderClass} w-[10%]`}>{label}</td>
                                                 ))}
@@ -290,13 +282,13 @@ export default function StowageNoteTemplate({ order }: Props) {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="bg-green-200 text-[5px] font-bold text-center p-0.5 flex items-center justify-center leading-none">
+                        <div className={`${bgColor} text-[5px] font-bold text-center p-0.5 flex items-center justify-center leading-none`}>
                             NOTA: CUALQUIER FALTANTE DEBERÁ ACOMPAÑARSE DE ESTA NOTA INDICANDO LUGAR EXACTO.
                         </div>
                     </div>
 
                     <div className="w-[30%] flex flex-col text-[7px]">
-                        <div className={`bg-green-100 ${borderClass} border-b text-center font-bold p-0.5`}>VALIDACIÓN</div>
+                        <div className={`${accentColor} ${borderClass} border-b text-center font-bold p-0.5`}>VALIDACIÓN</div>
 
                         <div className={`flex h-5 ${borderClass} border-b`}>
                             <div className={`w-1/2 bg-gray-50 ${borderClass} border-r flex items-center justify-center font-bold`}>SUMA</div>
@@ -310,8 +302,8 @@ export default function StowageNoteTemplate({ order }: Props) {
                             <div className={`w-1/2 bg-gray-50 ${borderClass} border-r flex items-center justify-center font-bold text-center`}>LIMITES</div>
                             <div className="w-1/2 flex items-center justify-center font-bold text-xs">0-0</div>
                         </div>
-                        <div className="flex h-6 border-t border-green-800">
-                            <div className="bg-green-200 w-2/3 flex items-center justify-center text-[6px] font-bold leading-none px-1 border-r border-green-800 text-center">
+                        <div className={`flex h-6 border-t ${borderClass}`}>
+                            <div className={`${bgColor} w-2/3 flex items-center justify-center text-[6px] font-bold leading-none px-1 border-r ${borderClass} text-center`}>
                                 TM EMBARQUE ESTIMADO
                             </div>
                             <div className="w-1/3 bg-white"></div>

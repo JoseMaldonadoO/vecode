@@ -7,10 +7,11 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Sidebar({ className, isMobile = false }: SidebarProps) {
-    const { url, props } = usePage();
-    const baseUrl = (props.base_url as string) || '';
+    const { url, props } = usePage<any>();
+    const baseUrl = props.base_url || '';
+    const tenant = props.tenant;
 
-    const user = props.auth.user as any;
+    const user = props.auth?.user;
     const permissions = user?.permissions || [];
     const roles = user?.roles || [];
 
@@ -48,9 +49,12 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                 <div className="px-4 flex flex-col items-center">
                     <Link href={`/dashboard`} className="mb-4 flex items-center justify-center transition-transform hover:scale-105">
                         <img
-                            src={`/images/logovecode.png`}
-                            alt="Proagro"
+                            src={props.tenant?.logo || `/images/logovecode.png`}
+                            alt={props.tenant?.name || "Logo"}
                             className="h-12 w-auto object-contain drop-shadow-2xl transition-all duration-300 group-hover:h-20"
+                            onError={(e) => {
+                                e.currentTarget.src = "/images/logovecode.png";
+                            }}
                         />
                     </Link>
                     <div className={cn(
@@ -58,8 +62,10 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
                         !isMobile && "opacity-0 w-0 hidden group-hover:opacity-100 group-hover:w-auto group-hover:block",
                         isMobile && "block"
                     )}>
-                        <h2 className="text-lg font-bold tracking-widest text-white uppercase">Vecode</h2>
-                        <p className="text-xs font-medium text-slate-400 tracking-wider">Logística Pro-Agroindustria</p>
+                        <h2 className="text-lg font-bold tracking-widest text-white uppercase">{tenant?.slug === 'proagro' ? 'Vecode' : (tenant?.name?.split(' ')[0] || 'Vecode')}</h2>
+                        <p className="text-xs font-medium text-slate-400 tracking-wider">
+                            {tenant?.slug === 'proagro' ? 'Logística Pro-Agroindustria' : (tenant?.name || 'Sistema Integral de Logística')}
+                        </p>
                     </div>
                 </div>
 

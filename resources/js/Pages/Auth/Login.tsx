@@ -7,9 +7,11 @@ import { User, Lock, ArrowRight, Loader2, Anchor } from "lucide-react";
 export default function Login({
     status,
     canResetPassword,
+    tenant,
 }: {
     status?: string;
     canResetPassword: boolean;
+    tenant: any;
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         username: "",
@@ -29,7 +31,7 @@ export default function Login({
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center">
-            <Head title="Acceso Seguro" />
+            <Head title={`Acceso - ${tenant?.name || 'VECODE'}`} />
 
             {/* Background Image with Overlay */}
             <div
@@ -37,7 +39,12 @@ export default function Login({
                 style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
             >
                 {/* Premium Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-900/20 to-indigo-900/40 backdrop-blur-[2px]"></div>
+                <div
+                    className="absolute inset-0 backdrop-blur-[2px]"
+                    style={{
+                        background: `linear-gradient(to bottom right, ${tenant?.primary_color || '#1e3a8a'}66, ${tenant?.secondary_color || '#0f172a'}33, ${tenant?.primary_color || '#312e81'}66)`
+                    }}
+                ></div>
             </div>
 
             {/* Glass Card */}
@@ -47,20 +54,23 @@ export default function Login({
                     {/* Header */}
                     <div className="text-center mb-8 space-y-4">
                         <div className="flex justify-center items-center mb-6">
-                            {/* Logo Proagro - Enlarged */}
+                            {/* Logo Dinámico */}
                             <div className="p-2 rounded-xl">
                                 <img
-                                    src="/images/Proagro2.png"
-                                    alt="Proagro Logo"
+                                    src={tenant?.logo || "/images/Proagro2.png"}
+                                    alt={tenant?.name || "Logo"}
                                     className="h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-300"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "/images/logovecode.png"; // Final fallback
+                                    }}
                                 />
                             </div>
                         </div>
                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                            Bienvenido a <span className="text-blue-600">VECODE</span>
+                            Bienvenido a <span style={{ color: tenant?.secondary_color || '#2563eb' }}>VECODE</span>
                         </h2>
                         <p className="text-slate-500 font-medium text-sm">
-                            Sistema Integral de Operaciones Portuarias
+                            {tenant?.name || 'Sistema Integral de Operaciones Portuarias'}
                         </p>
                     </div>
 
@@ -139,7 +149,10 @@ export default function Login({
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="group w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                                className="group w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                                style={{
+                                    background: `linear-gradient(to right, ${tenant?.primary_color || '#2563eb'}, ${tenant?.secondary_color || '#4f46e5'})`
+                                }}
                             >
                                 {processing ? (
                                     <>
@@ -158,7 +171,7 @@ export default function Login({
 
                     {/* Footer */}
                     <div className="mt-8 text-center text-xs text-slate-400 font-medium">
-                        <p>© 2026 Proagroindustria. Todos los derechos reservados.</p>
+                        <p>{tenant?.copyright_text || `© ${new Date().getFullYear()} VECODE. Todos los derechos reservados.`}</p>
                         <div className="mt-2 flex justify-center gap-2 opacity-60">
                             <Anchor className="w-3 h-3" />
                             <span>Sistema Integral de Operaciones Portuarias</span>
@@ -169,7 +182,7 @@ export default function Login({
 
             {/* Credits overlay bottom right */}
             <div className="absolute bottom-4 right-6 z-0 text-white/30 text-[10px] font-bold uppercase tracking-[0.2em] pointer-events-none">
-                Fotografía: Puerto Proagro
+                Fotografía: {tenant?.slug === 'proagro' ? 'Puerto Proagro' : 'Operación Logística'}
             </div>
         </div>
     );

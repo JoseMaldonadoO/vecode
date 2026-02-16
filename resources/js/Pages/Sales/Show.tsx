@@ -1,5 +1,5 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import { ArrowLeft, Printer, ChevronRight } from "lucide-react";
 
 export default function Show({
@@ -11,20 +11,23 @@ export default function Show({
     order: any;
     context_module?: string;
 }) {
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
+
     const isDocumentation = context_module === "documentation";
     const isSalesReport = context_module === "sales_report";
 
     const backLink = isDocumentation
         ? route("documentation.orders.index")
         : isSalesReport
-          ? route("sales.index", { view: "report" })
-          : route("sales.index");
+            ? route("sales.index", { view: "report" })
+            : route("sales.index");
 
     const backLabel = isDocumentation
         ? "Volver al reporte de embarque"
         : isSalesReport
-          ? "Volver al reporte de ventas"
-          : "Volver al listado";
+            ? "Volver al reporte de ventas"
+            : "Volver al listado";
 
     const formatter = new Intl.NumberFormat("en-US", {
         maximumFractionDigits: 3,
@@ -33,7 +36,7 @@ export default function Show({
 
     return (
         <DashboardLayout user={auth.user} header={`Orden: ${order.folio}`}>
-            <Head title={`Orden ${order.folio}`} />
+            <Head title={`Orden ${order.folio} - ${tenant?.name || 'VECODE'}`} />
 
             <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 {/* Navigation Header */}
@@ -48,7 +51,8 @@ export default function Show({
                     <div className="flex gap-3">
                         <button
                             onClick={() => window.print()}
-                            className="inline-flex items-center px-6 py-2.5 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-all font-sans uppercase tracking-widest"
+                            style={{ backgroundColor: tenant?.primary_color || '#4f46e5' }}
+                            className="inline-flex items-center px-6 py-2.5 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white hover:opacity-90 transition-all font-sans uppercase tracking-widest"
                         >
                             <Printer className="w-4 h-4 mr-2" />
                             Imprimir OV
@@ -63,27 +67,29 @@ export default function Show({
                         <div className="flex justify-between items-start mb-8 print:mb-4">
                             <div className="flex flex-col">
                                 <img
-                                    src="/img/Proagro2.png"
-                                    alt="Proagro"
+                                    src={tenant?.logo || "/images/logovecode.png"}
+                                    alt={tenant?.name || "Logo"}
                                     className="h-16 w-auto object-contain mb-2 self-start"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "/img/Proagro2.png";
+                                    }}
                                 />
                                 <div className="text-[11px] leading-tight text-gray-700">
                                     <p className="font-bold text-black text-[13px]">
-                                        Proagroindustria S.A. de C.V.
+                                        {tenant?.name || 'Proagroindustria S.A. de C.V.'}
                                     </p>
                                     <p>
-                                        Carretera Coatzacoalcos-villahermosa Km
-                                        5
+                                        {tenant?.slug === 'proagro' ? 'Carretera Coatzacoalcos-villahermosa Km 5' : 'SISTEMA DE GESTIÓN LOGÍSTICA'}
                                     </p>
                                     <p>
-                                        interior complejo petroquimico pajaritos
+                                        {tenant?.slug === 'proagro' ? 'interior complejo petroquimico pajaritos' : (tenant?.domain || 'VECODE.COM')}
                                     </p>
-                                    <p>Coatzacoalcos, Veracruz</p>
+                                    <p>{tenant?.slug === 'proagro' ? 'Coatzacoalcos, Veracruz' : ''}</p>
                                 </div>
                             </div>
 
                             <div className="w-72">
-                                <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase tracking-wide">
+                                <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase tracking-wide">
                                     Orden de venta
                                 </div>
                                 <table className="w-full border-collapse border border-black text-xs">
@@ -126,19 +132,18 @@ export default function Show({
                                 </table>
                                 <div className="mt-2 text-right">
                                     <span
-                                        className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                                            order.status === "created"
+                                        className={`text-[10px] font-bold px-2 py-0.5 rounded border ${order.status === "created"
                                                 ? "bg-blue-50 text-blue-700 border-blue-200"
                                                 : order.status === "closed"
-                                                  ? "bg-red-50 text-red-700 border-red-200"
-                                                  : "bg-green-50 text-green-700 border-green-200"
-                                        }`}
+                                                    ? "bg-red-50 text-red-700 border-red-200"
+                                                    : "bg-green-50 text-green-700 border-green-200"
+                                            }`}
                                     >
                                         {order.status === "created"
                                             ? "ABIERTA"
                                             : order.status === "closed"
-                                              ? "CERRADA"
-                                              : order.status}
+                                                ? "CERRADA"
+                                                : order.status}
                                     </span>
                                 </div>
                             </div>
@@ -146,7 +151,7 @@ export default function Show({
 
                         {/* Datos del Cliente Section */}
                         <div className="mb-6 print:mb-4">
-                            <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                            <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                                 Datos del cliente
                             </div>
                             <table className="w-full border-collapse border border-black text-xs">
@@ -216,7 +221,7 @@ export default function Show({
                         {/* Product Table */}
                         <div className="mb-6 print:mb-4">
                             <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
-                                <thead className="bg-gray-500 text-white text-center">
+                                <thead style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center">
                                     <tr>
                                         <th className="border border-black py-1 w-[60%]">
                                             Descripción
@@ -251,7 +256,7 @@ export default function Show({
 
                         {/* Observations Section */}
                         <div className="mb-10 print:mb-4">
-                            <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                            <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                                 Observaciones
                             </div>
                             <div className="border border-black min-h-[6rem] p-3 text-[13px] font-normal whitespace-pre-line">
@@ -272,8 +277,8 @@ export default function Show({
                             </div>
 
                             <div className="text-center mb-8 print:mb-4">
-                                <p className="text-indigo-900 font-bold text-[13px]">
-                                    www.pro-agroindustria.com
+                                <p className="font-bold text-[13px]" style={{ color: tenant?.primary_color || '#312e81' }}>
+                                    {tenant?.slug === 'proagro' ? 'www.pro-agroindustria.com' : (tenant?.domain || 'VECODE.COM')}
                                 </p>
                             </div>
 
@@ -281,31 +286,35 @@ export default function Show({
                                 <div className="text-[10px] text-gray-500 space-y-0.5">
                                     <p>
                                         <span className="font-bold text-black">
-                                            Venta y cobranza:
+                                            {tenant?.slug === 'proagro' ? 'Venta y cobranza:' : 'Contacto:'}
                                         </span>{" "}
-                                        oscar.mendez@pro-agroindustria.com
+                                        {tenant?.slug === 'proagro' ? 'oscar.mendez@pro-agroindustria.com' : `soporte@${tenant?.domain || 'vecode.com'}`}
                                     </p>
-                                    <p>
-                                        <span className="font-bold text-black">
-                                            Asst. Adtvo.:
-                                        </span>{" "}
-                                        jorge.robles@pro-agroindustria.com
-                                    </p>
-                                    <p>
-                                        <span className="font-bold text-black">
-                                            Comercialización:
-                                        </span>{" "}
-                                        ventas.comercializacion@pro-agroindustria.com
-                                    </p>
+                                    {tenant?.slug === 'proagro' && (
+                                        <>
+                                            <p>
+                                                <span className="font-bold text-black">
+                                                    Asst. Adtvo.:
+                                                </span>{" "}
+                                                jorge.robles@pro-agroindustria.com
+                                            </p>
+                                            <p>
+                                                <span className="font-bold text-black">
+                                                    Comercialización:
+                                                </span>{" "}
+                                                ventas.comercializacion@pro-agroindustria.com
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <img
-                                        src="/img/Proagro2.png"
+                                        src={tenant?.logo || "/images/logovecode.png"}
                                         alt="Logo"
                                         className="h-8 opacity-50 mb-1"
                                     />
                                     <p className="text-[10px] text-gray-400 font-mono italic">
-                                        DCM-FO-001
+                                        {tenant?.slug === 'proagro' ? 'DCM-FO-001' : 'VCD-SA-FO-001'}
                                     </p>
                                 </div>
                             </div>

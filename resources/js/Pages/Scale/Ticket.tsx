@@ -48,6 +48,9 @@ const TicketCopy: React.FC<{
     copyName: string;
     isLast?: boolean;
 }> = ({ ticket, copyName, isLast }) => {
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
+
     return (
         <div
             className={`w-[24cm] mx-auto bg-white p-6 pt-2 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? "print:break-after-page" : ""}`}
@@ -57,11 +60,11 @@ const TicketCopy: React.FC<{
                 {/* Logo Section */}
                 <div className="w-[20%] p-1 flex items-center justify-center">
                     <img
-                        src="/img/Proagro2.png"
-                        alt="Logo Proagro"
+                        src={tenant?.logo || "/images/logovecode.png"}
+                        alt={tenant?.name || "Logo"}
                         className="h-20 w-auto object-contain"
                         onError={(e) => {
-                            e.currentTarget.src = "/images/logo_proagro.png"; // Fallback to original if new one fails
+                            e.currentTarget.src = "/img/Proagro2.png";
                         }}
                     />
                 </div>
@@ -69,15 +72,15 @@ const TicketCopy: React.FC<{
                 {/* Company Info */}
                 <div className="w-[55%] flex flex-col justify-center items-center text-center px-2">
                     <h1 className="font-bold text-[24px] leading-tight tracking-tight">
-                        PRO-AGROINDUSTRIA S.A. DE C.V.
+                        {tenant?.name || 'PRO-AGROINDUSTRIA S.A. DE C.V.'}
                     </h1>
                     <p className="text-[11px] font-bold">
-                        COATZACOALCOS, VERACRUZ
+                        {tenant?.slug === 'proagro' ? 'COATZACOALCOS, VERACRUZ' : 'SISTEMA DE LOGÍSTICA'}
                     </p>
                     <p className="text-[14px] font-bold mt-1">
-                        LOGISTICA Y SUMINISTROS
+                        {tenant?.slug === 'proagro' ? 'LOGISTICA Y SUMINISTROS' : 'CONTROL DE PESO'}
                     </p>
-                    <p className="text-[10px] mt-0.5">GLS-TR-FO-005.</p>
+                    <p className="text-[10px] mt-0.5">{tenant?.slug === 'proagro' ? 'GLS-TR-FO-005.' : 'VCD-TR-FO-005.'}</p>
                     <div className="border border-black px-6 py-0.5 mt-1 font-bold text-[14px] uppercase tracking-widest">
                         TICKET DE PESO
                     </div>
@@ -207,7 +210,7 @@ const TicketCopy: React.FC<{
 
                     <div className="flex-1 p-3 space-y-2 flex flex-col justify-center">
                         <div className="text-center opacity-60 text-[10px] mb-2">
-                            PRO-AGROINDUSTRIA S.A DE C.V <br /> BASCULA{" "}
+                            {tenant?.name || 'VECODE'} <br /> BASCULA{" "}
                             {ticket.scale_number}
                         </div>
 

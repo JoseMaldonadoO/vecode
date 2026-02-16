@@ -1,10 +1,16 @@
 import React from 'react';
+import { usePage } from '@inertiajs/react';
 
 interface Props {
     order: any;
 }
 
 export default function WeightVerificationTemplate({ order }: Props) {
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
+
+    const bgColor = tenant?.slug === 'proagro' ? 'bg-green-100' : 'bg-gray-100';
+
     // Generate 40 rows for the table
     const rows = Array.from({ length: 40 }, (_, i) => i + 1);
 
@@ -12,22 +18,22 @@ export default function WeightVerificationTemplate({ order }: Props) {
         <div className="w-full h-full bg-white px-4 py-2 font-sans text-xs">
             {/* HEADER - RESTORED BORDERS */}
             <div className="flex w-full h-20 mb-1 border border-black">
-                {/* Left: Proagro Logo Area */}
+                {/* Left: Logo Area */}
                 <div className="w-[20%] p-1 flex items-center justify-center border-r border-black">
-                    <img src="/images/logo_proagro.png" alt="ProAgro" className="h-full object-contain" />
+                    <img src={tenant?.logo || "/images/logo_proagro.png"} alt="Logo" className="h-full object-contain" />
                 </div>
 
                 {/* Center: Title Area */}
                 <div className="w-[60%] flex flex-col items-center justify-center py-1 border-r border-black">
-                    <h1 className="text-xs font-bold tracking-wider">PRO-AGROINDUSTRIA, S.A. DE C.V.</h1>
+                    <h1 className="text-xs font-bold tracking-wider uppercase">{tenant?.name || 'PRO-AGROINDUSTRIA, S.A. DE C.V.'}</h1>
                     <h2 className="text-[8px] font-bold mt-0.5">ALMACÉN DE PRODUCTO TERMINADO</h2>
                     <h2 className="text-base font-bold mt-0.5 uppercase">VERIFICACION DE PESO DE SACOS</h2>
-                    <p className="text-[8px] font-bold mt-0.5">GLS-AP-FO-003</p>
+                    <p className="text-[8px] font-bold mt-0.5">{tenant?.slug === 'proagro' ? 'GLS-AP-FO-003' : 'VCD-AP-FO-003'}</p>
                 </div>
 
-                {/* Right: Truck Logo Area */}
+                {/* Right: Secondary Logo Area */}
                 <div className="w-[20%] p-1 flex items-center justify-center">
-                    <img src="/images/LOG.png" alt="Transport" className="max-h-full max-w-full object-contain" />
+                    <img src={tenant?.logo || "/images/LOG.png"} alt="Logo" className="max-h-full max-w-full object-contain opacity-50" />
                 </div>
             </div>
 
@@ -158,13 +164,13 @@ export default function WeightVerificationTemplate({ order }: Props) {
 
                     {/* SUPERVISOR */}
                     <div className="w-full text-center">
-                        <div className="bg-green-100 border border-black font-bold text-[10px] py-1 uppercase mb-8">SUPERVISOR</div>
+                        <div className={`${bgColor} border border-black font-bold text-[10px] py-1 uppercase mb-8`}>SUPERVISOR</div>
                         <div className="border-t border-black pt-1 w-full mx-auto text-[9px]">NOMBRE Y FIRMA</div>
                     </div>
 
                     {/* VERIFICADOR */}
                     <div className="w-full text-center">
-                        <div className="bg-green-100 border border-black font-bold text-[10px] py-1 uppercase mb-8">VERIFICADOR</div>
+                        <div className={`${bgColor} border border-black font-bold text-[10px] py-1 uppercase mb-8`}>VERIFICADOR</div>
                         <div className="border-t border-black pt-1 w-full mx-auto text-[9px]">NOMBRE Y FIRMA</div>
                     </div>
 

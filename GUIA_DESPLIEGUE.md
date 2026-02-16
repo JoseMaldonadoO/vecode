@@ -69,8 +69,28 @@ Si las imágenes no cargan, regenera el symlink en la raíz:
 2. Ejecuta: `https://pro-agroindustria.com/public/link.php`
 3. Borra el archivo.
 
+## 6. Configuración de Marca Blanca (Multi-Dominio)
+
+El sistema ahora soporta múltiples identidades (Tenants) basadas en el dominio.
+
+1.  **En el .env de producción (Proagro):**
+    ```env
+    APP_TENANT=proagro
+    ```
+2.  **En el .env del nuevo dominio (Pruebas/Otro Cliente):**
+    ```env
+    APP_TENANT=test-client
+    ```
+
+### Pasos para un Nuevo Dominio:
+1.  Asegúrate de que el dominio apunte a la misma instalación de archivos (o una copia idéntica).
+2.  Ejecuta las migraciones y el seeder para asegurar que la tabla `tenants` esté poblada:
+    ```bash
+    php artisan migrate --seed --seeder=TenantSeeder
+    ```
+3.  El sistema detectará el dominio automáticamente o usará el `APP_TENANT` definido.
+
 ---
 
-## 🧪 Verificación
-El sistema corre nativamente en `https://pro-agroindustria.com`.
-Cualquier cambio a `main` dispara el proceso automático.
+## 🧪 Verificación de Marca
+- Visita el dominio y verifica que el título de la pestaña y los logos correspondan al cliente configurado.

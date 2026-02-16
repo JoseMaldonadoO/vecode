@@ -38,8 +38,9 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
     public function drawings()
     {
         $drawings = [];
+        $tenant = app('tenant');
 
-        // Logo VECODE
+        // Logo VECODE (System)
         if (file_exists(public_path('images/Logo_vde.png'))) {
             $drawing = new Drawing();
             $drawing->setName('Logo VECODE');
@@ -51,12 +52,14 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
             $drawings[] = $drawing;
         }
 
-        // Logo Proagro
-        if (file_exists(public_path('images/Proagro2.png'))) {
+        // Tenant Logo
+        $logoPath = $tenant && $tenant->logo ? public_path(str_replace('/', DIRECTORY_SEPARATOR, ltrim($tenant->logo, '/'))) : public_path('images/Proagro2.png');
+
+        if (file_exists($logoPath)) {
             $drawing2 = new Drawing();
-            $drawing2->setName('Logo Proagro');
-            $drawing2->setDescription('Logo Proagro');
-            $drawing2->setPath(public_path('images/Proagro2.png'));
+            $drawing2->setName('Logo ' . ($tenant ? $tenant->name : 'Tenant'));
+            $drawing2->setDescription('Logo ' . ($tenant ? $tenant->name : 'Tenant'));
+            $drawing2->setPath($logoPath);
             $drawing2->setHeight(50);
             $drawing2->setCoordinates('E2');
             $drawing2->setOffsetX(50);
@@ -175,8 +178,12 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
 
     public function styles(Worksheet $sheet)
     {
-        // 1. Blue Header Background (Rows 1-6)
-        $sheet->getStyle('A1:F6')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('1e3a8a');
+        $tenant = app('tenant');
+        $primaryColor = $tenant ? str_replace('#', '', $tenant->primary_color) : '1e3a8a';
+        $secondaryColor = $tenant ? str_replace('#', '', $tenant->secondary_color) : 'bfdbfe';
+
+        // 1. Header Background (Rows 1-6)
+        $sheet->getStyle('A1:F6')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($primaryColor);
 
         // 2. Main Title
         $sheet->mergeCells('B4:F4');
@@ -188,14 +195,14 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         $sheet->getStyle('B5')->getFont()->setSize(11)->getColor()->setARGB('cbd5e1'); // Slate 300
 
         $sheet->mergeCells('B6:F6');
-        $sheet->getStyle('B6')->getFont()->setBold(true)->setSize(11)->getColor()->setARGB('bfdbfe'); // Blue 200
+        $sheet->getStyle('B6')->getFont()->setBold(true)->setSize(11)->getColor()->setARGB($secondaryColor);
 
         // 4. KPI Headers
         $sheet->getStyle('B8:F8')->getFont()->setBold(true)->getColor()->setARGB('64748b'); // Slate 500
         $sheet->getStyle('B8:F8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // 5. KPI Values (Big Cards)
-        $sheet->getStyle('B9:F9')->getFont()->setBold(true)->setSize(14)->getColor()->setARGB('1e3a8a');
+        $sheet->getStyle('B9:F9')->getFont()->setBold(true)->setSize(14)->getColor()->setARGB($primaryColor);
         $sheet->getStyle('B9:F9')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // Add Borders to KPIs to look like Cards
@@ -205,11 +212,11 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         // 6. Data Table Header
         $tableHeaderRow = 27;
         $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
-        $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('1e3a8a');
+        $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($primaryColor);
         $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         $colHeaderRow = 28;
-        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getFont()->setBold(true)->getColor()->setARGB('1e3a8a');
+        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getFont()->setBold(true)->getColor()->setARGB($primaryColor);
         $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
 
         // 7. Table Data

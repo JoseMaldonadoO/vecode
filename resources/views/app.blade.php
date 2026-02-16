@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('Proagro.png') }}">
+    <link rel="icon" type="image/png"
+        href="{{ config('app.tenant.favicon') ? asset(config('app.tenant.favicon')) : asset('Proagro.png') }}">
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#1e1b4b">
@@ -26,9 +27,9 @@
 
     <!-- Scripts -->
     @routes
-        <!-- Cache Buster: v=3.1-migration-fix -->
-        @viteReactRefresh
-        @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
+    <!-- Cache Buster: v=3.1-migration-fix -->
+    @viteReactRefresh
+    @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
     @inertiaHead
 </head>
 

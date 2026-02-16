@@ -1,29 +1,32 @@
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 
 interface Order {
     id: string;
     folio: string;
-    sale_order: string;
-    sale_conditions: string;
-    delivery_conditions: string;
-    created_at: string;
-    client: {
-        id: number;
+    sale_order?: string;
+    client?: {
+        id: string;
         business_name: string;
-        rfc: string;
-        address: string;
-        contact_info: string;
+        rfc?: string;
+        address?: string;
+        contact_info?: string;
     };
-    product: {
+    created_at: string;
+    sale_conditions?: string;
+    delivery_conditions?: string;
+    total_quantity: number | string;
+    product?: {
+        code?: string;
         name: string;
-        code: string;
     };
-    total_quantity: number;
-    destination: string; // Observaciones
+    destination?: string;
 }
 
 export default function Print({ order }: { order: Order }) {
+    const { props } = usePage<any>();
+    const tenant = props.tenant;
+
     useEffect(() => {
         // Auto print on load if desired, but maybe user wants to see it first.
         // window.print();
@@ -36,7 +39,7 @@ export default function Print({ order }: { order: Order }) {
 
     return (
         <div className="bg-white min-h-screen p-8 text-black font-sans">
-            <Head title={`Orden de Venta - ${order.folio}`} />
+            <Head title={`Orden de Venta - ${order.folio} - ${tenant?.name || 'VECODE'}`} />
 
             <div className="max-w-[21cm] mx-auto bg-white p-4">
                 {" "}
@@ -46,24 +49,27 @@ export default function Print({ order }: { order: Order }) {
                     <div className="w-1/2">
                         <div className="mb-4">
                             <img
-                                src="/img/Proagro2.png"
-                                alt="Logo Proagroindustria"
+                                src={tenant?.logo || "/images/logovecode.png"}
+                                alt={tenant?.name || "Logo"}
                                 className="h-16 object-contain"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/img/Proagro2.png";
+                                }}
                             />
                         </div>
                         <div className="text-sm text-gray-800">
                             <p className="font-bold">
-                                Proagroindustria S.A. de C.V.
+                                {tenant?.name || 'Proagroindustria S.A. de C.V.'}
                             </p>
-                            <p>Carretera Coatzacoalcos-villahermosa Km 5</p>
-                            <p>interior complejo petroquimico pajaritos</p>
-                            <p>Coatzacoalcos, Veracruz</p>
+                            <p>{tenant?.slug === 'proagro' ? 'Carretera Coatzacoalcos-villahermosa Km 5' : 'SISTEMA DE GESTIÓN LOGÍSTICA'}</p>
+                            <p>{tenant?.slug === 'proagro' ? 'interior complejo petroquimico pajaritos' : (tenant?.domain || 'VECODE.COM')}</p>
+                            <p>{tenant?.slug === 'proagro' ? 'Coatzacoalcos, Veracruz' : ''}</p>
                         </div>
                     </div>
 
                     <div className="w-1/2 flex flex-col items-end">
                         <div className="w-64 border border-black">
-                            <div className="bg-gray-500 text-white text-center font-bold py-1">
+                            <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center font-bold py-1">
                                 Orden de venta
                             </div>
                             <table className="w-full text-sm border-collapse">
@@ -109,7 +115,7 @@ export default function Print({ order }: { order: Order }) {
                 </div>
                 {/* Datos del Cliente Section */}
                 <div className="mb-6">
-                    <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                    <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Datos del cliente
                     </div>
                     <table className="w-full border-collapse border border-black text-xs">
@@ -176,7 +182,7 @@ export default function Print({ order }: { order: Order }) {
                 {/* Product Table */}
                 <div className="mb-6 print:mb-4">
                     <table className="w-full border-collapse border border-black text-xs uppercase font-bold">
-                        <thead className="bg-gray-500 text-white text-center">
+                        <thead style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center">
                             <tr>
                                 <th className="border border-black py-1 w-[60%]">
                                     Descripción
@@ -210,7 +216,7 @@ export default function Print({ order }: { order: Order }) {
                 </div>
                 {/* Observations */}
                 <div className="mb-10">
-                    <div className="bg-gray-500 text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
+                    <div style={{ backgroundColor: tenant?.primary_color || '#6b7280' }} className="text-white text-center py-1 font-bold text-sm uppercase mb-0.5">
                         Observaciones
                     </div>
                     <div className="border border-black min-h-[6rem] p-3 text-[13px] font-normal whitespace-pre-line">
@@ -228,42 +234,46 @@ export default function Print({ order }: { order: Order }) {
                         </div>
                     </div>
 
-                    <div className="mb-4 font-bold">
-                        www.pro-agroindustria.com
+                    <div className="mb-4 font-bold" style={{ color: tenant?.primary_color || '#312e81' }}>
+                        {tenant?.slug === 'proagro' ? 'www.pro-agroindustria.com' : (tenant?.domain || 'VECODE.COM')}
                     </div>
 
                     <div className="text-xs text-gray-700 flex justify-between items-end">
                         <div className="text-left space-y-1">
                             <div>
-                                Venta y cobranza:{" "}
+                                {tenant?.slug === 'proagro' ? 'Venta y cobranza:' : 'Contacto:'}
                                 <span className="ml-2">
-                                    oscar.mendez@pro-agroindustria.com
+                                    {tenant?.slug === 'proagro' ? 'oscar.mendez@pro-agroindustria.com' : `soporte@${tenant?.domain || 'vecode.com'}`}
                                 </span>
                             </div>
-                            <div>
-                                Asst. Adtvo.:{" "}
-                                <span className="ml-2">
-                                    jorge.robles@pro-agroindustria.com
-                                </span>
-                            </div>
-                            <div>
-                                Comercialización:{" "}
-                                <span className="ml-2">
-                                    ventas.comercializacion@pro-agroindustria.com
-                                </span>
-                            </div>
+                            {tenant?.slug === 'proagro' && (
+                                <>
+                                    <div>
+                                        Asst. Adtvo.:{" "}
+                                        <span className="ml-2">
+                                            jorge.robles@pro-agroindustria.com
+                                        </span>
+                                    </div>
+                                    <div>
+                                        Comercialización:{" "}
+                                        <span className="ml-2">
+                                            ventas.comercializacion@pro-agroindustria.com
+                                        </span>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         <div className="flex flex-col items-end">
                             {/* Small Logo Repeat */}
                             <div className="mb-2">
                                 <img
-                                    src="/img/Proagro2.png"
-                                    alt="Logo Proagroindustria"
+                                    src={tenant?.logo || "/images/logovecode.png"}
+                                    alt="Logo"
                                     className="h-8 object-contain"
                                 />
                             </div>
-                            <div className="mt-2 text-right">DCM-FO-001</div>
+                            <div className="mt-2 text-right">{tenant?.slug === 'proagro' ? 'DCM-FO-001' : 'VCD-SA-FO-001'}</div>
                         </div>
                     </div>
                 </div>

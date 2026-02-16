@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
                 'base_url' => '',
             ],
+            'tenant' => config('app.tenant'),
             'base_url' => '',
         ];
     }
