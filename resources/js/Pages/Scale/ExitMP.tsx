@@ -464,38 +464,40 @@ export default function ExitMP({
 
                     {/* RIGHT: Details */}
                     <div className="lg:col-span-8 space-y-6">
-                        {/* Warehouse Assignment Info (Read Only) */}
-                        <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
-                            <h3 className="text-lg font-bold text-blue-800 flex items-center mb-4">
-                                <Warehouse className="w-5 h-5 mr-2" />
-                                Asignación de Almacén (APT)
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <span className="block text-xs uppercase text-blue-400 font-bold">
-                                        Almacén
-                                    </span>
-                                    <div className="text-xl font-bold text-blue-900">
-                                        {order.warehouse}
+                        {/* Warehouse Assignment Info (Read Only) - Hide for Sales */}
+                        {order.type !== 'sale' && (
+                            <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+                                <h3 className="text-lg font-bold text-blue-800 flex items-center mb-4">
+                                    <Warehouse className="w-5 h-5 mr-2" />
+                                    Asignación de Almacén (APT)
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <span className="block text-xs uppercase text-blue-400 font-bold">
+                                            Almacén
+                                        </span>
+                                        <div className="text-xl font-bold text-blue-900">
+                                            {order.warehouse}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="block text-xs uppercase text-blue-400 font-bold">
+                                            Cubículo / Posición
+                                        </span>
+                                        <div className="text-xl font-bold text-blue-900">
+                                            {order.cubicle}
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <span className="block text-xs uppercase text-blue-400 font-bold">
-                                        Cubículo / Posición
-                                    </span>
-                                    <div className="text-xl font-bold text-blue-900">
-                                        {order.cubicle}
+                                {order.warehouse === "N/A" && (
+                                    <div className="mt-4 flex items-center text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200 text-sm">
+                                        <AlertCircle className="w-4 h-4 mr-2" />
+                                        Advertencia: No se ha asignado almacén en
+                                        APT. Verifique antes de dar salida.
                                     </div>
-                                </div>
+                                )}
                             </div>
-                            {order.warehouse === "N/A" && (
-                                <div className="mt-4 flex items-center text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200 text-sm">
-                                    <AlertCircle className="w-4 h-4 mr-2" />
-                                    Advertencia: No se ha asignado almacén en
-                                    APT. Verifique antes de dar salida.
-                                </div>
-                            )}
-                        </div>
+                        )}
 
                         {/* Order Info */}
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -518,7 +520,10 @@ export default function ExitMP({
                                 <div>
                                     <InputLabel value="Peso Programado" />
                                     <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 font-bold text-blue-800">
-                                        {order.programmed_weight ? `${order.programmed_weight} kg` : 'N/A'}
+                                        {order.type === 'sale'
+                                            ? (order.programmed_tons ? `${Number(order.programmed_tons).toLocaleString()} TM` : 'N/A')
+                                            : (order.programmed_weight ? `${Number(order.programmed_weight).toLocaleString()} kg` : 'N/A')
+                                        }
                                     </div>
                                 </div>
                                 <div>

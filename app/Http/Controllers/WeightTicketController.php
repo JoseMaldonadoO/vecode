@@ -367,21 +367,44 @@ class WeightTicketController extends Controller
             $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order'])
                 ->findOrFail($id);
 
+            $productName = 'N/A';
+            if ($order->product_id) {
+                $productName = $order->product->name ?? 'N/A';
+            }
+            if ($productName === 'N/A' && $order->shipment_order_id && $order->shipment_order) {
+                $productName = $order->shipment_order->product ?? 'N/A'; // snapshot
+                if ($productName === 'N/A') {
+                    $productName = $order->shipment_order->items->first()?->product->name ?? 'N/A';
+                }
+            }
+
+            // Programmed weight logic (consistent with index)
+            $progWeight = 0;
+            if ($order->shipment_order_id && $order->shipment_order) {
+                if ($order->shipment_order->programmed_tons > 0) {
+                    $progWeight = $order->shipment_order->programmed_tons * 1000; // Tons to KG for display
+                } else {
+                    $progWeight = $order->shipment_order->items->sum('requested_quantity') ?? 0; // Already in KG
+                }
+            }
+
             $orderData = [
                 'id' => $order->id,
                 'folio' => $order->folio,
-                'provider' => $order->client_name ?? ($order->client->name ?? ($order->vessel->client->name ?? 'N/A')),
-                'product' => is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A'),
-                'driver' => $order->operator_name ?? $order->driver->name ?? 'N/A',
-                'vehicle_plate' => $order->tractor_plate ?? $order->vehicle->plate ?? 'N/A',
-                'trailer_plate' => $order->trailer_plate ?? $order->vehicle->trailer_plate ?? 'N/A',
-                'transport_line' => $order->transport_company ?? $order->transporter->name ?? 'N/A',
-                'entry_weight' => $order->weight_ticket->tare_weight ?? 0, // Actually Gross Weight in "Full -> Empty" flow, but stored as tare_weight for now
+                'provider' => $order->client_name ?? ($order->client->business_name ?? ($order->client->name ?? 'N/A')),
+                'product' => $productName,
+                'driver' => $order->operator_name ?? ($order->driver->name ?? 'N/A'),
+                'vehicle_plate' => $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A'),
+                'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
+                'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
+                'entry_weight' => $order->weight_ticket->tare_weight ?? 0,
                 'warehouse' => $order->warehouse ?? 'N/A',
                 'cubicle' => $order->cubicle ?? 'N/A',
-                'reference' => $order->reference ?? '',
-                'consignee' => $order->consignee ?? '',
-                'programmed_weight' => $order->shipment_order->programmed_weight ?? 0,
+                'reference' => $order->reference ?? ($order->request_id ?? ''),
+                'consignee' => $order->consignee ?? ($order->consigned_to ?? ''),
+                'programmed_weight' => $progWeight,
+                'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+                'programmed_tons' => $order->shipment_order->programmed_tons ?? 0,
             ];
         }
 
