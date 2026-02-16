@@ -340,7 +340,7 @@ export default function Index({
                                             {/* Col 1: Removed Type */}
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider rounded-tl-lg">Folio</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente / Chofer</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Línea de Transporte</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
                                             {/* Removed Peso Entrada */}
                                             {operationType === 'sale' && (
