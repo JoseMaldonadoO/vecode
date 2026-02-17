@@ -82,7 +82,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
             'Producto',
             'Almacén',
             'Cubículo',
-            'Peso Neto (kg)',
+            'Peso Neto (TM)',
             'Tipo Op.',
             'Estatus'
         ];
@@ -100,7 +100,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
             $order->product_name,
             $order->warehouse,
             $order->cubicle,
-            $order->net_weight,
+            $order->net_weight / 1000,
             ucfirst($order->operation_type ?? 'Báscula'),
             ucfirst($order->status)
         ];
