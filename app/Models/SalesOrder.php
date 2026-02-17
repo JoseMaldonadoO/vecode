@@ -26,10 +26,6 @@ class SalesOrder extends Model
         return $this->hasMany(ShipmentOrder::class);
     }
 
-    public function loading_orders()
-    {
-        return $this->hasMany(LoadingOrder::class);
-    }
 
     public function weight_tickets()
     {
@@ -47,21 +43,26 @@ class SalesOrder extends Model
     {
         $total = 0;
 
-        // Use all individual trips (LoadingOrders) as the source of truth for weights
-        $trips = $this->loading_orders()
-            ->with(['weight_ticket'])
+        // Traverse: SalesOrder -> ShipmentOrder -> LoadingOrder -> WeightTicket
+        // This is the most robust path as shipment_order_id is always present.
+        $shipments = $this->shipments()
+            ->with(['loadingOrders.weight_ticket'])
             ->where('status', '!=', 'cancelled')
             ->get();
 
-        foreach ($trips as $trip) {
-            if ($trip->weight_ticket) {
-                if ($trip->weight_ticket->weighing_status === 'completed') {
-                    // 1. Completed: Use actual Net Weight from Scale (KG/1000)
-                    $total += ($trip->weight_ticket->net_weight / 1000);
-                } else {
-                    // 2. In Yard (Tared but not exit yet): Use programmed weight as reservation
-                    // Units: programmed_tons is already in TM.
-                    $total += (float) ($trip->programmed_tons ?: ($trip->shipment_order->programmed_tons ?? 0));
+        foreach ($shipments as $shipment) {
+            foreach ($shipment->loadingOrders as $trip) {
+                if ($trip->status === 'cancelled')
+                    continue;
+
+                if ($trip->weight_ticket) {
+                    if ($trip->weight_ticket->weighing_status === 'completed') {
+                        // 1. Completed: Use actual Net Weight from Scale (KG/1000)
+                        $total += ($trip->weight_ticket->net_weight / 1000);
+                    } else {
+                        // 2. In Yard (Tared but not exit yet): Use programmed weight as reservation
+                        $total += (float) ($trip->programmed_tons ?: ($shipment->programmed_tons ?? 0));
+                    }
                 }
             }
         }
