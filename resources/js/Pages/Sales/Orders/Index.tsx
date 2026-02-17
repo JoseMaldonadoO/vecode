@@ -8,9 +8,9 @@ import {
     CheckCircle,
     X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Modal from "@/Components/Modal";
-import { Truck } from "lucide-react";
+import { Truck, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Client {
     id: number;
@@ -65,6 +65,8 @@ export default function Index({
     const [search, setSearch] = useState("");
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [currentTripPage, setCurrentTripPage] = useState(1);
+    const tripsPerPage = 10;
 
     useEffect(() => {
         if (flash?.success) {
@@ -97,6 +99,25 @@ export default function Index({
                 .toLowerCase()
                 .includes(search.toLowerCase())
     );
+
+    // Trip Pagination Logic
+    const paginatedTrips = useMemo(() => {
+        if (!selectedOrder) return [];
+        const activeTrips = selectedOrder.loading_orders.filter(t => t.status !== 'cancelled');
+        const startIndex = (currentTripPage - 1) * tripsPerPage;
+        return activeTrips.slice(startIndex, startIndex + tripsPerPage);
+    }, [selectedOrder, currentTripPage]);
+
+    const totalTripPages = useMemo(() => {
+        if (!selectedOrder) return 0;
+        const activeTrips = selectedOrder.loading_orders.filter(t => t.status !== 'cancelled');
+        return Math.ceil(activeTrips.length / tripsPerPage);
+    }, [selectedOrder]);
+
+    const handleOpenBreakdown = (order: Order) => {
+        setSelectedOrder(order);
+        setCurrentTripPage(1);
+    };
 
     return (
         <DashboardLayout user={auth.user} header="Órdenes de Venta">
@@ -242,7 +263,7 @@ export default function Index({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
                                                 <button
-                                                    onClick={() => setSelectedOrder(order)}
+                                                    onClick={() => handleOpenBreakdown(order)}
                                                     className="hover:underline flex items-center justify-center mx-auto"
                                                 >
                                                     {formatter.format(Number(order.loaded_quantity))} TM
@@ -308,74 +329,133 @@ export default function Index({
                 </div>
             </div>
 
-            <Modal show={!!selectedOrder} onClose={() => setSelectedOrder(null)} maxWidth="4xl">
-                <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-xl font-bold text-indigo-900 flex items-center">
-                            <Truck className="mr-2 h-6 w-6 text-indigo-600" />
-                            Desglose de Viajes: {selectedOrder?.folio}
-                        </h3>
-                        <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600">
-                            <X className="w-6 h-6" />
-                        </button>
+            <Modal show={!!selectedOrder} onClose={() => setSelectedOrder(null)} maxWidth="5xl">
+                <div className="flex flex-col max-h-[85vh]">
+                    {/* Header - Sticky */}
+                    <div className="p-6 border-b border-gray-100 bg-indigo-50/50 sticky top-0 z-10">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <h3 className="text-xl font-extrabold text-indigo-900 flex items-center mb-1">
+                                    <Truck className="mr-3 h-7 w-7 text-indigo-600" />
+                                    Desglose de Viajes: {selectedOrder?.folio}
+                                </h3>
+                                <p className="text-indigo-700/70 text-sm font-medium">
+                                    {selectedOrder?.client?.business_name} • {selectedOrder?.product?.name}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedOrder(null)}
+                                className="p-2 transition-colors hover:bg-white rounded-full text-gray-400 hover:text-indigo-600"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Summary Info in Header */}
+                        <div className="grid grid-cols-3 gap-4 mt-4">
+                            <div className="bg-white/60 p-3 rounded-lg border border-indigo-100 flex flex-col items-center">
+                                <span className="text-[10px] uppercase font-bold text-indigo-400">Solicitado</span>
+                                <span className="text-lg font-black text-indigo-900">{formatter.format(selectedOrder?.total_quantity || 0)} TM</span>
+                            </div>
+                            <div className="bg-white/60 p-3 rounded-lg border border-emerald-100 flex flex-col items-center">
+                                <span className="text-[10px] uppercase font-bold text-emerald-400">Total Cargado</span>
+                                <span className="text-lg font-black text-emerald-700">{formatter.format(selectedOrder?.loaded_quantity || 0)} TM</span>
+                            </div>
+                            <div className="bg-white/60 p-3 rounded-lg border border-amber-100 flex flex-col items-center">
+                                <span className="text-[10px] uppercase font-bold text-amber-400">Saldo</span>
+                                <span className="text-lg font-black text-amber-700">{formatter.format(selectedOrder?.balance || 0)} TM</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="overflow-hidden border border-gray-200 rounded-lg">
+                    {/* Table Body - Scrollable */}
+                    <div className="flex-1 overflow-y-auto p-0">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-white sticky top-0 z-20 shadow-sm">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">O. Embarque</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Viaje / Ticket</th>
-                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Operador / Línea</th>
-                                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
-                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Peso Cargado (TM)</th>
+                                    <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">O. Embarque</th>
+                                    <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Viaje / Ticket</th>
+                                    <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Operador</th>
+                                    <th className="px-6 py-3 text-center text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Estatus Báscula</th>
+                                    <th className="px-6 py-3 text-right text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50 border-l border-indigo-50">Peso (TM)</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {selectedOrder?.loading_orders && selectedOrder.loading_orders.length > 0 ? (
-                                    selectedOrder.loading_orders
-                                        .filter(t => t.status !== 'cancelled')
-                                        .map((trip) => {
-                                            const isCompleted = trip.weight_ticket?.weighing_status === 'completed';
-                                            const weight = isCompleted
-                                                ? (trip.weight_ticket?.net_weight || 0) / 1000
-                                                : (trip.programmed_tons || 0);
+                            <tbody className="bg-white divide-y divide-gray-100">
+                                {paginatedTrips.length > 0 ? (
+                                    paginatedTrips.map((trip) => {
+                                        const isCompleted = trip.weight_ticket?.weighing_status === 'completed';
+                                        const weight = isCompleted
+                                            ? (trip.weight_ticket?.net_weight || 0) / 1000
+                                            : (trip.programmed_tons || 0);
 
-                                            return (
-                                                <tr key={trip.id} className="hover:bg-gray-50">
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-indigo-900">
-                                                        {trip.shipment_order?.folio || 'N/A'}
-                                                    </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                                                        <div className="font-bold">{trip.folio}</div>
-                                                        <div className="text-xs text-gray-500">{trip.weight_ticket?.ticket_number ? `Ticket: ${trip.weight_ticket.ticket_number}` : 'Sin Ticket'}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                                                        <div className="font-medium">{trip.driver?.name || 'N/A'}</div>
-                                                        <div className="text-xs text-gray-500">{trip.transporter?.name || 'CP'}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-center">
-                                                        <div className={`text-xs font-bold px-2 py-1 rounded-full inline-block
-                                                            ${isCompleted ? 'bg-green-100 text-green-800' :
-                                                                trip.weight_ticket ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
-                                                            {trip.weight_ticket?.weighing_status ? trip.weight_ticket.weighing_status.toUpperCase() : 'PENDIENTE'}
-                                                        </div>
-                                                        <div className="text-[10px] text-gray-400 mt-1 uppercase">{trip.status}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-right text-emerald-700">
-                                                        {formatter.format(weight)} TM
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
+                                        return (
+                                            <tr key={trip.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-800">
+                                                    {trip.shipment_order?.folio || 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="text-sm font-black text-gray-900">{trip.folio}</div>
+                                                    <div className="text-[10px] font-bold text-indigo-400 flex items-center">
+                                                        <FileText className="w-3 h-3 mr-1" />
+                                                        {trip.weight_ticket?.ticket_number || 'SIN TICKET'}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="text-sm font-bold text-gray-700 group-hover:text-indigo-900 transition-colors uppercase">{trip.driver?.name || '---'}</div>
+                                                    <div className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">{trip.transporter?.name || 'FLOTA INTERNA'}</div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-black inline-flex items-center shadow-sm 
+                                                        ${isCompleted ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                                                            trip.weight_ticket ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                                                                'bg-gray-100 text-gray-400 border border-gray-200'}`}>
+                                                        {isCompleted && <CheckCircle className="w-3 h-3 mr-1" />}
+                                                        {trip.weight_ticket?.weighing_status ? trip.weight_ticket.weighing_status.toUpperCase() : 'PENDIENTE'}
+                                                    </div>
+                                                    <div className="text-[10px] text-indigo-300 font-bold mt-1 uppercase tracking-tighter">{trip.status}</div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-right text-emerald-700 bg-emerald-50/10 border-l border-indigo-50">
+                                                    {formatter.format(weight)} TM
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 ) : (
                                     <tr>
-                                        <td colSpan={5} className="px-4 py-8 text-center text-gray-500 italic">No hay viajes registrados para esta orden</td>
+                                        <td colSpan={5} className="px-6 py-16 text-center text-gray-400 italic font-medium">
+                                            <Truck className="w-12 h-12 mx-auto mb-4 opacity-10" />
+                                            No se encontraron viajes activos
+                                        </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Footer / Pagination - Fixed */}
+                    {totalTripPages > 1 && (
+                        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between rounded-b-lg shrink-0">
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                Página {currentTripPage} de {totalTripPages}
+                            </span>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setCurrentTripPage(p => Math.max(1, p - 1))}
+                                    disabled={currentTripPage === 1}
+                                    className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={() => setCurrentTripPage(p => Math.min(totalTripPages, p + 1))}
+                                    disabled={currentTripPage === totalTripPages}
+                                    className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </Modal>
         </DashboardLayout>
