@@ -26,6 +26,11 @@ class SalesOrder extends Model
         return $this->hasMany(ShipmentOrder::class);
     }
 
+    public function loading_orders()
+    {
+        return $this->hasMany(LoadingOrder::class);
+    }
+
     public function weight_tickets()
     {
         return $this->hasManyThrough(
@@ -42,25 +47,23 @@ class SalesOrder extends Model
     {
         $total = 0;
 
-        // Iterate through all shipment orders (Ordenes de Embarque) 
-        // to aggregate actual scale weights or yard reservations.
-        $shipments = $this->shipments()
+        // Use all individual trips (LoadingOrders) as the source of truth for weights
+        $trips = $this->loading_orders()
             ->with(['weight_ticket'])
             ->where('status', '!=', 'cancelled')
             ->get();
 
-        foreach ($shipments as $shipment) {
-            if ($shipment->weight_ticket) {
-                if ($shipment->weight_ticket->weighing_status === 'completed') {
+        foreach ($trips as $trip) {
+            if ($trip->weight_ticket) {
+                if ($trip->weight_ticket->weighing_status === 'completed') {
                     // 1. Completed: Use actual Net Weight from Scale (KG/1000)
-                    $total += ($shipment->weight_ticket->net_weight / 1000);
+                    $total += ($trip->weight_ticket->net_weight / 1000);
                 } else {
-                    // 2. In Yard (Entry scale done, but not exit): 
-                    // Use programmed weight as a reservation for the order balance.
-                    $total += (float) ($shipment->programmed_tons ?: 0);
+                    // 2. In Yard (Tared but not exit yet): Use programmed weight as reservation
+                    // Units: programmed_tons is already in TM.
+                    $total += (float) ($trip->programmed_tons ?: ($trip->shipment_order->programmed_tons ?? 0));
                 }
             }
-            // 3. Programmed but NOT in yard: Ignore (Weight is not yet deducted from OV balance)
         }
 
         return (float) $total;
