@@ -40,35 +40,30 @@ class SalesOrder extends Model
 
     public function getLoadedQuantityAttribute()
     {
-        // 1. Get ALL ENVASADO shipments (Immediate deduction based on program)
-        $envasado = $this->shipments()
-            ->where('presentation', 'ENVASADO')
-            ->where('status', '!=', 'cancelled') // Exclude cancelled
-            ->sum('programmed_tons') ?: 0;
+        $total = 0;
 
-        // 2. Get ALL GRANEL shipments (Only if they have started the weight process)
-        $granelTotal = 0;
-        $granelShipments = $this->shipments()
+        // Iterate through all shipment orders (Ordenes de Embarque) 
+        // to aggregate actual scale weights or yard reservations.
+        $shipments = $this->shipments()
             ->with(['weight_ticket'])
-            ->where('presentation', 'GRANEL')
             ->where('status', '!=', 'cancelled')
             ->get();
 
-        foreach ($granelShipments as $shipment) {
+        foreach ($shipments as $shipment) {
             if ($shipment->weight_ticket) {
                 if ($shipment->weight_ticket->weighing_status === 'completed') {
-                    // Use ACTUAL net weight (convert from KG to Tons)
-                    $granelTotal += ($shipment->weight_ticket->net_weight / 1000);
+                    // 1. Completed: Use actual Net Weight from Scale (KG/1000)
+                    $total += ($shipment->weight_ticket->net_weight / 1000);
                 } else {
-                    // In progress (tared but not grossed yet): Use PROGRAMMED weight as reservation
-                    // Unit fix: programmed_tons is already in Tons.
-                    $granelTotal += (float) ($shipment->programmed_tons ?: 0);
+                    // 2. In Yard (Entry scale done, but not exit): 
+                    // Use programmed weight as a reservation for the order balance.
+                    $total += (float) ($shipment->programmed_tons ?: 0);
                 }
             }
-            // If No Weight Ticket: Do NOT discount (user said: "una vez que se destare")
+            // 3. Programmed but NOT in yard: Ignore (Weight is not yet deducted from OV balance)
         }
 
-        return (float) ($envasado + $granelTotal);
+        return (float) $total;
     }
 
     public function getBalanceAttribute()
