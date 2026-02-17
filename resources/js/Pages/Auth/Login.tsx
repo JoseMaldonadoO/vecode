@@ -39,12 +39,7 @@ export default function Login({
                 style={{ backgroundImage: "url('/images/login-bg.jpg')" }}
             >
                 {/* Premium Gradient Overlay */}
-                <div
-                    className="absolute inset-0 backdrop-blur-[2px]"
-                    style={{
-                        background: `linear-gradient(to bottom right, ${tenant?.primary_color || '#1e3a8a'}66, ${tenant?.secondary_color || '#0f172a'}33, ${tenant?.primary_color || '#312e81'}66)`
-                    }}
-                ></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-slate-900/20 to-indigo-900/40 backdrop-blur-[2px]"></div>
             </div>
 
             {/* Glass Card */}
@@ -67,7 +62,7 @@ export default function Login({
                             </div>
                         </div>
                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                            Bienvenido a <span style={{ color: tenant?.secondary_color || '#2563eb' }}>VECODE</span>
+                            Bienvenido a <span className="text-blue-600">VECODE</span>
                         </h2>
                         <p className="text-slate-500 font-medium text-sm">
                             {tenant?.name || 'Sistema Integral de Operaciones Portuarias'}
@@ -149,10 +144,7 @@ export default function Login({
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="group w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                                style={{
-                                    background: `linear-gradient(to right, ${tenant?.primary_color || '#2563eb'}, ${tenant?.secondary_color || '#4f46e5'})`
-                                }}
+                                className="group w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-lg shadow-blue-500/30 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                             >
                                 {processing ? (
                                     <>
