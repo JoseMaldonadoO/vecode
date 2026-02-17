@@ -42,7 +42,8 @@ export default function EntryMP({
 
     // Serial Port Refs
     const portRef = useRef<any>(null);
-    const readerRef = useRef<any>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const isReadingRef = useRef(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         shipment_order_id: "",
@@ -107,8 +108,13 @@ export default function EntryMP({
     // Cleanup serial port on unmount
     useEffect(() => {
         return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
             if (portRef.current) {
-                portRef.current.close().catch(console.error);
+                const port = portRef.current;
+                // We don't await here to avoid blocking unmount
+                port.close().catch((err: any) => console.error("Close error on unmount:", err));
             }
         };
     }, []);
@@ -118,46 +124,79 @@ export default function EntryMP({
     };
 
     const handleSerialConnect = async () => {
-        if ("serial" in navigator) {
-            try {
-                const port = await (navigator as any).serial.requestPort();
-                await port.open({ baudRate: 9600 });
-                setIsConnected(true);
+        if (!("serial" in navigator)) {
+            alert("API Web Serial no soportada en este navegador.");
+            return;
+        }
+
+        try {
+            let port = portRef.current;
+
+            if (!port) {
+                port = await (navigator as any).serial.requestPort();
                 portRef.current = port;
-                const textDecoder = new TextDecoderStream();
-                const readableStreamClosed = port.readable.pipeTo(
-                    textDecoder.writable,
-                );
-                const reader = textDecoder.readable.getReader();
-                readerRef.current = reader;
-                let buffer = "";
+            }
+
+            if (port.readable && isReadingRef.current) {
+                console.log("Ya leyendo de la báscula...");
+                return;
+            }
+
+            // Abort previous read if any
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+            abortControllerRef.current = new AbortController();
+            const signal = abortControllerRef.current.signal;
+
+            try {
+                if (!port.opened) {
+                    await port.open({ baudRate: 9600 });
+                }
+            } catch (err: any) {
+                if (err.name !== 'InvalidStateError') throw err;
+            }
+
+            setIsConnected(true);
+            isReadingRef.current = true;
+
+            const textDecoder = new TextDecoderStream();
+            const readableStreamClosed = port.readable.pipeTo(textDecoder.writable, { signal });
+            const reader = textDecoder.readable.getReader();
+
+            let buffer = "";
+            console.log("Iniciando lectura de báscula...");
+
+            try {
                 while (true) {
                     const { value, done } = await reader.read();
-                    if (done) break;
+                    if (done || signal.aborted) break;
                     if (value) {
                         buffer += value;
                         if (buffer.includes("\n") || buffer.includes("\r")) {
                             const match = buffer.match(/(\d+(?:\.\d+)?)/);
-                            if (match) setWeight(parseFloat(match[1]));
+                            if (match) {
+                                const newWeight = parseFloat(match[1]);
+                                setWeight(newWeight);
+                            }
                             buffer = "";
                         }
                     }
                 }
-            } catch (error: any) {
-                if (error.name === 'NotFoundError') {
-                    // User cancelled the selection, ignore
-                    console.log('User cancelled serial port selection');
-                    return;
-                }
-                if (error.name === 'InvalidStateError') {
-                    console.log("Port already open, ignoring.");
-                    return;
-                }
-                console.error("Error connecting to serial port:", error);
-                alert("Error al conectar con la báscula. Verifique la conexión.");
+            } finally {
+                reader.releaseLock();
+                isReadingRef.current = false;
+                console.log("Lectura finalizada / Puerto liberado.");
             }
-        } else {
-            alert("API Web Serial no soportada.");
+
+        } catch (error: any) {
+            isReadingRef.current = false;
+            if (error.name === 'NotFoundError' || error.name === 'AbortError') {
+                return;
+            }
+            console.error("Error en conexión serial:", error);
+            setIsConnected(false);
+            alert("Error al conectar con la báscula: " + error.message);
         }
     };
 
