@@ -3,6 +3,8 @@ import TextInput from "@/Components/TextInput";
 import { Head, useForm } from "@inertiajs/react";
 import { FormEventHandler, useState } from "react";
 import { User, Lock, ArrowRight, Loader2, Anchor } from "lucide-react";
+import Swal from "sweetalert2";
+import { useEffect } from "react";
 
 export default function Login({
     status,
@@ -28,6 +30,18 @@ export default function Login({
             onFinish: () => reset("password"),
         });
     };
+
+    // Show alert on login errors
+    useEffect(() => {
+        if (errors && Object.keys(errors).length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Acceso',
+                text: errors.username || errors.password || 'Credenciales incorrectas.',
+                confirmButtonColor: '#2563eb',
+            });
+        }
+    }, [errors]);
 
     return (
         <div className="relative min-h-screen w-full overflow-hidden flex items-center justify-center">

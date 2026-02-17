@@ -78,18 +78,18 @@
   select,
   textarea,
   [role="button"] {
-    cursor: url('/VECODE/images/cursor.png?v=3') 12 12, url('/images/cursor.png?v=3') 12 12, pointer;
+    cursor: url('/images/cursor.png?v=3') 12 12, pointer;
   }
 
   body {
     @apply bg-background text-foreground;
-    cursor: url('/VECODE/images/cursor.png?v=3') 12 12, url('/images/cursor.png?v=3') 12 12, auto;
+    cursor: url('/images/cursor.png?v=3') 12 12, auto;
   }
 
   /* Sidebar Cursor - Monochromatic White */
   .sidebar-container,
   .sidebar-container * {
-    cursor: url('/VECODE/images/cursor-white.png?v=3') 12 12, url('/images/cursor-white.png?v=3') 12 12, pointer !important;
+    cursor: url('/images/cursor-white.png?v=3') 12 12, pointer !important;
   }
 
   /* Hide number input spin buttons */

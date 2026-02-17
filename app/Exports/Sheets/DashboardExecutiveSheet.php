@@ -38,7 +38,7 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
     public function drawings()
     {
         $drawings = [];
-        $tenant = app('tenant');
+        $tenant = config('app.tenant');
 
         // Logo VECODE (System)
         if (file_exists(public_path('images/Logo_vde.png'))) {
@@ -178,7 +178,7 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
 
     public function styles(Worksheet $sheet)
     {
-        $tenant = app('tenant');
+        $tenant = config('app.tenant');
         $primaryColor = $tenant ? str_replace('#', '', $tenant->primary_color) : '1e3a8a';
         $secondaryColor = $tenant ? str_replace('#', '', $tenant->secondary_color) : 'bfdbfe';
 
