@@ -18,7 +18,7 @@ class SalesController extends Controller
      */
     public function ordersIndex(Request $request)
     {
-        $orders = \App\Models\SalesOrder::with(['client', 'product', 'shipments.weight_ticket'])
+        $orders = \App\Models\SalesOrder::with(['client', 'product', 'loading_orders.weight_ticket', 'loading_orders.shipment_order', 'loading_orders.driver', 'loading_orders.transporter'])
             ->orderBy('created_at', 'desc')
             ->get();
 

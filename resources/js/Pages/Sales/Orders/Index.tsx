@@ -9,6 +9,8 @@ import {
     X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import Modal from "@/Components/Modal";
+import { Truck } from "lucide-react";
 
 interface Client {
     id: number;
@@ -29,6 +31,26 @@ interface Order {
     balance: number;
     status: string;
     created_at: string;
+    loading_orders: Array<{
+        id: string;
+        folio: string;
+        status: string;
+        programmed_tons?: number;
+        shipment_order?: {
+            folio: string;
+        };
+        driver?: {
+            name: string;
+        };
+        transporter?: {
+            name: string;
+        };
+        weight_ticket?: {
+            ticket_number: string;
+            net_weight: number;
+            weighing_status: string;
+        };
+    }>;
 }
 
 export default function Index({
@@ -42,6 +64,7 @@ export default function Index({
 }) {
     const [search, setSearch] = useState("");
     const [showAlert, setShowAlert] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     useEffect(() => {
         if (flash?.success) {
@@ -218,7 +241,13 @@ export default function Index({
                                                 {formatter.format(Number(order.total_quantity))} TM
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
-                                                {formatter.format(Number(order.loaded_quantity))} TM
+                                                <button
+                                                    onClick={() => setSelectedOrder(order)}
+                                                    className="hover:underline flex items-center justify-center mx-auto"
+                                                >
+                                                    {formatter.format(Number(order.loaded_quantity))} TM
+                                                    <Truck className="w-3 h-3 ml-1 opacity-50" />
+                                                </button>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
                                                 {formatter.format(Number(order.balance))} TM
@@ -278,6 +307,77 @@ export default function Index({
                     </div>
                 </div>
             </div>
+
+            <Modal show={!!selectedOrder} onClose={() => setSelectedOrder(null)} maxWidth="4xl">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-xl font-bold text-indigo-900 flex items-center">
+                            <Truck className="mr-2 h-6 w-6 text-indigo-600" />
+                            Desglose de Viajes: {selectedOrder?.folio}
+                        </h3>
+                        <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600">
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    <div className="overflow-hidden border border-gray-200 rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">O. Embarque</th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Viaje / Ticket</th>
+                                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Operador / Línea</th>
+                                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Estatus</th>
+                                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Peso Cargado (TM)</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {selectedOrder?.loading_orders && selectedOrder.loading_orders.length > 0 ? (
+                                    selectedOrder.loading_orders
+                                        .filter(t => t.status !== 'cancelled')
+                                        .map((trip) => {
+                                            const isCompleted = trip.weight_ticket?.weighing_status === 'completed';
+                                            const weight = isCompleted
+                                                ? (trip.weight_ticket?.net_weight || 0) / 1000
+                                                : (trip.programmed_tons || 0);
+
+                                            return (
+                                                <tr key={trip.id} className="hover:bg-gray-50">
+                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-indigo-900">
+                                                        {trip.shipment_order?.folio || 'N/A'}
+                                                    </td>
+                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                                                        <div className="font-bold">{trip.folio}</div>
+                                                        <div className="text-xs text-gray-500">{trip.weight_ticket?.ticket_number ? `Ticket: ${trip.weight_ticket.ticket_number}` : 'Sin Ticket'}</div>
+                                                    </td>
+                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                        <div className="font-medium">{trip.driver?.name || 'N/A'}</div>
+                                                        <div className="text-xs text-gray-500">{trip.transporter?.name || 'CP'}</div>
+                                                    </td>
+                                                    <td className="px-4 py-3 whitespace-nowrap text-center">
+                                                        <div className={`text-xs font-bold px-2 py-1 rounded-full inline-block
+                                                            ${isCompleted ? 'bg-green-100 text-green-800' :
+                                                                trip.weight_ticket ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+                                                            {trip.weight_ticket?.weighing_status ? trip.weight_ticket.weighing_status.toUpperCase() : 'PENDIENTE'}
+                                                        </div>
+                                                        <div className="text-[10px] text-gray-400 mt-1 uppercase">{trip.status}</div>
+                                                    </td>
+                                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-right text-emerald-700">
+                                                        {formatter.format(weight)} TM
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                ) : (
+                                    <tr>
+                                        <td colSpan={5} className="px-4 py-8 text-center text-gray-500 italic">No hay viajes registrados para esta orden</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </Modal>
         </DashboardLayout>
     );
 }
