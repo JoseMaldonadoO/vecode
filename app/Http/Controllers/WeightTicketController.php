@@ -660,6 +660,12 @@ class WeightTicketController extends Controller
             DB::transaction(function () use ($validated) {
                 $shipmentOrderId = !empty($validated['shipment_order_id']) ? $validated['shipment_order_id'] : null;
 
+                // Retrieve Sales Order ID from Shipment Order if possible
+                $salesOrderId = null;
+                if ($shipmentOrderId) {
+                    $salesOrderId = \App\Models\ShipmentOrder::where('id', $shipmentOrderId)->value('sales_order_id');
+                }
+
                 // Ensure nullable integer fields are strictly NULL if empty
                 $vesselId = !empty($validated['vessel_id']) ? $validated['vessel_id'] : null;
                 $productId = !empty($validated['product_id']) ? $validated['product_id'] : null;
@@ -696,7 +702,8 @@ class WeightTicketController extends Controller
                     'status' => 'loading', // or 'weighing_in'
                     'entry_at' => now(),
 
-                    // Link to Sales/Export Doc if provided
+                    // Link to Commercial Orders
+                    'sales_order_id' => $salesOrderId,
                     'shipment_order_id' => $shipmentOrderId,
 
                     // Snapshot Fields
