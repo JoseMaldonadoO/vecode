@@ -73,7 +73,7 @@ class SalesOrder extends Model
                         $total += ($trip->weight_ticket->net_weight / 1000);
                     } else {
                         // 2. In Yard (Tared but not exit yet): Use programmed weight as reservation
-                        $total += (float) ($trip->programmed_tons ?: ($shipment->programmed_tons ?? 0));
+                        $total += (float) ($trip->programmed_tons ?? 0);
                     }
                 }
             }
