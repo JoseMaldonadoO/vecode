@@ -388,6 +388,17 @@ export default function Index({
                                             ? (trip.weight_ticket?.net_weight || 0) / 1000
                                             : (trip.programmed_tons || 0);
 
+                                        const getStatusTranslation = (status: string) => {
+                                            const translations: Record<string, string> = {
+                                                'created': 'CREADO',
+                                                'in_progress': 'EN CURSO',
+                                                'completed': 'COMPLETADO',
+                                                'cancelled': 'CANCELADO',
+                                                'pending': 'PENDIENTE',
+                                            };
+                                            return translations[status.toLowerCase()] || status.toUpperCase();
+                                        };
+
                                         return (
                                             <tr key={trip.id} className="hover:bg-indigo-50/30 transition-colors group">
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-800">
@@ -410,9 +421,11 @@ export default function Index({
                                                             trip.weight_ticket ? 'bg-amber-100 text-amber-800 border border-amber-200' :
                                                                 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
                                                         {isCompleted && <CheckCircle className="w-3 h-3 mr-1" />}
-                                                        {trip.weight_ticket?.weighing_status ? trip.weight_ticket.weighing_status.toUpperCase() : 'PENDIENTE'}
+                                                        {trip.weight_ticket?.weighing_status ? getStatusTranslation(trip.weight_ticket.weighing_status) : 'PENDIENTE'}
                                                     </div>
-                                                    <div className="text-[10px] text-indigo-300 font-bold mt-1 uppercase tracking-tighter">{trip.status}</div>
+                                                    <div className="text-[10px] text-indigo-300 font-bold mt-1 uppercase tracking-tighter">
+                                                        {getStatusTranslation(trip.status)}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-right text-emerald-700 bg-emerald-50/10 border-l border-indigo-50">
                                                     {formatter.format(weight)} TM
