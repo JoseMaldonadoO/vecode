@@ -18,15 +18,9 @@ class SalesController extends Controller
      */
     public function ordersIndex(Request $request)
     {
-        $orders = \App\Models\SalesOrder::with(['client', 'product'])
-            ->withSum('weight_tickets as loaded_quantity', 'net_weight')
+        $orders = \App\Models\SalesOrder::with(['client', 'product', 'shipments.weight_ticket'])
             ->orderBy('created_at', 'desc')
             ->get();
-
-        $orders->each(function ($order) {
-            $order->loaded_quantity = $order->loaded_quantity ?? 0;
-            $order->balance = max(0, $order->total_quantity - $order->loaded_quantity);
-        });
 
         return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,

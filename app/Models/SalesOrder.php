@@ -46,26 +46,26 @@ class SalesOrder extends Model
             ->where('status', '!=', 'cancelled') // Exclude cancelled
             ->sum('programmed_tons') ?: 0;
 
-        // 2. Get ALL GRANEL shipments (Weighed OR Programmed)
+        // 2. Get ALL GRANEL shipments (Only if they have started the weight process)
+        $granelTotal = 0;
         $granelShipments = $this->shipments()
-            ->with(['weight_ticket']) // Eager load weight ticket
+            ->with(['weight_ticket'])
             ->where('presentation', 'GRANEL')
-            ->where('status', '!=', 'cancelled') // Exclude cancelled
+            ->where('status', '!=', 'cancelled')
             ->get();
 
-        $granelTotal = 0;
-
         foreach ($granelShipments as $shipment) {
-            // Check if we have a VALID weight ticket with net_weight > 0
-            if ($shipment->weight_ticket && $shipment->weight_ticket->net_weight > 0) {
-                // Use ACTUAL weight (converted from KG to Tons)
-                $granelTotal += ($shipment->weight_ticket->net_weight / 1000);
-            } else {
-                // Use PROGRAMMED weight as placeholder (reservation)
-                // This ensures the balance drops immediately upon creating the order
-                // Convert KG to Tons (1 Ton = 1000 KG)
-                $granelTotal += (($shipment->programmed_tons ?: 0) / 1000);
+            if ($shipment->weight_ticket) {
+                if ($shipment->weight_ticket->weighing_status === 'completed') {
+                    // Use ACTUAL net weight (convert from KG to Tons)
+                    $granelTotal += ($shipment->weight_ticket->net_weight / 1000);
+                } else {
+                    // In progress (tared but not grossed yet): Use PROGRAMMED weight as reservation
+                    // Unit fix: programmed_tons is already in Tons.
+                    $granelTotal += (float) ($shipment->programmed_tons ?: 0);
+                }
             }
+            // If No Weight Ticket: Do NOT discount (user said: "una vez que se destare")
         }
 
         return (float) ($envasado + $granelTotal);
