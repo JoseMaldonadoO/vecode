@@ -87,6 +87,16 @@ Utilizado cuando se aligera un barco o se mueve carga desde una ubicación exter
     -   *Recálculo Final*: El sistema actualiza automáticamente todos los tickets de Burreo con este valor final (Asignación Directa), sobreescribiendo el provisional.
     -   *Nota*: Anteriormente se dividía un total, pero se cambió la reglas para asignar directamente el peso ingresado a cada ticket.
 
+### Flujo 3: Producto Envasado (Venta/Carga Bypass)
+Aplicable a Órdenes de Embarque (OE) de productos envasados (Sacos / Big Bags).
+
+1.  **Bypass de Báscula**: Las unidades que cargan producto envasado **NO** pasan por la báscula (entrada ni salida).
+2.  **Carga Directa**: La unidad va directo a Almacén, carga los bultos programados y se retira de la planta.
+3.  **Cálculo de Carga (Reporte Comercial)**: 
+    -   Debido a que no hay pesaje físico, el tonelaje de estas órdenes se considera **Cargado** automáticamente al momento de crear la Orden de Embarque (OE) en el sistema.
+    -   *Valor utilizado*: Se toma el campo `programmed_tons` (Toneladas Programadas) de la OE.
+    -   *Impacto*: El saldo de la Orden de Venta (OV) se reduce inmediatamente después de la documentación.
+
 ---
 
 ## 4. Puntos de Control (Checkpoints)

@@ -63,16 +63,23 @@ class SalesOrder extends Model
             ->get();
 
         foreach ($shipments as $shipment) {
+            // 1. Packed Product (ENVASADO): Bypasses scale, counts immediately upon creation
+            if (strtoupper($shipment->presentation) === 'ENVASADO') {
+                $total += (float) ($shipment->programmed_tons ?? 0);
+                continue;
+            }
+
+            // 2. Bulk Product (GRANEL): Follows standard scale flow
             foreach ($shipment->loadingOrders as $trip) {
                 if ($trip->status === 'cancelled')
                     continue;
 
                 if ($trip->weight_ticket) {
                     if ($trip->weight_ticket->weighing_status === 'completed') {
-                        // 1. Completed: Use actual Net Weight from Scale (KG/1000)
+                        // Completed: Use actual Net Weight from Scale
                         $total += ($trip->weight_ticket->net_weight / 1000);
                     } else {
-                        // 2. In Yard (Tared but not exit yet): Use programmed weight as reservation
+                        // In Yard: Use programmed weight as reservation
                         $total += (float) ($trip->programmed_tons ?? 0);
                     }
                 }
