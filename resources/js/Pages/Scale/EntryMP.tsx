@@ -24,6 +24,7 @@ import TextInput from "@/Components/TextInput";
 import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useScale } from "@/Contexts/ScaleContext";
 
 export default function EntryMP({
     auth,
@@ -32,18 +33,12 @@ export default function EntryMP({
     auth: any;
     active_scale_id?: number;
 }) {
-    const [weight, setWeight] = useState<number>(0);
+    const { weight, isConnected, connectScale } = useScale();
     const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
-    const [isConnected, setIsConnected] = useState(false);
     const [qrValue, setQrValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
     const [orderDetails, setOrderDetails] = useState<any>(null);
-
-    // Serial Port Refs
-    const portRef = useRef<any>(null);
-    const abortControllerRef = useRef<AbortController | null>(null);
-    const isReadingRef = useRef(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
         shipment_order_id: "",
@@ -105,98 +100,21 @@ export default function EntryMP({
         }
     }, [errors]);
 
-    // Cleanup serial port on unmount
-    useEffect(() => {
-        return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-            if (portRef.current) {
-                const port = portRef.current;
-                // We don't await here to avoid blocking unmount
-                port.close().catch((err: any) => console.error("Close error on unmount:", err));
-            }
-        };
-    }, []);
+    // Cleanup logic handled globally by ScaleProvider
 
     const handleCapture = () => {
         setCapturedWeight(weight);
     };
 
     const handleSerialConnect = async () => {
-        if (!("serial" in navigator)) {
-            alert("API Web Serial no soportada en este navegador.");
-            return;
-        }
-
         try {
-            let port = portRef.current;
-
-            if (!port) {
-                port = await (navigator as any).serial.requestPort();
-                portRef.current = port;
-            }
-
-            if (port.readable && isReadingRef.current) {
-                console.log("Ya leyendo de la báscula...");
-                return;
-            }
-
-            // Abort previous read if any
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
-            abortControllerRef.current = new AbortController();
-            const signal = abortControllerRef.current.signal;
-
-            try {
-                if (!port.opened) {
-                    await port.open({ baudRate: 9600 });
-                }
-            } catch (err: any) {
-                if (err.name !== 'InvalidStateError') throw err;
-            }
-
-            setIsConnected(true);
-            isReadingRef.current = true;
-
-            const textDecoder = new TextDecoderStream();
-            const readableStreamClosed = port.readable.pipeTo(textDecoder.writable, { signal });
-            const reader = textDecoder.readable.getReader();
-
-            let buffer = "";
-            console.log("Iniciando lectura de báscula...");
-
-            try {
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done || signal.aborted) break;
-                    if (value) {
-                        buffer += value;
-                        if (buffer.includes("\n") || buffer.includes("\r")) {
-                            const match = buffer.match(/(\d+(?:\.\d+)?)/);
-                            if (match) {
-                                const newWeight = parseFloat(match[1]);
-                                setWeight(newWeight);
-                            }
-                            buffer = "";
-                        }
-                    }
-                }
-            } finally {
-                reader.releaseLock();
-                isReadingRef.current = false;
-                console.log("Lectura finalizada / Puerto liberado.");
-            }
-
+            await connectScale();
         } catch (error: any) {
-            isReadingRef.current = false;
-            if (error.name === 'NotFoundError' || error.name === 'AbortError') {
-                return;
-            }
-            console.error("Error en conexión serial:", error);
-            setIsConnected(false);
-            alert("Error al conectar con la báscula: " + error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Error de Conexión",
+                text: error.message,
+            });
         }
     };
 
