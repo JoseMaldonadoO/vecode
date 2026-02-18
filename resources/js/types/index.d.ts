@@ -62,6 +62,7 @@ export interface ShipmentOrder {
     // Cargo details
     presentation: string;
     sack_type?: string;
+    sacks_count?: string;
     programmed_tons: string;
 
     // Relations
