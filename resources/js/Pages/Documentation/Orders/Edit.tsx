@@ -182,7 +182,7 @@ export default function Edit({
             unit_number: operator.brand_model,
             license_number: operator.license,
         }));
-        setQueryOperator(operator.operator_name); // Sync display
+        setQueryOperator(""); // Clear search after selection
     };
 
     const handleSalesOrderSelect = (
@@ -404,7 +404,7 @@ export default function Edit({
                                                 ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
                                                 : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
                                                 }`}
-                                            placeholder="Escriba nombre o seleccione de la lista..."
+                                            placeholder={data.operator_id ? "Busque nuevo para cambiar..." : "Escriba nombre o seleccione de la lista..."}
                                             autoComplete="off"
                                         />
                                         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -421,6 +421,25 @@ export default function Edit({
                                         </Transition>
                                     </div>
                                 </Combobox>
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Nombre del Operador <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        required
+                                        value={data.operator_name}
+                                        readOnly={!!data.operator_id}
+                                        onChange={(e) => setData("operator_name", e.target.value.toUpperCase())}
+                                        placeholder="Nombre completo del chofer"
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold transition-all ${data.operator_id ? 'bg-gray-100 cursor-not-allowed text-gray-700' : 'bg-white'}`}
+                                    />
+                                    <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                </div>
+                                {errors.operator_name && <span className="text-xs text-red-500 mt-1 block font-bold">{errors.operator_name}</span>}
                             </div>
 
                             <div>
@@ -497,6 +516,32 @@ export default function Edit({
                                     value={data.economic_number}
                                     readOnly={!!data.operator_id}
                                     onChange={(e) => setData("economic_number", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Licencia
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.license_number}
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("license_number", e.target.value.toUpperCase())}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Unidad / Marca
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.unit_number}
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("unit_number", e.target.value.toUpperCase())}
                                     className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>

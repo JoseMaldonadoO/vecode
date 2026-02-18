@@ -257,7 +257,7 @@ export default function Create({
             unit_number: operator.brand_model, // Map Brand/Model to Unit Number
             license_number: operator.license, // Map License
         }));
-        setQrInput(operator.operator_name); // Sync qrInput for display consistency
+        setQrInput(""); // Clear the search/scan field once selected
     };
 
     const handleSalesOrderSelect = (
@@ -524,7 +524,7 @@ export default function Create({
                                                 ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
                                                 : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
                                                 }`}
-                                            placeholder={data.operator_id ? "Operador Seleccionado" : "Escriba nombre o escanee QR..."}
+                                            placeholder={data.operator_id ? "Escanee nuevo para cambiar..." : "Escriba nombre o escanee QR..."}
                                             autoComplete="off"
                                             autoFocus={!data.operator_id}
                                         />
@@ -569,6 +569,25 @@ export default function Create({
                                         </p>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Nombre del Operador <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        required
+                                        value={data.operator_name}
+                                        readOnly={!!data.operator_id}
+                                        onChange={(e) => setData("operator_name", e.target.value.toUpperCase())}
+                                        placeholder="Nombre completo del chofer"
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold transition-all ${data.operator_id ? 'bg-gray-100 cursor-not-allowed text-gray-700' : 'bg-white'}`}
+                                    />
+                                    <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                </div>
+                                {errors.operator_name && <span className="text-xs text-red-500 mt-1 block font-bold">{errors.operator_name}</span>}
                             </div>
 
                             <div>
