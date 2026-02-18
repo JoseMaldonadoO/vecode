@@ -105,7 +105,7 @@ export default function PrintInstruction({ order }: Props) {
                         <tbody>
                             <tr className="text-center font-bold text-sm">
                                 <td className="border border-black py-2 uppercase">{order.product?.name || order.product_id}</td>
-                                <td className="border border-black py-2 uppercase">{order.presentation} {order.sack_type ? `- ${order.sack_type}KG` : ''}</td>
+                                <td className="border border-black py-2 uppercase">{order.presentation} {order.presentation?.toUpperCase().includes('ENVASADO') && order.sacks_count ? `- ${order.sacks_count}` : ''}</td>
                                 <td className="border border-black py-2">{Number(order.programmed_tons).toFixed(3)}</td>
                                 <td className="border border-black py-2">{/* Empty for manual fill */}</td>
                                 <td className="border border-black py-2 text-red-600 font-black text-base">{order.folio}</td>

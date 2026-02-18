@@ -870,7 +870,7 @@ class WeightTicketController extends Controller
 
             'product' => $productName,
             'presentation' => $isSale
-                ? ($order->shipment_order->presentation ?? 'GRANEL')
+                ? ($order->shipment_order->presentation . ($order->shipment_order->presentation === 'ENVASADO' && $order->shipment_order->sacks_count ? ' ' . $order->shipment_order->sacks_count : ''))
                 : ($order->product->default_packaging ?? 'GRANEL'),
 
             // Weights

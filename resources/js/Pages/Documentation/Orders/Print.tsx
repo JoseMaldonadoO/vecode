@@ -323,7 +323,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                         <td className="bg-header text-center w-1/4">TONS. CARGADAS</td>
                                     </tr>
                                     <tr>
-                                        <td className="text-center font-bold uppercase">{order.presentation || "GRANEL"}</td>
+                                        <td className="text-center font-bold uppercase">{order.presentation || "GRANEL"} {order.presentation?.toUpperCase().includes('ENVASADO') && order.sacks_count ? order.sacks_count : ''}</td>
                                         <td className="text-center font-bold">{calculateSacks()}</td>
                                         <td className="text-center font-bold uppercase">{order.origin || (!tenant || tenant?.slug === 'proagro' ? 'PROAGROINDUSTRIA' : tenant?.name)}</td>
                                         <td className="text-center font-bold"></td>
