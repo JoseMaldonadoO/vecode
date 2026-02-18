@@ -4,6 +4,7 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { ScaleProvider } from './Contexts/ScaleContext';
 // import { registerSW } from 'virtual:pwa-register';
 
 // Register PWA Service Worker
@@ -34,7 +35,11 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <ScaleProvider>
+                <App {...props} />
+            </ScaleProvider>
+        );
     },
     progress: {
         color: '#4B5563',
