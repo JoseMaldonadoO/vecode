@@ -17,17 +17,7 @@ class TrafficController extends Controller
 {
     public function index()
     {
-        // Fetch orders that need traffic assignment (e.g., status 'created' or 'confirmed' but missing traffic info)
-        // For now, we show all 'created' orders as they enter the system here first.
-        $orders = ShipmentOrder::with('client', 'transporter', 'driver', 'vehicle')
-            ->whereIn('status', ['created'])
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        return Inertia::render('Traffic/Index', [
-            'orders' => $orders,
-            'transporters' => Transporter::with(['drivers', 'vehicles'])->get()
-        ]);
+        return Inertia::render('Traffic/Index');
     }
 
     public function update(Request $request, ShipmentOrder $traffic)
