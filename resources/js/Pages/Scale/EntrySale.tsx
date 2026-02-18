@@ -31,7 +31,7 @@ export default function EntrySale({
     auth: any;
     active_scale_id?: number;
 }) {
-    const { weight, isConnected, connectScale } = useScale();
+    const { weight, isConnected, connectScale, setManualWeight } = useScale();
     const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
     const [folioQuery, setFolioQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -316,7 +316,7 @@ export default function EntrySale({
                                                 disabled={false}
                                                 onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 onChange={(e) =>
-                                                    setWeight(
+                                                    setManualWeight(
                                                         parseFloat(
                                                             e.target.value,
                                                         ) || 0,

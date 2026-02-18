@@ -39,7 +39,7 @@ export default function ExitMP({
     const [showCamera, setShowCamera] = useState(false);
 
     // State for Weighing
-    const { weight, isConnected, connectScale } = useScale();
+    const { weight, isConnected, connectScale, setManualWeight } = useScale();
     const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
 
     const { data, setData, post, processing, errors } = useForm({
@@ -344,7 +344,7 @@ export default function ExitMP({
                                                 disabled={false}
                                                 onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 onChange={(e) =>
-                                                    setWeight(
+                                                    setManualWeight(
                                                         parseFloat(
                                                             e.target.value,
                                                         ) || 0,

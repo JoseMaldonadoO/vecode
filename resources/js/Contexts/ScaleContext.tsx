@@ -6,6 +6,7 @@ interface ScaleContextType {
     isReading: boolean;
     connectScale: () => Promise<void>;
     disconnectScale: () => Promise<void>;
+    setManualWeight: (weight: number) => void;
 }
 
 const ScaleContext = createContext<ScaleContextType | undefined>(undefined);
@@ -131,7 +132,7 @@ export const ScaleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }, []);
 
     return (
-        <ScaleContext.Provider value={{ weight, isConnected, isReading, connectScale, disconnectScale }}>
+        <ScaleContext.Provider value={{ weight, isConnected, isReading, connectScale, disconnectScale, setManualWeight: setWeight }}>
             {children}
         </ScaleContext.Provider>
     );
