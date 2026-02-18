@@ -182,6 +182,7 @@ export default function Edit({
             unit_number: operator.brand_model,
             license_number: operator.license,
         }));
+        setQueryOperator(operator.operator_name); // Sync display
     };
 
     const handleSalesOrderSelect = (
@@ -317,7 +318,7 @@ export default function Edit({
                                             type="text"
                                             value={data.client_name}
                                             readOnly
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-50 font-medium text-gray-700"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-100 font-bold text-gray-700 cursor-not-allowed"
                                         />
                                         <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
@@ -374,11 +375,36 @@ export default function Edit({
                                 </label>
                                 <Combobox onChange={handleOperatorSelect}>
                                     <div className="relative">
-                                        <Combobox.Input
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            onChange={(event) => setQueryOperator(event.target.value)}
-                                            displayValue={() => data.operator_name ? `${data.operator_name} (ID: ${data.operator_id})` : ''}
-                                            placeholder="Escribe para buscar..."
+                                        <input
+                                            type="text"
+                                            value={queryOperator || data.operator_name}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setQueryOperator(val);
+                                                if (!data.operator_id) {
+                                                    setData("operator_name", val);
+                                                } else {
+                                                    if (val === "") {
+                                                        setData(d => ({
+                                                            ...d,
+                                                            operator_id: "",
+                                                            operator_name: "",
+                                                            transport_company: "",
+                                                            unit_type: "",
+                                                            tractor_plate: "",
+                                                            trailer_plate: "",
+                                                            economic_number: "",
+                                                            unit_number: "",
+                                                            license_number: "",
+                                                        }));
+                                                    }
+                                                }
+                                            }}
+                                            className={`w-full rounded-lg border-2 shadow-sm py-2.5 pl-10 pr-10 outline-none transition-all ${data.operator_id
+                                                ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
+                                                : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
+                                                }`}
+                                            placeholder="Escriba nombre o seleccione de la lista..."
                                             autoComplete="off"
                                         />
                                         <div className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -404,8 +430,9 @@ export default function Edit({
                                 <input
                                     type="text"
                                     value={data.transport_company}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("transport_company", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -429,8 +456,9 @@ export default function Edit({
                                 <input
                                     type="text"
                                     value={data.unit_type}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("unit_type", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -441,8 +469,9 @@ export default function Edit({
                                 <input
                                     type="text"
                                     value={data.tractor_plate}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("tractor_plate", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -453,8 +482,9 @@ export default function Edit({
                                 <input
                                     type="text"
                                     value={data.trailer_plate}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("trailer_plate", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -465,8 +495,9 @@ export default function Edit({
                                 <input
                                     type="text"
                                     value={data.economic_number}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("economic_number", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -482,18 +513,30 @@ export default function Edit({
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
                                     Producto
                                 </label>
-                                <select
-                                    value={data.product}
-                                    onChange={(e) => setData("product", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-                                >
-                                    <option value="">Seleccione...</option>
-                                    {products.map((p) => (
-                                        <option key={p.id} value={p.name}>
-                                            {p.code} - {p.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                {data.sales_order_id ? (
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={data.product}
+                                            readOnly
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-100 font-bold text-gray-700 cursor-not-allowed"
+                                        />
+                                        <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    </div>
+                                ) : (
+                                    <select
+                                        value={data.product}
+                                        onChange={(e) => setData("product", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        {products.map((p) => (
+                                            <option key={p.id} value={p.name}>
+                                                {p.code} - {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
 
                             <div>

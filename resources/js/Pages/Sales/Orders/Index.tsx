@@ -284,6 +284,14 @@ export default function Index({
                                                     Ver
                                                 </Link>
                                                 {order.status === "created" && (
+                                                    <Link
+                                                        href={route("sales.edit", order.id)}
+                                                        className="inline-flex items-center text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1.5 rounded-md hover:bg-amber-100 transition-colors"
+                                                    >
+                                                        Editar
+                                                    </Link>
+                                                )}
+                                                {order.status === "created" && (
                                                     <button
                                                         onClick={() => toggleStatus(order.id)}
                                                         className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors"

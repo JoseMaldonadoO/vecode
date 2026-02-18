@@ -257,6 +257,7 @@ export default function Create({
             unit_number: operator.brand_model, // Map Brand/Model to Unit Number
             license_number: operator.license, // Map License
         }));
+        setQrInput(operator.operator_name); // Sync qrInput for display consistency
     };
 
     const handleSalesOrderSelect = (
@@ -411,7 +412,7 @@ export default function Create({
                                             type="text"
                                             value={data.client_name}
                                             readOnly
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-50 font-medium text-gray-700"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-100 font-bold text-gray-700 cursor-not-allowed"
                                         />
                                         <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
@@ -493,15 +494,17 @@ export default function Create({
                                     <div className="relative">
                                         <input
                                             type="text"
-                                            value={data.operator_name ? data.operator_name : qrInput}
+                                            value={qrInput}
                                             onKeyDown={handleQrInputKeyDown}
                                             onChange={(e) => {
-                                                // If operator is NOT selected, allow typing
+                                                const val = e.target.value;
+                                                setQrInput(val);
+                                                // If operator is NOT selected, update operator_name directly as they type
                                                 if (!data.operator_id) {
-                                                    setQrInput(e.target.value);
+                                                    setData("operator_name", val);
                                                 } else {
                                                     // If operator IS selected, clearing it resets the selection
-                                                    if (e.target.value === "") {
+                                                    if (val === "") {
                                                         setData(d => ({
                                                             ...d,
                                                             operator_id: "",
@@ -514,7 +517,6 @@ export default function Create({
                                                             unit_number: "",
                                                             license_number: "",
                                                         }));
-                                                        setQrInput("");
                                                     }
                                                 }
                                             }}
@@ -522,7 +524,7 @@ export default function Create({
                                                 ? "border-green-500 bg-green-50 text-green-800 font-bold focus:border-green-500 focus:ring-green-200"
                                                 : "border-indigo-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-200"
                                                 }`}
-                                            placeholder={data.operator_id ? "Operador Seleccionado" : "Escanee código QR aquí..."}
+                                            placeholder={data.operator_id ? "Operador Seleccionado" : "Escriba nombre o escanee QR..."}
                                             autoComplete="off"
                                             autoFocus={!data.operator_id}
                                         />
@@ -576,8 +578,9 @@ export default function Create({
                                 <input
                                     type="text"
                                     value={data.transport_company}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("transport_company", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -609,8 +612,9 @@ export default function Create({
                                 <input
                                     type="text"
                                     value={data.unit_type}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("unit_type", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -621,8 +625,9 @@ export default function Create({
                                 <input
                                     type="text"
                                     value={data.tractor_plate}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("tractor_plate", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -633,8 +638,48 @@ export default function Create({
                                 <input
                                     type="text"
                                     value={data.trailer_plate}
-                                    readOnly
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 bg-gray-50"
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("trailer_plate", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Económico
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.economic_number}
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("economic_number", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Licencia
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.license_number}
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("license_number", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                    Unidad / Marca
+                                </label>
+                                <input
+                                    type="text"
+                                    value={data.unit_number}
+                                    readOnly={!!data.operator_id}
+                                    onChange={(e) => setData("unit_number", e.target.value)}
+                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
                                 />
                             </div>
 
@@ -650,18 +695,30 @@ export default function Create({
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
                                     Producto
                                 </label>
-                                <select
-                                    value={data.product}
-                                    onChange={(e) => setData("product", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
-                                >
-                                    <option value="">Seleccione...</option>
-                                    {products.map((p) => (
-                                        <option key={p.id} value={p.name}>
-                                            {p.code} - {p.name}
-                                        </option>
-                                    ))}
-                                </select>
+                                {data.sales_order_id ? (
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={data.product}
+                                            readOnly
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-100 font-bold text-gray-700 cursor-not-allowed"
+                                        />
+                                        <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    </div>
+                                ) : (
+                                    <select
+                                        value={data.product}
+                                        onChange={(e) => setData("product", e.target.value)}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        {products.map((p) => (
+                                            <option key={p.id} value={p.name}>
+                                                {p.code} - {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
                             </div>
 
                             <div>
@@ -826,7 +883,7 @@ export default function Create({
                         </div>
                     </form>
                 </div>
-            </div>
+            </div >
 
             <QrScannerModal
                 isOpen={showQrScanner}
@@ -834,6 +891,6 @@ export default function Create({
                 onScan={handleQrScan}
                 title="Escanear Operador"
             />
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }
