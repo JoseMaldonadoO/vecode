@@ -869,7 +869,9 @@ class WeightTicketController extends Controller
             'scale_number' => $ticket->scale_id ?? 2,
 
             'product' => $productName,
-            'presentation' => $order->presentation ?? ($order->product->presentation ?? 'GRANEL'),
+            'presentation' => $isSale
+                ? ($order->shipment_order->presentation ?? 'GRANEL')
+                : ($order->product->default_packaging ?? 'GRANEL'),
 
             // Weights
             'entry_weight' => $ticket->tare_weight,
