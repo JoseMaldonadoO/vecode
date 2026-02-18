@@ -134,6 +134,23 @@ export default function Create({ auth }: { auth: any }) {
                                             <option value="Caja Seca">Caja Seca</option>
                                             <option value="Plataforma">Plataforma</option>
                                             <option value="Contenedor">Contenedor</option>
+                                            <option value="Camioneta">Camioneta</option>
+                                            <option value="Cisterna">Cisterna</option>
+                                            <option value="Full Caja Seca">Full Caja Seca</option>
+                                            <option value="Full Encortinado">Full Encortinado</option>
+                                            <option value="Full Gondola">Full Gondola</option>
+                                            <option value="Full Jaula">Full Jaula</option>
+                                            <option value="Full Pipa">Full Pipa</option>
+                                            <option value="Full Plataforma">Full Plataforma</option>
+                                            <option value="Full Tolva">Full Tolva</option>
+                                            <option value="Pipa">Pipa</option>
+                                            <option value="Sencilla Jaula">Sencilla Jaula</option>
+                                            <option value="Sencillo Caja Seca">Sencillo Caja Seca</option>
+                                            <option value="Sencillo Gondola">Sencillo Gondola</option>
+                                            <option value="Sencillo Pipa">Sencillo Pipa</option>
+                                            <option value="Sencillo Plataforma">Sencillo Plataforma</option>
+                                            <option value="Sencillo Tolva">Sencillo Tolva</option>
+                                            <option value="Torton">Torton</option>
                                         </select>
                                         <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
                                     </div>
