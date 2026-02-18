@@ -6,7 +6,6 @@ interface Product {
     id: number;
     code: string;
     name: string;
-    default_packaging: string;
 }
 
 export default function Edit({
@@ -19,7 +18,6 @@ export default function Edit({
     const { data, setData, put, processing, errors } = useForm({
         code: product.code || "",
         name: product.name || "",
-        default_packaging: product.default_packaging || "",
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -111,56 +109,29 @@ export default function Edit({
                                 )}
                             </div>
 
-                            {/* Presentation Field */}
-                            <div>
-                                <label
-                                    htmlFor="default_packaging"
-                                    className="block text-sm font-bold text-gray-700 uppercase tracking-tight mb-2"
-                                >
-                                    Presentación (Default Packaging)
-                                </label>
-                                <select
-                                    id="default_packaging"
-                                    className={`mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-all py-3 ${errors.default_packaging ? "border-red-500" : ""}`}
-                                    value={data.default_packaging}
-                                    onChange={(e) =>
-                                        setData(
-                                            "default_packaging",
-                                            e.target.value,
-                                        )
-                                    }
-                                    required
-                                >
-                                    <option value="">
-                                        Selecciona una opción
-                                    </option>
-                                    <option value="Granel">Granel</option>
-                                    <option value="Saco">Saco</option>
-                                    <option value="Container">Container</option>
-                                </select>
-                                {errors.default_packaging && (
-                                    <p className="mt-1 text-xs text-red-500 font-medium">
-                                        {errors.default_packaging}
-                                    </p>
-                                )}
-                            </div>
+                            {errors.name && (
+                                <p className="mt-1 text-xs text-red-500 font-medium">
+                                    {errors.name}
+                                </p>
+                            )}
                         </div>
-
-                        <div className="pt-4">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all transform hover:scale-[1.02]"
-                            >
-                                <Save className="mr-2 h-5 w-5" />
-                                {processing
-                                    ? "Actualizando..."
-                                    : "Guardar Cambios"}
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </div>
-        </DashboardLayout>
+
+                <div className="pt-4">
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all transform hover:scale-[1.02]"
+                    >
+                        <Save className="mr-2 h-5 w-5" />
+                        {processing
+                            ? "Actualizando..."
+                            : "Guardar Cambios"}
+                    </button>
+                </div>
+            </form>
+        </div>
+            </div >
+        </DashboardLayout >
     );
 }

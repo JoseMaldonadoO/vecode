@@ -90,7 +90,6 @@ class TrafficController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|unique:products',
             'name' => 'required|string|max:255',
-            'default_packaging' => 'required|string|max:255',
         ]);
 
         Product::create($validated);
@@ -112,7 +111,6 @@ class TrafficController extends Controller
         $validated = $request->validate([
             'code' => 'required|string|unique:products,code,' . $id,
             'name' => 'required|string|max:255',
-            'default_packaging' => 'required|string|max:255',
         ]);
 
         $product->update($validated);

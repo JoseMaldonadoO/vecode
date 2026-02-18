@@ -18,7 +18,6 @@ interface Product {
     id: number;
     code: string;
     name: string;
-    default_packaging: string;
 }
 
 interface PageProps {
@@ -119,12 +118,6 @@ export default function Index({ auth, products }: PageProps) {
                                     >
                                         Producto
                                     </th>
-                                    <th
-                                        scope="col"
-                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
-                                    >
-                                        Presentación
-                                    </th>
                                     {isAdmin && (
                                         <th
                                             scope="col"
@@ -160,9 +153,6 @@ export default function Index({ auth, products }: PageProps) {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 uppercase">
-                                                {product.default_packaging}
-                                            </td>
                                             {isAdmin && (
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                     <Link
@@ -191,7 +181,7 @@ export default function Index({ auth, products }: PageProps) {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={isAdmin ? 4 : 3}
+                                            colSpan={isAdmin ? 3 : 2}
                                             className="px-6 py-12 text-center text-gray-500"
                                         >
                                             <Box className="mx-auto h-12 w-12 text-gray-300 mb-3" />

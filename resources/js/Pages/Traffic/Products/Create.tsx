@@ -6,7 +6,6 @@ export default function Create({ auth }: { auth: any }) {
     const { data, setData, post, processing, errors } = useForm({
         code: "",
         name: "",
-        default_packaging: "",
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -93,40 +92,6 @@ export default function Create({ auth }: { auth: any }) {
                                 {errors.name && (
                                     <p className="mt-1 text-xs text-red-500 font-medium">
                                         {errors.name}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Presentation Field */}
-                            <div>
-                                <label
-                                    htmlFor="default_packaging"
-                                    className="block text-sm font-bold text-gray-700 uppercase tracking-tight mb-2"
-                                >
-                                    Presentación (Default Packaging)
-                                </label>
-                                <select
-                                    id="default_packaging"
-                                    className={`mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-all py-3 ${errors.default_packaging ? "border-red-500" : ""}`}
-                                    value={data.default_packaging}
-                                    onChange={(e) =>
-                                        setData(
-                                            "default_packaging",
-                                            e.target.value,
-                                        )
-                                    }
-                                    required
-                                >
-                                    <option value="">
-                                        Selecciona una opción
-                                    </option>
-                                    <option value="Granel">Granel</option>
-                                    <option value="Saco">Saco</option>
-                                    <option value="Container">Container</option>
-                                </select>
-                                {errors.default_packaging && (
-                                    <p className="mt-1 text-xs text-red-500 font-medium">
-                                        {errors.default_packaging}
                                     </p>
                                 )}
                             </div>
