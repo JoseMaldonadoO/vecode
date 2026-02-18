@@ -108,30 +108,23 @@ export default function Edit({
                                     </p>
                                 )}
                             </div>
-
-                            {errors.name && (
-                                <p className="mt-1 text-xs text-red-500 font-medium">
-                                    {errors.name}
-                                </p>
-                            )}
                         </div>
-                </div>
 
-                <div className="pt-4">
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all transform hover:scale-[1.02]"
-                    >
-                        <Save className="mr-2 h-5 w-5" />
-                        {processing
-                            ? "Actualizando..."
-                            : "Guardar Cambios"}
-                    </button>
+                        <div className="pt-4">
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="w-full inline-flex justify-center items-center px-6 py-4 border border-transparent rounded-xl shadow-lg text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all transform hover:scale-[1.02]"
+                            >
+                                <Save className="mr-2 h-5 w-5" />
+                                {processing
+                                    ? "Actualizando..."
+                                    : "Guardar Cambios"}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-            </div >
-        </DashboardLayout >
+            </div>
+        </DashboardLayout>
     );
 }
