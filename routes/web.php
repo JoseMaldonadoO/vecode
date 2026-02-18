@@ -190,36 +190,6 @@ Route::middleware('auth')->group(function () {
 
     // System Maintenance (Temporary)
     Route::get('/system/deploy', [\App\Http\Controllers\SystemController::class, 'deployUpdates'])->name('system.deploy');
-
-    // DEBUG ROUTE FOR OV-2026-004 (Will be removed after use)
-    Route::get('/debug-ov-trips', function () {
-        $ov = \App\Models\SalesOrder::where('folio', 'OV-2026-004')->first();
-        if (!$ov)
-            return "Order not found";
-
-        $trips = [];
-        foreach ($ov->shipments()->with('loadingOrders.weight_ticket')->get() as $shipment) {
-            foreach ($shipment->loadingOrders as $trip) {
-                $trips[] = [
-                    'shipment' => $shipment->folio,
-                    'trip' => $trip->folio,
-                    'ticket' => $trip->weight_ticket->ticket_number ?? 'N/A',
-                    'kg' => $trip->weight_ticket->net_weight ?? 0,
-                    'status' => $trip->status,
-                    'weighing' => $trip->weight_ticket->weighing_status ?? 'N/A'
-                ];
-            }
-        }
-
-        $summary = [
-            'folio' => $ov->folio,
-            'loaded_quantity' => $ov->loaded_quantity,
-            'trips' => $trips
-        ];
-
-        \Illuminate\Support\Facades\Log::info("DEBUG_OV_PRODUCTION: " . json_encode($summary));
-        return response()->json($summary);
-    });
 });
 
 require __DIR__ . '/auth.php';

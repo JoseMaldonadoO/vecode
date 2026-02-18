@@ -347,11 +347,12 @@ export default function Create({
                                     <input
                                         type="text"
                                         value={data.folio}
-                                        readOnly
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 bg-gray-50 font-bold text-gray-600"
+                                        onChange={(e) => setData("folio", e.target.value)}
+                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 font-bold ${errors.folio ? 'border-red-500 bg-red-50 text-red-900' : 'text-gray-700'}`}
                                     />
-                                    <Hash className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    <Hash className={`w-5 h-5 absolute left-3 top-2.5 ${errors.folio ? 'text-red-400' : 'text-gray-400'}`} />
                                 </div>
+                                {errors.folio && <span className="text-xs text-red-500 mt-1 block font-bold">{errors.folio}</span>}
                             </div>
 
                             <div>

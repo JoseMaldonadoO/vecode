@@ -43,18 +43,15 @@ class DocumentationController extends Controller
                 ->whereIn('status', ['created', 'open'])
                 ->get(),
             'default_folio' => function () {
-                $lastOrder = ShipmentOrder::where('folio', 'like', 'PA' . date('Y') . '-%')
-                    ->orderBy('folio', 'desc')
-                    ->first();
+                $maxFolio = ShipmentOrder::where('folio', 'like', 'PA' . date('Y') . '-%')
+                    ->get()
+                    ->map(function ($order) {
+                        $parts = explode('-', $order->folio);
+                        return (count($parts) === 2 && is_numeric($parts[1])) ? (int) $parts[1] : 0;
+                    })
+                    ->max();
 
-                $nextNumber = 1;
-                if ($lastOrder) {
-                    // Extract number from PA2026-XXXX
-                    $parts = explode('-', $lastOrder->folio);
-                    if (count($parts) === 2 && is_numeric($parts[1])) {
-                        $nextNumber = intval($parts[1]) + 1;
-                    }
-                }
+                $nextNumber = ($maxFolio ?? 0) + 1;
 
                 return 'PA' . date('Y') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             },
@@ -543,7 +540,7 @@ class DocumentationController extends Controller
         $order = ShipmentOrder::findOrFail($id);
 
         $validated = $request->validate([
-            // 'folio' => 'required|unique:shipment_orders,folio,' . $id, // Folio usually shouldn't change
+            'folio' => 'required|unique:shipment_orders,folio,' . $id,
             'date' => 'required|date',
             'client_id' => 'required|exists:clients,id',
             'sales_order_id' => 'required|exists:sales_orders,id',
