@@ -159,10 +159,16 @@ export default function InstructionTemplate({ order }: Props) {
                             {order.transport_company || order.transporter?.name}
                         </span>
                     </div>
-                    <div className="flex items-baseline">
+                    <div className="flex mb-2 items-baseline">
                         <span className="font-medium w-20">OPERADOR:</span>
                         <span className="uppercase flex-1 border-b border-gray-300">
                             {order.operator_name}
+                        </span>
+                    </div>
+                    <div className="flex items-baseline">
+                        <span className="font-medium w-20">ORIGEN:</span>
+                        <span className="uppercase flex-1 border-b border-gray-300">
+                            {order.origin || "PLANTA"}
                         </span>
                     </div>
                 </div>

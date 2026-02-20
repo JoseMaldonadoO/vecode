@@ -58,6 +58,7 @@ export interface ShipmentOrder {
     economic_number?: string;
     license_number?: string;
     unit_number?: string;
+    origin?: string;
 
     // Cargo details
     presentation: string;

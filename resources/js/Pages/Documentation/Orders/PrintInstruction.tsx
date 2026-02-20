@@ -170,9 +170,13 @@ export default function PrintInstruction({ order }: Props) {
                             <span className="font-bold w-24">TRANSPORT:</span>
                             <span className="uppercase flex-1">{order.transport_company || order.transporter?.name}</span>
                         </div>
-                        <div className="flex">
+                        <div className="flex mb-1">
                             <span className="font-bold w-24">OPERADOR:</span>
                             <span className="uppercase flex-1">{order.operator_name}</span>
+                        </div>
+                        <div className="flex">
+                            <span className="font-bold w-24">ORIGEN:</span>
+                            <span className="uppercase flex-1">{order.origin || "PLANTA"}</span>
                         </div>
                     </div>
 
