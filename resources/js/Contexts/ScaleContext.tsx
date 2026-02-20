@@ -131,8 +131,12 @@ export const ScaleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         };
     }, []);
 
+    const setManualWeight = (newWeight: number) => {
+        setWeight(newWeight);
+    };
+
     return (
-        <ScaleContext.Provider value={{ weight, isConnected, isReading, connectScale, disconnectScale }}>
+        <ScaleContext.Provider value={{ weight, isConnected, isReading, connectScale, disconnectScale, setManualWeight }}>
             {children}
         </ScaleContext.Provider>
     );
