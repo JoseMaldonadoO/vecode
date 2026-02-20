@@ -191,14 +191,19 @@ class WeightTicketController extends Controller
                     });
             });
         } elseif ($activeTab === 'vessel') {
+            // Broaden: Everything that is NOT a sale is considered "Vessel/Entry/MI-MP"
             $query->where(function ($q) {
                 $q->whereNull('shipment_order_id')
-                    ->whereHas('loadingOrder', function ($lo) {
-                        $lo->whereNull('shipment_order_id')
-                            ->whereNotNull('vessel_id');
+                    ->where(function ($sub) {
+                        $sub->whereDoesntHave('loadingOrder')
+                            ->orWhereHas('loadingOrder', function ($lo) {
+                                $lo->whereNull('shipment_order_id');
+                            });
                     });
             });
         }
+
+        $query->orderBy('created_at', 'desc');
 
         if ($request->filled('search')) {
             $search = $request->search;
