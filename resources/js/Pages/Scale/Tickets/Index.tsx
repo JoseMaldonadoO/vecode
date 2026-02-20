@@ -127,8 +127,8 @@ export default function Index({
                             router.get(route("scale.tickets.index"), { ...filters, tab: "sale" });
                         }}
                         className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${(filters.tab || "sale") === "sale"
-                                ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
-                                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                            ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
+                            : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
                     >
                         Ventas (O.E.)
@@ -138,8 +138,8 @@ export default function Index({
                             router.get(route("scale.tickets.index"), { ...filters, tab: "vessel" });
                         }}
                         className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${filters.tab === "vessel"
-                                ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
-                                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                            ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
+                            : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                             }`}
                     >
                         Barcos (Descarga)
@@ -207,6 +207,12 @@ export default function Index({
                                     </th>
                                     <th
                                         scope="col"
+                                        className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider"
+                                    >
+                                        Operación
+                                    </th>
+                                    <th
+                                        scope="col"
                                         className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
                                     >
                                         Producto / Cliente
@@ -271,6 +277,14 @@ export default function Index({
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${ticket.operation === 'SALIDA'
+                                                        ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                                        : 'bg-orange-100 text-orange-800 border-orange-200'
+                                                    }`}>
+                                                    {ticket.operation}
+                                                </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-indigo-700 font-bold text-sm">

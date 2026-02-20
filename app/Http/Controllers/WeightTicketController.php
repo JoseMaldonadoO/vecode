@@ -184,6 +184,7 @@ class WeightTicketController extends Controller
 
         // Tab Filtering
         if ($activeTab === 'sale') {
+            // "Ventas" are tickets linked to a Shipment Order (Sales Order)
             $query->where(function ($q) {
                 $q->whereNotNull('shipment_order_id')
                     ->orWhereHas('loadingOrder', function ($lo) {
@@ -191,7 +192,7 @@ class WeightTicketController extends Controller
                     });
             });
         } elseif ($activeTab === 'vessel') {
-            // Broaden: Everything that is NOT a sale is considered "Vessel/Entry/MI-MP"
+            // "Barcos/Descarga" are everything that is NOT linked to a Shipment Order
             $query->where(function ($q) {
                 $q->whereNull('shipment_order_id')
                     ->where(function ($sub) {
@@ -252,12 +253,14 @@ class WeightTicketController extends Controller
                 }
 
                 $saleOrder = $order->sale_order_folio ?? 'S/A';
+                $isSale = !empty($ticket->shipment_order_id) || ($order && !empty($order->shipment_order_id));
 
                 return [
                     'id' => $order->id ?? $ticket->id, // Link ID. If ShipmentOrder, pass that ID.
                     'ticket_id' => $ticket->id,
                     'folio' => $folio,
                     'ticket_number' => $ticket->ticket_number,
+                    'operation' => $isSale ? 'SALIDA' : 'DESCARGA',
                     'driver' => $driver,
                     'vehicle_plate' => $plate,
                     'product' => $productName,
@@ -884,7 +887,7 @@ class WeightTicketController extends Controller
             'time' => $exitDate->format('H:i:s'),
 
             'reference' => $isSale ? ($order->shipment_order->folio ?? 'N/A') : ($order->reference ?? 'N/A'),
-            'operation' => $isSale ? 'SALIDA' : 'DESCARGA (COMPRA)',
+            'operation' => $isSale ? 'SALIDA' : 'DESCARGA',
             'scale_number' => $ticket->scale_id ?? 2,
 
             'product' => $productName,
