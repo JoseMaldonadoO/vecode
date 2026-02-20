@@ -201,6 +201,9 @@ export default function Index({
                                         Orden de Venta
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
+                                        Producto
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                         Cliente
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
@@ -239,6 +242,9 @@ export default function Index({
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
                                                 {order.folio || "N/A"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                                                {order.product?.name || "N/A"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
                                                 {order.client?.business_name}
@@ -316,7 +322,7 @@ export default function Index({
                             {filteredOrders.length > 0 && (
                                 <tfoot className="bg-gray-100 font-bold border-t-2 border-indigo-200">
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-4 text-right text-sm text-indigo-900 uppercase tracking-wider">
+                                        <td colSpan={4} className="px-6 py-4 text-right text-sm text-indigo-900 uppercase tracking-wider">
                                             TOTAL GENERAL
                                         </td>
                                         <td className="px-6 py-4 text-center text-sm text-gray-900">
