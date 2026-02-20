@@ -58,6 +58,10 @@ interface Order {
     vessel?: {
         name: string;
     };
+    driver?: {
+        name: string;
+    };
+    programmed_tons?: number;
     status: string;
     date?: string;
     created_at: string;
@@ -224,6 +228,12 @@ export default function Index({
                                         Cliente
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                                        Operador
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                                        Tons. Prog.
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Estatus
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
@@ -251,6 +261,12 @@ export default function Index({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">
                                                 {order.client?.business_name || "CLIENTE GENERAL"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium uppercase">
+                                                {order.driver?.name || "-"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-bold">
+                                                {order.programmed_tons ? Number(order.programmed_tons).toLocaleString('en-US', { minimumFractionDigits: 3 }) : "0.000"} TM
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
