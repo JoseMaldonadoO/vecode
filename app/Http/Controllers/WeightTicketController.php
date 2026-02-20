@@ -252,8 +252,16 @@ class WeightTicketController extends Controller
     
                 // Fallbacks if orphaned ticket (shouldn't happen but safe to handle)
                 $folio = $order->folio ?? $ticket->folio ?? 'N/A';
-                $driver = $order->operator_name ?? ($order->driver->name ?? 'N/A');
-                $plate = $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A');
+
+                // Driver/Vehicle Priority: If it's a Sale, check ShipmentOrder first to reflect EDITS in Documentation
+                $driver = $order->operator_name ?? 'N/A';
+                $plate = $order->tractor_plate ?? 'N/A';
+                $isSale = $order && empty($order->vessel_id) && !empty($order->shipment_order_id);
+
+                if ($isSale && $order->shipment_order) {
+                    $driver = $order->shipment_order->operator_name ?? $driver;
+                    $plate = $order->shipment_order->tractor_plate ?? $plate;
+                }
 
                 // Product
                 // LoadingOrder: product (text) or relation
@@ -923,9 +931,15 @@ class WeightTicketController extends Controller
             'sale_order_reference' => $order->customer_reference,
             'withdrawal_letter' => $order->bill_of_lading ?? ($order->withdrawal_letter ?? 'N/A'),
 
-            'driver' => $order->operator_name ?? 'N/A',
-            'tractor_plate' => $order->tractor_plate ?? 'N/A',
-            'trailer_plate' => $order->trailer_plate ?? 'N/A',
+            'driver' => $isSale && $order->shipment_order
+                ? ($order->shipment_order->operator_name ?? $order->operator_name ?? 'N/A')
+                : ($order->operator_name ?? 'N/A'),
+            'tractor_plate' => $isSale && $order->shipment_order
+                ? ($order->shipment_order->tractor_plate ?? $order->tractor_plate ?? 'N/A')
+                : ($order->tractor_plate ?? 'N/A'),
+            'trailer_plate' => $isSale && $order->shipment_order
+                ? ($order->shipment_order->trailer_plate ?? $order->trailer_plate ?? 'N/A')
+                : ($order->trailer_plate ?? 'N/A'),
             'economic_number' => $economicNumber,
 
             'destination' => $destination,
