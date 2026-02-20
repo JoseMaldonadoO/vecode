@@ -102,6 +102,9 @@ export default function Print({ order }: Props) {
     // Check if Consignee is SADER (case insensitive)
     const isSader = order.consigned_to?.toUpperCase().includes('SADER');
 
+    // Check if Sales Order is OV-AMO
+    const isOvAmo = order.sales_order?.folio?.toUpperCase().startsWith('OV-AMO');
+
     return (
         <div className="bg-gray-100 min-h-screen p-4 print:p-0 print:bg-white text-sans">
             <Head title={`Impresión Orden ${order.folio} `} />
@@ -563,19 +566,21 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                     If presentation is "ENVASADO", this printed on front of last sheet, and we force page break.
                     If presentation is "GRANEL", this is the last page.
                 */}
-                <div className="page-instruction pt-8" style={{ pageBreakAfter: (order.presentation?.toUpperCase().includes('ENVASADO') ? 'always' : 'auto') }}>
-                    <InstructionTemplate order={order} />
-                </div>
+                {!isOvAmo && (
+                    <div className="page-instruction pt-8" style={{ pageBreakAfter: (order.presentation?.toUpperCase().includes('ENVASADO') ? 'always' : 'auto') }}>
+                        <InstructionTemplate order={order} />
+                    </div>
+                )}
 
                 {/* --- PAGE 4: WEIGHT VERIFICATION (Conditional: Envasado Only) --- */}
-                {order.presentation?.toUpperCase().includes('ENVASADO') && (
+                {order.presentation?.toUpperCase().includes('ENVASADO') && !isOvAmo && (
                     <div className="page-weight-verification pt-8" style={{ pageBreakAfter: 'always' }}>
                         <WeightVerificationTemplate order={order} />
                     </div>
                 )}
 
                 {/* --- PAGE 5: STOWAGE NOTE (Conditional: Envasado Only AND NOT SADER) --- */}
-                {order.presentation?.toUpperCase().includes('ENVASADO') && !isSader && (
+                {order.presentation?.toUpperCase().includes('ENVASADO') && !isSader && !isOvAmo && (
                     <div className="stowage-page-wrapper">
                         {/* We use a specific inner container for the rotation */}
                         <div className="rotate-landscape-v2">
