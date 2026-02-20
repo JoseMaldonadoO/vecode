@@ -187,6 +187,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/documentation/print-order/{id}', 'printOrder')->name('documentation.print-order');
     });
 
+    // Shipment Origins (Manageable Origins)
+    Route::get('/shipment-origins', [\App\Http\Controllers\ShipmentOriginController::class, 'index'])->name('shipment-origins.index');
+    Route::post('/shipment-origins', [\App\Http\Controllers\ShipmentOriginController::class, 'store'])->name('shipment-origins.store');
+    Route::put('/shipment-origins/{origin}', [\App\Http\Controllers\ShipmentOriginController::class, 'update'])->name('shipment-origins.update');
+    Route::delete('/shipment-origins/{origin}', [\App\Http\Controllers\ShipmentOriginController::class, 'destroy'])->name('shipment-origins.destroy');
+
     Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);
 
     // System Maintenance (Temporary)

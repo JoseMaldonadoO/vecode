@@ -21,6 +21,7 @@ import { FormEventHandler, useState, Fragment, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import axios from "axios";
 import QrScannerModal from "@/Components/QrScannerModal";
+import OriginDropdown from "@/Components/OriginDropdown";
 
 interface Client {
     id: number;
@@ -90,7 +91,9 @@ export default function Create({
         sack_type: "", // 25, 50, 200, 500
         programmed_tons: "", // Manual now
         balance: "", // Auto-filled from OV
+        origin: "PLANTA",
         destination: "",
+        state: "",
 
         observations: "",
         documenter_name: auth.user.name,
@@ -98,13 +101,11 @@ export default function Create({
         // Unused/Hidden
         sacks_count: "",
         shortage_balance: "",
-        origin: "PLANTA",
         qr_code: "",
         license_number: "",
         status: "created",
         scale_name: "",
         economic_number: "",
-        state: "", // New Field
     });
 
     const [queryClient, setQueryClient] = useState("");
@@ -789,6 +790,12 @@ export default function Create({
                                     {/* Empty placeholder to keep grid alignment if needed, or just nothing */}
                                 </div>
                             )}
+
+                            <OriginDropdown
+                                value={data.origin}
+                                onChange={(val) => setData("origin", val)}
+                                error={errors.origin}
+                            />
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">

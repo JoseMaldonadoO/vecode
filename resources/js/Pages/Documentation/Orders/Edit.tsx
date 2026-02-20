@@ -19,6 +19,7 @@ import {
 import { FormEventHandler, useState, Fragment, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import axios from "axios";
+import OriginDropdown from "@/Components/OriginDropdown";
 
 interface Client {
     id: number;
@@ -90,6 +91,7 @@ export default function Edit({
         tractor_plate: order.tractor_plate || "",
         trailer_plate: order.trailer_plate || "",
         carta_porte: order.carta_porte || "",
+        origin: order.origin || "PLANTA",
         license_number: order.license_number || "",
         economic_number: order.economic_number || "",
 
@@ -630,6 +632,12 @@ export default function Edit({
                                     </select>
                                 </div>
                             )}
+
+                            <OriginDropdown
+                                value={data.origin}
+                                onChange={(val) => setData("origin", val)}
+                                error={errors.origin}
+                            />
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
