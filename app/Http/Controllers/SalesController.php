@@ -21,11 +21,7 @@ class SalesController extends Controller
         $query = \App\Models\SalesOrder::with([
             'client',
             'product',
-            'shipments.loadingOrders.weight_ticket', // Required for optimized accessor
-            'loading_orders.weight_ticket', // Keep for modal breakdown
-            'loading_orders.shipment_order',
-            'loading_orders.driver',
-            'loading_orders.transporter'
+            'shipments.loadingOrders.weight_ticket', // Required for balance calculation
         ]);
 
         if ($request->has('search')) {
@@ -53,6 +49,23 @@ class SalesController extends Controller
                 'success' => session('success'),
                 'error' => session('error'),
             ]
+        ]);
+    }
+
+    /**
+     * Get detailed trip breakdown for a specific Sales Order (AJAX)
+     */
+    public function breakdown(string $id)
+    {
+        $order = \App\Models\SalesOrder::with([
+            'loading_orders.weight_ticket',
+            'loading_orders.shipment_order',
+            'loading_orders.driver',
+            'loading_orders.transporter'
+        ])->findOrFail($id);
+
+        return response()->json([
+            'loading_orders' => $order->loading_orders
         ]);
     }
 

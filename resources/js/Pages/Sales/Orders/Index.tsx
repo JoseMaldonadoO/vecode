@@ -74,6 +74,8 @@ export default function Index({
     const [search, setSearch] = useState(filters.search || "");
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [breakdownLoading, setBreakdownLoading] = useState(false);
+    const [breakdownData, setBreakdownData] = useState<any[]>([]);
     const [currentTripPage, setCurrentTripPage] = useState(1);
     const tripsPerPage = 10;
 
@@ -123,20 +125,32 @@ export default function Index({
     // Trip Pagination Logic
     const paginatedTrips = useMemo(() => {
         if (!selectedOrder) return [];
-        const activeTrips = selectedOrder.loading_orders.filter(t => t.status !== 'cancelled');
+        const activeTrips = breakdownData.filter(t => t.status !== 'cancelled');
         const startIndex = (currentTripPage - 1) * tripsPerPage;
         return activeTrips.slice(startIndex, startIndex + tripsPerPage);
-    }, [selectedOrder, currentTripPage]);
+    }, [selectedOrder, breakdownData, currentTripPage]);
 
     const totalTripPages = useMemo(() => {
         if (!selectedOrder) return 0;
-        const activeTrips = selectedOrder.loading_orders.filter(t => t.status !== 'cancelled');
+        const activeTrips = breakdownData.filter(t => t.status !== 'cancelled');
         return Math.ceil(activeTrips.length / tripsPerPage);
-    }, [selectedOrder]);
+    }, [selectedOrder, breakdownData]);
 
-    const handleOpenBreakdown = (order: Order) => {
+    const handleOpenBreakdown = async (order: Order) => {
         setSelectedOrder(order);
+        setBreakdownLoading(true);
+        setBreakdownData([]);
         setCurrentTripPage(1);
+
+        try {
+            const response = await fetch(route("sales.orders.breakdown", order.id));
+            const data = await response.json();
+            setBreakdownData(data.loading_orders || []);
+        } catch (error) {
+            console.error("Error fetching breakdown:", error);
+        } finally {
+            setBreakdownLoading(false);
+        }
     };
 
     return (
@@ -405,80 +419,87 @@ export default function Index({
                     </div>
 
                     {/* Table Body - Scrollable */}
-                    <div className="flex-1 overflow-y-auto p-0">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-white sticky top-0 z-20 shadow-sm">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">O. Embarque</th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Viaje / Ticket</th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Operador</th>
-                                    <th className="px-6 py-3 text-center text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Estatus Báscula</th>
-                                    <th className="px-6 py-3 text-right text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50 border-l border-indigo-50">Peso (TM)</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-100">
-                                {paginatedTrips.length > 0 ? (
-                                    paginatedTrips.map((trip) => {
-                                        const isCompleted = trip.weight_ticket?.weighing_status === 'completed';
-                                        const weight = isCompleted
-                                            ? (trip.weight_ticket?.net_weight || 0) / 1000
-                                            : (trip.programmed_tons || 0);
-
-                                        const getStatusTranslation = (status: string) => {
-                                            const translations: Record<string, string> = {
-                                                'created': 'CREADO',
-                                                'in_progress': 'EN CURSO',
-                                                'completed': 'COMPLETADO',
-                                                'cancelled': 'CANCELADO',
-                                                'pending': 'PENDIENTE',
-                                            };
-                                            return translations[status.toLowerCase()] || status.toUpperCase();
-                                        };
-
-                                        return (
-                                            <tr key={trip.id} className="hover:bg-indigo-50/30 transition-colors group">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-800">
-                                                    {trip.shipment_order?.folio || 'N/A'}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-black text-gray-900">{trip.folio}</div>
-                                                    <div className="text-[10px] font-bold text-indigo-400 flex items-center">
-                                                        <FileText className="w-3 h-3 mr-1" />
-                                                        {trip.weight_ticket?.ticket_number || 'SIN TICKET'}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-bold text-gray-700 group-hover:text-indigo-900 transition-colors uppercase">{trip.driver?.name || '---'}</div>
-                                                    <div className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">{trip.transporter?.name || 'FLOTA INTERNA'}</div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-black inline-flex items-center shadow-sm 
-                                                        ${isCompleted ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
-                                                            trip.weight_ticket ? 'bg-amber-100 text-amber-800 border border-amber-200' :
-                                                                'bg-gray-100 text-gray-400 border border-gray-200'}`}>
-                                                        {isCompleted && <CheckCircle className="w-3 h-3 mr-1" />}
-                                                        {trip.weight_ticket?.weighing_status ? getStatusTranslation(trip.weight_ticket.weighing_status) : 'PENDIENTE'}
-                                                    </div>
-                                                    <div className="text-[10px] text-indigo-300 font-bold mt-1 uppercase tracking-tighter">
-                                                        {getStatusTranslation(trip.status)}
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-right text-emerald-700 bg-emerald-50/10 border-l border-indigo-50">
-                                                    {formatter.format(weight)} TM
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
-                                ) : (
+                    <div className="flex-1 overflow-y-auto p-0 min-h-[300px] flex flex-col">
+                        {breakdownLoading ? (
+                            <div className="flex-1 flex flex-col items-center justify-center p-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+                                <p className="text-gray-500 font-medium">Cargando detalles del viaje...</p>
+                            </div>
+                        ) : (
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-white sticky top-0 z-20 shadow-sm">
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-16 text-center text-gray-400 italic font-medium">
-                                            <Truck className="w-12 h-12 mx-auto mb-4 opacity-10" />
-                                            No se encontraron viajes activos
-                                        </td>
+                                        <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">O. Embarque</th>
+                                        <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Viaje / Ticket</th>
+                                        <th className="px-6 py-3 text-left text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Operador</th>
+                                        <th className="px-6 py-3 text-center text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50">Estatus Báscula</th>
+                                        <th className="px-6 py-3 text-right text-[10px] font-black text-indigo-900/50 uppercase tracking-widest bg-gray-50/50 border-l border-indigo-50">Peso (TM)</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-100">
+                                    {paginatedTrips.length > 0 ? (
+                                        paginatedTrips.map((trip) => {
+                                            const isCompleted = trip.weight_ticket?.weighing_status === 'completed';
+                                            const weight = isCompleted
+                                                ? (trip.weight_ticket?.net_weight || 0) / 1000
+                                                : (trip.programmed_tons || 0);
+
+                                            const getStatusTranslation = (status: string) => {
+                                                const translations: Record<string, string> = {
+                                                    'created': 'CREADO',
+                                                    'in_progress': 'EN CURSO',
+                                                    'completed': 'COMPLETADO',
+                                                    'cancelled': 'CANCELADO',
+                                                    'pending': 'PENDIENTE',
+                                                };
+                                                return translations[status.toLowerCase()] || status.toUpperCase();
+                                            };
+
+                                            return (
+                                                <tr key={trip.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-800">
+                                                        {trip.shipment_order?.folio || 'N/A'}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-black text-gray-900">{trip.folio}</div>
+                                                        <div className="text-[10px] font-bold text-indigo-400 flex items-center">
+                                                            <FileText className="w-3 h-3 mr-1" />
+                                                            {trip.weight_ticket?.ticket_number || 'SIN TICKET'}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-bold text-gray-700 group-hover:text-indigo-900 transition-colors uppercase">{trip.driver?.name || '---'}</div>
+                                                        <div className="text-[10px] font-medium text-gray-400 uppercase tracking-tighter">{trip.transporter?.name || 'FLOTA INTERNA'}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                        <div className={`px-2.5 py-1 rounded-full text-[10px] font-black inline-flex items-center shadow-sm 
+                                                        ${isCompleted ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                                                                trip.weight_ticket ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                                                                    'bg-gray-100 text-gray-400 border border-gray-200'}`}>
+                                                            {isCompleted && <CheckCircle className="w-3 h-3 mr-1" />}
+                                                            {trip.weight_ticket?.weighing_status ? getStatusTranslation(trip.weight_ticket.weighing_status) : 'PENDIENTE'}
+                                                        </div>
+                                                        <div className="text-[10px] text-indigo-300 font-bold mt-1 uppercase tracking-tighter">
+                                                            {getStatusTranslation(trip.status)}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-right text-emerald-700 bg-emerald-50/10 border-l border-indigo-50">
+                                                        {formatter.format(weight)} TM
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={5} className="px-6 py-16 text-center text-gray-400 italic font-medium">
+                                                <Truck className="w-12 h-12 mx-auto mb-4 opacity-10" />
+                                                No se encontraron viajes registrados para esta orden
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
 
                     {/* Footer / Pagination - Fixed */}
