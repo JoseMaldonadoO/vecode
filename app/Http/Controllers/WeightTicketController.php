@@ -180,7 +180,11 @@ class WeightTicketController extends Controller
                 $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order']);
             }
         ])
-            ->where('is_burreo', false); // EXCLUDE BURREO
+            ->where('is_burreo', false) // EXCLUDE BURREO
+            ->where(function ($q) {
+                // EXCLUDE ORPHANED TICKETS: Must have at least one valid link
+                $q->has('loadingOrder')->orHas('shipmentOrder');
+            });
 
         // Tab Filtering
         if ($activeTab === 'sale') {
