@@ -167,7 +167,8 @@ class WeightTicketController extends Controller
 
     public function tickets(Request $request)
     {
-        $filters = $request->only(['search', 'date']);
+        $filters = $request->only(['search', 'date', 'tab']);
+        $activeTab = $request->input('tab', 'sale');
 
         $query = WeightTicket::with([
             'loadingOrder' => function ($q) {
@@ -179,8 +180,25 @@ class WeightTicketController extends Controller
                 $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order']);
             }
         ])
-            ->where('is_burreo', false) // EXCLUDE BURREO
-            ->orderBy('created_at', 'desc');
+            ->where('is_burreo', false); // EXCLUDE BURREO
+
+        // Tab Filtering
+        if ($activeTab === 'sale') {
+            $query->where(function ($q) {
+                $q->whereNotNull('shipment_order_id')
+                    ->orWhereHas('loadingOrder', function ($lo) {
+                        $lo->whereNotNull('shipment_order_id');
+                    });
+            });
+        } elseif ($activeTab === 'vessel') {
+            $query->where(function ($q) {
+                $q->whereNull('shipment_order_id')
+                    ->whereHas('loadingOrder', function ($lo) {
+                        $lo->whereNull('shipment_order_id')
+                            ->whereNotNull('vessel_id');
+                    });
+            });
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;

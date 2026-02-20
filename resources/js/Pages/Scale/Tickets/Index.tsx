@@ -120,6 +120,32 @@ export default function Index({
                     </div>
                 </div>
 
+                {/* Tabs Section */}
+                <div className="flex border-b border-gray-200 mb-6">
+                    <button
+                        onClick={() => {
+                            router.get(route("scale.tickets.index"), { ...filters, tab: "sale" });
+                        }}
+                        className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${(filters.tab || "sale") === "sale"
+                                ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                            }`}
+                    >
+                        Ventas (O.E.)
+                    </button>
+                    <button
+                        onClick={() => {
+                            router.get(route("scale.tickets.index"), { ...filters, tab: "vessel" });
+                        }}
+                        className={`px-6 py-3 text-sm font-bold border-b-2 transition-all ${filters.tab === "vessel"
+                                ? "border-indigo-600 text-indigo-600 bg-indigo-50/50"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                            }`}
+                    >
+                        Barcos (Descarga)
+                    </button>
+                </div>
+
                 {/* Filters Bar */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row gap-4 justify-between items-center">
                     <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
@@ -402,8 +428,8 @@ export default function Index({
                                             key={i}
                                             href={link.url}
                                             className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${link.active
-                                                    ? "bg-indigo-600 text-white shadow-sm"
-                                                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                                                ? "bg-indigo-600 text-white shadow-sm"
+                                                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                                                 }`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
