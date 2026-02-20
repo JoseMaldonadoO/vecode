@@ -132,7 +132,7 @@ export const ScaleProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }, []);
 
     return (
-        <ScaleContext.Provider value={{ weight, isConnected, isReading, connectScale, disconnectScale, setManualWeight: setWeight }}>
+        <ScaleContext.Provider value={{ weight, isConnected, isReading, connectScale, disconnectScale }}>
             {children}
         </ScaleContext.Provider>
     );

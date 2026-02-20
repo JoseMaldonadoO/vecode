@@ -18,12 +18,29 @@ class SalesController extends Controller
      */
     public function ordersIndex(Request $request)
     {
-        $orders = \App\Models\SalesOrder::with(['client', 'product', 'loading_orders.weight_ticket', 'loading_orders.shipment_order', 'loading_orders.driver', 'loading_orders.transporter'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = \App\Models\SalesOrder::with(['client', 'product', 'loading_orders.weight_ticket', 'loading_orders.shipment_order', 'loading_orders.driver', 'loading_orders.transporter']);
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('folio', 'like', "%{$search}%")
+                    ->orWhere('sale_order', 'like', "%{$search}%")
+                    ->orWhereHas('client', function ($cq) use ($search) {
+                        $cq->where('business_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('product', function ($pq) use ($search) {
+                        $pq->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,
+            'filters' => $request->only(['search']),
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
@@ -178,7 +195,7 @@ class SalesController extends Controller
             ]);
         });
 
-        return redirect()->route('sales.index')->with('success', 'Orden actualizada correctamente.');
+        return redirect()->route('sales.orders.index')->with('success', 'Orden actualizada correctamente.');
     }
 
     public function destroy(string $id)
@@ -191,7 +208,7 @@ class SalesController extends Controller
 
         $order->delete();
 
-        return redirect()->route('sales.index')->with('success', 'Orden eliminada (cancelada) correctamente.');
+        return redirect()->route('sales.orders.index')->with('success', 'Orden eliminada (cancelada) correctamente.');
     }
 
     public function toggleStatus(string $id)

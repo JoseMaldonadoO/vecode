@@ -46,7 +46,7 @@ export default function Edit({
     const isSalesReport = context_module === "sales_report";
     const backLink = isSalesReport
         ? route("sales.index", { view: "report" })
-        : route("sales.index");
+        : route("sales.orders.index");
 
     const { data, setData, put, processing, errors } = useForm({
         folio: order.folio || "",
@@ -313,8 +313,8 @@ export default function Edit({
                                                                         <>
                                                                             <span
                                                                                 className={`block truncate ${selected
-                                                                                        ? "font-normal"
-                                                                                        : "font-normal"
+                                                                                    ? "font-normal"
+                                                                                    : "font-normal"
                                                                                     }`}
                                                                             >
                                                                                 <span className="font-normal mr-2">
@@ -331,8 +331,8 @@ export default function Edit({
                                                                             {selected ? (
                                                                                 <span
                                                                                     className={`absolute inset-y-0 left-0 flex items-center pl-3 ${active
-                                                                                            ? "text-white"
-                                                                                            : "text-indigo-600"
+                                                                                        ? "text-white"
+                                                                                        : "text-indigo-600"
                                                                                         }`}
                                                                                 >
                                                                                     <Check

@@ -21,7 +21,7 @@ export default function Show({
         ? route("documentation.orders.index")
         : isSalesReport
             ? route("sales.index", { view: "report" })
-            : route("sales.index");
+            : route("sales.orders.index");
 
     const backLabel = isDocumentation
         ? "Volver al reporte de embarque"
@@ -133,10 +133,10 @@ export default function Show({
                                 <div className="mt-2 text-right">
                                     <span
                                         className={`text-[10px] font-bold px-2 py-0.5 rounded border ${order.status === "created"
-                                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                                : order.status === "closed"
-                                                    ? "bg-red-50 text-red-700 border-red-200"
-                                                    : "bg-green-50 text-green-700 border-green-200"
+                                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                                            : order.status === "closed"
+                                                ? "bg-red-50 text-red-700 border-red-200"
+                                                : "bg-green-50 text-green-700 border-green-200"
                                             }`}
                                     >
                                         {order.status === "created"

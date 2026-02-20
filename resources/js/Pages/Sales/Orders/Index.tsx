@@ -11,6 +11,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import Modal from "@/Components/Modal";
 import { Truck, ChevronLeft, ChevronRight } from "lucide-react";
+import Pagination from "@/Components/Pagination";
 
 interface Client {
     id: number;
@@ -56,13 +57,21 @@ interface Order {
 export default function Index({
     auth,
     orders,
+    filters,
     flash,
 }: {
     auth: any;
-    orders: Order[];
+    orders: {
+        data: Order[];
+        links: any[];
+        total: number;
+    };
+    filters: {
+        search?: string;
+    };
     flash?: { success?: string; error?: string };
 }) {
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(filters.search || "");
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [currentTripPage, setCurrentTripPage] = useState(1);
@@ -91,14 +100,25 @@ export default function Index({
         );
     };
 
-    const filteredOrders = orders.filter(
-        (order) =>
-            order.folio.toLowerCase().includes(search.toLowerCase()) ||
-            order.sale_order?.toLowerCase().includes(search.toLowerCase()) ||
-            order.client?.business_name
-                .toLowerCase()
-                .includes(search.toLowerCase())
-    );
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (search !== (filters.search || "")) {
+                router.get(
+                    route("sales.orders.index"),
+                    { search },
+                    {
+                        preserveState: true,
+                        preserveScroll: true,
+                        replace: true,
+                    }
+                );
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    const filteredOrders = orders.data;
 
     // Trip Pagination Logic
     const paginatedTrips = useMemo(() => {
@@ -188,7 +208,7 @@ export default function Index({
                         />
                     </div>
                     <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full">
-                        {filteredOrders.length} Registros
+                        {orders.total} Registros
                     </span>
                 </div>
 
@@ -341,6 +361,8 @@ export default function Index({
                         </table>
                     </div>
                 </div>
+
+                <Pagination links={orders.links} />
             </div>
 
             <Modal show={!!selectedOrder} onClose={() => setSelectedOrder(null)} maxWidth="5xl">
