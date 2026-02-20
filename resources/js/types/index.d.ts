@@ -31,6 +31,7 @@ export interface SalesOrder {
     client?: Client;
     product?: Product;
     balance?: string;
+    sale_order?: string;
 }
 
 export interface Transporter {
@@ -58,18 +59,28 @@ export interface ShipmentOrder {
     economic_number?: string;
     license_number?: string;
     unit_number?: string;
-    origin?: string;
+    origin_id?: number | string;
+    origin?: string | { id: number; name: string };
+    destination?: string;
+    state?: string;
+    observations?: string;
+    documenter_name?: string;
+    scale_name?: string;
+    sacks_count?: string;
+    sacks_count_raw?: string;
 
     // Cargo details
     presentation: string;
     sack_type?: string;
-    sacks_count?: string;
     programmed_tons: string;
+    shortage_balance?: string;
 
     // Relations
     client?: Client;
     sales_order?: SalesOrder;
     product?: Product;
     transporter?: Transporter;
-    // Add others as needed
+    driver?: any;
+    vessel?: any;
+    vehicle?: any;
 }

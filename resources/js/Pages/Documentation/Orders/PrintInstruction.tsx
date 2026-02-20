@@ -176,7 +176,9 @@ export default function PrintInstruction({ order }: Props) {
                         </div>
                         <div className="flex">
                             <span className="font-bold w-24">ORIGEN:</span>
-                            <span className="uppercase flex-1">{order.origin || "PLANTA"}</span>
+                            <span className="uppercase flex-1">
+                                {(typeof order.origin === 'object' ? order.origin?.name : order.origin) || "PLANTA"}
+                            </span>
                         </div>
                     </div>
 

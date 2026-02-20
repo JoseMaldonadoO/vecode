@@ -91,7 +91,7 @@ export default function Edit({
         tractor_plate: order.tractor_plate || "",
         trailer_plate: order.trailer_plate || "",
         carta_porte: order.carta_porte || "",
-        origin: order.origin || "PLANTA",
+        origin_id: (order.origin_id || order.origin || "") as string | number,
         license_number: order.license_number || "",
         economic_number: order.economic_number || "",
 
@@ -634,9 +634,9 @@ export default function Edit({
                             )}
 
                             <OriginDropdown
-                                value={data.origin}
-                                onChange={(val) => setData("origin", val)}
-                                error={errors.origin}
+                                value={data.origin_id}
+                                onChange={(id) => setData("origin_id", id)}
+                                error={errors.origin_id}
                             />
 
                             <div>

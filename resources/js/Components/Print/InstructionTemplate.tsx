@@ -168,7 +168,7 @@ export default function InstructionTemplate({ order }: Props) {
                     <div className="flex items-baseline">
                         <span className="font-medium w-20">ORIGEN:</span>
                         <span className="uppercase flex-1 border-b border-gray-300">
-                            {order.origin || "PLANTA"}
+                            {(typeof order.origin === 'object' ? order.origin?.name : order.origin) || "PLANTA"}
                         </span>
                     </div>
                 </div>

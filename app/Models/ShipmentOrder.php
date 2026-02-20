@@ -62,6 +62,11 @@ class ShipmentOrder extends Model
         return $this->belongsTo(Vessel::class);
     }
 
+    public function origin()
+    {
+        return $this->belongsTo(ShipmentOrigin::class, 'origin_id');
+    }
+
     public function loadingOrders()
     {
         return $this->hasMany(LoadingOrder::class);

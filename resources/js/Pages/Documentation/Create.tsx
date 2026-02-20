@@ -91,7 +91,7 @@ export default function Create({
         sack_type: "", // 25, 50, 200, 500
         programmed_tons: "", // Manual now
         balance: "", // Auto-filled from OV
-        origin: "PLANTA",
+        origin_id: "" as string | number,
         destination: "",
         state: "",
 
@@ -792,9 +792,9 @@ export default function Create({
                             )}
 
                             <OriginDropdown
-                                value={data.origin}
-                                onChange={(val) => setData("origin", val)}
-                                error={errors.origin}
+                                value={data.origin_id}
+                                onChange={(id) => setData("origin_id", id)}
+                                error={errors.origin_id}
                             />
 
                             <div>

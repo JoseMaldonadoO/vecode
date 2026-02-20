@@ -18,8 +18,8 @@ interface Origin {
 }
 
 interface OriginDropdownProps {
-    value: string;
-    onChange: (value: string) => void;
+    value?: number | string;
+    onChange: (id: number) => void;
     label?: string;
     error?: string;
 }
@@ -37,6 +37,14 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
         try {
             const response = await axios.get('/shipment-origins');
             setOrigins(response.data);
+
+            // If we have a string value (legacy), try to find the matching ID and update parent
+            if (typeof value === 'string' && value && response.data.length > 0) {
+                const matched = response.data.find((o: Origin) => o.name === value);
+                if (matched) {
+                    onChange(matched.id);
+                }
+            }
         } catch (error) {
             console.error("Error fetching origins:", error);
         } finally {
@@ -55,7 +63,8 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
             if (editingOrigin) {
                 await axios.put(`/shipment-origins/${editingOrigin.id}`, { name: newName });
             } else {
-                await axios.post('/shipment-origins', { name: newName });
+                const resp = await axios.post('/shipment-origins', { name: newName });
+                if (!value) onChange(resp.data.id); // Auto-select if nothing selected
             }
             await fetchOrigins();
             closeDialog();
@@ -71,7 +80,11 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
         if (!confirm(`¿Estás seguro de eliminar "${origin.name}"?`)) return;
         try {
             await axios.delete(`/shipment-origins/${origin.id}`);
-            if (value === origin.name) onChange("");
+            if (Number(value) === origin.id) {
+                // Find another or clear
+                const firstOther = origins.find(o => o.id !== origin.id);
+                if (firstOther) onChange(firstOther.id);
+            }
             await fetchOrigins();
         } catch (error) {
             console.error("Error deleting origin:", error);
@@ -91,7 +104,7 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
         setNewName("");
     };
 
-    const selectedOrigin = origins.find(o => o.name === value);
+    const selectedOrigin = origins.find(o => o.id === Number(value));
 
     return (
         <div className="relative">
@@ -101,14 +114,14 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
                 </label>
             )}
 
-            <Listbox value={value} onChange={onChange}>
+            <Listbox value={value} onChange={(val) => onChange(Number(val))}>
                 <div className="relative mt-1">
                     <Listbox.Button className={`relative w-full cursor-default rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm transition-all ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
                             <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
                         </span>
-                        <span className={`block truncate font-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}>
-                            {value || "Seleccione origen..."}
+                        <span className={`block truncate font-medium ${selectedOrigin ? 'text-gray-900' : 'text-gray-400'}`}>
+                            {selectedOrigin?.name || "Seleccione origen..."}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                             <ChevronsUpDown className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -143,7 +156,7 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
                                             `relative cursor-default select-none py-2.5 pl-10 pr-20 ${active ? 'bg-indigo-600 text-white' : 'text-gray-900'
                                             }`
                                         }
-                                        value={origin.name}
+                                        value={origin.id}
                                     >
                                         {({ selected, active }) => (
                                             <>

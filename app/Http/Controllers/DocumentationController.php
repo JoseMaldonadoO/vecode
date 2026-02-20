@@ -86,7 +86,7 @@ class DocumentationController extends Controller
             'economic_number' => 'nullable|string',
             'qr_code' => 'nullable|string',
             // Shipment
-            'origin' => 'nullable|string',
+            'origin_id' => 'nullable|exists:shipment_origins,id',
             'destination' => 'nullable|string',
             'product' => 'nullable|string', // Text snapshot or ID? Form implies text/select
             'presentation' => 'nullable|string',
@@ -348,7 +348,7 @@ class DocumentationController extends Controller
     public function shipmentOrdersIndex(Request $request)
     {
         $query = ShipmentOrder::query()
-            ->with(['client', 'vessel', 'sales_order', 'driver'])
+            ->with(['client', 'vessel', 'sales_order', 'driver', 'origin'])
             ->whereIn('operation_type', ['scale', 'burreo']);
 
         if ($request->has('search')) {
@@ -389,7 +389,7 @@ class DocumentationController extends Controller
      */
     public function printOrder($id)
     {
-        $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle'])
+        $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle', 'origin'])
             ->findOrFail($id);
 
         // Patch: If plates are missing, try to find them from the Operator registry (ExitOperator)
@@ -446,7 +446,7 @@ class DocumentationController extends Controller
      */
     public function printInstruction($id)
     {
-        $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle'])
+        $order = ShipmentOrder::with(['client', 'sales_order.client', 'product', 'vessel', 'transporter', 'driver', 'vehicle', 'origin'])
             ->findOrFail($id);
 
         // Patch: If plates are missing, try to find them from the Operator registry (ExitOperator)
