@@ -61,6 +61,7 @@ interface Order {
     driver?: {
         name: string;
     };
+    operator_name?: string;
     programmed_tons?: number;
     status: string;
     date?: string;
@@ -263,10 +264,10 @@ export default function Index({
                                                 {order.client?.business_name || "CLIENTE GENERAL"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium uppercase">
-                                                {order.driver?.name || "-"}
+                                                {order.operator_name || order.driver?.name || "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-bold">
-                                                {order.programmed_tons ? Number(order.programmed_tons).toLocaleString('en-US', { minimumFractionDigits: 3 }) : "0.000"} TM
+                                                {order.programmed_tons ? Number(order.programmed_tons).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} TM
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
