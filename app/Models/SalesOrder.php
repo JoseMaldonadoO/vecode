@@ -57,12 +57,22 @@ class SalesOrder extends Model
 
         // Traverse: SalesOrder -> ShipmentOrder -> LoadingOrder -> WeightTicket
         // This is the most robust path as shipment_order_id is always present.
-        $shipments = $this->shipments()
-            ->with(['loadingOrders.weight_ticket'])
-            ->where('status', '!=', 'cancelled')
-            ->get();
+        // Check if relationships are already loaded to avoid N+1
+        if ($this->relationLoaded('shipments')) {
+            $shipments = $this->shipments->where('status', '!=', 'cancelled');
+        } else {
+            $shipments = $this->shipments()
+                ->with(['loadingOrders.weight_ticket'])
+                ->where('status', '!=', 'cancelled')
+                ->get();
+        }
 
         foreach ($shipments as $shipment) {
+            // Check if loadingOrders is loaded on the shipment
+            $trips = $shipment->relationLoaded('loadingOrders')
+                ? $shipment->loadingOrders
+                : $shipment->loadingOrders()->with('weight_ticket')->get();
+
             // 1. Packed Product (ENVASADO): Bypasses scale, counts immediately upon creation
             if (strtoupper($shipment->presentation) === 'ENVASADO') {
                 $total += (float) ($shipment->programmed_tons ?? 0);
@@ -70,7 +80,7 @@ class SalesOrder extends Model
             }
 
             // 2. Bulk Product (GRANEL): Follows standard scale flow
-            foreach ($shipment->loadingOrders as $trip) {
+            foreach ($trips as $trip) {
                 if ($trip->status === 'cancelled')
                     continue;
 

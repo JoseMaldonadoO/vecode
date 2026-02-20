@@ -303,7 +303,7 @@ export default function Index({
                                                 <Link
                                                     href={route("sales.show", {
                                                         sale: order.id,
-                                                        module: "sales_report",
+                                                        module: "sales",
                                                     })}
                                                     className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
                                                 >

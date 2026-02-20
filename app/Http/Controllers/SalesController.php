@@ -18,7 +18,15 @@ class SalesController extends Controller
      */
     public function ordersIndex(Request $request)
     {
-        $query = \App\Models\SalesOrder::with(['client', 'product', 'loading_orders.weight_ticket', 'loading_orders.shipment_order', 'loading_orders.driver', 'loading_orders.transporter']);
+        $query = \App\Models\SalesOrder::with([
+            'client',
+            'product',
+            'shipments.loadingOrders.weight_ticket', // Required for optimized accessor
+            'loading_orders.weight_ticket', // Keep for modal breakdown
+            'loading_orders.shipment_order',
+            'loading_orders.driver',
+            'loading_orders.transporter'
+        ]);
 
         if ($request->has('search')) {
             $search = $request->input('search');
