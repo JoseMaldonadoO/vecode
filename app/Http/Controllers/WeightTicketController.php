@@ -172,7 +172,7 @@ class WeightTicketController extends Controller
         $query = WeightTicket::with([
             'loadingOrder' => function ($q) {
                 // Vessel / Import
-                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client']);
+                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client', 'sales_order']);
             },
             'shipmentOrder' => function ($q) {
                 // Sales / Export
@@ -228,12 +228,7 @@ class WeightTicketController extends Controller
                         $productName = $order->product_name;
                 }
 
-                $saleOrder = 'S/A';
-                if ($ticket->loadingOrder) {
-                    $saleOrder = $ticket->loadingOrder->sales_order->folio ?? 'S/A';
-                } elseif ($ticket->shipmentOrder) {
-                    $saleOrder = $ticket->shipmentOrder->sales_order->folio ?? 'S/A';
-                }
+                $saleOrder = $order->sale_order_folio ?? 'S/A';
 
                 return [
                     'id' => $order->id ?? $ticket->id, // Link ID. If ShipmentOrder, pass that ID.
@@ -805,7 +800,7 @@ class WeightTicketController extends Controller
 
     public function printTicket($id)
     {
-        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel', 'shipment_order.client', 'shipment_order.product'])
+        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel', 'shipment_order.client', 'shipment_order.product', 'sales_order', 'shipment_order.sales_order'])
             ->findOrFail($id);
 
         $ticket = $order->weight_ticket;

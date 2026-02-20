@@ -87,4 +87,23 @@ class LoadingOrder extends Model
         // Snapshot fallback
         return $this->attributes['client_name'] ?? $this->client->business_name ?? 'N/A';
     }
+
+    /**
+     * Get the folios of the associated Sales Order if it exists.
+     * This provides a safe fallback for the removed 'sale_order' column.
+     */
+    public function getSaleOrderFolioAttribute()
+    {
+        return $this->sales_order?->folio ?? ($this->shipment_order?->sales_order?->folio ?? 'S/A');
+    }
+
+    /**
+     * Get the customer reference from the Sales Order.
+     */
+    public function getCustomerReferenceAttribute()
+    {
+        return $this->sales_order?->sale_order ?? ($this->shipment_order?->sales_order?->sale_order ?? 'N/A');
+    }
+
+    protected $appends = ['client_name', 'sale_order_folio', 'customer_reference'];
 }
