@@ -184,23 +184,36 @@ class WeightTicketController extends Controller
 
         // Tab Filtering
         if ($activeTab === 'sale') {
-            // "Ventas" are tickets linked to a Shipment Order (Sales Order)
+            // "Ventas" (SALIDA) must have a Shipment Order AND NOT be linked to a Vessel
             $query->where(function ($q) {
-                $q->whereNotNull('shipment_order_id')
-                    ->orWhereHas('loadingOrder', function ($lo) {
-                        $lo->whereNotNull('shipment_order_id');
+                $q->where(function ($sub) {
+                    $sub->whereNotNull('shipment_order_id')
+                        ->whereHas('loadingOrder', function ($lo) {
+                            $lo->whereNull('vessel_id');
+                        });
+                })->orWhere(function ($sub) {
+                    $sub->whereHas('loadingOrder', function ($lo) {
+                        $lo->whereNotNull('shipment_order_id')
+                            ->whereNull('vessel_id');
                     });
+                })->orWhere(function ($sub) {
+                    // Legacy ShipmentOrder tickets without loadingOrder
+                    $sub->whereNotNull('shipment_order_id')
+                        ->whereDoesntHave('loadingOrder');
+                });
             });
         } elseif ($activeTab === 'vessel') {
-            // "Barcos/Descarga" are everything that is NOT linked to a Shipment Order
+            // "Barcos/Descarga" (DESCARGA) is everything else:
+            // 1. Has a Vessel linked
+            // 2. OR Does not have a Shipment Order linked
             $query->where(function ($q) {
-                $q->whereNull('shipment_order_id')
-                    ->where(function ($sub) {
-                        $sub->whereDoesntHave('loadingOrder')
-                            ->orWhereHas('loadingOrder', function ($lo) {
-                                $lo->whereNull('shipment_order_id');
-                            });
-                    });
+                $q->whereHas('loadingOrder', function ($lo) {
+                    $lo->whereNotNull('vessel_id')
+                        ->orWhereNull('shipment_order_id');
+                })->orWhere(function ($sub) {
+                    $sub->whereNull('shipment_order_id')
+                        ->whereDoesntHave('loadingOrder');
+                });
             });
         }
 
@@ -253,10 +266,11 @@ class WeightTicketController extends Controller
                 }
 
                 $saleOrder = $order->sale_order_folio ?? 'S/A';
-                $isSale = !empty($ticket->shipment_order_id) || ($order && !empty($order->shipment_order_id));
+                // Robust Sale detection
+                $isSale = $order && empty($order->vessel_id) && !empty($order->shipment_order_id);
 
                 return [
-                    'id' => $order->id ?? $ticket->id, // Link ID. If ShipmentOrder, pass that ID.
+                    'id' => $order->id ?? $ticket->id,
                     'ticket_id' => $ticket->id,
                     'folio' => $folio,
                     'ticket_number' => $ticket->ticket_number,
@@ -839,7 +853,8 @@ class WeightTicketController extends Controller
         $entryDate = $transactionEntryDate = \Carbon\Carbon::parse($ticket->weigh_in_at ?? $order->entry_at);
         $exitDate = \Carbon\Carbon::parse($ticket->weigh_out_at ?? now());
 
-        $isSale = !empty($order->shipment_order_id);
+        // Robust Sale detection
+        $isSale = empty($order->vessel_id) && !empty($order->shipment_order_id);
 
         // Map Data
         $clientName = $order->client_name ?? ($order->client->name ?? 'N/A');
