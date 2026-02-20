@@ -144,6 +144,7 @@ class WeightTicketController extends Controller
                 'programmed_weight' => $programmedWeight,
                 'entry_at' => $order->entry_at,
                 'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+                'oe_folio' => $order->shipment_order?->folio ?? 'N/A',
                 'real_transport_line' => $order->shipment_order_id
                     ? ($order->exit_operator->real_transport_line ??
                         (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('real_transport_line') ?? $order->transport_company))

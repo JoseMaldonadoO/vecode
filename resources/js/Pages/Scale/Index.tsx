@@ -339,6 +339,9 @@ export default function Index({
                                         <tr>
                                             {/* Col 1: Removed Type */}
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider rounded-tl-lg">Folio</th>
+                                            {operationType === 'sale' && (
+                                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">OE</th>
+                                            )}
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente / Chofer</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
@@ -356,6 +359,11 @@ export default function Index({
                                                 <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
                                                     {/* Folio */}
                                                     <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
+                                                    {operationType === 'sale' && (
+                                                        <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
+                                                            {order.oe_folio || 'N/A'}
+                                                        </td>
+                                                    )}
                                                     {/* Cliente / Chofer */}
                                                     <td className="px-6 py-4">
                                                         <div className="text-xs text-gray-500 mb-1">{order.provider}</div>
@@ -415,6 +423,11 @@ export default function Index({
                                                 <div>
                                                     <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
                                                         Folio: {order.folio}
+                                                        {operationType === 'sale' && (
+                                                            <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black">
+                                                                OE: {order.oe_folio}
+                                                            </span>
+                                                        )}
                                                     </span>
                                                     <h3 className="font-bold text-gray-900 text-lg">
                                                         {order.driver}
