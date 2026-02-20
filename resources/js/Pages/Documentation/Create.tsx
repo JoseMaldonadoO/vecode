@@ -63,7 +63,7 @@ export default function Create({
     const { data, setData, post, processing, errors } = useForm({
         folio: default_folio || "",
         sales_order_id: "", // Reference to OV
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString('en-CA'), // Formats to YYYY-MM-DD in local time
 
         client_id: "",
         client_name: "",
