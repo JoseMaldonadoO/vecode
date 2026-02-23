@@ -118,12 +118,17 @@ export default function EntryMP({
         }
     };
 
+    const normalizeFolio = (text: string) => {
+        if (!text) return "";
+        return text.replace(/['\/?_.]/g, "-").toUpperCase().trim();
+    };
+
     const searchOrder = async (codeOverride?: string) => {
-        const query = codeOverride || qrValue;
+        const query = normalizeFolio(codeOverride || qrValue);
         if (!query) return;
 
         setIsLoading(true);
-        if (codeOverride) setQrValue(codeOverride);
+        if (codeOverride) setQrValue(normalizeFolio(codeOverride));
 
         try {
             const response = await axios.get(route("scale.search-qr"), {
@@ -310,7 +315,7 @@ export default function EntryMP({
                                             type="text"
                                             value={qrValue}
                                             onChange={(e) =>
-                                                setQrValue(e.target.value)
+                                                setQrValue(normalizeFolio(e.target.value))
                                             }
                                             onKeyDown={(e) =>
                                                 e.key === "Enter" &&

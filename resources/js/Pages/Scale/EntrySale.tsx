@@ -109,8 +109,15 @@ export default function EntrySale({
         }
     };
 
+    const normalizeFolio = (text: string) => {
+        if (!text) return "";
+        // Replace common scanner-misinterpreted keys with hyphens
+        // ' / ? _ . etc based on common layout shifts
+        return text.replace(/['\/?_.]/g, "-").toUpperCase().trim();
+    };
+
     const searchOrder = async (folioOverride?: string) => {
-        const query = folioOverride || folioQuery;
+        const query = normalizeFolio(folioOverride || folioQuery);
         if (!query) return;
 
         setIsLoading(true);
@@ -272,7 +279,7 @@ export default function EntrySale({
                                             type="text"
                                             value={folioQuery}
                                             onChange={(e) =>
-                                                setFolioQuery(e.target.value)
+                                                setFolioQuery(normalizeFolio(e.target.value))
                                             }
                                             onKeyDown={(e) =>
                                                 e.key === "Enter" &&
