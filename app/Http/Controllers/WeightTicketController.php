@@ -106,6 +106,8 @@ class WeightTicketController extends Controller
                 $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
             }
 
+            $programmedWeight = $order->shipment_order?->programmed_tons ?? $order->programmed_tons ?? 'N/A';
+
             // Determine Product Name
             $productName = 'N/A';
             // ... (rest of product logic) ...
