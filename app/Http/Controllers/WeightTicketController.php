@@ -109,9 +109,10 @@ class WeightTicketController extends Controller
             $programmedWeight = $order->shipment_order?->programmed_tons ?? $order->programmed_tons ?? 'N/A';
 
             // Determine Product Name
-            $productName = 'N/A';
-            // ... (rest of product logic) ...
-            // ... (I will keep the existing lines to match the snippet precisely) ...
+            $productName = $order->product?->name
+                ?? $order->shipment_order?->product?->name
+                ?? $order->shipment_order?->product
+                ?? 'N/A';
 
             // Re-mapping the return array for clarity
             return [
