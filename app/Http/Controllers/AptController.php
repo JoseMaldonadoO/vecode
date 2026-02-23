@@ -551,14 +551,17 @@ class AptController extends Controller
     {
         $scan = \App\Models\AptScan::findOrFail($id);
 
-        // Optional: Reset Order? 
-        // For now, let's just delete the log as requested. 
-        // If we wanted to "Unassign", we would handle that separately or assume user wants to just remove the history.
-        // Actually, if it was the last action, maybe we should clear the order.
-        // Let's stick to safe deletion of the log only, to avoid side effects on the Order flow.
+        if ($scan->loading_order_id) {
+            // Deleting the LoadingOrder will automatically delete:
+            // 1. The WeightTicket (cascade)
+            // 2. The AptScan itself (cascade)
+            // This ensures the Dashboard trip count is correctly reduced.
+            \App\Models\LoadingOrder::where('id', $scan->loading_order_id)->delete();
+        } else {
+            // Fallback for scans without a loading order
+            $scan->delete();
+        }
 
-        $scan->delete();
-
-        return redirect()->back()->with('success', 'Registro eliminado.');
+        return redirect()->back()->with('success', 'Registro y viaje eliminados correctamente.');
     }
 }
