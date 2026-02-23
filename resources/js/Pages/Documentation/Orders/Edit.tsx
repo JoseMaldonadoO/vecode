@@ -647,6 +647,7 @@ export default function Edit({
                                     type="number"
                                     step="0.01"
                                     value={data.programmed_tons}
+                                    onWheel={(e) => e.currentTarget.blur()}
                                     onChange={(e) => setData("programmed_tons", e.target.value)}
                                     className={`w-full rounded-lg shadow-sm focus:ring-indigo-500 py-2.5 px-3 font-bold ${Number(data.programmed_tons) > Number(availableBalance)
                                         ? 'border-red-500 focus:border-red-500 bg-red-50'
