@@ -120,7 +120,7 @@ export default function Index({
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [search]);
+    }, [search, status]);
 
     const filteredOrders = orders.data;
 
