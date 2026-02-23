@@ -173,7 +173,7 @@ class WeightTicketController extends Controller
         $query = WeightTicket::with([
             'loadingOrder' => function ($q) {
                 // Vessel / Import
-                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client', 'sales_order']);
+                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client', 'vessel.product', 'sales_order']);
             },
             'shipmentOrder' => function ($q) {
                 // Sales / Export
@@ -267,14 +267,20 @@ class WeightTicketController extends Controller
                     $plate = $order->shipment_order->tractor_plate ?? $plate;
                 }
 
-                // Product
-                // LoadingOrder: product (text) or relation
-                // ShipmentOrder: product (relation or text?)
+                // Product mapping with Vessel fallback
                 $productName = 'N/A';
                 if ($order) {
                     $productName = is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A');
-                    if ($productName === 'N/A' && isset($order->product_name))
+
+                    // Fallback to Vessel Product (common for Imports/Descarga)
+                    if ($productName === 'N/A' && !empty($order->vessel->product)) {
+                        $productName = $order->vessel->product->name;
+                    }
+
+                    // Secondary fallback to legacy column
+                    if ($productName === 'N/A' && isset($order->product_name)) {
                         $productName = $order->product_name;
+                    }
                 }
 
                 $saleOrder = $order->sale_order_folio ?? 'S/A';
@@ -852,7 +858,7 @@ class WeightTicketController extends Controller
 
     public function printTicket($id)
     {
-        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel', 'shipment_order.client', 'shipment_order.product', 'sales_order', 'shipment_order.sales_order'])
+        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'sales_order', 'shipment_order.sales_order'])
             ->findOrFail($id);
 
         $ticket = $order->weight_ticket;
@@ -870,10 +876,15 @@ class WeightTicketController extends Controller
 
         // Map Data
         $clientName = $order->client_name ?? ($order->client->name ?? 'N/A');
+        // Product Logic with Vessel fallback
         $productName = is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A');
+        if ($productName === 'N/A' && !empty($order->vessel->product)) {
+            $productName = $order->vessel->product->name;
+        }
+
         $programmedWeight = 0;
 
-        // Sales Specific Overrides
+        // Sales Specific Overrides (Eager loaded via $order->shipment_order)
         if ($isSale) {
             $clientName = $order->shipment_order->client->business_name ?? ($order->shipment_order->client->name ?? $clientName);
             $productName = $order->shipment_order->product->name ?? ($order->shipment_order->product ?? $productName);
@@ -916,11 +927,10 @@ class WeightTicketController extends Controller
             'reference' => $isSale ? ($order->shipment_order->folio ?? 'N/A') : ($order->reference ?? 'N/A'),
             'operation' => $isSale ? 'SALIDA' : 'DESCARGA',
             'scale_number' => $ticket->scale_id ?? 2,
-
             'product' => $productName,
             'presentation' => $isSale
                 ? ($order->shipment_order->presentation . ($order->shipment_order->presentation === 'ENVASADO' && $order->shipment_order->sacks_count ? ' ' . $order->shipment_order->sacks_count : ''))
-                : ($order->product->default_packaging ?? 'GRANEL'),
+                : 'N/A', // Remove GRANEL/ENVASADO for Barcos
 
             // Weights
             'entry_weight' => $ticket->tare_weight,
