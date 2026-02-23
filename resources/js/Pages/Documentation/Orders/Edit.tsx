@@ -57,6 +57,7 @@ export default function Edit({
     clients: Client[];
     products: Product[];
     sales_orders: any[];
+    scale_operators?: { id: number; name: string }[];
 }) {
     // Helper to find partial match for product
     const findProduct = () => {
@@ -107,6 +108,7 @@ export default function Edit({
 
         observations: order.observations || "",
         documenter_name: order.documenter_name || auth.user.name,
+        scale_operator_id: order.scale_operator_id?.toString() || "",
     });
 
     const [queryClient, setQueryClient] = useState("");
@@ -705,9 +707,24 @@ export default function Edit({
 
                         </div>
 
-                        <div className="mt-10 pt-6 border-t border-gray-100 flex justify-between items-center">
-                            <div className="text-gray-500 text-sm italic">
-                                Documentador Original: <span className="font-bold text-indigo-600">{data.documenter_name}</span>
+                        <div className="mt-10 pt-6 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="text-gray-500 text-sm italic">
+                                    Documentador Original: <span className="font-bold text-indigo-600">{data.documenter_name}</span>
+                                </div>
+                                <div className="flex items-center gap-3 bg-indigo-50/50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                                    <label className="text-gray-600 text-xs font-bold uppercase tracking-wider whitespace-nowrap">BÁSCULA:</label>
+                                    <select
+                                        value={data.scale_operator_id}
+                                        onChange={(e) => setData("scale_operator_id", e.target.value)}
+                                        className="text-xs p-1.5 border-none bg-transparent focus:ring-0 font-bold text-indigo-700 cursor-pointer min-w-[150px]"
+                                    >
+                                        <option value="">-- SELECCIONAR --</option>
+                                        {scale_operators?.map(op => (
+                                            <option key={op.id} value={op.id}>{op.name.toUpperCase()}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                             <button
                                 type="submit"

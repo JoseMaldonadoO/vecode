@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Vessel;
 use App\Models\VesselOperator;
 use App\Models\SalesOrder;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -42,6 +43,12 @@ class DocumentationController extends Controller
             'sales_orders' => SalesOrder::with(['client', 'product'])
                 ->whereIn('status', ['created', 'open'])
                 ->get(),
+            'scale_operators' => User::role('Bascula')->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                ];
+            }),
             'default_folio' => function () {
                 $maxFolio = ShipmentOrder::where('folio', 'like', 'PA' . date('Y') . '-%')
                     ->get()
@@ -99,6 +106,7 @@ class DocumentationController extends Controller
             'scale_name' => 'nullable|string',
             'observations' => 'nullable|string',
             'state' => 'nullable|string',
+            'scale_operator_id' => 'nullable|exists:users,id',
         ]);
 
         // 1. Validation: Programmed Tons <= OV Balance
@@ -131,8 +139,13 @@ class DocumentationController extends Controller
         unset($validated['sack_type']);
         unset($validated['balance']);
 
-        // If client_id is present, we might want to ensure snapshot fields are filled if empty
-        // logic here...
+        // Populate scale_name if scale_operator_id is provided
+        if (!empty($validated['scale_operator_id'])) {
+            $operator = User::find($validated['scale_operator_id']);
+            if ($operator) {
+                $validated['scale_name'] = $operator->name;
+            }
+        }
 
         ShipmentOrder::create($validated + ['status' => 'created']);
 
@@ -529,6 +542,12 @@ class DocumentationController extends Controller
                 ->orWhere('id', $order->sales_order_id)
                 ->with(['client', 'product'])
                 ->get(),
+            'scale_operators' => User::role('Bascula')->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                ];
+            }),
         ]);
     }
 
@@ -568,6 +587,7 @@ class DocumentationController extends Controller
             'state' => 'nullable|string',
             // Allow Operator/Unit IDs to be updated if re-selected
             'operator_id' => 'nullable',
+            'scale_operator_id' => 'nullable|exists:users,id',
         ]);
 
         // Validate Balance again if programmed tons changed
@@ -591,6 +611,12 @@ class DocumentationController extends Controller
         }
         unset($validated['sack_type']);
         unset($validated['balance']);
+        if (!empty($validated['scale_operator_id'])) {
+            $operator = User::find($validated['scale_operator_id']);
+            if ($operator) {
+                $validated['scale_name'] = $operator->name;
+            }
+        }
         unset($validated['operator_id']); // Not a column in DB, used for UI search only
 
         $order->update($validated);
