@@ -109,14 +109,16 @@ export default function EntrySale({
         }
     };
 
-    const searchOrder = async () => {
-        if (!folioQuery) return;
+    const searchOrder = async (folioOverride?: string) => {
+        const query = folioOverride || folioQuery;
+        if (!query) return;
 
         setIsLoading(true);
+        if (folioOverride) setFolioQuery(folioOverride);
 
         try {
             const response = await axios.get(route("scale.search-folio"), {
-                params: { folio: folioQuery },
+                params: { folio: query },
             });
             const res = response.data;
             setOrderDetails(res);
@@ -251,6 +253,20 @@ export default function EntrySale({
                                     Buscar por Folio de Orden (OE)
                                 </label>
                                 <div className="flex gap-2">
+                                    {/* Camera Toggle */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCamera(!showCamera)}
+                                        className={`p-2.5 rounded-lg border transition-colors ${showCamera ? "bg-red-50 border-red-200 text-red-600" : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"}`}
+                                        title={showCamera ? "Cerrar Cámara" : "Abrir Cámara"}
+                                    >
+                                        {showCamera ? (
+                                            <X className="w-5 h-5" />
+                                        ) : (
+                                            <Camera className="w-5 h-5" />
+                                        )}
+                                    </button>
+
                                     <div className="relative flex-1">
                                         <input
                                             type="text"
@@ -283,6 +299,30 @@ export default function EntrySale({
                                 </div>
                             </div>
                         </div>
+
+                        {/* Camera View */}
+                        {showCamera && (
+                            <div className="w-full max-w-sm mx-auto mt-4 bg-black rounded-lg overflow-hidden relative shadow-2xl animate-fade-in-down">
+                                <QrReader
+                                    onResult={(result: any, error) => {
+                                        if (!!result) {
+                                            const text = typeof result.getText === "function" ? result.getText() : result.text;
+                                            if (text) {
+                                                setFolioQuery(text);
+                                                setShowCamera(false);
+                                                searchOrder(text);
+                                            }
+                                        }
+                                    }}
+                                    constraints={{ facingMode: "environment" }}
+                                    videoStyle={{ width: "100%" }}
+                                    className="w-full"
+                                />
+                                <p className="text-white text-center py-2 text-sm">
+                                    Apunte al código QR de la OE...
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
