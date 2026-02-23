@@ -68,7 +68,7 @@ export default function Index({
     clients = [],
     products = [],
     warehouses = [],
-    filters = { client_id: '', product_id: '', warehouse: '' }
+    filters = { client_id: '', product_id: '', warehouse: '', presentation: '' }
 }: {
     auth: any;
     pending_exit: any[];
@@ -76,7 +76,7 @@ export default function Index({
     clients?: any[];
     products?: any[];
     warehouses?: string[];
-    filters?: { client_id: string, product_id: string, warehouse: string };
+    filters?: { client_id: string, product_id: string, warehouse: string, presentation: string };
 }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
@@ -88,6 +88,7 @@ export default function Index({
     const [selectedClient, setSelectedClient] = useState(filters?.client_id || '');
     const [selectedProduct, setSelectedProduct] = useState(filters?.product_id || '');
     const [selectedWarehouse, setSelectedWarehouse] = useState(filters?.warehouse || '');
+    const [selectedPresentation, setSelectedPresentation] = useState(filters?.presentation || '');
 
     const [searchTerm, setSearchTerm] = useState(''); // Local search for convenience
 
@@ -121,6 +122,7 @@ export default function Index({
         if (key === 'client_id') setSelectedClient(value);
         if (key === 'product_id') setSelectedProduct(value);
         if (key === 'warehouse') setSelectedWarehouse(value);
+        if (key === 'presentation') setSelectedPresentation(value);
 
         // Reload with Inertia
         import('@inertiajs/react').then(({ router }) => {
@@ -129,6 +131,7 @@ export default function Index({
                 client_id: key === 'client_id' ? value : selectedClient,
                 product_id: key === 'product_id' ? value : selectedProduct,
                 warehouse: key === 'warehouse' ? value : selectedWarehouse,
+                presentation: key === 'presentation' ? value : selectedPresentation,
             }, {
                 preserveState: true,
                 preserveScroll: true,
@@ -300,6 +303,19 @@ export default function Index({
                                         {warehouses?.map((w) => (
                                             <option key={w} value={w}>{w}</option>
                                         ))}
+                                    </select>
+                                )}
+
+                                {/* Presentation Filter (Only for Sales) */}
+                                {operationType === 'sale' && (
+                                    <select
+                                        value={selectedPresentation}
+                                        onChange={(e) => handleFilterChange('presentation', e.target.value)}
+                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
+                                    >
+                                        <option value="">Presentación</option>
+                                        <option value="GRANEL">GRANEL</option>
+                                        <option value="ENVASADO">ENVASADO</option>
                                     </select>
                                 )}
 

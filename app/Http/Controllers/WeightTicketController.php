@@ -64,6 +64,12 @@ class WeightTicketController extends Controller
             $query->where('warehouse', $request->warehouse);
         }
 
+        if ($request->filled('presentation')) {
+            $query->whereHas('shipment_order', function ($sub) use ($request) {
+                $sub->where('presentation', $request->presentation);
+            });
+        }
+
         $pending_exit_collection = $query->orderBy('entry_at', 'asc')->get();
 
         // Extract options for filters from the UNFILTERED list (or separate query)
@@ -78,6 +84,13 @@ class WeightTicketController extends Controller
         $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
         $products = \App\Models\Product::orderBy('name')->get(['id', 'name']);
         $clients = \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']);
+
+        $currentFilters = [
+            'client_id' => $request->client_id ?? '',
+            'product_id' => $request->product_id ?? '',
+            'warehouse' => $request->warehouse ?? '',
+            'presentation' => $request->presentation ?? '',
+        ];
 
 
         $pending_exit = $pending_exit_collection->map(function ($order) {
@@ -132,7 +145,7 @@ class WeightTicketController extends Controller
             'clients' => $clients,
             'products' => $products,
             'warehouses' => $warehouses,
-            'filters' => $request->only(['client_id', 'product_id', 'warehouse']),
+            'filters' => $request->only(['client_id', 'product_id', 'warehouse', 'presentation']),
         ]);
     }
 
