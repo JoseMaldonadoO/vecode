@@ -197,6 +197,11 @@ Route::middleware('auth')->group(function () {
 
     // System Maintenance (Temporary)
     Route::get('/system/deploy', [\App\Http\Controllers\SystemController::class, 'deployUpdates'])->name('system.deploy');
+
+    // MOCKUP TEMPORAL (Solo para visualización)
+    Route::get('/mockup/dock-scanner', function () {
+        return Inertia::render('Prototypes/DockScannerMockup');
+    })->name('mockup.dock-scanner');
 });
 
 require __DIR__ . '/auth.php';
