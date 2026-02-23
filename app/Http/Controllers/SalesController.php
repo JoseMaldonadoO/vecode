@@ -38,9 +38,9 @@ class SalesController extends Controller
             });
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+        // Default status to 'created' if not specified
+        $statusFilter = $request->input('status', 'created');
+        $query->where('status', $statusFilter);
 
         $orders = $query->orderBy('created_at', 'desc')
             ->paginate(10)
@@ -48,7 +48,10 @@ class SalesController extends Controller
 
         return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->input('search'),
+                'status' => $statusFilter,
+            ],
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),

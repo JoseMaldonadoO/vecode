@@ -73,7 +73,7 @@ export default function Index({
     flash?: { success?: string; error?: string };
 }) {
     const [search, setSearch] = useState(filters.search || "");
-    const [status, setStatus] = useState(filters.status || "");
+    const [status, setStatus] = useState(filters.status || "created");
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [breakdownLoading, setBreakdownLoading] = useState(false);
@@ -230,7 +230,6 @@ export default function Index({
                             onChange={(e) => setStatus(e.target.value)}
                             className="block w-full md:w-48 px-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow font-bold text-gray-700"
                         >
-                            <option value="">Todos los Estatus</option>
                             <option value="created">ABIERTAS</option>
                             <option value="closed">CERRADAS</option>
                         </select>

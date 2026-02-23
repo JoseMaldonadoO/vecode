@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v4
+# Force trigger: v5 (Retrying after timeout)
 
 on:
   push:
