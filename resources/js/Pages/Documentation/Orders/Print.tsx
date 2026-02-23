@@ -3,6 +3,8 @@ import { Head, usePage } from "@inertiajs/react";
 import InstructionTemplate from "@/Components/Print/InstructionTemplate";
 import WeightVerificationTemplate from "@/Components/Print/WeightVerificationTemplate";
 import StowageNoteTemplate from '@/Components/Print/StowageNoteTemplate';
+import { useState } from "react";
+import QRCode from "qrcode";
 
 interface Order {
     id: string;
@@ -56,12 +58,19 @@ interface Props {
 export default function Print({ order }: Props) {
     const { props } = usePage<any>();
     const tenant = props.tenant;
+    const [qrDataUrl, setQrDataUrl] = useState("");
 
     useEffect(() => {
+        if (order.folio) {
+            QRCode.toDataURL(order.folio, { width: 120, margin: 1 }, (err, url) => {
+                if (!err) setQrDataUrl(url);
+            });
+        }
+
         setTimeout(() => {
             window.print();
-        }, 1000);
-    }, []);
+        }, 1200);
+    }, [order.folio]);
 
     const calculateSacks = () => {
         if (!order.programmed_tons) return "0";
@@ -449,16 +458,35 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                     </div>
                                 </div>
 
-                                {/* OBSERVATIONS */}
-                                <table className="mb-1">
-                                    <tr>
-                                        {/* Removed border-b-2!/border-black! classes if any, used standard bg-header without border-b */}
-                                        <th className="bg-header text-left pl-2 py-0.5 no-border">OBSERVACIONES:</th>
-                                    </tr>
-                                    <tr className="h-8">
-                                        <td className="align-top text-[8px] uppercase p-1 no-border">{order.observations}</td>
-                                    </tr>
-                                </table>
+                                {/* OBSERVATIONS & QR */}
+                                <div className="flex gap-1">
+                                    <div className="flex-grow">
+                                        <table className="w-full h-full">
+                                            <thead>
+                                                <tr>
+                                                    <th className="bg-header text-left pl-2 py-0.5 no-border uppercase">OBSERVACIONES:</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr className="h-20">
+                                                    <td className="align-top text-[8px] uppercase p-1 no-border border border-gray-400">
+                                                        {order.observations}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="w-24 h-24 border border-gray-400 flex flex-col items-center justify-center p-1 bg-white">
+                                        {qrDataUrl ? (
+                                            <>
+                                                <img src={qrDataUrl} alt="QR Folio" className="w-20 h-20" />
+                                                <span className="text-[6px] font-bold text-gray-400 uppercase tracking-tighter">SCAN OE</span>
+                                            </>
+                                        ) : (
+                                            <div className="text-[6px] text-gray-300">...</div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
