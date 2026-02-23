@@ -68,10 +68,12 @@ export default function Index({
     };
     filters: {
         search?: string;
+        status?: string;
     };
     flash?: { success?: string; error?: string };
 }) {
     const [search, setSearch] = useState(filters.search || "");
+    const [status, setStatus] = useState(filters.status || "");
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [breakdownLoading, setBreakdownLoading] = useState(false);
@@ -104,10 +106,10 @@ export default function Index({
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (search !== (filters.search || "")) {
+            if (search !== (filters.search || "") || status !== (filters.status || "")) {
                 router.get(
                     route("sales.orders.index"),
-                    { search },
+                    { search, status },
                     {
                         preserveState: true,
                         preserveScroll: true,
@@ -209,19 +211,32 @@ export default function Index({
 
                 {/* Filters & Actions */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex justify-between items-center">
-                    <div className="relative w-full md:w-96">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="h-5 w-5 text-gray-400" />
+                    <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+                        <div className="relative w-full md:w-96">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Search className="h-5 w-5 text-gray-400" />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Buscar por folio, cliente..."
+                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
                         </div>
-                        <input
-                            type="text"
-                            placeholder="Buscar por folio, cliente..."
-                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
+
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                            className="block w-full md:w-48 px-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow font-bold text-gray-700"
+                        >
+                            <option value="">Todos los Estatus</option>
+                            <option value="created">ABIERTAS</option>
+                            <option value="closed">CERRADAS</option>
+                        </select>
                     </div>
-                    <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full">
+
+                    <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full ml-4 whitespace-nowrap">
                         {orders.total} Registros
                     </span>
                 </div>

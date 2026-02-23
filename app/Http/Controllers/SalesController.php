@@ -38,13 +38,17 @@ class SalesController extends Controller
             });
         }
 
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         $orders = $query->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();
 
         return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'status']),
             'flash' => [
                 'success' => session('success'),
                 'error' => session('error'),
