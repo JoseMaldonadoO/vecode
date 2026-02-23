@@ -53,6 +53,7 @@ export default function Create({
     products,
     sales_orders,
     default_folio,
+    scale_operators,
 }: {
     auth: any;
     clients: Client[];
@@ -910,7 +911,7 @@ export default function Create({
                                         className="text-xs p-1.5 border-none bg-transparent focus:ring-0 font-bold text-indigo-700 cursor-pointer min-w-[150px]"
                                     >
                                         <option value="">-- SELECCIONAR --</option>
-                                        {scale_operators?.map(op => (
+                                        {scale_operators?.map((op: { id: number; name: string }) => (
                                             <option key={op.id} value={op.id}>{op.name.toUpperCase()}</option>
                                         ))}
                                     </select>

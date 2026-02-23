@@ -51,6 +51,7 @@ export default function Edit({
     clients,
     products,
     sales_orders,
+    scale_operators,
 }: {
     auth: any;
     order: any;
@@ -720,7 +721,7 @@ export default function Edit({
                                         className="text-xs p-1.5 border-none bg-transparent focus:ring-0 font-bold text-indigo-700 cursor-pointer min-w-[150px]"
                                     >
                                         <option value="">-- SELECCIONAR --</option>
-                                        {scale_operators?.map(op => (
+                                        {scale_operators?.map((op: { id: number; name: string }) => (
                                             <option key={op.id} value={op.id}>{op.name.toUpperCase()}</option>
                                         ))}
                                     </select>
