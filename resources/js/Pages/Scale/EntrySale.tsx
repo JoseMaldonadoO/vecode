@@ -290,7 +290,7 @@ export default function EntrySale({
                                         </div>
                                     </div>
                                     <PrimaryButton
-                                        onClick={searchOrder}
+                                        onClick={() => searchOrder()}
                                         disabled={isLoading}
                                         className="bg-blue-600 hover:bg-blue-700 h-full px-6"
                                     >
