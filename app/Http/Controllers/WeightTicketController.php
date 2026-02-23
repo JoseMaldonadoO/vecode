@@ -83,57 +83,30 @@ class WeightTicketController extends Controller
         $pending_exit = $pending_exit_collection->map(function ($order) {
             $ticket = $order->weight_ticket;
             $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
+            $tractorPlate = $order->tractor_plate;
+            $trailerPlate = $order->trailer_plate ?? 'N/A';
+
+            // SALES PRIORITY: If linked to a Shipment Order (OE), use its dynamic data
+            if ($order->shipment_order_id && $order->shipment_order) {
+                $operatorName = $order->shipment_order->operator_name ?? $operatorName;
+                $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
+                $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
+            }
 
             // Determine Product Name
             $productName = 'N/A';
+            // ... (rest of product logic) ...
+            // ... (I will keep the existing lines to match the snippet precisely) ...
 
-            // 1. Direct Product on LoadingOrder
-            if ($order->product) {
-                // Eager loaded or accessed via relation
-                $productName = $order->product->name;
-            }
-            // 2. Product via ShipmentOrder -> Items
-            elseif ($order->shipment_order && $order->shipment_order->items->isNotEmpty()) {
-                $item = $order->shipment_order->items->first();
-                if ($item && $item->product) {
-                    $productName = $item->product->name;
-                }
-            }
-            // 3. Product via ShipmentOrder -> SalesOrder (Fallback)
-            elseif ($order->shipment_order && $order->shipment_order->sales_order) {
-                // Check direct product relation first
-                if ($order->shipment_order->sales_order->product) {
-                    $productName = $order->shipment_order->sales_order->product->name;
-                }
-                // If SalesOrder has items (legacy or different structure), check safely
-                elseif (method_exists($order->shipment_order->sales_order, 'items') && $order->shipment_order->sales_order->items()->exists()) {
-                    $item = $order->shipment_order->sales_order->items->first();
-                    if ($item && $item->product) {
-                        $productName = $item->product->name;
-                    }
-                }
-            }
-
-            // Programmed Weight Logic (Convert to Tons)
-            $programmedWeight = 0;
-            if ($order->shipment_order) {
-                if ($order->shipment_order->programmed_tons > 0) {
-                    $programmedWeight = $order->shipment_order->programmed_tons; // Already in Tons
-                } else {
-                    // fallback to requested_quantity (usually in KG) -> divide by 1000
-                    $totalKg = $order->shipment_order->items->sum('requested_quantity') ?? 0;
-                    $programmedWeight = $totalKg > 0 ? ($totalKg / 1000) : 0;
-                }
-            }
-
+            // Re-mapping the return array for clarity
             return [
                 'id' => $order->id,
                 'folio' => $order->folio,
                 'provider' => $order->client_name,
                 'product' => $productName,
                 'entry_weight' => $ticket->tare_weight,
-                'vehicle_plate' => $order->tractor_plate,
-                'trailer_plate' => $order->trailer_plate ?? 'N/A',
+                'vehicle_plate' => $tractorPlate,
+                'trailer_plate' => $trailerPlate,
                 'driver' => $operatorName,
                 'transport_line' => $order->transport_company,
                 'economic_number' => $order->economic_number ?? 'N/A',
@@ -443,14 +416,25 @@ class WeightTicketController extends Controller
                 }
             }
 
+            $driver = $order->operator_name ?? ($order->driver->name ?? 'N/A');
+            $tractorPlate = $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A');
+            $trailerPlate = $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A');
+
+            // SALES PRIORITY
+            if ($order->shipment_order_id && $order->shipment_order) {
+                $driver = $order->shipment_order->operator_name ?? $driver;
+                $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
+                $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
+            }
+
             $orderData = [
                 'id' => $order->id,
                 'folio' => $order->folio,
                 'provider' => $order->client_name ?? ($order->client->business_name ?? ($order->client->name ?? 'N/A')),
                 'product' => $productName,
-                'driver' => $order->operator_name ?? ($order->driver->name ?? 'N/A'),
-                'vehicle_plate' => $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A'),
-                'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
+                'driver' => $driver,
+                'vehicle_plate' => $tractorPlate,
+                'trailer_plate' => $trailerPlate,
                 'transport_line' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
                 'entry_weight' => $order->weight_ticket->tare_weight ?? 0,
                 'warehouse' => $order->warehouse ?? 'N/A',
@@ -530,9 +514,9 @@ class WeightTicketController extends Controller
             'id' => $order->id,
             'folio' => $order->folio,
             'provider' => $order->client->business_name ?? ($order->client->name ?? 'N/A'),
-            'driver' => $order->operator_name ?? ($order->driver->name ?? 'N/A'),
-            'vehicle_plate' => $order->tractor_plate ?? ($order->vehicle->plate ?? 'N/A'),
-            'trailer_plate' => $order->trailer_plate ?? ($order->vehicle->trailer_plate ?? 'N/A'),
+            'driver' => $order->operator_name ?? 'N/A',
+            'vehicle_plate' => $order->tractor_plate ?? 'N/A',
+            'trailer_plate' => $order->trailer_plate ?? 'N/A',
             'vehicle_type' => $order->unit_type ?? 'N/A',
             'transport_line' => $transportLine,
             'economic_number' => $order->economic_number ?? 'N/A',
