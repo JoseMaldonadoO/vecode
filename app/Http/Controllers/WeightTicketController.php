@@ -162,11 +162,11 @@ class WeightTicketController extends Controller
         $query = WeightTicket::with([
             'loadingOrder' => function ($q) {
                 // Vessel / Import
-                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client', 'vessel.product', 'sales_order']);
+                $q->with(['client', 'product', 'driver', 'vehicle', 'vessel.client', 'vessel.product', 'sales_order', 'shipment_order.client', 'shipment_order.items.product']);
             },
             'shipmentOrder' => function ($q) {
                 // Sales / Export
-                $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order.product']);
+                $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order.product', 'items.product']);
             }
         ])
             ->where('is_burreo', false) // EXCLUDE BURREO
@@ -236,58 +236,61 @@ class WeightTicketController extends Controller
         $tickets = $query->paginate(10)
             ->withQueryString()
             ->through(function ($ticket) {
-                // Determine source (LoadingOrder vs ShipmentOrder)
-                $order = $ticket->loadingOrder ?? $ticket->shipmentOrder;
+                // Robust Resolution for Client and Product
+                $loadingOrder = $ticket->loadingOrder;
+                $shipmentOrder = $ticket->shipmentOrder ?? $loadingOrder?->shipment_order;
 
-                // Common fields mapping
-                // Note: ShipmentOrder uses 'client' relation too.
-                // Product might be relation or string.
-    
-                // Fallbacks if orphaned ticket (shouldn't happen but safe to handle)
-                $folio = $order->folio ?? $ticket->folio ?? 'N/A';
+                // Determine if it's a Sale-related operation (O.E.)
+                $isSale = $shipmentOrder && (!$loadingOrder || empty($loadingOrder->vessel_id));
 
-                // Driver/Vehicle Priority: If it's a Sale, check ShipmentOrder first to reflect EDITS in Documentation
-                $driver = $order->operator_name ?? 'N/A';
-                $plate = $order->tractor_plate ?? 'N/A';
-                $isSale = $order && empty($order->vessel_id) && !empty($order->shipment_order_id);
+                // Folio resolution
+                $folio = $shipmentOrder->folio ?? ($loadingOrder->folio ?? ($ticket->folio ?? 'N/A'));
 
-                if ($isSale && $order->shipment_order) {
-                    $driver = $order->shipment_order->operator_name ?? $driver;
-                    $plate = $order->shipment_order->tractor_plate ?? $plate;
+                // Driver/Vehicle resolution
+                $driver = $loadingOrder->operator_name ?? ($shipmentOrder->operator_name ?? 'N/A');
+                $plate = $loadingOrder->tractor_plate ?? ($shipmentOrder->tractor_plate ?? 'N/A');
+
+                if ($isSale) {
+                    $driver = $shipmentOrder->operator_name ?? $driver;
+                    $plate = $shipmentOrder->tractor_plate ?? $plate;
                 }
 
-                // Product mapping with Vessel fallback
+                // 1. Resolve Product Name
                 $productName = 'N/A';
-                if ($order) {
-                    $productName = is_string($order->product) ? $order->product : ($order->product->name ?? 'N/A');
-
-                    // Fallback to Vessel Product (common for Imports/Descarga)
-                    if ($productName === 'N/A' && !empty($order->vessel->product)) {
-                        $productName = $order->vessel->product->name;
-                    }
-
-                    // Secondary fallback to legacy column
-                    if ($productName === 'N/A' && isset($order->product_name)) {
-                        $productName = $order->product_name;
-                    }
+                if ($isSale && $shipmentOrder) {
+                    // Try items first
+                    $productName = $shipmentOrder->items->first()?->product?->name
+                        ?? (is_string($shipmentOrder->product) ? $shipmentOrder->product : ($shipmentOrder->product->name ?? 'N/A'));
+                } elseif ($loadingOrder && $loadingOrder->vessel) {
+                    $productName = $loadingOrder->vessel->product->name ?? 'N/A';
                 }
 
+                if ($productName === 'N/A' && $loadingOrder) {
+                    $productName = $loadingOrder->product?->name
+                        ?? (is_string($loadingOrder->product) ? $loadingOrder->product : 'N/A');
+                }
+
+                // 2. Resolve Provider Name (Client)
                 $providerName = 'N/A';
-                if ($order) {
-                    $providerName = $order->client_name ?? ($order->client->business_name ?? ($order->client->name ?? 'N/A'));
-
-                    // Fallback to Vessel Client
-                    if (($providerName === 'N/A' || $providerName === 'PROAGRO') && !empty($order->vessel->client)) {
-                        $providerName = $order->vessel->client->business_name ?? $order->vessel->client->name;
-                    }
+                if ($isSale && $shipmentOrder) {
+                    // Priority for Sales: Use OE commercial client
+                    $providerName = $shipmentOrder->client->business_name ?? $shipmentOrder->client->name ?? 'N/A';
+                } elseif ($loadingOrder && $loadingOrder->vessel) {
+                    // Priority for Discharges: Use Vessel owner/agent
+                    $providerName = $loadingOrder->vessel->client->business_name ?? $loadingOrder->vessel->client->name ?? 'N/A';
                 }
 
-                $saleOrder = $order->sale_order_folio ?? 'S/A';
-                // Robust Sale detection
-                $isSale = $order && empty($order->vessel_id) && !empty($order->shipment_order_id);
+                // Final fallbacks for Provider (Scale entries might have a generic client 1)
+                if ($providerName === 'N/A' || $providerName === 'PROAGRO') {
+                    $providerName = $loadingOrder?->client_name
+                        ?? ($loadingOrder?->client?->business_name
+                            ?? ($shipmentOrder?->client?->business_name ?? 'N/A'));
+                }
+
+                $saleOrder = $shipmentOrder->sale_order_folio ?? ($loadingOrder->sale_order_folio ?? 'S/A');
 
                 return [
-                    'id' => $order->id ?? $ticket->id,
+                    'id' => $loadingOrder->id ?? ($shipmentOrder->id ?? $ticket->id),
                     'ticket_id' => $ticket->id,
                     'folio' => $folio,
                     'ticket_number' => $ticket->ticket_number,
@@ -303,10 +306,7 @@ class WeightTicketController extends Controller
                     'tare_weight' => $ticket->tare_weight,
                     'gross_weight' => $ticket->gross_weight,
                     'net_weight' => $ticket->net_weight,
-                    // Pass type for frontend URL generation if needed?
-                    // Currently edit link uses /scale/tickets/{id}/edit -> calls editTicket($id)
-                    // editTicket uses LoadingOrder::find($id). I need to fix that too.
-                    'is_shipment_order' => !!$ticket->shipmentOrder,
+                    'is_shipment_order' => !!$shipmentOrder,
                 ];
             });
 
@@ -319,10 +319,10 @@ class WeightTicketController extends Controller
     public function editTicket($id)
     {
         // Try LoadingOrder first
-        $order = LoadingOrder::with(['weight_ticket', 'client', 'vessel.client', 'product'])->find($id);
+        $order = LoadingOrder::with(['weight_ticket', 'client', 'vessel.client', 'product', 'shipment_order.client'])->find($id);
 
         if (!$order) {
-            $order = \App\Models\ShipmentOrder::with(['weight_ticket', 'client', 'product'])->find($id);
+            $order = \App\Models\ShipmentOrder::with(['weight_ticket', 'client', 'product', 'items.product'])->find($id);
         }
 
         if (!$order || !$order->weight_ticket) {
