@@ -166,7 +166,7 @@ class WeightTicketController extends Controller
             },
             'shipmentOrder' => function ($q) {
                 // Sales / Export
-                $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order']);
+                $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order.product']);
             }
         ])
             ->where('is_burreo', false) // EXCLUDE BURREO
@@ -272,6 +272,16 @@ class WeightTicketController extends Controller
                     }
                 }
 
+                $providerName = 'N/A';
+                if ($order) {
+                    $providerName = $order->client_name ?? ($order->client->business_name ?? ($order->client->name ?? 'N/A'));
+
+                    // Fallback to Vessel Client
+                    if (($providerName === 'N/A' || $providerName === 'PROAGRO') && !empty($order->vessel->client)) {
+                        $providerName = $order->vessel->client->business_name ?? $order->vessel->client->name;
+                    }
+                }
+
                 $saleOrder = $order->sale_order_folio ?? 'S/A';
                 // Robust Sale detection
                 $isSale = $order && empty($order->vessel_id) && !empty($order->shipment_order_id);
@@ -285,6 +295,7 @@ class WeightTicketController extends Controller
                     'driver' => $driver,
                     'vehicle_plate' => $plate,
                     'product' => $productName,
+                    'provider' => $providerName,
                     'sale_order' => $saleOrder,
                     'status' => $ticket->weighing_status,
                     'entry_at' => $ticket->weigh_in_at,
@@ -308,10 +319,10 @@ class WeightTicketController extends Controller
     public function editTicket($id)
     {
         // Try LoadingOrder first
-        $order = LoadingOrder::with(['weight_ticket'])->find($id);
+        $order = LoadingOrder::with(['weight_ticket', 'client', 'vessel.client', 'product'])->find($id);
 
         if (!$order) {
-            $order = \App\Models\ShipmentOrder::with(['weight_ticket'])->find($id);
+            $order = \App\Models\ShipmentOrder::with(['weight_ticket', 'client', 'product'])->find($id);
         }
 
         if (!$order || !$order->weight_ticket) {
