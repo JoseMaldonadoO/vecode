@@ -328,13 +328,15 @@ export default function Create({
                                     Condiciones de Venta
                                 </label>
                                 <div className="relative">
-                                    <input
-                                        type="text"
+                                    <select
                                         value={data.sale_conditions}
                                         onChange={(e) => setData("sale_conditions", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
-                                        placeholder="Contado, Crédito..."
-                                    />
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white text-sm"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        <option value="CONTADO">CONTADO</option>
+                                        <option value="CREDITO">CREDITO</option>
+                                    </select>
                                     <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
                             </div>
@@ -344,20 +346,23 @@ export default function Create({
                                     Condiciones de Entrega
                                 </label>
                                 <div className="relative">
-                                    <input
-                                        type="text"
+                                    <select
                                         value={data.delivery_conditions}
                                         onChange={(e) => setData("delivery_conditions", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 text-sm"
-                                        placeholder="LAB, FOB..."
-                                    />
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white text-sm"
+                                    >
+                                        <option value="">Seleccione...</option>
+                                        <option value="GRANEL">GRANEL</option>
+                                        <option value="ENVASADO">ENVASADO</option>
+                                        <option value="GRANEL/ENVASADO">GRANEL/ENVASADO</option>
+                                    </select>
                                     <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
                             </div>
 
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Observaciones / Destino
+                                    Observaciones
                                 </label>
                                 <textarea
                                     value={data.destination}

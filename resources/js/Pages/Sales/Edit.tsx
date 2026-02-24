@@ -363,8 +363,7 @@ export default function Edit({
                                         Condiciones de Venta
                                     </label>
                                     <div className="relative">
-                                        <input
-                                            type="text"
+                                        <select
                                             value={data.sale_conditions}
                                             onChange={(e) =>
                                                 setData(
@@ -372,9 +371,12 @@ export default function Edit({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            placeholder="Contado, Crédito 30 días..."
-                                        />
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white text-sm"
+                                        >
+                                            <option value="">Seleccione...</option>
+                                            <option value="CONTADO">CONTADO</option>
+                                            <option value="CREDITO">CREDITO</option>
+                                        </select>
                                         <FileText className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
                                 </div>
@@ -384,8 +386,7 @@ export default function Edit({
                                         Condiciones de Entrega
                                     </label>
                                     <div className="relative">
-                                        <input
-                                            type="text"
+                                        <select
                                             value={data.delivery_conditions}
                                             onChange={(e) =>
                                                 setData(
@@ -393,9 +394,13 @@ export default function Edit({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
-                                            placeholder="LAB, FOB..."
-                                        />
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white text-sm"
+                                        >
+                                            <option value="">Seleccione...</option>
+                                            <option value="GRANEL">GRANEL</option>
+                                            <option value="ENVASADO">ENVASADO</option>
+                                            <option value="GRANEL/ENVASADO">GRANEL/ENVASADO</option>
+                                        </select>
                                         <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
                                 </div>
