@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasAuditTrail;
+
 class ExitOperator extends Model
 {
+    use HasAuditTrail;
     protected $fillable = [
         'name',
         'license',

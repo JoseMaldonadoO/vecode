@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasAuditTrail;
+
 class WeightTicket extends Model
 {
+    use HasAuditTrail;
     protected $guarded = [];
 
     protected $casts = [

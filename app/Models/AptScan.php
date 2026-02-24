@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\HasAuditTrail;
+
 class AptScan extends Model
 {
-    use HasFactory;
+    use HasFactory, HasAuditTrail;
 
     protected $fillable = [
         'shipment_order_id',

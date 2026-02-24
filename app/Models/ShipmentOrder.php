@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
+use App\Traits\HasAuditTrail;
+
 class ShipmentOrder extends Model
 {
-    use HasUuids;
+    use HasUuids, HasAuditTrail;
     protected $guarded = [];
 
     public function sales_order()

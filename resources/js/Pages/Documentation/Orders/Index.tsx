@@ -67,7 +67,10 @@ interface Order {
     operator_name?: string;
     programmed_tons?: number;
     status: string;
-    date?: string;
+    origin?: {
+        name: string;
+    } | string;
+    origin_id?: number;
     created_at: string;
 }
 
@@ -244,6 +247,9 @@ export default function Index({
                                         Estatus
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                                        Origen
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Fecha
                                     </th>
                                 </tr>
@@ -402,6 +408,9 @@ export default function Index({
                                                             ? "CANCELADA"
                                                             : order.status}
                                                 </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">
+                                                {(typeof order.origin === 'object' ? order.origin?.name : order.origin) || "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {order.created_at

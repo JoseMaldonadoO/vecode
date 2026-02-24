@@ -368,11 +368,14 @@ class DocumentationController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('folio', 'like', "%{$search}%")
-                    ->orWhereHas('sales_order', function ($sq) use ($search) {
-                        $sq->where('folio', 'like', "%{$search}%");
+                    ->orWhere('origin', 'like', "%{$search}%") // Legacy string search
+                    ->orWhere('destination', 'like', "%{$search}%")
+                    ->orWhere('operator_name', 'like', "%{$search}%")
+                    ->orWhereHas('origin', function ($q2) use ($search) {
+                        $q2->where('name', 'like', "%{$search}%");
                     })
-                    ->orWhereHas('client', function ($cq) use ($search) {
-                        $cq->where('business_name', 'like', "%{$search}%");
+                    ->orWhereHas('client', function ($q2) use ($search) {
+                        $q2->where('business_name', 'like', "%{$search}%");
                     });
             });
         }
