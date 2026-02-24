@@ -215,7 +215,7 @@ export default function Index({
                                         scope="col"
                                         className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
                                     >
-                                        Producto / Cliente
+                                        Producto / {filters.tab === 'vessel' ? 'Barco' : 'Cliente'}
                                     </th>
                                     <th
                                         scope="col"
@@ -280,8 +280,8 @@ export default function Index({
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${ticket.operation === 'SALIDA'
-                                                        ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                                        : 'bg-orange-100 text-orange-800 border-orange-200'
+                                                    ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                                    : 'bg-orange-100 text-orange-800 border-orange-200'
                                                     }`}>
                                                     {ticket.operation}
                                                 </span>

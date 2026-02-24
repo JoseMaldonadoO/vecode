@@ -270,14 +270,19 @@ class WeightTicketController extends Controller
                         ?? (is_string($loadingOrder->product) ? $loadingOrder->product : 'N/A');
                 }
 
-                // 2. Resolve Provider Name (Client)
+                // 2. Resolve Provider Name (Client / Vessel)
                 $providerName = 'N/A';
                 if ($isSale && $shipmentOrder) {
                     // Priority for Sales: Use OE commercial client
                     $providerName = $shipmentOrder->client->business_name ?? $shipmentOrder->client->name ?? 'N/A';
                 } elseif ($loadingOrder && $loadingOrder->vessel) {
-                    // Priority for Discharges: Use Vessel owner/agent
-                    $providerName = $loadingOrder->vessel->client->business_name ?? $loadingOrder->vessel->client->name ?? 'N/A';
+                    // Priority for Discharges: Use Vessel NAME (User's specific request)
+                    $providerName = $loadingOrder->vessel->name ?? 'N/A';
+
+                    // If name is missing, fallback to client
+                    if ($providerName === 'N/A') {
+                        $providerName = $loadingOrder->vessel->client->business_name ?? $loadingOrder->vessel->client->name ?? 'N/A';
+                    }
                 }
 
                 // Final fallbacks for Provider (Scale entries might have a generic client 1)
