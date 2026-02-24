@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Vessel;
 use App\Models\WeightTicket;
 use App\Models\ShipmentOrder;
+use App\Models\VesselOperatorTrip;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,14 @@ class BurreoWeightController extends Controller
                             'tare_weight' => $weightKg,
                             'net_weight' => $weightKg
                         ]);
+
+                    // Update Muelle Trips (VesselOperatorTrip)
+                    VesselOperatorTrip::where('vessel_id', $vessel->id)
+                        ->where('status', '!=', 'cancelled')
+                        ->update([
+                            'weight' => $weightKg,
+                            'status' => 'completed'
+                        ]);
                 }
             });
 
@@ -109,6 +118,14 @@ class BurreoWeightController extends Controller
                     $ticketsQuery->update([
                         'net_weight' => $weightKg, // Assign directly without dividing
                     ]);
+
+                    // Update Muelle Trips (VesselOperatorTrip)
+                    VesselOperatorTrip::where('vessel_id', $vessel->id)
+                        ->where('status', '!=', 'cancelled')
+                        ->update([
+                            'weight' => $weightKg,
+                            'status' => 'completed'
+                        ]);
                 }
             });
 

@@ -78,11 +78,17 @@ class DockTripController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $vessel = Vessel::findOrFail($validated['vessel_id']);
+
+        // Priority: Draft Weight > Provisional Burreo Weight
+        $automaticWeight = $vessel->draft_weight ?? $vessel->provisional_burreo_weight;
+
         $trip = VesselOperatorTrip::create([
             ...$validated,
             'registered_by' => Auth::id(),
             'start_time' => now(),
-            'status' => 'completed', // Direct registration for now
+            'weight' => $automaticWeight,
+            'status' => $automaticWeight ? 'completed' : 'pending',
         ]);
 
         return redirect()->back()->with('success', 'Viaje registrado correctamente.');
