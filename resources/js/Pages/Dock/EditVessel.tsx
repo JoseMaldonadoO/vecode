@@ -761,41 +761,43 @@ export default function EditVessel({
 
                                     {/* Holds Distribution */}
                                     <div className="md:col-span-2 pt-4 border-t border-blue-100">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <label className="text-blue-800 font-bold flex items-center text-sm">
-                                                <LayoutGrid className="w-4 h-4 mr-2" />
-                                                Distribución por Bodegas
-                                            </label>
-                                            <div className="flex bg-blue-100 p-1 rounded-lg">
-                                                {[1, 2, 3, 4, 5, 6].map((num) => (
-                                                    <button
-                                                        key={num}
-                                                        type="button"
-                                                        onClick={() => handleHoldsCountChange(num)}
-                                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${data.holds.length === num
-                                                            ? "bg-blue-600 text-white shadow-sm"
-                                                            : "text-blue-400 hover:bg-blue-200"
-                                                            }`}
-                                                    >
-                                                        {num}
-                                                    </button>
-                                                ))}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-1">Número de Bodegas</label>
+                                                <select
+                                                    value={data.holds.length}
+                                                    onChange={(e) => handleHoldsCountChange(parseInt(e.target.value))}
+                                                    className="w-full rounded-md border-gray-300 py-2 bg-white"
+                                                >
+                                                    <option value="0">Sin Bodegas</option>
+                                                    <option value="1">1 Bodega</option>
+                                                    <option value="2">2 Bodegas</option>
+                                                    <option value="3">3 Bodegas</option>
+                                                    <option value="4">4 Bodegas</option>
+                                                    <option value="5">5 Bodegas</option>
+                                                    <option value="6">6 Bodegas</option>
+                                                </select>
                                             </div>
                                         </div>
 
                                         {data.holds.length > 0 && (
-                                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                 {data.holds.map((hold: any, idx: number) => (
-                                                    <div key={idx} className="bg-white p-2 rounded-xl border border-blue-200 shadow-sm transition-all hover:border-blue-400">
-                                                        <div className="text-[10px] font-bold text-blue-400 uppercase mb-1 text-center">Bodega {hold.hold_number}</div>
-                                                        <input
-                                                            type="number"
-                                                            step="0.01"
-                                                            value={hold.tonnage}
-                                                            onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
-                                                            className="w-full text-sm py-1 px-2 border-none focus:ring-0 bg-blue-50 rounded-lg font-bold text-blue-900 h-8 text-center"
-                                                            placeholder="0.00"
-                                                        />
+                                                    <div key={idx}>
+                                                        <label className="block text-sm font-bold text-gray-700 mb-1">{`Bodega ${hold.hold_number}`}</label>
+                                                        <div className="relative mt-1">
+                                                            <TextInput
+                                                                type="number"
+                                                                step="0.01"
+                                                                value={hold.tonnage}
+                                                                onChange={(e: any) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                className="w-full pr-12"
+                                                                placeholder="0.00"
+                                                            />
+                                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                                <span className="text-gray-500 font-bold text-xs">TM</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -889,41 +891,43 @@ export default function EditVessel({
 
                                     {/* Holds Distribution */}
                                     <div className="pt-4 border-t border-orange-100">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-2">
-                                                <LayoutGrid className="w-5 h-5 text-orange-600" />
-                                                <span className="text-orange-800 font-bold text-sm">Distribución por Bodegas</span>
-                                            </div>
-                                            <div className="flex bg-orange-100 p-1 rounded-lg">
-                                                {[1, 2, 3, 4, 5, 6].map((num) => (
-                                                    <button
-                                                        key={num}
-                                                        type="button"
-                                                        onClick={() => handleHoldsCountChange(num)}
-                                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${data.holds.length === num
-                                                            ? "bg-orange-600 text-white shadow-sm"
-                                                            : "text-orange-400 hover:bg-orange-200"
-                                                            }`}
-                                                    >
-                                                        {num}
-                                                    </button>
-                                                ))}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-1">Número de Bodegas</label>
+                                                <select
+                                                    value={data.holds.length}
+                                                    onChange={(e) => handleHoldsCountChange(parseInt(e.target.value))}
+                                                    className="w-full rounded-md border-gray-300 py-2 bg-white"
+                                                >
+                                                    <option value="0">Sin Bodegas</option>
+                                                    <option value="1">1 Bodega</option>
+                                                    <option value="2">2 Bodegas</option>
+                                                    <option value="3">3 Bodegas</option>
+                                                    <option value="4">4 Bodegas</option>
+                                                    <option value="5">5 Bodegas</option>
+                                                    <option value="6">6 Bodegas</option>
+                                                </select>
                                             </div>
                                         </div>
 
                                         {data.holds.length > 0 && (
-                                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                 {data.holds.map((hold: any, idx: number) => (
-                                                    <div key={idx} className="bg-white p-2 rounded-xl border border-orange-200 shadow-sm transition-all hover:border-orange-400 text-center">
-                                                        <div className="text-[10px] font-bold text-orange-400 uppercase mb-1">Bodega {hold.hold_number}</div>
-                                                        <input
-                                                            type="number"
-                                                            step="0.01"
-                                                            value={hold.tonnage}
-                                                            onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
-                                                            className="w-full text-sm py-1 px-2 border-none focus:ring-0 bg-orange-50 rounded-lg font-bold text-orange-900 h-8 text-center"
-                                                            placeholder="0.00"
-                                                        />
+                                                    <div key={idx}>
+                                                        <label className="block text-sm font-bold text-gray-700 mb-1">{`Bodega ${hold.hold_number}`}</label>
+                                                        <div className="relative mt-1">
+                                                            <TextInput
+                                                                type="number"
+                                                                step="0.01"
+                                                                value={hold.tonnage}
+                                                                onChange={(e: any) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                className="w-full pr-12"
+                                                                placeholder="0.00"
+                                                            />
+                                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                                <span className="text-gray-500 font-bold text-xs">TM</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
