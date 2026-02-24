@@ -8,6 +8,8 @@ import {
     CheckCircle,
     X,
     MoreVertical,
+    MoreHorizontal,
+    Settings,
     Eye,
     Edit2,
     Lock,
@@ -251,6 +253,9 @@ export default function Index({
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr>
+                                    <th className="sticky left-0 px-4 py-4 text-center text-xs font-bold text-white uppercase tracking-wider bg-indigo-800 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)]">
+                                        <Settings className="w-5 h-5 mx-auto opacity-50" />
+                                    </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider">
                                         Orden de Venta
                                     </th>
@@ -272,9 +277,6 @@ export default function Index({
                                     <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                                         Saldo
                                     </th>
-                                    <th className="sticky right-0 px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider bg-indigo-900 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
-                                        Acciones
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -292,52 +294,13 @@ export default function Index({
                                     filteredOrders.map((order) => (
                                         <tr
                                             key={order.id}
-                                            className="hover:bg-indigo-50 transition-colors duration-150"
+                                            className="hover:bg-indigo-50 transition-colors duration-150 group"
                                         >
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
-                                                {order.folio || "N/A"}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
-                                                {order.product?.name || "N/A"}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
-                                                {order.client?.business_name}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold
-                                                ${order.status === "created" ? "bg-blue-100 text-blue-800" : ""}
-                                                ${order.status === "closed" ? "bg-red-100 text-red-800" : ""}
-                                                ${order.status === "completed" ? "bg-green-100 text-green-800" : ""}
-                                            `}
-                                                >
-                                                    {order.status === "created"
-                                                        ? "ABIERTA"
-                                                        : order.status === "closed"
-                                                            ? "CERRADA"
-                                                            : order.status.toUpperCase()}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
-                                                {formatter.format(Number(order.total_quantity))} TM
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
-                                                <button
-                                                    onClick={() => handleOpenBreakdown(order)}
-                                                    className="hover:underline flex items-center justify-center mx-auto"
-                                                >
-                                                    {formatter.format(Number(order.loaded_quantity))} TM
-                                                    <Truck className="w-3 h-3 ml-1 opacity-50" />
-                                                </button>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
-                                                {formatter.format(Number(order.balance))} TM
-                                            </td>
-                                            <td className="sticky right-0 px-6 py-4 whitespace-nowrap text-center text-sm font-medium bg-white group-hover:bg-indigo-50 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)] transition-colors">
+                                            <td className="sticky left-0 px-4 py-4 whitespace-nowrap text-center text-sm font-medium bg-white group-hover:bg-indigo-50 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)] transition-colors">
                                                 <Menu as="div" className="relative inline-block text-left">
                                                     <div>
-                                                        <Menu.Button className="inline-flex justify-center w-full px-2 py-2 text-sm font-medium text-gray-700 bg-white rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-all border border-gray-100">
-                                                            <MoreVertical className="w-5 h-5 text-gray-500" aria-hidden="true" />
+                                                        <Menu.Button className="inline-flex justify-center w-full px-2 py-2 text-sm font-medium text-gray-700 bg-transparent rounded-full hover:bg-white/50 focus:outline-none transition-all group-hover:bg-indigo-100/50">
+                                                            <MoreHorizontal className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600" aria-hidden="true" />
                                                         </Menu.Button>
                                                     </div>
                                                     <Transition
@@ -349,7 +312,7 @@ export default function Index({
                                                         leaveFrom="transform opacity-100 scale-100"
                                                         leaveTo="transform opacity-0 scale-95"
                                                     >
-                                                        <Menu.Items className="absolute right-0 w-48 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                                        <Menu.Items className="absolute left-full top-0 ml-2 w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                                                             <div className="px-1 py-1">
                                                                 <Menu.Item>
                                                                     {({ active }) => (
@@ -411,6 +374,45 @@ export default function Index({
                                                     </Transition>
                                                 </Menu>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
+                                                {order.folio || "N/A"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                                                {order.product?.name || "N/A"}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                                                {order.client?.business_name}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold
+                                                ${order.status === "created" ? "bg-blue-100 text-blue-800" : ""}
+                                                ${order.status === "closed" ? "bg-red-100 text-red-800" : ""}
+                                                ${order.status === "completed" ? "bg-green-100 text-green-800" : ""}
+                                            `}
+                                                >
+                                                    {order.status === "created"
+                                                        ? "ABIERTA"
+                                                        : order.status === "closed"
+                                                            ? "CERRADA"
+                                                            : order.status.toUpperCase()}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">
+                                                {formatter.format(Number(order.total_quantity))} TM
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-emerald-700 text-center">
+                                                <button
+                                                    onClick={() => handleOpenBreakdown(order)}
+                                                    className="hover:underline flex items-center justify-center mx-auto"
+                                                >
+                                                    {formatter.format(Number(order.loaded_quantity))} TM
+                                                    <Truck className="w-3 h-3 ml-1 opacity-50" />
+                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
+                                                {formatter.format(Number(order.balance))} TM
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -418,7 +420,7 @@ export default function Index({
                             {/* TOTALS FOOTER */}
                             {filteredOrders.length > 0 && (
                                 <tfoot className="bg-gray-100 font-bold border-t-2 border-indigo-200">
-                                    <tr>
+                                        <td className="sticky left-0 bg-gray-100 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)] pt-[50.5px]"></td>
                                         <td colSpan={4} className="px-6 py-4 text-right text-sm text-indigo-900 uppercase tracking-wider">
                                             TOTAL GENERAL
                                         </td>
@@ -431,7 +433,6 @@ export default function Index({
                                         <td className="px-6 py-4 text-center text-sm text-amber-700">
                                             {formatter.format(filteredOrders.reduce((sum, order) => sum + Number(order.balance), 0))} TM
                                         </td>
-                                        <td className="sticky right-0 bg-gray-100 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)] pt-[50.5px]"></td>
                                     </tr>
                                 </tfoot>
                             )}
@@ -591,6 +592,6 @@ export default function Index({
                     )}
                 </div>
             </Modal>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 }
