@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v11 (Refined Actions column positioning and style)
+# Force trigger: v12 (Fixing Sales Orders table footer syntax)
 
 on:
   push:

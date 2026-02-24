@@ -420,6 +420,7 @@ export default function Index({
                             {/* TOTALS FOOTER */}
                             {filteredOrders.length > 0 && (
                                 <tfoot className="bg-gray-100 font-bold border-t-2 border-indigo-200">
+                                    <tr>
                                         <td className="sticky left-0 bg-gray-100 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)] pt-[50.5px]"></td>
                                         <td colSpan={4} className="px-6 py-4 text-right text-sm text-indigo-900 uppercase tracking-wider">
                                             TOTAL GENERAL
