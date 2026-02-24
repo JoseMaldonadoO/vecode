@@ -329,30 +329,17 @@ export default function Trips({
                             <div className="lg:col-span-2">
                                 <form onSubmit={submitForm} className="space-y-8">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        {/* Operation Type Toggle */}
+                                        {/* Operation Type Display */}
                                         <div className="space-y-3">
                                             <label className="block text-sm font-black text-gray-700 uppercase tracking-wider">Tipo de Movimiento</label>
-                                            <div className="flex p-1 bg-gray-100 rounded-2xl border border-gray-200">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setData('operation_type', 'Descarga')}
-                                                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 ${data.operation_type === 'Descarga'
-                                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
-                                                        : 'text-gray-400 hover:text-gray-600'}`}
-                                                >
-                                                    <Navigation className="w-4 h-4" />
-                                                    DESCARGA
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setData('operation_type', 'Carga')}
-                                                    className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 ${data.operation_type === 'Carga'
-                                                        ? 'bg-orange-500 text-white shadow-lg shadow-orange-100'
-                                                        : 'text-gray-400 hover:text-gray-600'}`}
-                                                >
-                                                    <Ship className="w-4 h-4" />
-                                                    CARGA
-                                                </button>
+                                            <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${data.operation_type === 'Carga'
+                                                ? 'bg-orange-50 border-orange-200 text-orange-700'
+                                                : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
+                                                {data.operation_type === 'Carga' ? <Ship className="w-6 h-6" /> : <Navigation className="w-6 h-6" />}
+                                                <div>
+                                                    <span className="block text-xl font-black uppercase tracking-tight">{data.operation_type}</span>
+                                                    <span className="text-[10px] font-bold opacity-70 uppercase tracking-widest">Definido por registro de barco</span>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -494,8 +481,8 @@ export default function Trips({
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-black uppercase tracking-widest ${trip.operation_type === 'Carga'
-                                                    ? 'bg-orange-50 text-orange-600 border border-orange-100'
-                                                    : 'bg-blue-50 text-blue-600 border border-blue-100'
+                                                ? 'bg-orange-50 text-orange-600 border border-orange-100'
+                                                : 'bg-blue-50 text-blue-600 border border-blue-100'
                                                 }`}>
                                                 {trip.operation_type === 'Carga' ? <Ship className="w-3 h-3 mr-1" /> : <Navigation className="w-3 h-3 mr-1" />}
                                                 {trip.operation_type}

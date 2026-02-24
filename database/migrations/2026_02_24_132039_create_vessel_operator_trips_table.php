@@ -29,6 +29,9 @@ return new class extends Migration {
             $table->string('status')->default('pending'); // pending, completed, cancelled
             $table->text('notes')->nullable();
 
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
