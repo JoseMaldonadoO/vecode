@@ -294,7 +294,7 @@ class DocumentationController extends Controller
             });
         }
 
-        $operators = $query->orderBy('created_at', 'desc')->paginate(10);
+        $operators = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         // Append is_active to each operator
         $operators->getCollection()->transform(function ($operator) {
@@ -390,7 +390,7 @@ class DocumentationController extends Controller
             $query->whereIn('status', ['created', 'loading', 'closed', 'completed']);
         }
 
-        $orders = $query->orderBy('created_at', 'desc')->paginate(10);
+        $orders = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         return Inertia::render('Documentation/Orders/Index', [
             'orders' => $orders,
