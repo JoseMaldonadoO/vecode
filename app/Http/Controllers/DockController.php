@@ -67,6 +67,7 @@ class DockController extends Controller
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
             'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
             'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'holds' => 'nullable|array',
         ];
 
         $messages = [

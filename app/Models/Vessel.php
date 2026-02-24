@@ -23,6 +23,7 @@ class Vessel extends Model
         'is_anchored' => 'boolean',
         'provisional_burreo_weight' => 'decimal:2',
         'draft_weight' => 'decimal:2',
+        'holds' => 'array',
     ];
 
     protected $appends = ['is_active'];

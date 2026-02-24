@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, useForm, Link } from "@inertiajs/react";
-import { Anchor, Save, ArrowLeft } from "lucide-react";
+import { Anchor, Save, ArrowLeft, LayoutGrid } from "lucide-react";
 import { useEffect } from "react";
 import TextInput from "@/Components/TextInput";
 import Swal from "sweetalert2";
@@ -54,6 +54,7 @@ export default function EditVessel({
             : "",
         observations: vessel.observations || "",
         apt_operation_type: vessel.apt_operation_type || "scale",
+        holds: vessel.holds || [] as { hold_number: number; tonnage: string }[],
     });
 
     // Reset product/tons if opertion type changes from Descarga or Carga
@@ -92,6 +93,25 @@ export default function EditVessel({
             }
         }
     }, [data.docking_date, data.eta, data.stay_days]);
+
+    // Vessel Holds Logic
+    const handleHoldsCountChange = (count: number) => {
+        const newHolds = [...data.holds];
+        if (count > newHolds.length) {
+            for (let i = newHolds.length + 1; i <= count; i++) {
+                newHolds.push({ hold_number: i, hold_number_label: `Bodega ${i}`, tonnage: "" });
+            }
+        } else {
+            newHolds.splice(count);
+        }
+        setData("holds", newHolds);
+    };
+
+    const handleHoldTonnageChange = (index: number, value: string) => {
+        const newHolds = [...data.holds];
+        newHolds[index].tonnage = value;
+        setData("holds", newHolds);
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -738,6 +758,49 @@ export default function EditVessel({
                                             </p>
                                         )}
                                     </div>
+
+                                    {/* Holds Distribution */}
+                                    <div className="md:col-span-2 pt-4 border-t border-blue-100">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <label className="text-blue-800 font-bold flex items-center text-sm">
+                                                <LayoutGrid className="w-4 h-4 mr-2" />
+                                                Distribución por Bodegas
+                                            </label>
+                                            <div className="flex bg-blue-100 p-1 rounded-lg">
+                                                {[1, 2, 3, 4, 5, 6].map((num) => (
+                                                    <button
+                                                        key={num}
+                                                        type="button"
+                                                        onClick={() => handleHoldsCountChange(num)}
+                                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${data.holds.length === num
+                                                                ? "bg-blue-600 text-white shadow-sm"
+                                                                : "text-blue-400 hover:bg-blue-200"
+                                                            }`}
+                                                    >
+                                                        {num}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {data.holds.length > 0 && (
+                                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                {data.holds.map((hold, idx) => (
+                                                    <div key={idx} className="bg-white p-2 rounded-xl border border-blue-200 shadow-sm transition-all hover:border-blue-400">
+                                                        <div className="text-[10px] font-bold text-blue-400 uppercase mb-1 text-center">Bodega {hold.hold_number}</div>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            value={hold.tonnage}
+                                                            onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
+                                                            className="w-full text-sm py-1 px-2 border-none focus:ring-0 bg-blue-50 rounded-lg font-bold text-blue-900 h-8 text-center"
+                                                            placeholder="0.00"
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 
@@ -822,6 +885,49 @@ export default function EditVessel({
                                                 </p>
                                             )}
                                         </div>
+                                    </div>
+
+                                    {/* Holds Distribution */}
+                                    <div className="pt-4 border-t border-orange-100">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <div className="flex items-center gap-2">
+                                                <LayoutGrid className="w-5 h-5 text-orange-600" />
+                                                <span className="text-orange-800 font-bold text-sm">Distribución por Bodegas</span>
+                                            </div>
+                                            <div className="flex bg-orange-100 p-1 rounded-lg">
+                                                {[1, 2, 3, 4, 5, 6].map((num) => (
+                                                    <button
+                                                        key={num}
+                                                        type="button"
+                                                        onClick={() => handleHoldsCountChange(num)}
+                                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${data.holds.length === num
+                                                                ? "bg-orange-600 text-white shadow-sm"
+                                                                : "text-orange-400 hover:bg-orange-200"
+                                                            }`}
+                                                    >
+                                                        {num}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {data.holds.length > 0 && (
+                                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                {data.holds.map((hold, idx) => (
+                                                    <div key={idx} className="bg-white p-2 rounded-xl border border-orange-200 shadow-sm transition-all hover:border-orange-400 text-center">
+                                                        <div className="text-[10px] font-bold text-orange-400 uppercase mb-1">Bodega {hold.hold_number}</div>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            value={hold.tonnage}
+                                                            onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
+                                                            className="w-full text-sm py-1 px-2 border-none focus:ring-0 bg-orange-50 rounded-lg font-bold text-orange-900 h-8 text-center"
+                                                            placeholder="0.00"
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
