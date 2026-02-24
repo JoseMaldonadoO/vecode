@@ -758,7 +758,7 @@ export default function CreateVessel({
 
                                         {data.holds.length > 0 && (
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                {data.holds.map((hold, idx) => (
+                                                {data.holds.map((hold: any, idx: number) => (
                                                     <div key={idx} className="bg-white p-2 rounded-xl border border-blue-200 shadow-sm transition-all hover:border-blue-400">
                                                         <div className="text-[10px] font-bold text-blue-400 uppercase mb-1">Bodega {hold.hold_number}</div>
                                                         <TextInput
@@ -881,7 +881,7 @@ export default function CreateVessel({
 
                                         {data.holds.length > 0 && (
                                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                                {data.holds.map((hold, idx) => (
+                                                {data.holds.map((hold: any, idx: number) => (
                                                     <div key={idx} className="bg-white p-2 rounded-xl border border-orange-200 shadow-sm transition-all hover:border-orange-400 text-center">
                                                         <div className="text-[10px] font-bold text-orange-400 uppercase mb-1">Bodega {hold.hold_number}</div>
                                                         <TextInput
