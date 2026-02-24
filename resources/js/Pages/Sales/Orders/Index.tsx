@@ -349,7 +349,7 @@ export default function Index({
                                                         leaveFrom="transform opacity-100 scale-100"
                                                         leaveTo="transform opacity-0 scale-95"
                                                     >
-                                                        <Menu.Options className="absolute right-0 w-48 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                                        <Menu.Items className="absolute right-0 w-48 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                                                             <div className="px-1 py-1">
                                                                 <Menu.Item>
                                                                     {({ active }) => (
@@ -407,7 +407,7 @@ export default function Index({
                                                                     </Menu.Item>
                                                                 )}
                                                             </div>
-                                                        </Menu.Options>
+                                                        </Menu.Items>
                                                     </Transition>
                                                 </Menu>
                                             </td>

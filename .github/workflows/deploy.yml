@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v9 (Sales Orders table UI improvements)
+# Force trigger: v10 (Fixing Sales Orders table Menu error)
 
 on:
   push:
