@@ -277,7 +277,10 @@ export default function Index({
                                                         leaveFrom="transform opacity-100 scale-100"
                                                         leaveTo="transform opacity-0 scale-95"
                                                     >
-                                                        <Menu.Items className="absolute left-full top-0 ml-2 w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                                        <Menu.Items
+                                                            anchor="bottom start"
+                                                            className="w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                                                        >
                                                             <div className="px-1 py-1">
                                                                 {order.status !== 'cancelled' && (
                                                                     <>

@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v18 (Customized Ticket History for Vessels: PRODUCTO / BARCO)
+# Force trigger: v19 (Fixed menu clipping in shipment/sales tables using anchor prop)
 
 on:
   push:
