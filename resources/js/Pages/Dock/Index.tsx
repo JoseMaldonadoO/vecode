@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import { Users, Ship, Filter, X, List, ArrowLeft } from "lucide-react";
+import { Users, Ship, Filter, X, List, ArrowLeft, Truck } from "lucide-react";
 import Pagination from "@/Components/Pagination";
 import { useState } from "react";
 import { pickBy } from "lodash";
@@ -81,6 +81,22 @@ export default function Index({
                                 <p className="text-gray-500 mt-2 text-sm">
                                     Dashboard en vivo de operación marítima
                                     (ECO/WHISKY).
+                                </p>
+                            </Link>
+
+                            <Link
+                                href={route("dock.trips.index")}
+                                className="group bg-white rounded-xl shadow-md border-2 border-transparent p-8 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-xl hover:border-orange-500"
+                            >
+                                <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mb-6 transition-transform transform group-hover:scale-110 text-orange-600">
+                                    <Truck className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-800 break-words w-full">
+                                    Carga/Descarga de Barco
+                                </h3>
+                                <p className="text-gray-500 mt-2 text-sm">
+                                    Registro de vueltas/viajes de operadores
+                                    por bodega.
                                 </p>
                             </Link>
 

@@ -62,7 +62,27 @@ Representa un viaje físico para surtir una OV.
 
 ---
 
-## 4. Puntos de Control (Checkpoints)
+## 4. Registro de Vueltas (Muelle)
+
+Este proceso cierra el ciclo operativo permitiendo el seguimiento detallado de cada viaje del operador desde/hacia el barco.
+
+### A. Escaneo y Registro
+- **Origen del QR**: Se utiliza el mismo QR generado en **Documentación** al dar de alta al operador para el barco.
+- **Dato de Entrada**: Bodega (Hold) de carga/descarga.
+- **Tipos de Operación**:
+    - **Carga**: Registro de viaje con destino al buque.
+    - **Descarga**: Registro de viaje con origen en el buque.
+
+### B. Integración de Pesos
+1. **Flujo Burreo**: El registro de la vuelta queda inicialmente sin peso. Una vez que en **Tráfico** se ingresan los promedios de la operación de burreo, estos se asocian retroactivamente a cada vuelta registrada.
+2. **Flujo Báscula**: El registro de la vuelta espera al evento de "Destare" (Peso de salida) para completar el registro con el peso neto real del viaje.
+
+### C. Trazabilidad Operativa
+- Se registra: Número de vuelta, hora de inicio, hora de fin (opcional), bodega utilizada y usuario que realizó el escaneo/registro.
+
+---
+
+## 5. Puntos de Control (Checkpoints)
 
 - **Scanner APT**: Valida que la unidad esté activa y autorizada por Vigilancia.
 - **Báscula**: Punto de control de peso real para producto a granel.

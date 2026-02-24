@@ -48,6 +48,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/dock/vessel/{id}/purge', [\App\Http\Controllers\DockController::class, 'purge'])->name('dock.vessel.purge');
     Route::delete('/dock/vessel/{id}', [\App\Http\Controllers\DockController::class, 'destroy'])->name('dock.vessel.destroy');
 
+    // Vessel Load/Unload (Trips)
+    Route::get('/dock/trips', [\App\Http\Controllers\DockTripController::class, 'index'])->name('dock.trips.index');
+    Route::get('/dock/trips/search', [\App\Http\Controllers\DockTripController::class, 'searchOperator'])->name('dock.trips.search');
+    Route::post('/dock/trips', [\App\Http\Controllers\DockTripController::class, 'store'])->name('dock.trips.store');
+    Route::delete('/dock/trips/{id}', [\App\Http\Controllers\DockTripController::class, 'destroy'])->name('dock.trips.destroy');
+
     // Operator Registration (Moved to APT)
     // Route::get('/dock/operator', [\App\Http\Controllers\VesselOperatorController::class, 'create'])->name('dock.operator.create');
     // Route::post('/dock/operator', [\App\Http\Controllers\VesselOperatorController::class, 'store'])->name('dock.operator.store');
