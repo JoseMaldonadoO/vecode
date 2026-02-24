@@ -7,9 +7,15 @@ import {
     ArrowLeft,
     CheckCircle,
     X,
+    MoreVertical,
+    Eye,
+    Edit2,
+    Lock,
+    Unlock,
 } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Fragment } from "react";
 import Modal from "@/Components/Modal";
+import { Menu, Transition } from "@headlessui/react";
 import { Truck, ChevronLeft, ChevronRight } from "lucide-react";
 import Pagination from "@/Components/Pagination";
 
@@ -266,7 +272,7 @@ export default function Index({
                                     <th className="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">
                                         Saldo
                                     </th>
-                                    <th className="px-6 py-4 text-right text-xs font-bold text-white uppercase tracking-wider">
+                                    <th className="sticky right-0 px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider bg-indigo-900 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
                                         Acciones
                                     </th>
                                 </tr>
@@ -327,40 +333,83 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-amber-700 text-center">
                                                 {formatter.format(Number(order.balance))} TM
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                <Link
-                                                    href={route("sales.show", {
-                                                        sale: order.id,
-                                                        module: "sales",
-                                                    })}
-                                                    className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-md hover:bg-indigo-100 transition-colors"
-                                                >
-                                                    Ver
-                                                </Link>
-                                                {order.status === "created" && (
-                                                    <Link
-                                                        href={route("sales.edit", order.id)}
-                                                        className="inline-flex items-center text-amber-600 hover:text-amber-900 bg-amber-50 px-3 py-1.5 rounded-md hover:bg-amber-100 transition-colors"
+                                            <td className="sticky right-0 px-6 py-4 whitespace-nowrap text-center text-sm font-medium bg-white group-hover:bg-indigo-50 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)] transition-colors">
+                                                <Menu as="div" className="relative inline-block text-left">
+                                                    <div>
+                                                        <Menu.Button className="inline-flex justify-center w-full px-2 py-2 text-sm font-medium text-gray-700 bg-white rounded-full hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 transition-all border border-gray-100">
+                                                            <MoreVertical className="w-5 h-5 text-gray-500" aria-hidden="true" />
+                                                        </Menu.Button>
+                                                    </div>
+                                                    <Transition
+                                                        as={Fragment}
+                                                        enter="transition ease-out duration-100"
+                                                        enterFrom="transform opacity-0 scale-95"
+                                                        enterTo="transform opacity-100 scale-100"
+                                                        leave="transition ease-in duration-75"
+                                                        leaveFrom="transform opacity-100 scale-100"
+                                                        leaveTo="transform opacity-0 scale-95"
                                                     >
-                                                        Editar
-                                                    </Link>
-                                                )}
-                                                {order.status === "created" && (
-                                                    <button
-                                                        onClick={() => toggleStatus(order.id)}
-                                                        className="inline-flex items-center text-red-600 hover:text-red-900 bg-red-50 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors"
-                                                    >
-                                                        Cerrar
-                                                    </button>
-                                                )}
-                                                {order.status === "closed" && (
-                                                    <button
-                                                        onClick={() => toggleStatus(order.id)}
-                                                        className="inline-flex items-center text-green-600 hover:text-green-900 bg-green-50 px-3 py-1.5 rounded-md hover:bg-green-100 transition-colors"
-                                                    >
-                                                        Abrir
-                                                    </button>
-                                                )}
+                                                        <Menu.Options className="absolute right-0 w-48 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                                            <div className="px-1 py-1">
+                                                                <Menu.Item>
+                                                                    {({ active }) => (
+                                                                        <Link
+                                                                            href={route("sales.show", {
+                                                                                sale: order.id,
+                                                                                module: "sales",
+                                                                            })}
+                                                                            className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                        >
+                                                                            <Eye className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />
+                                                                            Ver Detalle
+                                                                        </Link>
+                                                                    )}
+                                                                </Menu.Item>
+                                                                {order.status === "created" && (
+                                                                    <Menu.Item>
+                                                                        {({ active }) => (
+                                                                            <Link
+                                                                                href={route("sales.edit", order.id)}
+                                                                                className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                            >
+                                                                                <Edit2 className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-amber-500'}`} />
+                                                                                Editar Orden
+                                                                            </Link>
+                                                                        )}
+                                                                    </Menu.Item>
+                                                                )}
+                                                            </div>
+                                                            <div className="px-1 py-1">
+                                                                {order.status === "created" && (
+                                                                    <Menu.Item>
+                                                                        {({ active }) => (
+                                                                            <button
+                                                                                onClick={() => toggleStatus(order.id)}
+                                                                                className={`${active ? 'bg-red-600 text-white' : 'text-red-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                            >
+                                                                                <Lock className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-red-500'}`} />
+                                                                                Cerrar Orden
+                                                                            </button>
+                                                                        )}
+                                                                    </Menu.Item>
+                                                                )}
+                                                                {order.status === "closed" && (
+                                                                    <Menu.Item>
+                                                                        {({ active }) => (
+                                                                            <button
+                                                                                onClick={() => toggleStatus(order.id)}
+                                                                                className={`${active ? 'bg-green-600 text-white' : 'text-green-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                            >
+                                                                                <Unlock className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-green-500'}`} />
+                                                                                Abrir Orden
+                                                                            </button>
+                                                                        )}
+                                                                    </Menu.Item>
+                                                                )}
+                                                            </div>
+                                                        </Menu.Options>
+                                                    </Transition>
+                                                </Menu>
                                             </td>
                                         </tr>
                                     ))
@@ -382,7 +431,7 @@ export default function Index({
                                         <td className="px-6 py-4 text-center text-sm text-amber-700">
                                             {formatter.format(filteredOrders.reduce((sum, order) => sum + Number(order.balance), 0))} TM
                                         </td>
-                                        <td></td>
+                                        <td className="sticky right-0 bg-gray-100 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)] pt-[50.5px]"></td>
                                     </tr>
                                 </tfoot>
                             )}
