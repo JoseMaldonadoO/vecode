@@ -130,9 +130,6 @@ export default function Create({ auth }: { auth: any }) {
                                             required
                                         >
                                             <option value="Volteo">Volteo</option>
-                                            <option value="Tolva">Tolva</option>
-                                            <option value="Caja Seca">Caja Seca</option>
-                                            <option value="Plataforma">Plataforma</option>
                                             <option value="Contenedor">Contenedor</option>
                                             <option value="Camioneta">Camioneta</option>
                                             <option value="Cisterna">Cisterna</option>
@@ -144,7 +141,7 @@ export default function Create({ auth }: { auth: any }) {
                                             <option value="Full Plataforma">Full Plataforma</option>
                                             <option value="Full Tolva">Full Tolva</option>
                                             <option value="Pipa">Pipa</option>
-                                            <option value="Sencilla Jaula">Sencilla Jaula</option>
+                                            <option value="Sencillo Jaula">Sencillo Jaula</option>
                                             <option value="Sencillo Caja Seca">Sencillo Caja Seca</option>
                                             <option value="Sencillo Gondola">Sencillo Gondola</option>
                                             <option value="Sencillo Pipa">Sencillo Pipa</option>
