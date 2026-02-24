@@ -376,6 +376,10 @@ class DocumentationController extends Controller
                     })
                     ->orWhereHas('client', function ($q2) use ($search) {
                         $q2->where('business_name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('sales_order', function ($q2) use ($search) {
+                        $q2->where('folio', 'like', "%{$search}%")
+                            ->orWhere('sale_order', 'like', "%{$search}%");
                     });
             });
         }
