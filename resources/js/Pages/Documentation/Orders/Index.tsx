@@ -23,11 +23,14 @@ import {
     CheckCircle,
     Clipboard,
     Edit,
+    MoreHorizontal,
+    MoreVertical,
+    Settings,
 } from "lucide-react";
 import { useState, Fragment, FormEventHandler, useEffect } from "react";
 // @ts-ignore
 import { pickBy } from "lodash";
-import { Combobox, Transition } from "@headlessui/react";
+import { Combobox, Menu, Transition } from "@headlessui/react";
 import Swal from 'sweetalert2';
 
 interface Client {
@@ -219,6 +222,9 @@ export default function Index({
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900">
                                 <tr className="text-white">
+                                    <th className="sticky left-0 px-4 py-4 text-center text-xs font-bold uppercase tracking-wider bg-indigo-800 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)]">
+                                        <Settings className="w-5 h-5 mx-auto opacity-50" />
+                                    </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Folio
                                     </th>
@@ -240,9 +246,6 @@ export default function Index({
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Fecha
                                     </th>
-                                    <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider">
-                                        Acciones
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -250,8 +253,123 @@ export default function Index({
                                     orders.data.map((order) => (
                                         <tr
                                             key={order.id}
-                                            className="hover:bg-indigo-50 transition-colors duration-150"
+                                            className="hover:bg-indigo-50 transition-colors duration-150 group"
                                         >
+                                            <td className="sticky left-0 px-4 py-4 whitespace-nowrap text-center text-sm font-medium bg-white group-hover:bg-indigo-50 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)] transition-colors">
+                                                <Menu as="div" className="relative inline-block text-left">
+                                                    <div>
+                                                        <Menu.Button className="inline-flex justify-center w-full px-2 py-2 text-sm font-medium text-gray-700 bg-transparent rounded-full hover:bg-white/50 focus:outline-none transition-all group-hover:bg-indigo-100/50">
+                                                            <MoreHorizontal className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600" aria-hidden="true" />
+                                                        </Menu.Button>
+                                                    </div>
+                                                    <Transition
+                                                        as={Fragment}
+                                                        enter="transition ease-out duration-100"
+                                                        enterFrom="transform opacity-0 scale-95"
+                                                        enterTo="transform opacity-100 scale-100"
+                                                        leave="transition ease-in duration-75"
+                                                        leaveFrom="transform opacity-100 scale-100"
+                                                        leaveTo="transform opacity-0 scale-95"
+                                                    >
+                                                        <Menu.Items className="absolute left-full top-0 ml-2 w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                                            <div className="px-1 py-1">
+                                                                {order.status !== 'cancelled' && (
+                                                                    <>
+                                                                        <Menu.Item>
+                                                                            {({ active }) => (
+                                                                                <a
+                                                                                    href={route("documentation.print-order", order.id)}
+                                                                                    target="_blank"
+                                                                                    className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                                >
+                                                                                    <Printer className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-gray-500'}`} />
+                                                                                    Imprimir
+                                                                                </a>
+                                                                            )}
+                                                                        </Menu.Item>
+                                                                        <Menu.Item>
+                                                                            {({ active }) => (
+                                                                                <Link
+                                                                                    href={route("documentation.edit", order.id)}
+                                                                                    className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                                >
+                                                                                    <Edit className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />
+                                                                                    Editar
+                                                                                </Link>
+                                                                            )}
+                                                                        </Menu.Item>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                            <div className="px-1 py-1">
+                                                                {order.status !== 'cancelled' ? (
+                                                                    <Menu.Item>
+                                                                        {({ active }) => (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    Swal.fire({
+                                                                                        title: '¿Cancelar Orden?',
+                                                                                        text: "Esta acción cambiará el estatus a cancelado.",
+                                                                                        icon: 'warning',
+                                                                                        showCancelButton: true,
+                                                                                        confirmButtonColor: '#ef4444',
+                                                                                        cancelButtonColor: '#6b7280',
+                                                                                        confirmButtonText: 'Sí, cancelar',
+                                                                                        cancelButtonText: 'Cancelar'
+                                                                                    }).then((result) => {
+                                                                                        if (result.isConfirmed) {
+                                                                                            router.visit(route('documentation.cancel', order.id), {
+                                                                                                method: 'patch',
+                                                                                                preserveScroll: true,
+                                                                                                preserveState: true,
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }}
+                                                                                className={`${active ? 'bg-red-600 text-white' : 'text-red-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                            >
+                                                                                <X className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-red-500'}`} />
+                                                                                Cancelar
+                                                                            </button>
+                                                                        )}
+                                                                    </Menu.Item>
+                                                                ) : (
+                                                                    <Menu.Item>
+                                                                        {({ active }) => (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    Swal.fire({
+                                                                                        title: '¿Re-abrir Orden?',
+                                                                                        text: "La orden volverá a estar activa y se podrá editar.",
+                                                                                        icon: 'question',
+                                                                                        showCancelButton: true,
+                                                                                        confirmButtonColor: '#10b981',
+                                                                                        cancelButtonColor: '#6b7280',
+                                                                                        confirmButtonText: 'Sí, re-abrir',
+                                                                                        cancelButtonText: 'Cancelar'
+                                                                                    }).then((result) => {
+                                                                                        if (result.isConfirmed) {
+                                                                                            router.visit(route('documentation.reopen', order.id), {
+                                                                                                method: 'patch',
+                                                                                                preserveScroll: true,
+                                                                                                preserveState: true,
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }}
+                                                                                className={`${active ? 'bg-green-600 text-white' : 'text-green-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                            >
+                                                                                <CheckCircle className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-green-500'}`} />
+                                                                                Re-abrir
+                                                                            </button>
+                                                                        )}
+                                                                    </Menu.Item>
+                                                                )}
+                                                            </div>
+                                                        </Menu.Items>
+                                                    </Transition>
+                                                </Menu>
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-bold text-indigo-700 uppercase">
                                                     {order.folio}
@@ -291,94 +409,6 @@ export default function Index({
                                                         order.created_at,
                                                     ).toLocaleDateString()
                                                     : "-"}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    {order.status !== 'cancelled' ? (
-                                                        <>
-                                                            <a
-                                                                href={route(
-                                                                    "documentation.print-order",
-                                                                    order.id,
-                                                                )}
-                                                                target="_blank"
-                                                                className="inline-flex items-center text-gray-600 hover:text-indigo-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 hover:border-indigo-200 transition-all font-bold"
-                                                                title="Imprimir Orden"
-                                                            >
-                                                                <Printer className="w-4 h-4 mr-1.5" />
-                                                                Imprimir
-                                                            </a>
-
-                                                            <Link
-                                                                href={route(
-                                                                    "documentation.edit",
-                                                                    order.id,
-                                                                )}
-                                                                className="inline-flex items-center text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 hover:border-indigo-300 transition-all font-bold"
-                                                                title="Editar Orden"
-                                                            >
-                                                                <Edit className="w-4 h-4 mr-1.5" />
-                                                                Editar
-                                                            </Link>
-                                                            <button
-                                                                onClick={() => {
-                                                                    Swal.fire({
-                                                                        title: '¿Cancelar Orden?',
-                                                                        text: "Esta acción cambiará el estatus a cancelado.",
-                                                                        icon: 'warning',
-                                                                        showCancelButton: true,
-                                                                        confirmButtonColor: '#ef4444',
-                                                                        cancelButtonColor: '#6b7280',
-                                                                        confirmButtonText: 'Sí, cancelar',
-                                                                        cancelButtonText: 'Cancelar'
-                                                                    }).then((result) => {
-                                                                        if (result.isConfirmed) {
-                                                                            router.visit(route('documentation.cancel', order.id), {
-                                                                                method: 'patch',
-                                                                                preserveScroll: true,
-                                                                                preserveState: true,
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }}
-                                                                className="inline-flex items-center text-red-600 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-100 hover:border-red-300 transition-all font-bold"
-                                                                title="Cancelar Orden"
-                                                            >
-                                                                <X className="w-4 h-4 mr-1.5" />
-                                                                Cancelar
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => {
-                                                                Swal.fire({
-                                                                    title: '¿Re-abrir Orden?',
-                                                                    text: "La orden volverá a estar activa y se podrá editar.",
-                                                                    icon: 'question',
-                                                                    showCancelButton: true,
-                                                                    confirmButtonColor: '#10b981',
-                                                                    cancelButtonColor: '#6b7280',
-                                                                    confirmButtonText: 'Sí, re-abrir',
-                                                                    cancelButtonText: 'Cancelar'
-                                                                }).then((result) => {
-                                                                    if (result.isConfirmed) {
-                                                                        router.visit(route('documentation.reopen', order.id), {
-                                                                            method: 'patch',
-                                                                            preserveScroll: true,
-                                                                            preserveState: true,
-                                                                        });
-                                                                    }
-                                                                });
-                                                            }}
-                                                            className="inline-flex items-center text-green-600 bg-green-50 px-3 py-1.5 rounded-lg border border-green-100 hover:bg-green-100 hover:border-green-300 transition-all font-bold"
-                                                            title="Re-abrir Orden"
-                                                        >
-                                                            <CheckCircle className="w-4 h-4 mr-1.5" />
-                                                            Re-abrir
-                                                        </button>
-                                                    )}
-
-                                                </div>
                                             </td>
                                         </tr>
                                     ))
