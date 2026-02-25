@@ -48,13 +48,12 @@ const VesselCard = ({
             cancelButtonText: 'CANCELAR',
             confirmButtonColor: isExternal ? '#06b6d4' : '#3b82f6',
             cancelButtonColor: '#64748b',
-            borderRadius: '1rem',
             reverseButtons: true,
-        }).then((result) => {
+        }).then((result: any) => {
             if (result.isConfirmed) {
-                router.post(route('dock.vessel.mark-departure', vessel.id), {
+                router.post(route('dock.vessel.mark-departure', vessel.id as any), {
                     type: isExternal ? 'external' : 'internal'
-                });
+                } as any);
             }
         });
     };
@@ -179,13 +178,12 @@ const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => {
             cancelButtonText: 'CANCELAR',
             confirmButtonColor: color,
             cancelButtonColor: '#64748b',
-            borderRadius: '1rem',
             reverseButtons: true,
-        }).then((result) => {
+        }).then((result: any) => {
             if (result.isConfirmed) {
-                router.post(route('dock.vessel.mark-arrival', vessel.id), {
+                router.post(route('dock.vessel.mark-arrival', vessel.id as any), {
                     type: type
-                });
+                } as any);
             }
         });
     };
