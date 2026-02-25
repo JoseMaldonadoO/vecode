@@ -273,15 +273,49 @@ class DockController extends Controller
                 ])->withInput();
             }
         }
+        $vessel->update($request->all());
 
-        try {
-            $vessel->update($validated);
-            return redirect()->route('dock.index')->with('success', 'Barco actualizado correctamente.');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Vessel Update Error: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Error al actualizar barco: ' . $e->getMessage()])->withInput();
-        }
+        return redirect()->route('dock.index')->with('success', 'Buque actualizado exitosamente.');
     }
+
+    public function markArrival(Request $request, $id)
+    {
+        $vessel = Vessel::findOrFail($id);
+        $type = $request->input('type', 'internal'); // internal or external
+
+        if ($type === 'external') {
+            $vessel->update([
+                'external_dock_arrival_date' => now()->toDateString(),
+                'external_dock_arrival_time' => now(),
+            ]);
+        } else {
+            $vessel->update([
+                'berthal_datetime' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Llegada marcada exitosamente.');
+    }
+
+    public function markDeparture(Request $request, $id)
+    {
+        $vessel = Vessel::findOrFail($id);
+        $type = $request->input('type', 'internal'); // internal or external
+
+        if ($type === 'external') {
+            $vessel->update([
+                'external_dock_departure_date' => now()->toDateString(),
+                'external_dock_departure_time' => now(),
+            ]);
+        } else {
+            $vessel->update([
+                'departure_date' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Salida marcada exitosamente.');
+    }
+
     public function status()
     {
         $now = now(); // Use Carbon::now()
@@ -330,6 +364,7 @@ class DockController extends Controller
             ->get()
             ->map(function ($vessel) {
                 return [
+                    'id' => $vessel->id,
                     'name' => $vessel->name,
                     'type' => $vessel->vessel_type ?? 'M/V',
                     'eta' => $vessel->is_anchored ? 'Fondeado' : ($vessel->eta ? (is_string($vessel->eta) ? date('d/m/Y', strtotime($vessel->eta)) : $vessel->eta->format('d/m/Y')) : 'Pendiente'),
@@ -356,6 +391,7 @@ class DockController extends Controller
             }
 
             return [
+                'id' => $v->id,
                 'name' => $v->name,
                 'type' => $v->vessel_type ?? 'B/T',
                 'operation_type' => $v->operation_type,
@@ -375,6 +411,7 @@ class DockController extends Controller
             'arrivals' => $arrivals
         ]);
     }
+
     public function destroy($id)
     {
         $vessel = Vessel::findOrFail($id);

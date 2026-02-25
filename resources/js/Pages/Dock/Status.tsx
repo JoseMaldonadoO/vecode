@@ -1,5 +1,5 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import {
     Ship,
     Anchor,
@@ -12,6 +12,8 @@ import {
     Droplets,
     ArrowLeft,
     FileText,
+    LogOut,
+    MapPin,
 } from "lucide-react";
 import {
     Card,
@@ -22,15 +24,11 @@ import {
 } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import {
-    Card as TremorCard,
-    Title,
-    Text,
-    Metric,
-    Flex,
-    ProgressBar,
-    Tracker,
-    Color,
-} from "@tremor/react";
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/Components/ui/tooltip";
 
 // Unicorn UI Components (Sub-components located here for single-file portability during dev)
 
@@ -44,6 +42,14 @@ const VesselCard = ({
     isExternal?: boolean;
 }) => {
     const isOccupied = vessel && vessel.name !== "-";
+
+    const handleDeparture = () => {
+        if (confirm(`¿Está seguro de marcar la salida del buque ${vessel.name}?`)) {
+            router.post(route('dock.vessel.mark-departure', vessel.id), {
+                type: isExternal ? 'external' : 'internal'
+            });
+        }
+    };
 
     const colorClasses = isExternal
         ? (isOccupied
@@ -117,13 +123,15 @@ const VesselCard = ({
 
                                     <div className="flex items-center justify-between pt-1">
                                         <div className="flex items-center gap-2">
-                                            <Anchor className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
-                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Status</span>
+                                            <LogOut className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
+                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Salida</span>
                                         </div>
-                                        <div className={`px-3 py-1 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/20" : "bg-green-500/20 text-green-400 border-green-500/20"} text-xs font-black rounded-full border flex items-center gap-2 uppercase`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isExternal ? "bg-cyan-500" : "bg-green-500"}`}></span>
-                                            Ocupado
-                                        </div>
+                                        <button
+                                            onClick={handleDeparture}
+                                            className={`px-4 py-1.5 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/30" : "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30"} text-[10px] font-black rounded-xl border-2 flex items-center gap-2 uppercase transition-all shadow-lg active:scale-95`}
+                                        >
+                                            Marcar Salida
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -149,159 +157,143 @@ const VesselCard = ({
     );
 };
 
-const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => (
-    <Card className="border shadow-lg overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-indigo-600" />
-                Próximos Arribos
-            </CardTitle>
-            <CardDescription>Programación estimada de buques</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-            {/* Desktop Table View */}
-            <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-100 text-slate-600 uppercase text-xs font-bold">
-                        <tr>
-                            <th className="px-6 py-4">Buque</th>
-                            <th className="px-6 py-4">ETA / ETB</th>
-                            <th className="px-6 py-4">Operación</th>
-                            <th className="px-6 py-4">Muelle</th>
-                            <th className="px-6 py-4">Estadía Est.</th>
-                            <th className="px-6 py-4">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                        {arrivals.map((arrival, idx) => (
-                            <tr
-                                key={idx}
-                                className="hover:bg-slate-50 transition-colors"
-                            >
-                                <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                                        {arrival.type}
-                                    </div>
-                                    {arrival.name}
-                                </td>
-                                <td className="px-6 py-4 font-mono text-slate-600">
-                                    <div>ETA: {arrival.eta}</div>
-                                    <div className="text-indigo-600 font-bold">
-                                        ETB: {arrival.etb}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="font-medium text-slate-800">
-                                        {arrival.operation_type}
-                                    </div>
-                                    {arrival.product && (
-                                        <div className="text-xs text-slate-500">
-                                            {arrival.product}
-                                        </div>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <Badge
-                                        variant="outline"
-                                        className="border-indigo-200 text-indigo-700 bg-indigo-50"
-                                    >
-                                        {arrival.dock}
-                                    </Badge>
-                                </td>
-                                <td className="px-6 py-4 font-bold text-slate-600">
-                                    {arrival.est_stay} Días
-                                </td>
-                                <td className="px-6 py-4">
-                                    {arrival.is_anchored ? (
-                                        <Badge className="bg-amber-500 hover:bg-amber-600">
-                                            <Anchor className="w-3 h-3 mr-1" />{" "}
-                                            Fondeado
-                                        </Badge>
-                                    ) : (
-                                        <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-300">
-                                            Programado
-                                        </Badge>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => {
+    const handleArrival = (vessel: any, type: 'internal' | 'external') => {
+        const typeLabel = type === 'external' ? 'al Muelle Externo' : 'a Proagro';
+        if (confirm(`¿Confirmar llegada del buque ${vessel.name} ${typeLabel}?`)) {
+            router.post(route('dock.vessel.mark-arrival', vessel.id), {
+                type: type
+            });
+        }
+    };
 
-            {/* Mobile Card View */}
-            <div className="lg:hidden p-4 space-y-4">
-                {arrivals.map((arrival, idx) => (
-                    <div
-                        key={idx}
-                        className="bg-white rounded-xl border border-slate-100 shadow-sm p-4"
-                    >
-                        <div className="flex justify-between items-start mb-3">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
-                                    {arrival.type}
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-slate-900">
-                                        {arrival.name}
-                                    </h4>
-                                    <Badge
-                                        variant="outline"
-                                        className="text-xs border-indigo-200 text-indigo-600 bg-indigo-50 mt-1"
-                                    >
-                                        {arrival.dock}
-                                    </Badge>
-                                </div>
-                            </div>
-                            {arrival.is_anchored ? (
-                                <Badge className="bg-amber-500 text-xs">
-                                    <Anchor className="w-3 h-3" />
-                                </Badge>
-                            ) : (
-                                <Badge className="bg-slate-200 text-slate-600 text-xs">
-                                    Prog.
-                                </Badge>
-                            )}
-                        </div>
+    return (
+        <Card className="border shadow-lg overflow-hidden">
+            <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-indigo-600" />
+                    Próximos Arribos
+                </CardTitle>
+                <CardDescription>Programación estimada de buques</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+                <TooltipProvider>
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="bg-slate-100 text-slate-600 uppercase text-xs font-bold">
+                                <tr>
+                                    <th className="px-6 py-4">Buque</th>
+                                    <th className="px-6 py-4">ETA / ETB</th>
+                                    <th className="px-6 py-4">Operación</th>
+                                    <th className="px-6 py-4">Muelle</th>
+                                    <th className="px-6 py-4 text-center">Llegada</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y">
+                                {arrivals.map((arrival, index) => (
+                                    <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold text-slate-900">{arrival.name}</div>
+                                            <div className="text-[10px] text-slate-400 uppercase font-black">{arrival.type}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[9px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">ETA</span>
+                                                    <span className="font-mono text-xs">{arrival.eta}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[9px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">ETB</span>
+                                                    <span className="font-mono text-xs">{arrival.etb}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <Badge variant="outline" className="font-bold border-slate-200">
+                                                {arrival.operation_type}
+                                            </Badge>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-slate-600 font-medium">{arrival.dock}</span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center justify-center gap-3">
+                                                <button
+                                                    onClick={() => handleArrival(arrival, 'internal')}
+                                                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-95 uppercase"
+                                                >
+                                                    Marcar Llegada
+                                                </button>
 
-                        <div className="grid grid-cols-2 gap-3 text-sm mb-3 bg-slate-50 p-3 rounded-lg">
-                            <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">
-                                    ETA
-                                </p>
-                                <p className="font-mono text-slate-700">
-                                    {arrival.eta}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">
-                                    ETB
-                                </p>
-                                <p className="font-mono text-indigo-600 font-bold">
-                                    {arrival.etb}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between items-end">
-                            <div>
-                                <p className="text-sm font-medium text-slate-800">
-                                    {arrival.operation_type}
-                                </p>
-                                <p className="text-xs text-slate-500">
-                                    {arrival.product}
-                                </p>
-                            </div>
-                            <span className="text-xs font-bold text-slate-400">
-                                {arrival.est_stay} Días Est.
-                            </span>
-                        </div>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <button
+                                                            onClick={() => handleArrival(arrival, 'external')}
+                                                            className="bg-cyan-500 hover:bg-cyan-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-95 uppercase flex items-center gap-1.5"
+                                                        >
+                                                            <MapPin className="w-3 h-3" />
+                                                            ME
+                                                        </button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Muelle Externo</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                ))}
-            </div>
-        </CardContent>
-    </Card>
-);
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden p-4 space-y-4 bg-slate-50">
+                        {arrivals.map((arrival, index) => (
+                            <div key={index} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 className="font-bold text-slate-900">{arrival.name}</h4>
+                                        <p className="text-[10px] text-slate-400 uppercase font-black">{arrival.type} • {arrival.dock}</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-[10px] border-slate-200">
+                                        {arrival.operation_type}
+                                    </Badge>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">ETA</p>
+                                        <p className="text-xs font-mono font-bold">{arrival.eta}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">ETB</p>
+                                        <p className="text-xs font-mono font-bold text-indigo-600">{arrival.etb}</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleArrival(arrival, 'internal')}
+                                        className="flex-1 bg-indigo-600 text-white text-[10px] font-black py-2 rounded-lg uppercase shadow-sm active:scale-95"
+                                    >
+                                        Llegada
+                                    </button>
+                                    <button
+                                        onClick={() => handleArrival(arrival, 'external')}
+                                        className="flex-1 bg-cyan-500 text-white text-[10px] font-black py-2 rounded-lg uppercase shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+                                    >
+                                        <MapPin className="w-3 h-3" />
+                                        ME
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </TooltipProvider>
+            </CardContent>
+        </Card>
+    );
+};
 
 export default function Status({
     auth,
