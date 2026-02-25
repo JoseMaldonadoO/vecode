@@ -87,7 +87,7 @@ class DockTripController extends Controller
             ...$validated,
             'registered_by' => Auth::id(),
             'start_time' => now(),
-            'weight' => $automaticWeight,
+            'weight' => $automaticWeight ? ($automaticWeight / 1000) : null,
             'status' => $automaticWeight ? 'completed' : 'pending',
         ]);
 

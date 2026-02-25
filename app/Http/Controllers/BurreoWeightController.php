@@ -34,7 +34,7 @@ class BurreoWeightController extends Controller
         $weightKg = $validated['provisional_burreo_weight'] * 1000;
 
         try {
-            DB::transaction(function () use ($vessel, $weightKg) {
+            DB::transaction(function () use ($vessel, $weightKg, $validated) {
                 // 1. Update vessel
                 $vessel->update([
                     'provisional_burreo_weight' => $weightKg
@@ -66,7 +66,7 @@ class BurreoWeightController extends Controller
                     VesselOperatorTrip::where('vessel_id', $vessel->id)
                         ->where('status', '!=', 'cancelled')
                         ->update([
-                            'weight' => $weightKg,
+                            'weight' => $validated['provisional_burreo_weight'],
                             'status' => 'completed'
                         ]);
                 }
@@ -87,7 +87,7 @@ class BurreoWeightController extends Controller
         $weightKg = $validated['draft_weight'] * 1000;
 
         try {
-            DB::transaction(function () use ($vessel, $weightKg) {
+            DB::transaction(function () use ($vessel, $weightKg, $validated) {
                 // 1. Update the vessel with the draft weight (stored in KG)
                 $vessel->update([
                     'draft_weight' => $weightKg
@@ -123,7 +123,7 @@ class BurreoWeightController extends Controller
                     VesselOperatorTrip::where('vessel_id', $vessel->id)
                         ->where('status', '!=', 'cancelled')
                         ->update([
-                            'weight' => $weightKg,
+                            'weight' => $validated['draft_weight'],
                             'status' => 'completed'
                         ]);
                 }
