@@ -23,12 +23,6 @@ import {
     CardDescription,
 } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/Components/ui/tooltip";
 
 // Unicorn UI Components (Sub-components located here for single-file portability during dev)
 
@@ -177,119 +171,111 @@ const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => {
                 <CardDescription>Programación estimada de buques</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-                <TooltipProvider>
-                    {/* Desktop Table View */}
-                    <div className="hidden lg:block overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-slate-100 text-slate-600 uppercase text-xs font-bold">
-                                <tr>
-                                    <th className="px-6 py-4">Buque</th>
-                                    <th className="px-6 py-4">ETA / ETB</th>
-                                    <th className="px-6 py-4">Operación</th>
-                                    <th className="px-6 py-4">Muelle</th>
-                                    <th className="px-6 py-4 text-center">Llegada</th>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-slate-100 text-slate-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th className="px-6 py-4">Buque</th>
+                                <th className="px-6 py-4">ETA / ETB</th>
+                                <th className="px-6 py-4">Operación</th>
+                                <th className="px-6 py-4">Muelle</th>
+                                <th className="px-6 py-4 text-center">Llegada</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {arrivals.map((arrival, index) => (
+                                <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="font-bold text-slate-900">{arrival.name}</div>
+                                        <div className="text-[10px] text-slate-400 uppercase font-black">{arrival.type}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[9px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">ETA</span>
+                                                <span className="font-mono text-xs">{arrival.eta}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[9px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">ETB</span>
+                                                <span className="font-mono text-xs">{arrival.etb}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <Badge variant="outline" className="font-bold border-slate-200">
+                                            {arrival.operation_type}
+                                        </Badge>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-slate-600 font-medium">{arrival.dock}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center justify-center gap-3">
+                                            <button
+                                                onClick={() => handleArrival(arrival, 'internal')}
+                                                className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-95 uppercase"
+                                            >
+                                                Marcar Llegada
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleArrival(arrival, 'external')}
+                                                title="Marcar llegada a Muelle Externo"
+                                                className="bg-cyan-500 hover:bg-cyan-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-95 uppercase flex items-center gap-1.5"
+                                            >
+                                                <MapPin className="w-3 h-3" />
+                                                ME
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {arrivals.map((arrival, index) => (
-                                    <tr key={index} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="font-bold text-slate-900">{arrival.name}</div>
-                                            <div className="text-[10px] text-slate-400 uppercase font-black">{arrival.type}</div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[9px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">ETA</span>
-                                                    <span className="font-mono text-xs">{arrival.eta}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[9px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">ETB</span>
-                                                    <span className="font-mono text-xs">{arrival.etb}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <Badge variant="outline" className="font-bold border-slate-200">
-                                                {arrival.operation_type}
-                                            </Badge>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-slate-600 font-medium">{arrival.dock}</span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-3">
-                                                <button
-                                                    onClick={() => handleArrival(arrival, 'internal')}
-                                                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-95 uppercase"
-                                                >
-                                                    Marcar Llegada
-                                                </button>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <button
-                                                            onClick={() => handleArrival(arrival, 'external')}
-                                                            className="bg-cyan-500 hover:bg-cyan-600 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition-all shadow-md active:scale-95 uppercase flex items-center gap-1.5"
-                                                        >
-                                                            <MapPin className="w-3 h-3" />
-                                                            ME
-                                                        </button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Muelle Externo</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Mobile Card View */}
-                    <div className="lg:hidden p-4 space-y-4 bg-slate-50">
-                        {arrivals.map((arrival, index) => (
-                            <div key={index} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h4 className="font-bold text-slate-900">{arrival.name}</h4>
-                                        <p className="text-[10px] text-slate-400 uppercase font-black">{arrival.type} • {arrival.dock}</p>
-                                    </div>
-                                    <Badge variant="outline" className="text-[10px] border-slate-200">
-                                        {arrival.operation_type}
-                                    </Badge>
+                {/* Mobile Card View */}
+                <div className="lg:hidden p-4 space-y-4 bg-slate-50">
+                    {arrivals.map((arrival, index) => (
+                        <div key={index} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 className="font-bold text-slate-900">{arrival.name}</h4>
+                                    <p className="text-[10px] text-slate-400 uppercase font-black">{arrival.type} • {arrival.dock}</p>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">ETA</p>
-                                        <p className="text-xs font-mono font-bold">{arrival.eta}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">ETB</p>
-                                        <p className="text-xs font-mono font-bold text-indigo-600">{arrival.etb}</p>
-                                    </div>
+                                <Badge variant="outline" className="text-[10px] border-slate-200">
+                                    {arrival.operation_type}
+                                </Badge>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">ETA</p>
+                                    <p className="text-xs font-mono font-bold">{arrival.eta}</p>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleArrival(arrival, 'internal')}
-                                        className="flex-1 bg-indigo-600 text-white text-[10px] font-black py-2 rounded-lg uppercase shadow-sm active:scale-95"
-                                    >
-                                        Llegada
-                                    </button>
-                                    <button
-                                        onClick={() => handleArrival(arrival, 'external')}
-                                        className="flex-1 bg-cyan-500 text-white text-[10px] font-black py-2 rounded-lg uppercase shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
-                                    >
-                                        <MapPin className="w-3 h-3" />
-                                        ME
-                                    </button>
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider">ETB</p>
+                                    <p className="text-xs font-mono font-bold text-indigo-600">{arrival.etb}</p>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </TooltipProvider>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => handleArrival(arrival, 'internal')}
+                                    className="flex-1 bg-indigo-600 text-white text-[10px] font-black py-2 rounded-lg uppercase shadow-sm active:scale-95"
+                                >
+                                    Llegada
+                                </button>
+                                <button
+                                    onClick={() => handleArrival(arrival, 'external')}
+                                    className="flex-1 bg-cyan-500 text-white text-[10px] font-black py-2 rounded-lg uppercase shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+                                >
+                                    <MapPin className="w-3 h-3" />
+                                    ME
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </CardContent>
         </Card>
     );
