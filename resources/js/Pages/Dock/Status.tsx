@@ -59,9 +59,9 @@ const VesselCard = ({
         <div
             className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 p-8 group ${colorClasses} ${!isOccupied ? "border-dashed hover:opacity-100 hover:border-slate-300 min-h-[180px]" : "min-h-[220px]"}`}
         >
-            {/* Background Accent for Occupied */}
+            {/* Background Accent for Occupied - Now at Bottom Right for External */}
             {isOccupied && (
-                <div className={`absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full blur-3xl opacity-10 animate-pulse ${isExternal ? "bg-cyan-500" : "bg-blue-500"}`}></div>
+                <div className={`absolute bottom-0 right-0 -mb-24 -mr-24 h-80 w-80 rounded-full blur-3xl opacity-20 animate-pulse ${isExternal ? "bg-cyan-500" : "bg-blue-500"}`}></div>
             )}
 
             <div className="relative z-10 h-full flex flex-col justify-between">
@@ -120,8 +120,8 @@ const VesselCard = ({
                                             <Anchor className="w-3.5 h-3.5 text-white/30" />
                                             <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Status</span>
                                         </div>
-                                        <div className="px-2 py-0.5 bg-green-500/20 text-green-400 text-[9px] font-black rounded-full border border-green-500/20 flex items-center gap-1.5 uppercase">
-                                            <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></span>
+                                        <div className={`px-2 py-0.5 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/20" : "bg-green-500/20 text-green-400 border-green-500/20"} text-[9px] font-black rounded-full border flex items-center gap-1.5 uppercase`}>
+                                            <span className={`w-1 h-1 rounded-full animate-pulse ${isExternal ? "bg-cyan-500" : "bg-green-500"}`}></span>
                                             Ocupado
                                         </div>
                                     </div>
