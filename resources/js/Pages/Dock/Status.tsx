@@ -47,111 +47,100 @@ const VesselCard = ({
 
     const colorClasses = isExternal
         ? (isOccupied
-            ? "border-cyan-400 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-900/40 shadow-[0_20px_50px_-20px_rgba(34,211,238,0.3)]"
+            ? "border-cyan-400/50 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-900/40 shadow-[0_20px_50px_-20px_rgba(34,211,238,0.3)]"
             : "border-slate-200 bg-slate-50 opacity-60")
         : (isOccupied
-            ? "border-blue-500 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-900 shadow-[0_20px_50px_-20px_rgba(30,58,138,0.7)]"
-            : "border-slate-200 bg-slate-50 opacity-60");
+            ? "border-blue-500/50 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-900 shadow-[0_20px_50px_-20px_rgba(30,58,138,0.7)]"
+            : "border-slate-200 bg-slate-50 opacity-60 overflow-hidden");
 
-    const badgeClasses = isExternal
-        ? "bg-cyan-500/10 text-cyan-200 border-cyan-500/30"
-        : "bg-blue-500/10 text-blue-200 border-blue-500/30";
-
-    const labelClasses = isExternal
-        ? "text-cyan-400"
-        : "text-blue-400";
+    if (isExternal && !isOccupied) return null;
 
     return (
         <div
-            className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 p-8 group ${colorClasses} ${!isOccupied ? "border-dashed hover:opacity-100 hover:border-slate-300" : ""}`}
+            className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 p-8 group ${colorClasses} ${!isOccupied ? "border-dashed hover:opacity-100 hover:border-slate-300 min-h-[180px]" : "min-h-[220px]"}`}
         >
-            {/* Background Animation for Occupied - Subtle */}
+            {/* Background Accent for Occupied */}
             {isOccupied && (
-                <>
-                    <div className={`absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full blur-3xl opacity-10 animate-pulse ${isExternal ? "bg-cyan-500" : "bg-blue-500"}`}></div>
-                </>
+                <div className={`absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full blur-3xl opacity-10 animate-pulse ${isExternal ? "bg-cyan-500" : "bg-blue-500"}`}></div>
             )}
 
-            <div className="relative z-10 flex flex-col md:flex-row gap-10 items-stretch">
-                {/* Header Logic */}
-                <div className="flex-shrink-0 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10 pb-6 md:pb-0 md:pr-10 min-w-[200px]">
-                    <div className="mb-4">
-                        <h3 className={`text-xs font-black uppercase tracking-[0.2em] ${isOccupied ? labelClasses : "text-slate-400"}`}>
-                            {isExternal ? "Muelle Externo" : `Muelle ${side}`}
-                        </h3>
-                    </div>
-
-                    {isOccupied ? (
-                        <div>
-                            <h2 className="text-4xl font-black text-white drop-shadow-sm tracking-tight leading-none mb-4">
-                                {vessel.name}
-                            </h2>
-                            <Badge
-                                variant="outline"
-                                className={`bg-transparent font-black text-[10px] uppercase tracking-widest ${badgeClasses}`}
-                            >
-                                {vessel.type}
-                            </Badge>
-                        </div>
-                    ) : (
-                        <div>
-                            <h2 className="text-2xl font-bold text-slate-300 uppercase tracking-widest">Disponible</h2>
-                            <p className="text-slate-400 text-xs mt-2 italic">Listo para recibir embarcación</p>
-                        </div>
-                    )}
+            <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                    <h3 className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 ${isOccupied ? (isExternal ? "text-cyan-400" : "text-blue-400") : "text-slate-400"}`}>
+                        {isExternal ? "Muelle Externo" : `Muelle ${side}`}
+                    </h3>
                 </div>
 
-                {/* Info Grid - Clean and Organized */}
-                <div className="flex-grow">
+                <div className="flex flex-col md:flex-row items-center gap-10">
                     {isOccupied ? (
-                        <div className="h-full flex flex-col justify-center">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <div className="space-y-1">
-                                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                        <FileText className="w-3.5 h-3.5 opacity-50" />
-                                        Operación
-                                    </p>
-                                    <p className="text-white font-bold text-lg">{vessel.operation_type}</p>
+                        <>
+                            {/* Vessel Info Sub-Card (Left Aligned) */}
+                            <div className="flex-shrink-0 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 min-w-[320px] shadow-2xl">
+                                <div className="mb-6">
+                                    <h2 className="text-3xl font-black text-white tracking-tighter leading-none mb-2">
+                                        {vessel.name}
+                                    </h2>
+                                    <Badge
+                                        variant="outline"
+                                        className={`bg-transparent font-black text-[9px] uppercase tracking-[0.2em] px-2 py-0 border-white/20 text-white/70`}
+                                    >
+                                        {vessel.type}
+                                    </Badge>
                                 </div>
 
-                                <div className="space-y-1">
-                                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                        <Clock className="w-3.5 h-3.5 opacity-50" />
-                                        Estadía Actual
-                                    </p>
-                                    <p className="text-white font-bold text-lg">{vessel.stay_days} <span className="text-white/50 font-medium text-sm">Días</span></p>
-                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <FileText className="w-3.5 h-3.5 text-white/30" />
+                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Operación</span>
+                                        </div>
+                                        <span className="text-white font-bold text-sm tracking-wide">{vessel.operation_type}</span>
+                                    </div>
 
-                                <div className="space-y-1">
-                                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                        <Calendar className="w-3.5 h-3.5 opacity-50" />
-                                        {isExternal ? "Llegada Muelle" : "Atraco (ETB)"}
-                                    </p>
-                                    <p className="text-white font-mono font-bold text-lg">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</p>
-                                </div>
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="w-3.5 h-3.5 text-white/30" />
+                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Estadía</span>
+                                        </div>
+                                        <span className="text-white font-bold text-sm">{vessel.stay_days} <span className="text-white/40 font-medium text-[10px] ml-0.5">Días</span></span>
+                                    </div>
 
-                                <div className="space-y-1">
-                                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                                        <Anchor className="w-3.5 h-3.5 opacity-50" />
-                                        Status
-                                    </p>
-                                    <div className="flex items-center gap-2">
-                                        <div className="px-2.5 py-0.5 bg-green-500/20 text-green-400 text-[10px] font-black rounded-full border border-green-500/30 flex items-center gap-1.5 uppercase">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                                            Activo
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="w-3.5 h-3.5 text-white/30" />
+                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">
+                                                {isExternal ? "Llegada" : "Atraco"}
+                                            </span>
+                                        </div>
+                                        <span className="text-white font-mono font-bold text-xs">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</span>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-1">
+                                        <div className="flex items-center gap-2">
+                                            <Anchor className="w-3.5 h-3.5 text-white/30" />
+                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Status</span>
+                                        </div>
+                                        <div className="px-2 py-0.5 bg-green-500/20 text-green-400 text-[9px] font-black rounded-full border border-green-500/20 flex items-center gap-1.5 uppercase">
+                                            <span className="w-1 h-1 rounded-full bg-green-500 animate-pulse"></span>
+                                            Ocupado
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Empty space for future details as requested */}
-                            <div className="mt-8 border-t border-white/5 pt-4">
-                                <div className="h-4 bg-white/5 rounded w-1/4 animate-pulse"></div>
+                            {/* Large Empty Space on the Right */}
+                            <div className="flex-grow hidden md:block select-none opacity-5 pointer-events-none">
+                                <div className="h-20 w-full border-t border-r border-white/5 rounded-tr-3xl"></div>
                             </div>
-                        </div>
+                        </>
                     ) : (
-                        <div className="h-full flex items-center justify-center py-6">
-                            <p className="text-slate-400/30 font-black text-5xl uppercase tracking-[0.3em] select-none">VACANTE</p>
+                        <div className="w-full flex items-center justify-start py-4">
+                            <div className="bg-slate-200/50 px-6 py-4 rounded-xl border border-dashed border-slate-300">
+                                <h2 className="text-slate-400 text-xl font-bold uppercase tracking-[0.2em] flex items-center gap-3">
+                                    <Anchor className="w-5 h-5 opacity-40" />
+                                    Muelle Disponible
+                                </h2>
+                            </div>
                         </div>
                     )}
                 </div>
