@@ -408,23 +408,23 @@ class DockController extends Controller
             if (!$v)
                 return ['name' => '-'];
 
-            // Fetch Real-time Tonnage for this specific vessel
-            $tonnageStats = LoadingOrder::join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            // 1. Fetch Official Scale Tonnage (from weight_tickets)
+            $scaleTonnage = LoadingOrder::join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
                 ->where('loading_orders.vessel_id', $v->id)
-                ->where(function ($q) {
-                    $q->where('loading_orders.status', 'completed')
-                        ->orWhere('loading_orders.operation_type', 'burreo');
-                })
-                ->selectRaw('
-                    SUM(weight_tickets.net_weight) as total_kg,
-                    loading_orders.hold_number,
-                    SUM(CASE WHEN loading_orders.hold_number IS NOT NULL THEN weight_tickets.net_weight ELSE 0 END) as hold_weight
-                ')
-                ->groupBy('loading_orders.hold_number')
+                ->where('loading_orders.status', 'completed')
+                ->sum('weight_tickets.net_weight') / 1000;
+
+            // 2. Fetch Trip-based Tonnage (from vessel_operator_trips - source for hold breakdown)
+            $tripStats = \App\Models\VesselOperatorTrip::where('vessel_id', $v->id)
+                ->where('status', '!=', 'cancelled')
+                ->selectRaw('SUM(weight) as total_mt, hold_number')
+                ->groupBy('hold_number')
                 ->get();
 
-            $totalLoadedKg = $tonnageStats->sum('total_kg');
-            $totalLoadedMt = $totalLoadedKg / 1000;
+            $totalTripTonnage = $tripStats->sum('total_mt');
+
+            // Total progress uses official scale weight if available, fallback to trips
+            $totalLoadedMt = max($scaleTonnage, $totalTripTonnage);
             $programmedMt = $v->programmed_tonnage ?: 0;
             $pendingMt = max(0, $programmedMt - $totalLoadedMt);
 
@@ -432,19 +432,17 @@ class DockController extends Controller
                 ? min(100, round(($totalLoadedMt / $programmedMt) * 100, 1))
                 : 0;
 
-            // Prepare Hatch Breakdown
+            // Prepare Hatch Breakdown (Using Trip Data)
             $hatches = [];
             if ($v->holds && is_array($v->holds)) {
                 foreach ($v->holds as $hIndex => $hName) {
                     $hNumber = $hIndex + 1;
-                    $hWeightKg = $tonnageStats->where('hold_number', $hNumber)->first()->total_kg ?? 0;
-                    $hWeightMt = $hWeightKg / 1000;
+                    $hWeightMt = $tripStats->where('hold_number', $hNumber)->first()->total_mt ?? 0;
 
                     $hatches[] = [
                         'id' => $hNumber,
                         'name' => $hName ?: "Bodega $hNumber",
                         'loaded_mt' => round($hWeightMt, 2),
-                        // We use uniform distribution as placeholder for programmed per hatch
                         'percent' => $programmedMt > 0 ? round(($hWeightMt / ($programmedMt / count($v->holds))) * 100, 1) : 0
                     ];
                 }
