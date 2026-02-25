@@ -28,10 +28,12 @@ export default function ExitMP({
     auth,
     order,
     active_scale_id = 1,
+    active_lots = [],
 }: {
     auth: any;
     order?: any;
     active_scale_id?: number;
+    active_lots?: any[];
 }) {
     // State for Search
     const [qrValue, setQrValue] = useState("");
@@ -46,6 +48,8 @@ export default function ExitMP({
         shipment_order_id: order?.id || "",
         weight: "", // Second Weight
         scale_id: active_scale_id, // Exit Scale
+        lot_id: "",
+        packaging_type: "N/A",
     });
 
     useEffect(() => {
@@ -494,6 +498,40 @@ export default function ExitMP({
                                     <InputLabel value="Consignado a" />
                                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-600">
                                         {order.consignee || "N/A"}
+                                    </div>
+                                </div>
+
+                                {/* New Dropdowns */}
+                                <div className="space-y-4 pt-4 border-t border-gray-100 md:col-span-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-1">
+                                            <InputLabel value="LOTE" className="text-indigo-600 font-black" />
+                                            <select
+                                                value={data.lot_id}
+                                                onChange={e => setData("lot_id", e.target.value)}
+                                                className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold"
+                                            >
+                                                <option value="">N/A</option>
+                                                {active_lots.map((lot: any) => (
+                                                    <option key={lot.id} value={lot.id}>{lot.folio}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {order.type === 'sale' && (
+                                            <div className="space-y-1">
+                                                <InputLabel value="ENVASE" className="text-indigo-600 font-black" />
+                                                <select
+                                                    value={data.packaging_type}
+                                                    onChange={e => setData("packaging_type", e.target.value)}
+                                                    className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold"
+                                                >
+                                                    <option value="N/A">N/A</option>
+                                                    <option value="PRO-AGRO">PRO-AGRO</option>
+                                                    <option value="FERTINAL">FERTINAL</option>
+                                                </select>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

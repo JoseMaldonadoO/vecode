@@ -22,6 +22,11 @@ class WeightTicket extends Model
         return $this->belongsTo(LoadingOrder::class);
     }
 
+    public function lot()
+    {
+        return $this->belongsTo(Lot::class);
+    }
+
     public function shipmentOrder()
     {
         return $this->belongsTo(ShipmentOrder::class);

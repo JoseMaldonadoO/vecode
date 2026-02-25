@@ -421,6 +421,7 @@ class WeightTicketController extends Controller
     public function createExit(Request $request, $id = null)
     {
         $orderData = null;
+        $activeLots = \App\Models\Lot::where('status', 'open')->orderBy('created_at', 'desc')->get(['id', 'folio']);
 
         if ($id) {
             $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order'])
@@ -481,7 +482,8 @@ class WeightTicketController extends Controller
 
         return Inertia::render('Scale/ExitMP', [
             'order' => $orderData,
-            'active_scale_id' => (int) $request->input('scale_id', 1)
+            'active_scale_id' => (int) $request->input('scale_id', 1),
+            'active_lots' => $activeLots,
         ]);
     }
 
@@ -825,6 +827,8 @@ class WeightTicketController extends Controller
         $validated = $request->validate([
             'shipment_order_id' => 'required|exists:loading_orders,id', // Input is actually LoadingOrder ID
             'weight' => 'required|numeric|min:0',
+            'lot_id' => 'nullable|exists:lots,id',
+            'packaging_type' => 'nullable|string',
         ]);
 
         try {
@@ -855,6 +859,8 @@ class WeightTicketController extends Controller
                     'net_weight' => $net,
                     'weighing_status' => 'completed',
                     'weigh_out_at' => now(),
+                    'lot_id' => $validated['lot_id'] ?? null,
+                    'packaging_type' => $validated['packaging_type'] ?? null,
                 ]);
 
                 // Update Order Status
