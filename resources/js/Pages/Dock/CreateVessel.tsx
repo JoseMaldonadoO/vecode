@@ -36,6 +36,10 @@ export default function CreateVessel({
         client_id: "",
 
         eta: "",
+        external_dock_arrival_date: "",
+        external_dock_arrival_time: "",
+        external_dock_departure_date: "",
+        external_dock_departure_time: "",
         docking_date: "",
         docking_time: "",
         dock: "",
@@ -105,6 +109,15 @@ export default function CreateVessel({
             }
         }
     }, [data.docking_date, data.eta, data.stay_days]);
+
+    // Auto-switch operation type based on dock arrival
+    useEffect(() => {
+        if (data.docking_date || data.docking_time) {
+            setData("apt_operation_type", "burreo");
+        } else if (data.external_dock_arrival_date || data.external_dock_arrival_time) {
+            setData("apt_operation_type", "scale");
+        }
+    }, [data.external_dock_arrival_date, data.external_dock_arrival_time, data.docking_date, data.docking_time]);
 
     // Vessel Holds Logic
     const handleHoldsCountChange = (count: number) => {
@@ -430,6 +443,71 @@ export default function CreateVessel({
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                 <div>
+                                    <InputLabel value="Llegada Muelle Externo" />
+                                    <TextInput
+                                        type="date"
+                                        value={data.external_dock_arrival_date}
+                                        onChange={(e) =>
+                                            setData("external_dock_arrival_date", e.target.value)
+                                        }
+                                        className="w-full mt-1"
+                                    />
+                                    {errors.external_dock_arrival_date && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.external_dock_arrival_date}
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <InputLabel value="Hora Llegada M. Externo" />
+                                    <TextInput
+                                        type="time"
+                                        value={data.external_dock_arrival_time}
+                                        onChange={(e) =>
+                                            setData("external_dock_arrival_time", e.target.value)
+                                        }
+                                        className="w-full mt-1"
+                                    />
+                                    {errors.external_dock_arrival_time && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.external_dock_arrival_time}
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <InputLabel value="Salida Muelle Externo" />
+                                    <TextInput
+                                        type="date"
+                                        value={data.external_dock_departure_date}
+                                        onChange={(e) =>
+                                            setData("external_dock_departure_date", e.target.value)
+                                        }
+                                        className="w-full mt-1"
+                                    />
+                                    {errors.external_dock_departure_date && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.external_dock_departure_date}
+                                        </p>
+                                    )}
+                                </div>
+                                <div>
+                                    <InputLabel value="Hora Salida M. Externo" />
+                                    <TextInput
+                                        type="time"
+                                        value={data.external_dock_departure_time}
+                                        onChange={(e) =>
+                                            setData("external_dock_departure_time", e.target.value)
+                                        }
+                                        className="w-full mt-1"
+                                    />
+                                    {errors.external_dock_departure_time && (
+                                        <p className="text-red-500 text-xs mt-1">
+                                            {errors.external_dock_departure_time}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
                                     <InputLabel value="ETA (Estimado Arribo)" />
                                     <TextInput
                                         type="date"
@@ -459,7 +537,7 @@ export default function CreateVessel({
                                         className="w-full mt-1"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Opcional (Llenar al atracar)
+                                        Puerto Proagro
                                     </p>
                                     {errors.docking_date && (
                                         <p className="text-red-500 text-xs mt-1">
@@ -481,7 +559,7 @@ export default function CreateVessel({
                                         className="w-full mt-1"
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Opcional
+                                        Puerto Proagro
                                     </p>
                                     {errors.docking_time && (
                                         <p className="text-red-500 text-xs mt-1">

@@ -108,3 +108,10 @@ Este proceso cierra el ciclo operativo permitiendo el seguimiento detallado de c
 - El ingreso requiere Checklist (Casco, Chaleco, etc.).
 - Las unidades autorizadas pasan a estado `in_plant` y son visibles en Documentación.
 - Al salir, se registra el tiempo final de estadía.
+### Proceso de Muelle Externo
+- Los buques pueden tener una estancia previa en un muelle externo antes de atracar en el puerto de Proagro.
+- Se registran la fecha/hora de llegada y salida del muelle externo.
+- **Cambio Automático de Operación**:
+    - Si se registra llegada al **Muelle Externo**, la operación en APT se establece como **"Báscula" (scale)**.
+    - Si se registra el atraque en el **Puerto de Proagro** (Fecha/Hora de Atraco), la operación en APT cambia a **"Burreo" (burreo)**.
+- El orden operativo es: Llegada Muelle Externo -> Salida Muelle Externo -> ETA -> Atraco Proagro -> Operación en Muelle.
