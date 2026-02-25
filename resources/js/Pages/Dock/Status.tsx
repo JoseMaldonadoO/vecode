@@ -75,40 +75,40 @@ const VesselCard = ({
                     {isOccupied ? (
                         <>
                             {/* Vessel Info Sub-Card (Left Aligned) */}
-                            <div className="flex-shrink-0 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 min-w-[360px] shadow-2xl">
+                            <div className={`flex-shrink-0 ${isExternal ? "bg-cyan-400/5 border-cyan-400/10" : "bg-white/5 border-white/10"} backdrop-blur-md border rounded-2xl p-6 md:p-8 min-w-[360px] shadow-2xl`}>
                                 <div className="mb-6">
                                     <h2 className="text-4xl font-black text-white tracking-tighter leading-none mb-3">
                                         {vessel.name}
                                     </h2>
                                     <Badge
                                         variant="outline"
-                                        className={`bg-transparent font-black text-xs uppercase tracking-[0.2em] px-3 py-0.5 border-white/20 text-white/70`}
+                                        className={`bg-transparent font-black text-xs uppercase tracking-[0.2em] px-3 py-0.5 ${isExternal ? "border-cyan-400/30 text-cyan-200" : "border-white/20 text-white/70"}`}
                                     >
                                         {vessel.type}
                                     </Badge>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/10" : "border-white/5"} pb-2.5`}>
                                         <div className="flex items-center gap-2">
-                                            <FileText className="w-4 h-4 text-white/30" />
-                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">Operación</span>
+                                            <FileText className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
+                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Operación</span>
                                         </div>
                                         <span className="text-white font-bold text-lg tracking-wide">{vessel.operation_type}</span>
                                     </div>
 
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/10" : "border-white/5"} pb-2.5`}>
                                         <div className="flex items-center gap-2">
-                                            <Clock className="w-4 h-4 text-white/30" />
-                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">Estadía</span>
+                                            <Clock className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
+                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Estadía</span>
                                         </div>
-                                        <span className="text-white font-bold text-lg">{vessel.stay_days} <span className="text-white/40 font-medium text-xs ml-0.5">Días</span></span>
+                                        <span className="text-white font-bold text-lg">{vessel.stay_days} <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} font-medium text-xs ml-0.5`}>Días</span></span>
                                     </div>
 
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/10" : "border-white/5"} pb-2.5`}>
                                         <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 text-white/30" />
-                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">
+                                            <Calendar className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
+                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>
                                                 {isExternal ? "Llegada" : "Atraco"}
                                             </span>
                                         </div>
@@ -117,8 +117,8 @@ const VesselCard = ({
 
                                     <div className="flex items-center justify-between pt-1">
                                         <div className="flex items-center gap-2">
-                                            <Anchor className="w-4 h-4 text-white/30" />
-                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">Status</span>
+                                            <Anchor className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
+                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Status</span>
                                         </div>
                                         <div className={`px-3 py-1 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/20" : "bg-green-500/20 text-green-400 border-green-500/20"} text-xs font-black rounded-full border flex items-center gap-2 uppercase`}>
                                             <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isExternal ? "bg-cyan-500" : "bg-green-500"}`}></span>
@@ -130,7 +130,7 @@ const VesselCard = ({
 
                             {/* Large Empty Space on the Right */}
                             <div className="flex-grow hidden md:block select-none opacity-5 pointer-events-none">
-                                <div className="h-20 w-full border-t border-r border-white/5 rounded-tr-3xl"></div>
+                                <div className={`h-20 w-full border-t border-r ${isExternal ? "border-cyan-400/10" : "border-white/5"} rounded-tr-3xl`}></div>
                             </div>
                         </>
                     ) : (
