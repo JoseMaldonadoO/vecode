@@ -490,7 +490,7 @@ export default function Trips({
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap text-right">
                                             {trip.weight ? (
-                                                <div className="text-sm font-black text-indigo-900">{parseFloat(trip.weight).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} <span className="text-[10px] text-indigo-400">TM</span></div>
+                                                <div className="text-sm font-black text-indigo-900">{Math.round(parseFloat(trip.weight))} <span className="text-[10px] text-indigo-400">TM</span></div>
                                             ) : (
                                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[10px] font-black bg-amber-50 text-amber-600 border border-amber-100 uppercase tracking-widest">
                                                     <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
