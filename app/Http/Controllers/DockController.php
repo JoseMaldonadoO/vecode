@@ -300,6 +300,25 @@ class DockController extends Controller
         $eco = $activeVessels->firstWhere('dock', 'ECO');
         $whisky = $activeVessels->firstWhere('dock', 'WHISKY');
 
+        // External Dock Vessel (Has arrival but no departure yet, or departure in future)
+        // And has not yet arrived at Proagro (ETB is null or in future)
+        $external = Vessel::whereNotNull('external_dock_arrival_date')
+            ->where(function ($query) use ($now) {
+                $query->whereNull('external_dock_departure_date')
+                    ->orWhere(function ($q) use ($now) {
+                        $q->where('external_dock_departure_date', '>', $now->toDateString())
+                            ->orWhere(function ($sub) use ($now) {
+                                $sub->where('external_dock_departure_date', $now->toDateString())
+                                    ->where('external_dock_departure_time', '>', $now->toTimeString());
+                            });
+                    });
+            })
+            ->where(function ($query) use ($now) {
+                $query->whereNull('berthal_datetime')
+                    ->orWhere('berthal_datetime', '>', $now);
+            })
+            ->first();
+
         // Arrivals (No atracados aún, o fondeados) - Logic: No ETB OR ETB is in future
         $arrivals = Vessel::with('product') // Eager load
             ->whereNull('departure_date')
@@ -330,9 +349,10 @@ class DockController extends Controller
 
             // Dynamic calculation: Day 1 starts on arrival date
             $actualStay = 0;
-            if ($v->berthal_datetime) {
+            $arrivalDate = $v->berthal_datetime ?? $v->external_dock_arrival_date;
+            if ($arrivalDate) {
                 // Force integer to remove decimals
-                $actualStay = (int) $v->berthal_datetime->diffInDays($now) + 1;
+                $actualStay = (int) $arrivalDate->diffInDays($now) + 1;
             }
 
             return [
@@ -342,6 +362,7 @@ class DockController extends Controller
                 'stay_days' => $actualStay,
                 'programmed_days' => $v->stay_days,
                 'etb' => $v->berthal_datetime ? (is_string($v->berthal_datetime) ? date('d/m/Y H:i', strtotime($v->berthal_datetime)) : $v->berthal_datetime->format('d/m/Y H:i')) : '-',
+                'external_arrival' => $v->external_dock_arrival_date ? (is_string($v->external_dock_arrival_date) ? date('d/m/Y', strtotime($v->external_dock_arrival_date)) : $v->external_dock_arrival_date->format('d/m/Y')) : '-',
             ];
         };
 
@@ -349,6 +370,7 @@ class DockController extends Controller
             'active_vessels' => [
                 'eco' => $formatVessel($eco),
                 'whisky' => $formatVessel($whisky),
+                'external' => $formatVessel($external),
             ],
             'arrivals' => $arrivals
         ]);
