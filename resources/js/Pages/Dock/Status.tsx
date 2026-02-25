@@ -66,7 +66,7 @@ const VesselCard = ({
 
             <div className="relative z-10 h-full flex flex-col justify-between">
                 <div>
-                    <h3 className={`text-[10px] font-black uppercase tracking-[0.3em] mb-4 ${isOccupied ? (isExternal ? "text-cyan-400" : "text-blue-400") : "text-slate-400"}`}>
+                    <h3 className={`text-sm font-black uppercase tracking-[0.3em] mb-4 ${isOccupied ? (isExternal ? "text-cyan-400" : "text-blue-400") : "text-slate-400"}`}>
                         {isExternal ? "Muelle Externo" : `Muelle ${side}`}
                     </h3>
                 </div>
@@ -75,53 +75,53 @@ const VesselCard = ({
                     {isOccupied ? (
                         <>
                             {/* Vessel Info Sub-Card (Left Aligned) */}
-                            <div className="flex-shrink-0 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 min-w-[320px] shadow-2xl">
+                            <div className="flex-shrink-0 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 min-w-[360px] shadow-2xl">
                                 <div className="mb-6">
-                                    <h2 className="text-3xl font-black text-white tracking-tighter leading-none mb-2">
+                                    <h2 className="text-4xl font-black text-white tracking-tighter leading-none mb-3">
                                         {vessel.name}
                                     </h2>
                                     <Badge
                                         variant="outline"
-                                        className={`bg-transparent font-black text-[9px] uppercase tracking-[0.2em] px-2 py-0 border-white/20 text-white/70`}
+                                        className={`bg-transparent font-black text-xs uppercase tracking-[0.2em] px-3 py-0.5 border-white/20 text-white/70`}
                                     >
                                         {vessel.type}
                                     </Badge>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                                         <div className="flex items-center gap-2">
-                                            <FileText className="w-3.5 h-3.5 text-white/30" />
-                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Operación</span>
+                                            <FileText className="w-4 h-4 text-white/30" />
+                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">Operación</span>
                                         </div>
-                                        <span className="text-white font-bold text-sm tracking-wide">{vessel.operation_type}</span>
+                                        <span className="text-white font-bold text-lg tracking-wide">{vessel.operation_type}</span>
                                     </div>
 
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                                         <div className="flex items-center gap-2">
-                                            <Clock className="w-3.5 h-3.5 text-white/30" />
-                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Estadía</span>
+                                            <Clock className="w-4 h-4 text-white/30" />
+                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">Estadía</span>
                                         </div>
-                                        <span className="text-white font-bold text-sm">{vessel.stay_days} <span className="text-white/40 font-medium text-[10px] ml-0.5">Días</span></span>
+                                        <span className="text-white font-bold text-lg">{vessel.stay_days} <span className="text-white/40 font-medium text-xs ml-0.5">Días</span></span>
                                     </div>
 
-                                    <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                    <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                                         <div className="flex items-center gap-2">
-                                            <Calendar className="w-3.5 h-3.5 text-white/30" />
-                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">
+                                            <Calendar className="w-4 h-4 text-white/30" />
+                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">
                                                 {isExternal ? "Llegada" : "Atraco"}
                                             </span>
                                         </div>
-                                        <span className="text-white font-mono font-bold text-xs">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</span>
+                                        <span className="text-white font-mono font-bold text-sm tracking-tight">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</span>
                                     </div>
 
                                     <div className="flex items-center justify-between pt-1">
                                         <div className="flex items-center gap-2">
-                                            <Anchor className="w-3.5 h-3.5 text-white/30" />
-                                            <span className="text-white/40 text-[9px] font-black uppercase tracking-widest">Status</span>
+                                            <Anchor className="w-4 h-4 text-white/30" />
+                                            <span className="text-white/40 text-xs font-black uppercase tracking-widest">Status</span>
                                         </div>
-                                        <div className={`px-2 py-0.5 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/20" : "bg-green-500/20 text-green-400 border-green-500/20"} text-[9px] font-black rounded-full border flex items-center gap-1.5 uppercase`}>
-                                            <span className={`w-1 h-1 rounded-full animate-pulse ${isExternal ? "bg-cyan-500" : "bg-green-500"}`}></span>
+                                        <div className={`px-3 py-1 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/20" : "bg-green-500/20 text-green-400 border-green-500/20"} text-xs font-black rounded-full border flex items-center gap-2 uppercase`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isExternal ? "bg-cyan-500" : "bg-green-500"}`}></span>
                                             Ocupado
                                         </div>
                                     </div>
