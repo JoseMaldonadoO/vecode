@@ -1,5 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, router } from "@inertiajs/react";
+import Swal from "sweetalert2";
 import {
     Ship,
     Anchor,
@@ -38,11 +39,24 @@ const VesselCard = ({
     const isOccupied = vessel && vessel.name !== "-";
 
     const handleDeparture = () => {
-        if (confirm(`¿Está seguro de marcar la salida del buque ${vessel.name}?`)) {
-            router.post(route('dock.vessel.mark-departure', vessel.id), {
-                type: isExternal ? 'external' : 'internal'
-            });
-        }
+        Swal.fire({
+            title: '<span class="text-2xl font-black uppercase tracking-tight">Confirmar Salida</span>',
+            html: `¿Está seguro de marcar la salida del buque <strong class="text-blue-600">${vessel.name}</strong>?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'SÍ, MARCAR SALIDA',
+            cancelButtonText: 'CANCELAR',
+            confirmButtonColor: isExternal ? '#06b6d4' : '#3b82f6',
+            cancelButtonColor: '#64748b',
+            borderRadius: '1rem',
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('dock.vessel.mark-departure', vessel.id), {
+                    type: isExternal ? 'external' : 'internal'
+                });
+            }
+        });
     };
 
     const colorClasses = isExternal
@@ -154,11 +168,26 @@ const VesselCard = ({
 const ArrivalsTable = ({ arrivals }: { arrivals: any[] }) => {
     const handleArrival = (vessel: any, type: 'internal' | 'external') => {
         const typeLabel = type === 'external' ? 'al Muelle Externo' : 'a Proagro';
-        if (confirm(`¿Confirmar llegada del buque ${vessel.name} ${typeLabel}?`)) {
-            router.post(route('dock.vessel.mark-arrival', vessel.id), {
-                type: type
-            });
-        }
+        const color = type === 'external' ? '#06b6d4' : '#4f46e5';
+
+        Swal.fire({
+            title: '<span class="text-2xl font-black uppercase tracking-tight">Confirmar Llegada</span>',
+            html: `¿Está seguro de marcar la llegada del buque <strong class="text-indigo-600">${vessel.name}</strong> ${typeLabel}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'SÍ, MARCAR LLEGADA',
+            cancelButtonText: 'CANCELAR',
+            confirmButtonColor: color,
+            cancelButtonColor: '#64748b',
+            borderRadius: '1rem',
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('dock.vessel.mark-arrival', vessel.id), {
+                    type: type
+                });
+            }
+        });
     };
 
     return (
