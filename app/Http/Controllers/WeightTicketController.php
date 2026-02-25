@@ -31,7 +31,8 @@ class WeightTicketController extends Controller
             'weight_ticket',
             'exit_operator',
             'vessel_operator',
-            'shipment_order.items.product'
+            'shipment_order.items.product',
+            'vessel'
         ])
             ->whereHas('weight_ticket', function ($q) {
                 $q->where('weighing_status', 'in_progress')
@@ -139,6 +140,7 @@ class WeightTicketController extends Controller
                         (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('real_transport_line') ?? $order->transport_company))
                     : ($order->vessel_operator->transporter_line ??
                         (\App\Models\VesselOperator::where('operator_name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('transporter_line') ?? $order->transport_company)),
+                'vessel_name' => $order->vessel->name ?? 'N/A',
             ];
         });
 

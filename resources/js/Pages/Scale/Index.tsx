@@ -362,6 +362,9 @@ export default function Index({
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
                                             {/* Removed Peso Entrada */}
+                                            {operationType === 'vessel' && (
+                                                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Barco</th>
+                                            )}
                                             {operationType === 'sale' && (
                                                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Ton. Prog.</th>
                                             )}
@@ -392,6 +395,13 @@ export default function Index({
                                                     </td>
                                                     {/* Producto */}
                                                     <td className="px-6 py-4 text-gray-800 font-bold">{order.product}</td>
+
+                                                    {/* Barco (Only for Vessel) */}
+                                                    {operationType === 'vessel' && (
+                                                        <td className="px-6 py-4 text-gray-800 font-bold">
+                                                            {order.vessel_name}
+                                                        </td>
+                                                    )}
 
                                                     {/* Ton. Prog. (Create Only for Sale) */}
                                                     {operationType === 'sale' && (
@@ -466,6 +476,14 @@ export default function Index({
                                                     <span className="text-gray-500">Producto:</span>
                                                     <span className="font-bold text-gray-800">{order.product}</span>
                                                 </div>
+
+                                                {/* Barco only for vessel */}
+                                                {operationType === 'vessel' && (
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-500">Barco:</span>
+                                                        <span className="font-bold text-indigo-600">{order.vessel_name}</span>
+                                                    </div>
+                                                )}
 
                                                 {operationType === 'sale' && (
                                                     <div className="flex justify-between text-sm">
