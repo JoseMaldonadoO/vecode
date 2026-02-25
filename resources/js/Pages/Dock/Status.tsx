@@ -28,6 +28,8 @@ import { Badge } from "@/Components/ui/badge";
 
 // Unicorn UI Components (Sub-components located here for single-file portability during dev)
 
+import InteractiveVessel from "@/Components/InteractiveVessel";
+
 const VesselCard = ({
     vessel,
     side,
@@ -71,72 +73,101 @@ const VesselCard = ({
 
     return (
         <div
-            className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 p-8 group ${colorClasses} ${!isOccupied ? "border-dashed hover:opacity-100 hover:border-slate-300 min-h-[180px]" : "min-h-[220px]"}`}
+            className={`relative overflow-hidden rounded-3xl border-2 transition-all duration-500 group ${colorClasses} ${!isOccupied ? "border-dashed hover:opacity-100 hover:border-slate-300 p-8 min-h-[180px]" : "p-4 md:p-10 min-h-[220px]"}`}
         >
-            {/* Background Accent for Occupied - Now at Bottom Right for External */}
+            {/* Background Accent for Occupied */}
             {isOccupied && (
-                <div className={`absolute bottom-0 right-0 -mb-24 -mr-24 h-80 w-80 rounded-full blur-3xl opacity-20 animate-pulse ${isExternal ? "bg-cyan-500" : "bg-blue-500"}`}></div>
+                <div className={`absolute bottom-0 right-0 -mb-24 -mr-24 h-96 w-96 rounded-full blur-[100px] opacity-10 animate-pulse ${isExternal ? "bg-cyan-500" : "bg-blue-500"}`}></div>
             )}
 
-            <div className="relative z-10 h-full flex flex-col justify-between">
-                <div>
-                    <h3 className={`text-sm font-black uppercase tracking-[0.3em] mb-4 ${isOccupied ? (isExternal ? "text-cyan-400" : "text-blue-400") : "text-slate-400"}`}>
-                        {isExternal ? "Muelle Externo" : `Muelle ${side}`}
+            <div className="relative z-10 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className={`text-xs font-black uppercase tracking-[0.4em] ${isOccupied ? (isExternal ? "text-cyan-400" : "text-blue-400") : "text-slate-400"}`}>
+                        {isExternal ? "Terminal Marítima" : `Muelle ${side}`}
                     </h3>
+                    {isOccupied && (
+                        <Badge
+                            variant="outline"
+                            className={`${isExternal ? 'border-cyan-500/30 text-cyan-200' : 'border-blue-500/30 text-blue-200'} bg-white/5 backdrop-blur-sm px-4 py-1 font-black text-[10px] tracking-widest uppercase rounded-full`}
+                        >
+                            EN OPERACIÓN
+                        </Badge>
+                    )}
                 </div>
 
-                <div className="flex flex-col md:flex-row items-center gap-10">
+                <div className="flex flex-col lg:flex-row gap-12">
                     {isOccupied ? (
                         <>
-                            {/* Vessel Info Sub-Card (Left Aligned) */}
-                            <div className={`flex-shrink-0 ${isExternal ? "bg-cyan-400/5 border-cyan-400/10" : "bg-white/5 border-white/10"} backdrop-blur-md border rounded-2xl p-6 md:p-8 min-w-[360px] shadow-2xl`}>
-                                <div className="mb-6">
-                                    <h2 className="text-4xl font-black text-white tracking-tighter leading-none mb-3">
+                            {/* Vessel Info Sub-Card */}
+                            <div className={`flex-shrink-0 w-full lg:w-[400px] ${isExternal ? "bg-white/5 border-cyan-400/20" : "bg-white/5 border-white/10"} backdrop-blur-xl border-2 rounded-[2.5rem] p-8 shadow-2xl relative group/card overflow-hidden`}>
+                                <div className={`absolute top-0 right-0 w-32 h-32 ${isExternal ? 'bg-cyan-400/10' : 'bg-blue-400/10'} blur-3xl -mr-16 -mt-16 group-hover/card:scale-150 transition-transform duration-700`}></div>
+
+                                <div className="mb-8 relative z-10">
+                                    <h2 className="text-5xl font-black text-white tracking-tighter leading-none mb-4 group-hover/card:translate-x-1 transition-transform duration-500">
                                         {vessel.name}
                                     </h2>
-                                    <Badge
-                                        variant="outline"
-                                        className={`bg-transparent font-black text-xs uppercase tracking-[0.2em] px-3 py-0.5 ${isExternal ? "border-cyan-400/30 text-cyan-200" : "border-white/20 text-white/70"}`}
-                                    >
-                                        {vessel.type}
-                                    </Badge>
+                                    <div className="flex flex-wrap gap-2">
+                                        <Badge
+                                            variant="outline"
+                                            className={`bg-white/5 backdrop-blur-md font-black text-[10px] uppercase tracking-[0.2em] px-3 py-1 ${isExternal ? "border-cyan-400/30 text-cyan-300" : "border-white/20 text-white/70"}`}
+                                        >
+                                            {vessel.type}
+                                        </Badge>
+                                        <Badge
+                                            variant="outline"
+                                            className={`bg-white/5 backdrop-blur-md font-black text-[10px] uppercase tracking-[0.2em] px-3 py-1 ${isExternal ? "border-cyan-400/30 text-cyan-300" : "border-white/20 text-white/70"}`}
+                                        >
+                                            {vessel.product || 'CARGA GENERAL'}
+                                        </Badge>
+                                    </div>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/10" : "border-white/5"} pb-2.5`}>
-                                        <div className="flex items-center gap-2">
-                                            <FileText className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
-                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Operación</span>
+                                <div className="space-y-5 relative z-10">
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-3.5`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-1.5 rounded-lg ${isExternal ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                                                <FileText className="w-4 h-4" />
+                                            </div>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/40"} text-[10px] font-black uppercase tracking-[0.15em]`}>Operación</span>
                                         </div>
-                                        <span className="text-white font-bold text-lg tracking-wide">{vessel.operation_type}</span>
+                                        <span className="text-white font-black text-xl tracking-tight uppercase">{vessel.operation_type}</span>
                                     </div>
 
-                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/10" : "border-white/5"} pb-2.5`}>
-                                        <div className="flex items-center gap-2">
-                                            <Clock className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
-                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Estadía</span>
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-3.5`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-1.5 rounded-lg ${isExternal ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                                                <Clock className="w-4 h-4" />
+                                            </div>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/40"} text-[10px] font-black uppercase tracking-[0.15em]`}>Estadía</span>
                                         </div>
-                                        <span className="text-white font-bold text-lg">{vessel.stay_days} <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} font-medium text-xs ml-0.5`}>Días</span></span>
+                                        <span className="text-white font-black text-xl">{vessel.stay_days} <span className="text-white/40 font-bold text-xs ml-1">DÍAS</span></span>
                                     </div>
 
-                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/10" : "border-white/5"} pb-2.5`}>
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
-                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-3.5`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-1.5 rounded-lg ${isExternal ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                                                <Calendar className="w-4 h-4" />
+                                            </div>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/40"} text-[10px] font-black uppercase tracking-[0.15em]`}>
                                                 {isExternal ? "Llegada" : "Atraco"}
                                             </span>
                                         </div>
                                         <span className="text-white font-mono font-bold text-sm tracking-tight">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</span>
                                     </div>
 
-                                    <div className="flex items-center justify-between pt-1">
-                                        <div className="flex items-center gap-2">
-                                            <LogOut className={`w-4 h-4 ${isExternal ? "text-cyan-400/30" : "text-white/30"}`} />
-                                            <span className={`${isExternal ? "text-cyan-400/40" : "text-white/40"} text-xs font-black uppercase tracking-widest`}>Salida</span>
+                                    <div className="flex items-center justify-between pt-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-1.5 rounded-lg ${isExternal ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                                                <LogOut className="w-4 h-4" />
+                                            </div>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/40"} text-[10px] font-black uppercase tracking-[0.15em]`}>Salida</span>
                                         </div>
                                         <button
                                             onClick={handleDeparture}
-                                            className={`px-4 py-1.5 ${isExternal ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/30" : "bg-blue-500/20 text-blue-400 border-blue-500/30 hover:bg-blue-500/30"} text-[10px] font-black rounded-xl border-2 flex items-center gap-2 uppercase transition-all shadow-lg active:scale-95`}
+                                            className={`px-5 py-2.5 rounded-2xl border-2 font-black text-[10px] tracking-widest flex items-center gap-2 uppercase transition-all shadow-xl active:scale-95 ${isExternal
+                                                    ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/20"
+                                                    : "bg-blue-500/10 text-blue-400 border-blue-500/30 hover:bg-blue-500/20"
+                                                }`}
                                         >
                                             Marcar Salida
                                         </button>
@@ -144,18 +175,19 @@ const VesselCard = ({
                                 </div>
                             </div>
 
-                            {/* Large Empty Space on the Right */}
-                            <div className="flex-grow hidden md:block select-none opacity-5 pointer-events-none">
-                                <div className={`h-20 w-full border-t border-r ${isExternal ? "border-cyan-400/10" : "border-white/5"} rounded-tr-3xl`}></div>
+                            {/* Interactive Ship Representation */}
+                            <div className="flex-grow">
+                                <InteractiveVessel vessel={vessel} isExternal={isExternal} />
                             </div>
                         </>
                     ) : (
-                        <div className="w-full flex items-center justify-start py-4">
-                            <div className="bg-slate-200/50 px-6 py-4 rounded-xl border border-dashed border-slate-300">
-                                <h2 className="text-slate-400 text-xl font-bold uppercase tracking-[0.2em] flex items-center gap-3">
-                                    <Anchor className="w-5 h-5 opacity-40" />
-                                    Muelle Disponible
+                        <div className="w-full flex items-center justify-start py-8">
+                            <div className="bg-slate-200/50 backdrop-blur-sm px-10 py-8 rounded-[2rem] border-2 border-dashed border-slate-300 group-hover:border-slate-400 transition-colors">
+                                <h2 className="text-slate-400 text-3xl font-black uppercase tracking-tighter flex items-center gap-5">
+                                    <Anchor className="w-10 h-10 opacity-40 group-hover:rotate-12 transition-transform duration-500" />
+                                    Terminal Disponible
                                 </h2>
+                                <p className="text-slate-400/60 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Esperando asignación de buque</p>
                             </div>
                         </div>
                     )}

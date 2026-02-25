@@ -408,11 +408,52 @@ class DockController extends Controller
             if (!$v)
                 return ['name' => '-'];
 
+            // Fetch Real-time Tonnage for this specific vessel
+            $tonnageStats = LoadingOrder::join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+                ->where('loading_orders.vessel_id', $v->id)
+                ->where(function ($q) {
+                    $q->where('loading_orders.status', 'completed')
+                        ->orWhere('loading_orders.operation_type', 'burreo');
+                })
+                ->selectRaw('
+                    SUM(weight_tickets.net_weight) as total_kg,
+                    loading_orders.hold_number,
+                    SUM(CASE WHEN loading_orders.hold_number IS NOT NULL THEN weight_tickets.net_weight ELSE 0 END) as hold_weight
+                ')
+                ->groupBy('loading_orders.hold_number')
+                ->get();
+
+            $totalLoadedKg = $tonnageStats->sum('total_kg');
+            $totalLoadedMt = $totalLoadedKg / 1000;
+            $programmedMt = $v->programmed_tonnage ?: 0;
+            $pendingMt = max(0, $programmedMt - $totalLoadedMt);
+
+            $progressPercent = $programmedMt > 0
+                ? min(100, round(($totalLoadedMt / $programmedMt) * 100, 1))
+                : 0;
+
+            // Prepare Hatch Breakdown
+            $hatches = [];
+            if ($v->holds && is_array($v->holds)) {
+                foreach ($v->holds as $hIndex => $hName) {
+                    $hNumber = $hIndex + 1;
+                    $hWeightKg = $tonnageStats->where('hold_number', $hNumber)->first()->total_kg ?? 0;
+                    $hWeightMt = $hWeightKg / 1000;
+
+                    $hatches[] = [
+                        'id' => $hNumber,
+                        'name' => $hName ?: "Bodega $hNumber",
+                        'loaded_mt' => round($hWeightMt, 2),
+                        // We use uniform distribution as placeholder for programmed per hatch
+                        'percent' => $programmedMt > 0 ? round(($hWeightMt / ($programmedMt / count($v->holds))) * 100, 1) : 0
+                    ];
+                }
+            }
+
             // Dynamic calculation: Day 1 starts on arrival date
             $actualStay = 0;
             $arrivalDate = $v->berthal_datetime ?? $v->external_dock_arrival_date;
-            if ($arrivalDate) {
-                // Force integer to remove decimals
+            if ($arrivalDate && is_object($arrivalDate)) {
                 $actualStay = (int) $arrivalDate->diffInDays($now) + 1;
             }
 
@@ -425,6 +466,14 @@ class DockController extends Controller
                 'programmed_days' => $v->stay_days,
                 'etb' => $v->berthal_datetime ? (is_string($v->berthal_datetime) ? date('d/m/Y H:i', strtotime($v->berthal_datetime)) : $v->berthal_datetime->format('d/m/Y H:i')) : '-',
                 'external_arrival' => $v->external_dock_arrival_date ? (is_string($v->external_dock_arrival_date) ? date('d/m/Y', strtotime($v->external_dock_arrival_date)) : $v->external_dock_arrival_date->format('d/m/Y')) : '-',
+                'stats' => [
+                    'total_mt' => round($programmedMt, 2),
+                    'loaded_mt' => round($totalLoadedMt, 2),
+                    'pending_mt' => round($pendingMt, 2),
+                    'progress' => $progressPercent,
+                ],
+                'hatches' => $hatches,
+                'product' => $v->product ? $v->product->name : 'N/A'
             ];
         };
 
