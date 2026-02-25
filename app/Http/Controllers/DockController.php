@@ -282,15 +282,41 @@ class DockController extends Controller
     {
         $vessel = Vessel::findOrFail($id);
         $type = $request->input('type', 'internal'); // internal or external
+        $now = now();
 
         if ($type === 'external') {
+            // Validation: Prevent if already has arrival or departure
+            if ($vessel->external_dock_arrival_date || $vessel->external_dock_departure_date) {
+                return back()->with('error', 'Este buque ya tiene registros de entrada o salida en el Muelle Externo.');
+            }
+
             $vessel->update([
-                'external_dock_arrival_date' => now()->toDateString(),
-                'external_dock_arrival_time' => now(),
+                'external_dock_arrival_date' => $now->toDateString(),
+                'external_dock_arrival_time' => $now,
             ]);
         } else {
+            // Validation: Prevent if the assigned dock is already occupied
+            $dock = $vessel->dock;
+            if (!$dock || $dock === 'Por Asignar') {
+                return back()->with('error', 'El buque debe tener un muelle asignado (ECO/WHISKY) para marcar llegada.');
+            }
+
+            $isOccupied = Vessel::where('dock', $dock)
+                ->whereNotNull('berthal_datetime')
+                ->where('berthal_datetime', '<=', $now)
+                ->where(function ($query) use ($now) {
+                    $query->whereNull('departure_date')
+                        ->orWhere('departure_date', '>', $now);
+                })
+                ->where('id', '!=', $vessel->id)
+                ->exists();
+
+            if ($isOccupied) {
+                return back()->with('error', "El Muelle $dock ya se encuentra ocupado por otro buque.");
+            }
+
             $vessel->update([
-                'berthal_datetime' => now(),
+                'berthal_datetime' => $now,
             ]);
         }
 

@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import Swal from "sweetalert2";
 import {
     Ship,
@@ -317,6 +318,30 @@ export default function Status({
     active_vessels: any;
     arrivals: any[];
 }) {
+    const { flash }: any = usePage().props;
+
+    useEffect(() => {
+        if (flash.success) {
+            Swal.fire({
+                title: '<span class="text-2xl font-black uppercase tracking-tight text-green-600">Éxito</span>',
+                text: flash.success,
+                icon: 'success',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+            });
+        }
+        if (flash.error) {
+            Swal.fire({
+                title: '<span class="text-2xl font-black uppercase tracking-tight text-red-600">Atención</span>',
+                text: flash.error,
+                icon: 'error',
+                confirmButtonText: 'ENTENDIDO',
+                confirmButtonColor: '#ef4444',
+            });
+        }
+    }, [flash]);
+
     const ecoVessel = active_vessels.eco;
     const whiskyVessel = active_vessels.whisky;
     const externalVessel = active_vessels.external;
