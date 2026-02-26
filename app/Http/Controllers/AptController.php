@@ -348,7 +348,7 @@ class AptController extends Controller
 
                     try {
                         // WEIGHT LOGIC: Draft (Real) > Provisional
-                        $finalWeightKg = $operator->vessel->draft_weight ?? ($operator->vessel->provisional_burreo_weight ?? 0);
+                        $finalWeightKg = ($operator->vessel->draft_weight > 0) ? $operator->vessel->draft_weight : ($operator->vessel->provisional_burreo_weight ?? 0);
 
                         // Create new Order for this Burreo/Direct Trip
                         $order = \App\Models\LoadingOrder::create([
@@ -407,6 +407,12 @@ class AptController extends Controller
             } else {
                 return back()->withErrors(['qr' => 'Orden no encontrada o no activa.']);
             }
+        }
+
+        // WEIGHT RESOLUTION FOR ALL FLOWS (Including Legacy Fallbacks)
+        $weightForTicket = 0;
+        if ($order->vessel) {
+            $weightForTicket = ($order->vessel->draft_weight > 0) ? $order->vessel->draft_weight : ($order->vessel->provisional_burreo_weight ?? 0);
         }
 
         // status check for Scale Flow
@@ -485,8 +491,8 @@ class AptController extends Controller
                     'ticket_number' => 'B-' . $order->folio,
                     'weighing_status' => 'completed',
                     'is_burreo' => true,
-                    'tare_weight' => $order->vessel->provisional_burreo_weight ?? 0,
-                    'net_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                    'tare_weight' => $weightForTicket,
+                    'net_weight' => $weightForTicket,
                     'weigh_in_at' => now(),
                     'weigh_out_at' => now(),
                 ]);
@@ -494,8 +500,8 @@ class AptController extends Controller
                 $ticket->update([
                     'weighing_status' => 'completed',
                     'is_burreo' => true,
-                    'tare_weight' => $order->vessel->provisional_burreo_weight ?? 0,
-                    'net_weight' => $order->vessel->provisional_burreo_weight ?? 0,
+                    'tare_weight' => $weightForTicket,
+                    'net_weight' => $weightForTicket,
                     'weigh_out_at' => now(),
                 ]);
             }
