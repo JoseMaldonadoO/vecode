@@ -348,39 +348,54 @@ export default function Index({
                                                                         const isReopenAllowed = !order.cancelled_at ||
                                                                             (new Date().getTime() - new Date(order.cancelled_at).getTime()) < (24 * 60 * 60 * 1000);
 
-                                                                        if (!isReopenAllowed) return null;
-
                                                                         return (
-                                                                            <Menu.Item>
-                                                                                {({ active }) => (
-                                                                                    <button
-                                                                                        onClick={() => {
-                                                                                            Swal.fire({
-                                                                                                title: '¿Re-abrir Orden?',
-                                                                                                text: "La orden volverá a estar activa y se podrá editar.",
-                                                                                                icon: 'question',
-                                                                                                showCancelButton: true,
-                                                                                                confirmButtonColor: '#10b981',
-                                                                                                cancelButtonColor: '#6b7280',
-                                                                                                confirmButtonText: 'Sí, re-abrir',
-                                                                                                cancelButtonText: 'Cancelar'
-                                                                                            }).then((result) => {
-                                                                                                if (result.isConfirmed) {
-                                                                                                    router.visit(route('documentation.reopen', order.id), {
-                                                                                                        method: 'patch',
-                                                                                                        preserveScroll: true,
-                                                                                                        preserveState: true,
+                                                                            <>
+                                                                                <Menu.Item>
+                                                                                    {({ active }) => (
+                                                                                        <a
+                                                                                            href={route("documentation.print-order", order.id)}
+                                                                                            target="_blank"
+                                                                                            className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                                        >
+                                                                                            <Search className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-gray-500'}`} />
+                                                                                            Vista Previa
+                                                                                        </a>
+                                                                                    )}
+                                                                                </Menu.Item>
+
+                                                                                {isReopenAllowed && (
+                                                                                    <Menu.Item>
+                                                                                        {({ active }) => (
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    Swal.fire({
+                                                                                                        title: '¿Re-abrir Orden?',
+                                                                                                        text: "La orden volverá a estar activa y se podrá editar.",
+                                                                                                        icon: 'question',
+                                                                                                        showCancelButton: true,
+                                                                                                        confirmButtonColor: '#10b981',
+                                                                                                        cancelButtonColor: '#6b7280',
+                                                                                                        confirmButtonText: 'Sí, re-abrir',
+                                                                                                        cancelButtonText: 'Cancelar'
+                                                                                                    }).then((result) => {
+                                                                                                        if (result.isConfirmed) {
+                                                                                                            router.visit(route('documentation.reopen', order.id), {
+                                                                                                                method: 'patch',
+                                                                                                                preserveScroll: true,
+                                                                                                                preserveState: true,
+                                                                                                            });
+                                                                                                        }
                                                                                                     });
-                                                                                                }
-                                                                                            });
-                                                                                        }}
-                                                                                        className={`${active ? 'bg-green-600 text-white' : 'text-green-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
-                                                                                    >
-                                                                                        <CheckCircle className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-green-500'}`} />
-                                                                                        Re-abrir
-                                                                                    </button>
+                                                                                                }}
+                                                                                                className={`${active ? 'bg-green-600 text-white' : 'text-green-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                                            >
+                                                                                                <CheckCircle className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-green-500'}`} />
+                                                                                                Re-abrir
+                                                                                            </button>
+                                                                                        )}
+                                                                                    </Menu.Item>
                                                                                 )}
-                                                                            </Menu.Item>
+                                                                            </>
                                                                         );
                                                                     })()
                                                                 )}
