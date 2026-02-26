@@ -324,17 +324,15 @@ class AptController extends Controller
                     }
 
                     // PENDING PROCESS CHECK: Block burreo if operator has ANY active order
-                    $activeOrder = \App\Models\LoadingOrder::where('status', '!=', 'completed')
-                        ->where('status', '!=', 'closed')
-                        ->where('tractor_plate', $operator->tractor_plate)
+                    $activeOrder = \App\Models\LoadingOrder::where('operator_name', $operator->operator_name)
+                        ->whereIn('status', ['loading', 'pending'])
                         ->exists();
 
                     if ($activeOrder) {
-                        return back()->withErrors(['qr' => 'ALERTA: El operador no termina su proceso aún o está esperando destare. El proceso anterior debe finalizarse completamente antes de iniciar uno nuevo.']);
+                        return back()->withErrors(['qr' => 'ALERTA: El operador tiene un proceso activo. Finalice el proceso previo antes de iniciar uno nuevo.']);
                     }
 
-                    // TRIP VALIDATION: "Cerrar el círculo"
-                    // Find the oldest unlinked trip for this operator in this vessel (FIFO)
+                    // 1. TRIP VALIDATION: FIFO (Muelle -> APT)
                     $pendingTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $operator->vessel_id)
                         ->where('vessel_operator_id', $operator->id)
                         ->whereDoesntHave('loading_order')
@@ -343,22 +341,22 @@ class AptController extends Controller
                         ->first();
 
                     if (!$pendingTrip) {
-                        return back()->withErrors(['qr' => 'ALERTA: No se encontró un registro de salida en Muelle para este operador. Debe registrar la vuelta en Muelle antes de recibir en APT.']);
+                        return back()->withErrors(['qr' => 'ALERTA: No se encontró un registro de salida en Muelle. El operador debe registrar su vuelta en Muelle antes de descargar en APT.']);
                     }
 
                     try {
-                        // WEIGHT LOGIC: Draft (Real) > Provisional
+                        // 2. WEIGHT RESOLUTION: Draft (Real) > Provisional
                         $finalWeightKg = ($operator->vessel->draft_weight > 0) ? $operator->vessel->draft_weight : ($operator->vessel->provisional_burreo_weight ?? 0);
 
-                        // Create new Order for this Burreo/Direct Trip
+                        // 3. Create Order & Ticket (Atomic)
                         $order = \App\Models\LoadingOrder::create([
                             'id' => (string) \Illuminate\Support\Str::uuid(),
-                            'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999), // Unique Folio
-                            'entry_at' => now(), // Use entry_at instead of date
+                            'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999),
+                            'entry_at' => now(),
                             'client_id' => $operator->vessel->client_id,
                             'vessel_id' => $operator->vessel->id,
                             'product_id' => $operator->vessel->product_id,
-                            'status' => 'loading',
+                            'status' => 'completed', // Burreo is auto-completed
                             'operator_name' => $operator->operator_name,
                             'economic_number' => $operator->economic_number,
                             'tractor_plate' => $operator->tractor_plate,
@@ -366,16 +364,13 @@ class AptController extends Controller
                             'unit_type' => $operator->unit_type,
                             'transport_company' => $operator->transporter_line,
                             'operation_type' => 'burreo',
-                            'warehouse' => $validated['warehouse'], // Assign immediately
-                            'cubicle' => $validated['cubicle'],     // Assign immediately
-                            'vessel_operator_trip_id' => $pendingTrip->id, // Link to trip
+                            'warehouse' => $validated['warehouse'],
+                            'cubicle' => $validated['cubicle'] ?? 'N/A',
+                            'vessel_operator_trip_id' => $pendingTrip->id,
                         ]);
 
-                        // Auto-create Weight Ticket for Burreo
-                        // Mark as COMPLETED immediately as per user request (skip scale exit)
                         \App\Models\WeightTicket::create([
                             'loading_order_id' => $order->id,
-                            'shipment_order_id' => null, // Burreo has no commercial doc usually
                             'ticket_number' => 'B-' . $order->folio,
                             'weighing_status' => 'completed',
                             'is_burreo' => true,
@@ -385,35 +380,38 @@ class AptController extends Controller
                             'weigh_out_at' => now(),
                         ]);
 
-                        // Mark Order as completed immediately
-                        $order->update(['status' => 'completed']);
-
-                        // Mark the trip as completed if it wasn't already (since we have weight now)
                         $pendingTrip->update(['status' => 'completed']);
 
-                        // Since we created it, we don't need to update it again below, 
-                        // unless we want to keep the logic unified. 
-                        // But the update below sets warehouse/cubicle/op_type again. 
-                        // Let's just let it fall through or return success here.
-                        // Ideally fall through to allow the Log Scan to happen.
+                        // 4. Log Scan & Return (EARLY EXIT)
+                        \App\Models\AptScan::create([
+                            'loading_order_id' => $order->id,
+                            'operator_id' => $operator->id,
+                            'warehouse' => (string) $validated['warehouse'],
+                            'cubicle' => (string) ($validated['cubicle'] ?? 'N/A'),
+                            'user_id' => auth()->id(),
+                        ]);
+
+                        $dailyCount = \App\Models\LoadingOrder::where('operator_name', $order->operator_name)
+                            ->where('operation_type', 'burreo')
+                            ->whereDate('created_at', now())
+                            ->count();
+
+                        return redirect()->back()->with('success', "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.");
 
                     } catch (\Exception $e) {
-                        \Illuminate\Support\Facades\Log::error('Burreo Order Create Error: ' . $e->getMessage());
-                        return back()->withErrors(['qr' => 'Error creando orden automática: ' . $e->getMessage()]);
+                        \Illuminate\Support\Facades\Log::error('Burreo Operation Error: ' . $e->getMessage());
+                        return back()->withErrors(['qr' => 'Error en el proceso de Burreo: ' . $e->getMessage()]);
                     }
                 } else {
-                    return back()->withErrors(['qr' => 'Operador o Barco no encontrado para crear orden automática.']);
+                    return back()->withErrors(['qr' => 'Operador o Barco no vinculados correctamente.']);
                 }
             } else {
-                return back()->withErrors(['qr' => 'Orden no encontrada o no activa.']);
+                return back()->withErrors(['qr' => 'Orden de Báscula no encontrada o no activa.']);
             }
         }
 
-        // WEIGHT RESOLUTION FOR ALL FLOWS (Including Legacy Fallbacks)
-        $weightForTicket = 0;
-        if ($order->vessel) {
-            $weightForTicket = ($order->vessel->draft_weight > 0) ? $order->vessel->draft_weight : ($order->vessel->provisional_burreo_weight ?? 0);
-        }
+        // --- COMMON FLOW (ONLY FOR SCALE) ---
+        // At this point, if it was 'burreo', it already returned.
 
         // status check for Scale Flow
         if ($validated['operation_type'] === 'scale') {
@@ -438,33 +436,25 @@ class AptController extends Controller
             if (empty($validated['cubicle'])) {
                 return back()->withErrors(['cubicle' => 'El cubículo es obligatorio para el Almacén seleccionado.']);
             }
-            // Occupancy Check REMOVED to allow multiple units
         }
 
-        // Create explicit variable for cubicle to ensure it's 'N/A' for WH 1-3
         $finalCubicle = $validated['cubicle'] ?? 'N/A';
         if (!in_array($validated['warehouse'], ['Almacén 4', 'Almacén 5', '4', '5'])) {
             $finalCubicle = 'N/A';
         }
 
-        // Get Operator ID if available from QR or order
+        // Get Operator ID if available
         $operatorId = null;
         if (str_starts_with($qr, 'OP ')) {
-            // Format can be "OP {ID}|{NAME}" or "OP {ID}]{INITIALS}"
             $rawId = substr($qr, 3);
             if (preg_match('/^\d+/', $rawId, $matches)) {
                 $rawOperatorId = $matches[0];
-
-                // CRITICAL: Verify existence to avoid FK Violation
                 if (\App\Models\VesselOperator::where('id', $rawOperatorId)->exists()) {
                     $operatorId = $rawOperatorId;
-                } else {
-                    \Illuminate\Support\Facades\Log::warning("APT Scanner: Operator ID {$rawOperatorId} from QR does not exist in vessel_operators table.");
                 }
             }
         }
 
-        // If still null, try to match by plate from Order
         if (!$operatorId && $order) {
             $matchedOp = \App\Models\VesselOperator::where('tractor_plate', $order->tractor_plate)->first();
             if ($matchedOp) {
@@ -472,83 +462,23 @@ class AptController extends Controller
             }
         }
 
-        // Update Order
+        // Update Order (For Scale Only)
         $order->update([
             'warehouse' => $validated['warehouse'],
             'cubicle' => $finalCubicle,
             'operation_type' => $validated['operation_type'],
-            // Status remains 'loading' until Scale Exit
         ]);
 
-        if ($validated['operation_type'] === 'burreo') {
-            // Find existing ticket or create one
-            $ticket = $order->weight_ticket;
+        // Log Scan Record (For Scale Only)
+        \App\Models\AptScan::create([
+            'loading_order_id' => $order->id,
+            'operator_id' => $operatorId,
+            'warehouse' => (string) $validated['warehouse'],
+            'cubicle' => (string) $finalCubicle,
+            'user_id' => auth()->id(),
+        ]);
 
-            if (!$ticket) {
-                $ticket = \App\Models\WeightTicket::create([
-                    'loading_order_id' => $order->id,
-                    'shipment_order_id' => null,
-                    'ticket_number' => 'B-' . $order->folio,
-                    'weighing_status' => 'completed',
-                    'is_burreo' => true,
-                    'tare_weight' => $weightForTicket,
-                    'net_weight' => $weightForTicket,
-                    'weigh_in_at' => now(),
-                    'weigh_out_at' => now(),
-                ]);
-            } else {
-                $ticket->update([
-                    'weighing_status' => 'completed',
-                    'is_burreo' => true,
-                    'tare_weight' => $weightForTicket,
-                    'net_weight' => $weightForTicket,
-                    'weigh_out_at' => now(),
-                ]);
-            }
-
-            // Mark Order as completed
-            $order->update(['status' => 'completed']);
-        }
-
-        // Log Scan Record
-        try {
-            \App\Models\AptScan::create([
-                'loading_order_id' => $order->id,
-                'shipment_order_id' => null, // Unified with LoadingOrder
-                'operator_id' => $operatorId,
-                'warehouse' => (string) $validated['warehouse'],
-                'cubicle' => (string) $finalCubicle,
-                'user_id' => auth()->id(),
-            ]);
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('APT Log Scan Error: ' . $e->getMessage());
-            // If it still fails (e.g. FK on operator_id because migration not run), 
-            // attempt creation WITHOUT operator_id as a fallback to not block operation
-            if (str_contains($e->getMessage(), 'operator_id')) {
-                \App\Models\AptScan::create([
-                    'loading_order_id' => $order->id,
-                    'shipment_order_id' => null,
-                    'operator_id' => null,
-                    'warehouse' => (string) $validated['warehouse'],
-                    'cubicle' => (string) $finalCubicle,
-                    'user_id' => auth()->id(),
-                ]);
-            } else {
-                throw $e; // Re-throw if it's a different error
-            }
-        }
-
-        $successMessage = 'Asignación de Almacén registrada correctamente.';
-
-        if ($validated['operation_type'] === 'burreo') {
-            $dailyCount = \App\Models\LoadingOrder::where('operator_name', $order->operator_name)
-                ->where('operation_type', 'burreo')
-                ->whereDate('created_at', now())
-                ->count();
-            $successMessage = "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día para este operador. El peso se ha vinculado correctamente.";
-        }
-
-        return redirect()->back()->with('success', $successMessage);
+        return redirect()->back()->with('success', 'Asignación de Almacén registrada correctamente.');
     }
 
     public function updateScan(Request $request, $id)
