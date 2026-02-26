@@ -180,14 +180,17 @@ class AptController extends Controller
                 $orders = $dailyOrders->where('warehouse', $wh['name']);
 
                 if ($orders->isNotEmpty()) {
-                    $whData['occupied'] = true; // Has activity on this day
+                    $whData['occupied'] = true;
                     $whData['orders'] = $orders->values()->all();
-                    $whData['total_programmed'] = $orders->sum('programmed_tons'); // Assuming column exists
-                    // Sum Net Weight (using weight_ticket)
-                    $whData['total_net'] = $orders->sum(fn($o) => $o->weight_ticket?->net_weight ?? 0);
+                    $whData['total_programmed'] = $orders->sum('programmed_tons');
+                    // Manual sum to ensure patched weights are used
+                    $netSum = 0;
+                    foreach ($orders as $o) {
+                        $netSum += (float) ($o->weight_ticket?->net_weight ?? 0);
+                    }
+                    $whData['total_net'] = $netSum;
                 }
             } else {
-                // Cubicles Logic
                 $occupiedCount = 0;
                 for ($i = 1; $i <= 8; $i++) {
                     $cubicleName = (string) $i;
@@ -196,21 +199,23 @@ class AptController extends Controller
 
                     $hasActivity = $orders->isNotEmpty();
                     if ($hasActivity)
-                        $occupiedCount++; // Simply counts active cubicles for this date
+                        $occupiedCount++;
+
+                    $netSum = 0;
+                    foreach ($orders as $o) {
+                        $netSum += (float) ($o->weight_ticket?->net_weight ?? 0);
+                    }
 
                     $whData['cubicles'][] = [
                         'id' => $i,
                         'occupied' => $hasActivity,
                         'orders' => $orders->values()->all(),
-                        'total_programmed' => $orders->sum('programmed_tons'), // Assuming column exists
-                        'total_net' => $orders->sum(fn($o) => $o->weight_ticket?->net_weight ?? 0)
+                        'total_programmed' => $orders->sum('programmed_tons'),
+                        'total_net' => $netSum
                     ];
                 }
-
-                // Occupancy Rate for the specific Day's view
                 $whData['occupancy_percentage'] = ($occupiedCount / 8) * 100;
             }
-
             $data[] = $whData;
         }
 
