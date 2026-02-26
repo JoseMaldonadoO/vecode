@@ -63,7 +63,7 @@ class DockTripController extends Controller
                 'id' => $operator->vessel->id,
                 'name' => $operator->vessel->name,
                 'holds' => $operator->vessel->holds,
-                'operation_type' => $operator->vessel->operation_type, // General operation type
+                'operation_type' => $operator->vessel->apt_operation_type, // General operation type (scale/burreo)
             ],
         ]);
     }
@@ -81,7 +81,7 @@ class DockTripController extends Controller
         $vessel = Vessel::findOrFail($validated['vessel_id']);
 
         // STRICT CHECK: Only allow dock trips for vessels in 'burreo' mode
-        if ($vessel->operation_type !== 'burreo') {
+        if ($vessel->apt_operation_type !== 'burreo') {
             return back()->withErrors(['vessel_id' => 'ALERTA: Este barco no está configurado para "Burreo". Los barcos de Báscula no deben registrar vueltas en este panel.']);
         }
 

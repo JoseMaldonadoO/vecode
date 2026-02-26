@@ -188,6 +188,24 @@ export default function Trips({
             </div>
 
             <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                {/* Errors Display */}
+                {Object.keys(errors).length > 0 && (
+                    <div
+                        className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-4 duration-300"
+                        role="alert"
+                    >
+                        <div className="flex items-center mb-1">
+                            <AlertTriangle className="w-5 h-5 mr-2" />
+                            <p className="font-black uppercase text-xs tracking-widest">Error en el Registro</p>
+                        </div>
+                        <ul className="list-disc pl-5 text-sm font-medium">
+                            {Object.values(errors).map((err: any, i) => (
+                                <li key={i}>{err}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
                 {/* Scanner Input Area */}
                 {!scanResult ? (
                     <div className="bg-white rounded-2xl shadow-xl p-10 mb-8 text-center border-b-4 border-indigo-600 transition-all duration-300">
