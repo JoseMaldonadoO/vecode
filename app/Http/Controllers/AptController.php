@@ -425,15 +425,18 @@ class AptController extends Controller
         // Get Operator ID if available from QR or order
         $operatorId = null;
         if (str_starts_with($qr, 'OP ')) {
-            // Format: OP {ID}|{NAME} or OP {ID}]{INITIALS}
-            // We split by '|' OR ']' just in case, or simply cast to int to be safe
-            // Assuming format matches, first part of substr is ID.
+            // Format can be "OP {ID}|{NAME}" or "OP {ID}]{INITIALS}"
             $rawId = substr($qr, 3);
+            if (preg_match('/^\d+/', $rawId, $matches)) {
+                $rawOperatorId = $matches[0];
 
-            // Clean up: Extract only the leading integer
-            // Example: "103|Juan" -> 103, "103]JCE" -> 103
-            preg_match('/^\d+/', $rawId, $matches);
-            $operatorId = $matches[0] ?? null;
+                // CRITICAL: Verify existence to avoid FK Violation
+                if (\App\Models\VesselOperator::where('id', $rawOperatorId)->exists()) {
+                    $operatorId = $rawOperatorId;
+                } else {
+                    \Illuminate\Support\Facades\Log::warning("APT Scanner: Operator ID {$rawOperatorId} from QR does not exist in vessel_operators table.");
+                }
+            }
         }
 
         // If still null, try to match by plate from Order
@@ -482,15 +485,33 @@ class AptController extends Controller
             $order->update(['status' => 'completed']);
         }
 
-        // Log Scan
-        \App\Models\AptScan::create([
-            'loading_order_id' => $order->id,
-            'shipment_order_id' => null, // Prefer keeping it clean or linking if available, but here $order is LoadingOrder
-            'operator_id' => $operatorId,
-            'warehouse' => $validated['warehouse'],
-            'cubicle' => $finalCubicle,
-            'user_id' => auth()->id(),
-        ]);
+        // Log Scan Record
+        try {
+            \App\Models\AptScan::create([
+                'loading_order_id' => $order->id,
+                'shipment_order_id' => null, // Unified with LoadingOrder
+                'operator_id' => $operatorId,
+                'warehouse' => (string) $validated['warehouse'],
+                'cubicle' => (string) $finalCubicle,
+                'user_id' => auth()->id(),
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('APT Log Scan Error: ' . $e->getMessage());
+            // If it still fails (e.g. FK on operator_id because migration not run), 
+            // attempt creation WITHOUT operator_id as a fallback to not block operation
+            if (str_contains($e->getMessage(), 'operator_id')) {
+                \App\Models\AptScan::create([
+                    'loading_order_id' => $order->id,
+                    'shipment_order_id' => null,
+                    'operator_id' => null,
+                    'warehouse' => (string) $validated['warehouse'],
+                    'cubicle' => (string) $finalCubicle,
+                    'user_id' => auth()->id(),
+                ]);
+            } else {
+                throw $e; // Re-throw if it's a different error
+            }
+        }
 
         $successMessage = 'Asignación de Almacén registrada correctamente.';
 

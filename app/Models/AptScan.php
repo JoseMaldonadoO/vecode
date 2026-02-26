@@ -18,6 +18,8 @@ class AptScan extends Model
         'cubicle',
         'user_id',
         'loading_order_id',
+        'created_by',
+        'updated_by',
     ];
 
     public function operator()
