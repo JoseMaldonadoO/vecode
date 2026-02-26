@@ -210,31 +210,31 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                             </div>
 
                             {selectedHatch ? (
-                                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8 h-full">
-                                    <div className="space-y-4">
+                                <div className="relative z-10 flex flex-col justify-center gap-6 h-full">
+                                    <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             <Badge className={`${isExternal ? 'bg-cyan-500 text-cyan-950' : 'bg-blue-600 text-white'} font-black px-4 py-1.5 rounded-lg border-none`}>
                                                 BODEGA {selectedHatch}
                                             </Badge>
                                             <span className="text-white/60 font-black text-[11px] uppercase tracking-widest italic">Activa</span>
                                         </div>
-                                        <div className="space-y-0">
-                                            <h3 className="text-6xl font-black text-white tracking-tighter flex items-end gap-2">
-                                                {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString()}
-                                                <span className="text-xs font-black text-white/40 mb-2 tracking-widest uppercase">TONELADAS</span>
-                                            </h3>
-                                            <div className="flex items-center gap-4 mt-2">
-                                                <div className="h-px w-20 bg-white/10" />
-                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Auditoría de Carga</span>
-                                            </div>
-                                        </div>
                                     </div>
 
-                                    <div className="bg-black/60 p-8 rounded-[2rem] flex flex-col items-center justify-center min-w-[180px] border border-white/10 shadow-2xl backdrop-blur-md">
-                                        <span className="text-[10px] font-black text-white/50 uppercase mb-2 tracking-widest">ESTADO</span>
-                                        <span className={`text-6xl font-black ${isExternal ? 'text-cyan-400 [text-shadow:0_0_30px_rgba(34,211,238,0.4)]' : 'text-blue-400 [text-shadow:0_0_30px_rgba(59,130,246,0.4)]'}`}>
-                                            {vessel.hatches.find(h => h.id === selectedHatch)?.percent}%
-                                        </span>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                                        <div className="space-y-1">
+                                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em]">Carga Actual</span>
+                                            <h3 className="text-5xl font-black text-white tracking-tighter flex items-end gap-2">
+                                                {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString()}
+                                                <span className="text-xs font-black text-white/40 mb-1 tracking-widest uppercase">TONELADAS</span>
+                                            </h3>
+                                        </div>
+
+                                        <div className="bg-black/40 p-5 rounded-3xl border border-white/10 flex flex-col items-center justify-center">
+                                            <span className="text-[10px] font-black text-white/40 uppercase mb-1 tracking-widest">ESTADO (%)</span>
+                                            <span className={`text-5xl font-black ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
+                                                {vessel.hatches.find(h => h.id === selectedHatch)?.percent}%
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (
