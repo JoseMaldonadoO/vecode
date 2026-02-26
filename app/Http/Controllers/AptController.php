@@ -243,8 +243,16 @@ class AptController extends Controller
             return empty($v->berthal_datetime) || $v->berthal_datetime > $now || !empty($v->departure_date);
         })->values();
 
-        if (!$request->filled('vessel_id') && $activeVessels->isNotEmpty()) {
-            $filters['vessel_id'] = (string) $activeVessels->first()->id;
+        if (!$request->filled('vessel_id')) {
+            // Priority 1: Vessel from the most recent scan
+            $lastScan = \App\Models\AptScan::with('loadingOrder')->latest()->first();
+            if ($lastScan && $lastScan->loadingOrder?->vessel_id) {
+                $filters['vessel_id'] = (string) $lastScan->loadingOrder->vessel_id;
+            }
+            // Priority 2: First active vessel
+            elseif ($activeVessels->isNotEmpty()) {
+                $filters['vessel_id'] = (string) $activeVessels->first()->id;
+            }
         }
 
         $query = \App\Models\AptScan::with(['operator', 'loadingOrder.vessel'])
