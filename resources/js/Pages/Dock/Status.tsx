@@ -99,82 +99,76 @@ const VesselCard = ({
                     {isOccupied ? (
                         <>
                             {/* Vessel Info Sub-Card (Premium Glassmorphism) */}
-                            <div className={`flex-shrink-0 w-full lg:w-[420px] ${isExternal ? "bg-cyan-950/40 border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.1)]" : "bg-slate-900/60 border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)]"} backdrop-blur-2xl border-2 rounded-[3.5rem] p-10 relative group/card overflow-hidden transition-all duration-700 hover:scale-[1.01]`}>
+                            <div className={`flex-shrink-0 w-full lg:w-[380px] xl:w-[420px] ${isExternal ? "bg-cyan-950/40 border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.1)]" : "bg-slate-900/60 border-blue-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)]"} backdrop-blur-2xl border-2 rounded-[3rem] p-6 md:p-10 relative group/card overflow-hidden transition-all duration-700`}>
                                 <div className={`absolute top-0 right-0 w-48 h-48 ${isExternal ? 'bg-cyan-400/20' : 'bg-blue-400/20'} blur-[100px] -mr-24 -mt-24 group-hover/card:scale-150 transition-transform duration-1000`}></div>
 
-                                <div className="mb-10 relative z-10">
-                                    <h2 className="text-5xl font-black text-white tracking-tighter leading-none mb-4 group-hover/card:translate-x-1 transition-transform duration-500 [text-shadow:0_4px_12px_rgba(0,0,0,0.5)]">
+                                <div className="mb-8 md:mb-10 relative z-10">
+                                    <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight mb-4 group-hover/card:translate-x-1 transition-transform duration-500 [text-shadow:0_4px_12px_rgba(0,0,0,0.5)] truncate" title={vessel.name}>
                                         {vessel.name}
                                     </h2>
-                                    <div className="flex flex-wrap gap-2.5">
+                                    <div className="flex flex-wrap gap-2">
                                         <Badge
                                             variant="outline"
-                                            className={`bg-white/5 backdrop-blur-md font-black text-[10px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-xl border-white/10 ${isExternal ? "text-cyan-300" : "text-blue-300"}`}
+                                            className={`bg-white/5 backdrop-blur-md font-black text-[9px] uppercase tracking-[0.2em] px-3 py-1 rounded-lg border-white/10 ${isExternal ? "text-cyan-300" : "text-blue-300"}`}
                                         >
                                             {vessel.type}
                                         </Badge>
                                         <Badge
                                             variant="outline"
-                                            className="bg-white/5 backdrop-blur-md font-black text-[10px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-xl border-white/10 text-white/70"
+                                            className="bg-white/5 backdrop-blur-md font-black text-[9px] uppercase tracking-[0.2em] px-3 py-1 rounded-lg border-white/10 text-white/70"
                                         >
                                             {vessel.product || 'CARGA GENERAL'}
                                         </Badge>
                                     </div>
                                 </div>
 
-                                <div className="space-y-6 relative z-10">
-                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-5`}>
-                                        <div className="flex items-center gap-4">
-                                            <div className={`p-2.5 rounded-2xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
-                                                <FileText className="w-5 h-5" />
+                                <div className="space-y-4 md:space-y-6 relative z-10">
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-4`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
+                                                <FileText className="w-4 h-4 md:w-5 md:h-5" />
                                             </div>
-                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[10px] font-black uppercase tracking-[0.25em]`}>Operación</span>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[9px] font-black uppercase tracking-[0.2em]`}>Operación</span>
                                         </div>
-                                        <span className={`font-black text-2xl tracking-tight uppercase ${vessel.is_discharge ? 'text-amber-400' : 'text-green-400'}`}>
+                                        <span className={`font-black text-lg md:text-2xl tracking-tight uppercase ${vessel.is_discharge ? 'text-amber-400' : 'text-green-400'}`}>
                                             {vessel.operation_type}
                                         </span>
                                     </div>
 
-                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-5`}>
-                                        <div className="flex items-center gap-4">
-                                            <div className={`p-2.5 rounded-2xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
-                                                <Clock className="w-5 h-5" />
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-4`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
+                                                <Clock className="w-4 h-4 md:w-5 md:h-5" />
                                             </div>
-                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[10px] font-black uppercase tracking-[0.25em]`}>Cronología</span>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[9px] font-black uppercase tracking-[0.2em]`}>Cronología</span>
                                         </div>
                                         <div className="text-right">
-                                            <span className="text-white font-black text-2xl leading-none block">{vessel.stay_days}</span>
-                                            <span className="text-white/30 font-black text-[9px] uppercase tracking-widest mt-1 block">DÍAS TRANSCURRIDOS</span>
+                                            <span className="text-white font-black text-lg md:text-2xl leading-none block">{vessel.stay_days}</span>
+                                            <span className="text-white/30 font-black text-[8px] uppercase tracking-widest mt-0.5 block">DÍAS TRANSCURRIDOS</span>
                                         </div>
                                     </div>
 
-                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-5`}>
-                                        <div className="flex items-center gap-4">
-                                            <div className={`p-2.5 rounded-2xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
-                                                <Calendar className="w-5 h-5" />
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-4`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
+                                                <Calendar className="w-4 h-4 md:w-5 md:h-5" />
                                             </div>
-                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[10px] font-black uppercase tracking-[0.25em]`}>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[9px] font-black uppercase tracking-[0.2em]`}>
                                                 {isExternal ? "Entrada" : "Atraco"}
                                             </span>
                                         </div>
-                                        <span className="text-white font-mono font-bold text-sm bg-black/20 px-3 py-1 rounded-lg border border-white/5">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</span>
+                                        <span className="text-white font-mono font-bold text-xs bg-black/20 px-2 py-1 rounded-lg border border-white/5">{isExternal ? vessel.external_arrival : (vessel.etb || vessel.berthal_datetime)}</span>
                                     </div>
 
-                                    <div className="flex items-center justify-between pt-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`p-2.5 rounded-2xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
-                                                <LogOut className="w-5 h-5" />
-                                            </div>
-                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[10px] font-black uppercase tracking-[0.25em]`}>Despacho</span>
-                                        </div>
+                                    <div className="flex flex-col gap-3 pt-2">
                                         <button
                                             onClick={handleDeparture}
-                                            className={`px-6 py-3 rounded-[1.25rem] border-2 font-black text-[11px] tracking-widest flex items-center gap-3 uppercase transition-all shadow-2xl active:scale-95 ${isExternal
+                                            className={`w-full py-4 rounded-2xl border-2 font-black text-[10px] tracking-widest flex items-center justify-center gap-3 uppercase transition-all shadow-2xl active:scale-95 ${isExternal
                                                 ? "bg-cyan-500 text-cyan-950 border-cyan-400 hover:bg-cyan-400"
                                                 : "bg-blue-600 text-white border-blue-400 hover:bg-blue-500"
                                                 }`}
                                         >
-                                            Marcar Salida
+                                            Marcar Salida de Buque
                                             <ArrowRight className="w-4 h-4" />
                                         </button>
                                     </div>
