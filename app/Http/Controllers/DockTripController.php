@@ -80,6 +80,11 @@ class DockTripController extends Controller
 
         $vessel = Vessel::findOrFail($validated['vessel_id']);
 
+        // STRICT CHECK: Only allow dock trips for vessels in 'burreo' mode
+        if ($vessel->operation_type !== 'burreo') {
+            return back()->withErrors(['vessel_id' => 'ALERTA: Este barco no está configurado para "Burreo". Los barcos de Báscula no deben registrar vueltas en este panel.']);
+        }
+
         // Priority: Draft Weight > Provisional Burreo Weight
         $automaticWeight = $vessel->draft_weight ?? $vessel->provisional_burreo_weight;
 

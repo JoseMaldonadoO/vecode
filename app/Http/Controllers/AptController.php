@@ -347,6 +347,9 @@ class AptController extends Controller
                     }
 
                     try {
+                        // WEIGHT LOGIC: Draft (Real) > Provisional
+                        $finalWeightKg = $operator->vessel->draft_weight ?? ($operator->vessel->provisional_burreo_weight ?? 0);
+
                         // Create new Order for this Burreo/Direct Trip
                         $order = \App\Models\LoadingOrder::create([
                             'id' => (string) \Illuminate\Support\Str::uuid(),
@@ -362,7 +365,6 @@ class AptController extends Controller
                             'trailer_plate' => $operator->trailer_plate,
                             'unit_type' => $operator->unit_type,
                             'transport_company' => $operator->transporter_line,
-                            // 'product' => $operator->vessel->product->name ?? 'N/A', // Removed legacy text field
                             'operation_type' => 'burreo',
                             'warehouse' => $validated['warehouse'], // Assign immediately
                             'cubicle' => $validated['cubicle'],     // Assign immediately
@@ -377,8 +379,8 @@ class AptController extends Controller
                             'ticket_number' => 'B-' . $order->folio,
                             'weighing_status' => 'completed',
                             'is_burreo' => true,
-                            'tare_weight' => $operator->vessel->provisional_burreo_weight ?? 0,
-                            'net_weight' => $operator->vessel->provisional_burreo_weight ?? 0,
+                            'tare_weight' => $finalWeightKg,
+                            'net_weight' => $finalWeightKg,
                             'weigh_in_at' => now(),
                             'weigh_out_at' => now(),
                         ]);
@@ -537,7 +539,7 @@ class AptController extends Controller
                 ->where('operation_type', 'burreo')
                 ->whereDate('created_at', now())
                 ->count();
-            $successMessage .= " (Descarga #{$dailyCount} del día para este operador)";
+            $successMessage = "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día para este operador. El peso se ha vinculado correctamente.";
         }
 
         return redirect()->back()->with('success', $successMessage);
