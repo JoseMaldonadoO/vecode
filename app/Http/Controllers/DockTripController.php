@@ -80,9 +80,21 @@ class DockTripController extends Controller
 
         $vessel = Vessel::findOrFail($validated['vessel_id']);
 
-        // STRICT CHECK: Only allow dock trips for vessels in 'burreo' mode
+        // STRICT CHECK 1: Only allow dock trips for vessels in 'burreo' mode
         if ($vessel->apt_operation_type !== 'burreo') {
             return back()->withErrors(['vessel_id' => 'ALERTA: Este barco no está configurado para "Burreo". Los barcos de Báscula no deben registrar vueltas en este panel.']);
+        }
+
+        // STRICT CHECK 2: Prevent "Double Trip" without APT download
+        $pendingTrip = VesselOperatorTrip::where('vessel_operator_id', $validated['vessel_operator_id'])
+            ->where('vessel_id', $validated['vessel_id'])
+            ->whereDoesntHave('loading_order')
+            ->first();
+
+        if ($pendingTrip) {
+            return back()->withErrors([
+                'vessel_operator_id' => 'OPERACIÓN BLOQUEADA: El operador ya tiene un viaje activo registrado en muelle. Debe completar la descarga en APT antes de iniciar una nueva vuelta.'
+            ]);
         }
 
         // Priority: Draft Weight > Provisional Burreo Weight
