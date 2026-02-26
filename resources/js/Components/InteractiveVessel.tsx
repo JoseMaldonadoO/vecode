@@ -30,7 +30,6 @@ interface InteractiveVesselProps {
 }
 
 const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExternal = false }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
     const [selectedHatch, setSelectedHatch] = useState<number | null>(null);
 
     if (!vessel || vessel.name === "-") return null;
@@ -38,7 +37,6 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
     const isDischarge = vessel.is_discharge;
     const accentColor = isExternal ? '#06b6d4' : '#3b82f6';
     const mainColor = '#475569'; // Steel Blue Professional
-    const toggleExpand = () => setIsExpanded(!isExpanded);
 
     const ShipSVG = ({ vertical = false }: { vertical?: boolean }) => {
         const viewBox = vertical ? "0 0 160 520" : "0 0 640 160";
@@ -108,9 +106,9 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                 <rect
                                     x={rx} y={ry} width={rw} height={rh}
                                     fill="#0f172a"
-                                    stroke={isSelected ? accentColor : "rgba(255,255,255,0.1)"}
-                                    strokeWidth={isSelected ? "3" : "1"}
-                                    rx="4"
+                                    stroke={isSelected ? accentColor : "rgba(255,255,255,0.15)"}
+                                    strokeWidth={isSelected ? "4" : "2"}
+                                    rx="12"
                                     className="transition-all duration-300"
                                 />
                                 {/* Progress Bar inside Hatch */}
@@ -130,7 +128,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                     textAnchor="middle"
                                     className="fill-white/80 pointer-events-none font-black text-[9px] uppercase"
                                 >
-                                    {isExpanded ? `B${hatch.id}` : ''}
+                                    {`B${hatch.id}`}
                                 </text>
                                 {isSelected && (
                                     <circle cx={rx + rw / 2} cy={ry - 10} r="4" fill={accentColor} className="animate-ping" />
@@ -144,7 +142,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
     };
 
     return (
-        <div className={`relative transition-all duration-500 ${isExpanded ? 'bg-slate-900/40 backdrop-blur-3xl rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl' : ''}`}>
+        <div className="relative bg-slate-900/40 backdrop-blur-3xl rounded-[2.5rem] p-6 md:p-10 border border-white/5 shadow-2xl transition-all duration-500">
             {/* Header / Main Info */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                 <div className="flex items-center gap-6">
@@ -166,19 +164,10 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="hidden md:flex flex-col items-end mr-4">
+                    <div className="flex flex-col items-end">
                         <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Capacidad Total</span>
-                        <span className="text-lg font-black text-white/60">{vessel.stats.total_mt?.toLocaleString()} TM</span>
+                        <span className="text-2xl font-black text-white/70">{vessel.stats.total_mt?.toLocaleString()} TM</span>
                     </div>
-                    <button
-                        onClick={toggleExpand}
-                        className={`h-12 px-6 rounded-xl border-2 font-black text-[10px] uppercase tracking-widest transition-all ${isExpanded
-                            ? 'bg-white/10 border-white/10 text-white'
-                            : (isExternal ? 'border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10' : 'border-blue-500/30 text-blue-400 hover:bg-blue-500/10')
-                            }`}
-                    >
-                        {isExpanded ? 'CERRAR PANEL' : 'GESTIÓN DE BODEGAS'}
-                    </button>
                 </div>
             </div>
 
@@ -197,7 +186,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
             </div>
 
             {/* Ship Representation Section */}
-            <div className={`space-y-12 transition-all duration-700 overflow-hidden ${isExpanded ? 'opacity-100' : 'opacity-80'}`}>
+            <div className="space-y-12 transition-all duration-700">
                 {/* Responsive Toggling: No Duplication */}
                 <div className="w-full">
                     {/* Desktop View */}
@@ -212,62 +201,71 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                     </div>
                 </div>
 
-                {isExpanded && (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
-                        {/* Selected Hatch Console */}
-                        <div className="lg:col-span-12 xl:col-span-8">
-                            <div className="bg-slate-800/40 border border-white/5 rounded-[2rem] p-8 min-h-[180px] flex flex-col justify-center relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 p-4 opacity-5">
-                                    <Anchor size={120} />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
+                    {/* Selected Hatch Console */}
+                    <div className="lg:col-span-12 xl:col-span-8">
+                        <div className="bg-slate-800/40 border border-white/5 rounded-[2rem] p-8 min-h-[180px] flex flex-col justify-center relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-5">
+                                <Anchor size={120} />
+                            </div>
+
+                            {selectedHatch ? (
+                                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                                    <div className="space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <Badge className={`${isExternal ? 'bg-cyan-500 text-cyan-950' : 'bg-blue-600 text-white'} font-black px-4 py-1.5 rounded-lg border-none`}>
+                                                BODEGA {selectedHatch}
+                                            </Badge>
+                                            <span className="text-white/60 font-black text-[11px] uppercase tracking-widest italic">Activa</span>
+                                        </div>
+                                        <h3 className="text-5xl font-black text-white tracking-tighter flex items-end gap-2">
+                                            {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString()}
+                                            <span className="text-xs font-black text-white/40 mb-1 tracking-widest uppercase">TONELADAS</span>
+                                        </h3>
+                                    </div>
+                                    <div className="bg-black/40 p-6 rounded-3xl flex flex-col items-center justify-center min-w-[150px] border border-white/10 shadow-inner">
+                                        <span className="text-[10px] font-black text-white/40 uppercase mb-1 tracking-widest">ESTADO</span>
+                                        <span className={`text-4xl font-black ${isExternal ? 'text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.3)]' : 'text-blue-400 shadow-[0_0_20px_rgba(59,130,246,0.3)]'}`}>
+                                            {vessel.hatches.find(h => h.id === selectedHatch)?.percent}%
+                                        </span>
+                                    </div>
                                 </div>
-
-                                {selectedHatch ? (
-                                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-3">
-                                                <Badge className={`${isExternal ? 'bg-cyan-500 text-cyan-950' : 'bg-blue-600 text-white'} font-black px-4 py-1.5 rounded-lg border-none`}>
-                                                    BODEGA {selectedHatch}
-                                                </Badge>
-                                                <span className="text-white/60 font-black text-[11px] uppercase tracking-widest italic">Activa</span>
-                                            </div>
-                                            <h3 className="text-5xl font-black text-white tracking-tighter">
-                                                {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString()}
-                                                <span className="text-sm font-bold text-white/20 ml-3">TONELADAS</span>
-                                            </h3>
-                                        </div>
-                                        <div className="bg-black/20 p-6 rounded-2xl flex flex-col items-center min-w-[140px] border border-white/5">
-                                            <span className="text-[10px] font-black text-white/30 uppercase mb-2">Estado</span>
-                                            <span className={`text-3xl font-black ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
-                                                {vessel.hatches.find(h => h.id === selectedHatch)?.percent}%
-                                            </span>
-                                        </div>
+                            ) : (
+                                <div className="flex flex-col items-center py-6">
+                                    <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mb-4 text-white/20">
+                                        <Info size={24} />
                                     </div>
-                                ) : (
-                                    <div className="flex flex-col items-center py-6">
-                                        <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mb-4 text-white/20">
-                                            <Info size={24} />
-                                        </div>
-                                        <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] text-center">
-                                            Seleccione una bodega para <br /> auditoría de carga
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
+                                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] text-center">
+                                        Seleccione una bodega para <br /> auditoría de carga
+                                    </p>
+                                </div>
+                            )}
                         </div>
+                    </div>
 
-                        {/* General Stats Console */}
-                        <div className="lg:col-span-12 xl:col-span-4 grid grid-cols-2 gap-4">
-                            <div className="bg-white/5 p-6 rounded-[1.5rem] border border-white/5 hover:bg-white/10 transition-colors">
-                                <span className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-2">{isDischarge ? 'Pendiente' : 'A falta'}</span>
-                                <span className="text-2xl font-black text-white block leading-tight">{vessel.stats.pending_mt?.toLocaleString()}</span>
+                    {/* Unified General Stats Console */}
+                    <div className="lg:col-span-12 xl:col-span-4">
+                        <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 flex flex-col gap-8 group/stat hover:bg-white/10 transition-all duration-300">
+                            {/* Pendiente Group */}
+                            <div className="space-y-1">
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block">PENDIENTE</span>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-4xl font-black text-white block leading-tight tracking-tighter">{vessel.stats.pending_mt?.toLocaleString()}</span>
+                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">TM</span>
+                                </div>
                             </div>
-                            <div className="bg-white/5 p-6 rounded-[1.5rem] border border-white/5 hover:bg-white/10 transition-colors">
-                                <span className="text-[10px] font-black text-white/30 uppercase tracking-widest block mb-2">Producto</span>
-                                <span className="text-xs font-black text-white uppercase leading-tight line-clamp-2">{vessel.product}</span>
+
+                            {/* Divider Line */}
+                            <div className="h-px w-full bg-white/5" />
+
+                            {/* Producto Group */}
+                            <div className="space-y-1">
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block">PRODUCTO</span>
+                                <span className="text-xl font-bold text-white/90 uppercase leading-tight line-clamp-2 tracking-tight">{vessel.product}</span>
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
 
             <style>{`
