@@ -45,20 +45,18 @@ interface Operator {
     brand_model: string;
 }
 
-export default function Edit({
-    auth,
-    order,
-    clients,
-    products,
+products,
     sales_orders,
     scale_operators,
+    queryParams,
 }: {
     auth: any;
     order: any;
     clients: Client[];
     products: Product[];
     sales_orders: any[];
-    scale_operators?: { id: number; name: string }[];
+    scale_operators ?: { id: number; name: string }[];
+    queryParams ?: any;
 }) {
     // Helper to find partial match for product
     const findProduct = () => {
@@ -110,6 +108,7 @@ export default function Edit({
         observations: order.observations || "",
         documenter_name: order.documenter_name || auth.user.name,
         scale_operator_id: order.scale_operator_id?.toString() || "",
+        queryParams: queryParams || {},
     });
 
     const [queryClient, setQueryClient] = useState("");
@@ -221,7 +220,7 @@ export default function Edit({
             <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                 <div className="mb-6">
                     <Link
-                        href={route("documentation.orders.index")}
+                        href={route("documentation.orders.index", queryParams || {})}
                         className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                     >
                         <ArrowLeft className="w-4 h-4 mr-1" />

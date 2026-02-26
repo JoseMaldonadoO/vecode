@@ -300,7 +300,11 @@ export default function Index({
                                                                         <Menu.Item>
                                                                             {({ active }) => (
                                                                                 <Link
-                                                                                    href={route("documentation.edit", order.id)}
+                                                                                    href={route("documentation.edit", {
+                                                                                        id: order.id,
+                                                                                        ...pickBy(filters),
+                                                                                        page: orders.current_page
+                                                                                    })}
                                                                                     className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
                                                                                 >
                                                                                     <Edit className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />

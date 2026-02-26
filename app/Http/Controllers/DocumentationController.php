@@ -522,7 +522,7 @@ class DocumentationController extends Controller
     /**
      * Show the form for editing the specified Shipment Order.
      */
-    public function editOrder($id)
+    public function editOrder(Request $request, $id)
     {
         $order = ShipmentOrder::with(['client', 'sales_order.client', 'product'])->findOrFail($id);
 
@@ -537,6 +537,7 @@ class DocumentationController extends Controller
                 'product_text' => $order->getAttributes()['product'] ?? null,
                 'sacks_count_raw' => $order->getAttributes()['sacks_count'] ?? null,
             ],
+            'queryParams' => $request->only(['search', 'status', 'page']),
             'clients' => Client::orderBy('business_name')->get()->map(function ($client) {
                 return [
                     'id' => $client->id,
@@ -629,7 +630,9 @@ class DocumentationController extends Controller
 
         $order->update($validated);
 
-        return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque actualizada correctamente.');
+        $queryParams = $request->input('queryParams', []);
+
+        return redirect()->route('documentation.orders.index', $queryParams)->with('success', 'Orden de Embarque actualizada correctamente.');
     }
 
     /**
