@@ -346,7 +346,11 @@ class AptController extends Controller
 
                     try {
                         // 2. WEIGHT RESOLUTION: Draft (Real) > Provisional
-                        $finalWeightKg = ($operator->vessel->draft_weight > 0) ? $operator->vessel->draft_weight : ($operator->vessel->provisional_burreo_weight ?? 0);
+                        $vessel = $operator->vessel;
+                        $draft = (float) ($vessel->draft_weight ?? 0);
+                        $prov = (float) ($vessel->provisional_burreo_weight ?? 0);
+
+                        $finalWeightKg = ($draft > 0) ? $draft : $prov;
 
                         // 3. Create Order & Ticket (Atomic)
                         $order = \App\Models\LoadingOrder::create([

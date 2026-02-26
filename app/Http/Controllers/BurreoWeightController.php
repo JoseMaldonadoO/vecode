@@ -116,6 +116,7 @@ class BurreoWeightController extends Controller
                     // The input 'draft_weight' is now treated as "Final Weight Per Trip", not "Total Ship Draft".
                     // (Or rather, user enters the calculated average directly).
                     $ticketsQuery->update([
+                        'tare_weight' => $weightKg,
                         'net_weight' => $weightKg, // Assign directly without dividing
                     ]);
 
