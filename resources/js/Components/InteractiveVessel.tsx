@@ -185,9 +185,9 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                         </p>
                         <div className="flex items-baseline gap-3">
                             <span className="text-4xl font-black text-white tracking-tighter drop-shadow-md">
-                                {isDischarge ? vessel.stats.on_board_mt?.toLocaleString() : vessel.stats.loaded_mt.toLocaleString()}
+                                {isDischarge ? vessel.stats.on_board_mt?.toLocaleString() : vessel.stats.loaded_mt?.toLocaleString()}
                             </span>
-                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">TM <span className="mx-1">/</span> {vessel.stats.total_mt.toLocaleString()}</span>
+                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">TM <span className="mx-1">/</span> {vessel.stats.total_mt?.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
@@ -232,7 +232,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 group/stat hover:bg-white/10 transition-all">
                                     <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1.5">{isDischarge ? 'Faltante' : 'Pendiente'}</p>
-                                    <p className="text-2xl font-black text-white">{vessel.stats.pending_mt.toLocaleString()}</p>
+                                    <p className="text-2xl font-black text-white">{vessel.stats.pending_mt?.toLocaleString()}</p>
                                     <p className="text-[9px] font-bold text-white/20 mt-1">TONELADAS MÉTRICAS</p>
                                 </div>
                                 <div className="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 group/stat hover:bg-white/10 transition-all">
@@ -258,7 +258,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                         </div>
                                         <div className="space-y-1">
                                             <div className="text-3xl font-black text-white tracking-tighter">
-                                                {vessel.hatches.find(h => h.id === hoveredHatch)?.loaded_mt.toLocaleString()}
+                                                {vessel.hatches.find(h => h.id === hoveredHatch)?.loaded_mt?.toLocaleString()}
                                                 <span className="text-xs font-bold text-white/30 ml-2">TM</span>
                                             </div>
                                             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">{isDischarge ? 'Remanente en Bodega' : 'Total Consolidado'}</p>
