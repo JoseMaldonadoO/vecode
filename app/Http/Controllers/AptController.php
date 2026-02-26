@@ -308,9 +308,13 @@ class AptController extends Controller
         if (!$order) {
             // Auto-create Logic for Burreo / Operator Scan
             if (str_starts_with($qr, 'OP ')) {
-                $parts = explode('|', substr($qr, 3));
-                $operatorId = $parts[0] ?? null;
-                $operator = VesselOperator::with('vessel.product')->find($operatorId);
+                $rawId = substr($qr, 3);
+                $operatorId = null;
+                if (preg_match('/^\d+/', trim($rawId), $matches)) {
+                    $operatorId = $matches[0];
+                }
+
+                $operator = \App\Models\VesselOperator::with('vessel.product')->find($operatorId);
 
                 if ($operator && $operator->vessel) {
                     // ARCHIVE CHECK: If vessel is inactive, block all scans
@@ -349,53 +353,54 @@ class AptController extends Controller
                         $vessel = $operator->vessel;
                         $draft = (float) ($vessel->draft_weight ?? 0);
                         $prov = (float) ($vessel->provisional_burreo_weight ?? 0);
-
                         $finalWeightKg = ($draft > 0) ? $draft : $prov;
 
-                        // 3. Create Order & Ticket (Atomic)
-                        $order = \App\Models\LoadingOrder::create([
-                            'id' => (string) \Illuminate\Support\Str::uuid(),
-                            'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999),
-                            'entry_at' => now(),
-                            'client_id' => $operator->vessel->client_id,
-                            'vessel_id' => $operator->vessel->id,
-                            'product_id' => $operator->vessel->product_id,
-                            'status' => 'completed', // Burreo is auto-completed
-                            'operator_name' => $operator->operator_name,
-                            'economic_number' => $operator->economic_number,
-                            'tractor_plate' => $operator->tractor_plate,
-                            'trailer_plate' => $operator->trailer_plate,
-                            'unit_type' => $operator->unit_type,
-                            'transport_company' => $operator->transporter_line,
-                            'operation_type' => 'burreo',
-                            'warehouse' => $validated['warehouse'],
-                            'cubicle' => $validated['cubicle'] ?? 'N/A',
-                            'vessel_operator_trip_id' => $pendingTrip->id,
-                        ]);
+                        // 3. ATOMIC TRANSACTION: Create Order, Ticket, Scan & Update Trip
+                        \Illuminate\Support\Facades\DB::transaction(function () use ($operator, $pendingTrip, $validated, $finalWeightKg) {
+                            $order = \App\Models\LoadingOrder::create([
+                                'id' => (string) \Illuminate\Support\Str::uuid(),
+                                'folio' => 'BUR-' . date('Ymd-His') . '-' . rand(100, 999),
+                                'entry_at' => now(),
+                                'client_id' => $operator->vessel->client_id,
+                                'vessel_id' => $operator->vessel->id,
+                                'product_id' => $operator->vessel->product_id,
+                                'vessel_operator_id' => $operator->id, // Important for relations
+                                'status' => 'completed',
+                                'operator_name' => $operator->operator_name,
+                                'economic_number' => $operator->economic_number,
+                                'tractor_plate' => $operator->tractor_plate,
+                                'trailer_plate' => $operator->trailer_plate,
+                                'unit_type' => $operator->unit_type,
+                                'transport_company' => $operator->transporter_line,
+                                'operation_type' => 'burreo',
+                                'warehouse' => $validated['warehouse'],
+                                'cubicle' => $validated['cubicle'] ?? 'N/A',
+                                'vessel_operator_trip_id' => $pendingTrip->id,
+                            ]);
 
-                        \App\Models\WeightTicket::create([
-                            'loading_order_id' => $order->id,
-                            'ticket_number' => 'B-' . $order->folio,
-                            'weighing_status' => 'completed',
-                            'is_burreo' => true,
-                            'tare_weight' => $finalWeightKg,
-                            'net_weight' => $finalWeightKg,
-                            'weigh_in_at' => now(),
-                            'weigh_out_at' => now(),
-                        ]);
+                            \App\Models\WeightTicket::create([
+                                'loading_order_id' => $order->id,
+                                'ticket_number' => 'B-' . $order->folio,
+                                'weighing_status' => 'completed',
+                                'is_burreo' => true,
+                                'tare_weight' => $finalWeightKg,
+                                'net_weight' => $finalWeightKg,
+                                'weigh_in_at' => now(),
+                                'weigh_out_at' => now(),
+                            ]);
 
-                        $pendingTrip->update(['status' => 'completed']);
+                            \App\Models\AptScan::create([
+                                'loading_order_id' => $order->id,
+                                'operator_id' => $operator->id,
+                                'warehouse' => (string) $validated['warehouse'],
+                                'cubicle' => (string) ($validated['cubicle'] ?? 'N/A'),
+                                'user_id' => auth()->id(),
+                            ]);
 
-                        // 4. Log Scan & Return (EARLY EXIT)
-                        \App\Models\AptScan::create([
-                            'loading_order_id' => $order->id,
-                            'operator_id' => $operator->id,
-                            'warehouse' => (string) $validated['warehouse'],
-                            'cubicle' => (string) ($validated['cubicle'] ?? 'N/A'),
-                            'user_id' => auth()->id(),
-                        ]);
+                            $pendingTrip->update(['status' => 'completed']);
+                        });
 
-                        $dailyCount = \App\Models\LoadingOrder::where('operator_name', $order->operator_name)
+                        $dailyCount = \App\Models\LoadingOrder::where('operator_name', $operator->operator_name)
                             ->where('operation_type', 'burreo')
                             ->whereDate('created_at', now())
                             ->count();
