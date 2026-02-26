@@ -157,6 +157,15 @@ export default function Scanner({
         e.preventDefault();
         post(route("apt.scanner.store"), {
             onSuccess: () => {
+                Swal.fire({
+                    icon: "success",
+                    title: "Registro Exitoso",
+                    text: "Unidad asignada correctamente.",
+                    timer: 2000,
+                    showConfirmButton: false,
+                    position: "bottom-end",
+                    toast: true,
+                });
                 reset();
                 setScanResult(null);
                 setScanInput("");

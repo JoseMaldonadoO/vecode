@@ -423,27 +423,65 @@ class DockController extends Controller
 
             $totalTripTonnage = $tripStats->sum('total_mt');
 
-            // Total progress uses official scale weight if available, fallback to trips
-            $totalLoadedMt = max($scaleTonnage, $totalTripTonnage);
-            $programmedMt = $v->programmed_tonnage ?: 0;
-            $pendingMt = max(0, $programmedMt - $totalLoadedMt);
+            // Progress calculation varies by operation type
+            $isDischarge = strtolower($v->operation_type) === 'descarga';
 
-            $progressPercent = $programmedMt > 0
-                ? min(100, round(($totalLoadedMt / $programmedMt) * 100, 1))
-                : 0;
+            // Total progress uses official scale weight if available, fallback to trips
+            $totalProcessedMt = max($scaleTonnage, $totalTripTonnage);
+            $programmedMt = $v->programmed_tonnage ?: 0;
+
+            if ($isDischarge) {
+                // For Discharge:
+                // - progress: % of what has been removed
+                // - pending_mt: what still needs to be removed (remaining on board)
+                // - processed_mt: what has already been discharged
+                $progressPercent = $programmedMt > 0
+                    ? min(100, round(($totalProcessedMt / $programmedMt) * 100, 1))
+                    : 0;
+                $onBoardMt = max(0, $programmedMt - $totalProcessedMt);
+                $dischargedMt = $totalProcessedMt;
+            } else {
+                // For Loading:
+                // - progress: % of what has been loaded onto the ship
+                // - pending_mt: what still needs to be loaded
+                // - processed_mt: what is already on the ship
+                $progressPercent = $programmedMt > 0
+                    ? min(100, round(($totalProcessedMt / $programmedMt) * 100, 1))
+                    : 0;
+                $onBoardMt = $totalProcessedMt;
+                $dischargedMt = 0; // Not applicable
+            }
+
+            $pendingMt = $isDischarge ? $onBoardMt : max(0, $programmedMt - $totalProcessedMt);
 
             // Prepare Hatch Breakdown (Using Trip Data)
             $hatches = [];
             if ($v->holds && is_array($v->holds)) {
+                $hatchesCount = count($v->holds);
+                $avgPerHatch = $programmedMt / max(1, $hatchesCount);
+
                 foreach ($v->holds as $hIndex => $hName) {
                     $hNumber = $hIndex + 1;
                     $hWeightMt = $tripStats->where('hold_number', $hNumber)->first()->total_mt ?? 0;
 
+                    if ($isDischarge) {
+                        // For discharge: hatch percent is % REMAINING in that hatch? 
+                        // Actually, UI usually shows progress of the task. 
+                        // But user specifically asked for "se le va quitando".
+                        // Let's show % on board for discharge in hatch circles.
+                        $remainingInHatch = max(0, $avgPerHatch - $hWeightMt);
+                        $hatchPercent = $avgPerHatch > 0 ? round(($remainingInHatch / $avgPerHatch) * 100, 1) : 0;
+                        $hatchDisplayWeight = round($remainingInHatch, 2);
+                    } else {
+                        $hatchPercent = $avgPerHatch > 0 ? round(($hWeightMt / $avgPerHatch) * 100, 1) : 0;
+                        $hatchDisplayWeight = round($hWeightMt, 2);
+                    }
+
                     $hatches[] = [
                         'id' => $hNumber,
                         'name' => $hName ?: "Bodega $hNumber",
-                        'loaded_mt' => round($hWeightMt, 2),
-                        'percent' => $programmedMt > 0 ? round(($hWeightMt / ($programmedMt / count($v->holds))) * 100, 1) : 0
+                        'loaded_mt' => $hatchDisplayWeight,
+                        'percent' => $hatchPercent
                     ];
                 }
             }
@@ -460,14 +498,16 @@ class DockController extends Controller
                 'name' => $v->name,
                 'type' => $v->vessel_type ?? 'B/T',
                 'operation_type' => $v->operation_type,
+                'is_discharge' => $isDischarge,
                 'stay_days' => $actualStay,
                 'programmed_days' => $v->stay_days,
                 'etb' => $v->berthal_datetime ? (is_string($v->berthal_datetime) ? date('d/m/Y H:i', strtotime($v->berthal_datetime)) : $v->berthal_datetime->format('d/m/Y H:i')) : '-',
                 'external_arrival' => $v->external_dock_arrival_date ? (is_string($v->external_dock_arrival_date) ? date('d/m/Y', strtotime($v->external_dock_arrival_date)) : $v->external_dock_arrival_date->format('d/m/Y')) : '-',
                 'stats' => [
                     'total_mt' => round($programmedMt, 2),
-                    'loaded_mt' => round($totalLoadedMt, 2),
-                    'pending_mt' => round($pendingMt, 2),
+                    'processed_mt' => round($totalProcessedMt, 2), // What has been moved (Loaded or Discharged)
+                    'on_board_mt' => round($onBoardMt, 2),        // Current state on ship
+                    'pending_mt' => round($pendingMt, 2),         // What is missing to finish
                     'progress' => $progressPercent,
                 ],
                 'hatches' => $hatches,

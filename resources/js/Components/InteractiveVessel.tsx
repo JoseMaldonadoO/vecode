@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Ship, Info, Maximize2, Minimize2, Anchor, ArrowRight } from 'lucide-react';
+import { Ship, Info, Maximize2, Minimize2, Anchor, Droplets } from 'lucide-react';
+import { Badge } from "@/Components/ui/badge";
 
 interface Hatch {
     id: number;
@@ -13,6 +14,7 @@ interface VesselStats {
     loaded_mt: number;
     pending_mt: number;
     progress: number;
+    on_board_mt?: number;
 }
 
 interface InteractiveVesselProps {
@@ -22,6 +24,7 @@ interface InteractiveVesselProps {
         stats: VesselStats;
         hatches: Hatch[];
         product: string;
+        is_discharge?: boolean;
     };
     isExternal?: boolean;
 }
@@ -32,241 +35,274 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
 
     if (!vessel || vessel.name === "-") return null;
 
-    const accentColor = isExternal ? 'cyan' : 'blue';
-    const accentHex = isExternal ? '#22d3ee' : '#3b82f6';
-
+    const isDischarge = vessel.is_discharge;
+    const accentColor = isExternal ? '#22d3ee' : '#3b82f6';
     const toggleExpand = () => setIsExpanded(!isExpanded);
 
-    const ShipSVG = ({ vertical = false }: { vertical?: boolean }) => (
-        <svg
-            viewBox={vertical ? "0 0 150 500" : "0 0 600 150"}
-            className={`w-full h-full transition-all duration-700 ${vertical ? 'max-h-[60vh]' : ''}`}
-        >
-            <defs>
-                <linearGradient id={`${vessel.id}-hull`} x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#1e293b" />
-                    <stop offset="100%" stopColor="#0f172a" />
-                </linearGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                    <feMerge>
-                        <feMergeNode in="coloredBlur" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
+    const ShipSVG = ({ vertical = false }: { vertical?: boolean }) => {
+        const viewBox = vertical ? "0 0 160 520" : "0 0 640 180";
 
-            {/* Ship Hull */}
-            {vertical ? (
-                // Vertical Hull (Mobile Expanded)
-                <path
-                    d="M 40,20 L 110,20 L 125,70 L 125,430 L 110,480 L 40,480 L 25,430 L 25,70 Z"
-                    fill={`url(#${vessel.id}-hull)`}
-                    stroke={accentHex}
-                    strokeWidth="2"
-                    strokeOpacity="0.3"
-                />
-            ) : (
-                // Horizontal Hull (Desktop / Compact)
-                <path
-                    d="M 20,70 L 70,40 L 530,40 L 580,75 L 530,110 L 70,110 Z"
-                    fill={`url(#${vessel.id}-hull)`}
-                    stroke={accentHex}
-                    strokeWidth="2"
-                    strokeOpacity="0.3"
-                />
-            )}
+        return (
+            <svg
+                viewBox={viewBox}
+                className={`w-full h-full transition-all duration-1000 ease-in-out ${vertical ? 'max-h-[65vh]' : 'animate-float'}`}
+            >
+                <defs>
+                    <linearGradient id={`${vessel.id}-hull-grad`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#334155" />
+                        <stop offset="50%" stopColor="#1e293b" />
+                        <stop offset="100%" stopColor="#0f172a" />
+                    </linearGradient>
 
-            {/* Hatches */}
-            {vessel.hatches.map((hatch, index) => {
-                const totalHatches = vessel.hatches.length;
-                let x, y, width, height;
+                    <filter id="glow-vessel" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
 
-                if (vertical) {
-                    width = 70;
-                    height = 340 / totalHatches;
-                    x = 40;
-                    y = 70 + (index * (height + 10));
-                } else {
-                    width = 400 / totalHatches;
-                    height = 50;
-                    x = 90 + (index * (width + 10));
-                    y = 50;
-                }
+                    <linearGradient id="water-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="transparent" />
+                        <stop offset="50%" stopColor={accentColor} stopOpacity="0.1" />
+                        <stop offset="100%" stopColor="transparent" />
+                    </linearGradient>
+                </defs>
 
-                const isHovered = hoveredHatch === hatch.id;
+                {!vertical && (
+                    <path
+                        d="M 0,140 Q 160,130 320,140 T 640,140"
+                        fill="none"
+                        stroke="url(#water-grad)"
+                        strokeWidth="4"
+                        className="animate-pulse"
+                    />
+                )}
 
-                return (
-                    <g
-                        key={hatch.id}
-                        onMouseEnter={() => setHoveredHatch(hatch.id)}
-                        onMouseLeave={() => setHoveredHatch(null)}
-                        className="cursor-pointer"
-                    >
-                        {/* Hatch Container */}
-                        <rect
-                            x={x} y={y} width={width} height={height}
-                            fill="#0f172a"
-                            stroke={isHovered ? accentHex : "rgba(255,255,255,0.1)"}
-                            strokeWidth={isHovered ? "2" : "1"}
-                            rx="4"
-                            className="transition-all duration-300"
+                <g filter="url(#glow-vessel)">
+                    {vertical ? (
+                        <path
+                            d="M 45,15 L 115,15 L 135,80 L 135,440 L 115,505 L 45,505 L 25,440 L 25,80 Z"
+                            fill={`url(#${vessel.id}-hull-grad)`}
+                            stroke={accentColor}
+                            strokeWidth="1.5"
+                            strokeOpacity="0.4"
                         />
-
-                        {/* Hatch Progress Fill */}
-                        <rect
-                            x={x + 2}
-                            y={vertical ? y + height - 2 - ((height - 4) * hatch.percent / 100) : y + height - 2 - ((height - 4) * hatch.percent / 100)}
-                            width={width - 4}
-                            height={(height - 4) * hatch.percent / 100}
-                            fill={accentHex}
-                            fillOpacity={isHovered ? "0.8" : "0.5"}
-                            rx="2"
-                            className="transition-all duration-1000 ease-out"
-                            filter={isHovered ? "url(#glow)" : ""}
+                    ) : (
+                        <path
+                            d="M 15,85 L 85,35 L 535,35 L 615,85 L 535,135 L 85,135 Z"
+                            fill={`url(#${vessel.id}-hull-grad)`}
+                            stroke={accentColor}
+                            strokeWidth="1.5"
+                            strokeOpacity="0.4"
                         />
+                    )}
 
-                        {/* Hatch Label */}
-                        <text
-                            x={x + width / 2}
-                            y={y + height / 2 + 5}
-                            textAnchor="middle"
-                            className={`fill-white/40 text-[8px] font-black uppercase pointer-events-none transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0'}`}
-                        >
-                            B{hatch.id}
-                        </text>
-                    </g>
-                );
-            })}
+                    {vertical ? (
+                        <g transform="translate(45, 15)">
+                            <rect x="0" y="0" width="70" height="40" fill="#1e293b" stroke={accentColor} strokeOpacity="0.3" rx="2" />
+                            <rect x="10" y="5" width="50" height="15" fill={accentColor} fillOpacity="0.1" />
+                        </g>
+                    ) : (
+                        <g transform="translate(25, 55)">
+                            <path d="M 0,30 L 10,0 L 50,0 L 60,30 Z" fill="#1e293b" stroke={accentColor} strokeOpacity="0.5" />
+                            <rect x="15" y="5" width="30" height="10" fill={accentColor} fillOpacity="0.2" rx="1" />
+                            <line x1="30" y1="0" x2="30" y2="-15" stroke={accentColor} strokeWidth="1" />
+                            <circle cx="30" cy="-15" r="2" fill={accentColor} className="animate-pulse" />
+                        </g>
+                    )}
 
-            {/* Bow / Stern Details */}
-            {!vertical && (
-                <>
-                    <circle cx="50" cy="75" r="3" fill={accentHex} fillOpacity="0.5" />
-                    <rect x="540" y="65" width="10" height="20" fill={accentHex} fillOpacity="0.2" rx="2" />
-                </>
-            )}
-        </svg>
-    );
+                    {vessel.hatches.map((hatch, index) => {
+                        const total = vessel.hatches.length;
+                        let rx, ry, rw, rh;
+
+                        if (vertical) {
+                            rw = 80;
+                            rh = 320 / total;
+                            rx = 40;
+                            ry = 90 + (index * (rh + 12));
+                        } else {
+                            rw = 420 / total;
+                            rh = 64;
+                            rx = 100 + (index * (rw + 12));
+                            ry = 53;
+                        }
+
+                        const isHovered = hoveredHatch === hatch.id;
+
+                        return (
+                            <g key={hatch.id} className="transition-all duration-300">
+                                <rect
+                                    x={rx} y={ry} width={rw} height={rh}
+                                    fill="#0f172a"
+                                    stroke={isHovered ? accentColor : "rgba(255,255,255,0.1)"}
+                                    strokeWidth={isHovered ? "2.5" : "1"}
+                                    rx="6"
+                                    className="transition-all duration-300"
+                                />
+                                <rect x={rx + 4} y={ry + 4} width={rw - 8} height={rh - 8} fill="rgba(255,255,255,0.02)" rx="3" />
+                                <rect
+                                    x={rx + 6}
+                                    y={ry + rh - 6 - ((rh - 12) * hatch.percent / 100)}
+                                    width={rw - 12}
+                                    height={(rh - 12) * hatch.percent / 100}
+                                    fill={accentColor}
+                                    fillOpacity={isHovered ? "0.9" : "0.6"}
+                                    rx="3"
+                                    className="transition-all duration-1000 ease-out"
+                                />
+                                <rect
+                                    x={rx} y={ry} width={rw} height={rh}
+                                    fill="transparent"
+                                    className="cursor-pointer"
+                                    onMouseEnter={() => setHoveredHatch(hatch.id)}
+                                    onMouseLeave={() => setHoveredHatch(null)}
+                                />
+                                <text
+                                    x={rx + rw / 2}
+                                    y={ry + rh / 2 + 4}
+                                    textAnchor="middle"
+                                    className={`fill-white pointer-events-none transition-all duration-500 font-bold ${isExpanded ? 'opacity-100 text-[10px]' : 'opacity-0 text-[0px]'}`}
+                                >
+                                    B{hatch.id}
+                                </text>
+                            </g>
+                        );
+                    })}
+                </g>
+            </svg>
+        );
+    };
 
     return (
-        <div className={`relative transition-all duration-500 overflow-hidden ${isExpanded ? 'bg-slate-900/40 rounded-3xl p-6 mt-4 ring-1 ring-white/10' : ''}`}>
-            {/* Header / Basic Stats */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-xl ${isExternal ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'}`}>
-                        <Ship size={20} className={vessel.stats.progress > 0 ? 'animate-pulse' : ''} />
+        <div className={`relative transition-all duration-700 ${isExpanded ? 'bg-slate-900/60 backdrop-blur-3xl rounded-[3rem] p-10 mt-6 ring-1 ring-white/10 shadow-2xl' : 'bg-transparent'}`}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                <div className="flex items-center gap-6">
+                    <div className={`p-4 rounded-3xl ${isExternal ? 'bg-cyan-500/10 text-cyan-400' : 'bg-blue-500/10 text-blue-400'} border border-white/5 shadow-inner`}>
+                        <Ship size={32} className={`${vessel.stats.progress > 0 && vessel.stats.progress < 100 ? 'animate-pulse' : ''}`} />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40 leading-none mb-1">Carga Actual</p>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-black text-white tracking-tighter">
-                                {vessel.stats.loaded_mt.toLocaleString()}
+                        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/30 mb-1.5 flex items-center gap-2">
+                            {isDischarge ? <Droplets size={12} className="text-amber-400" /> : <Anchor size={12} className="text-green-400" />}
+                            {isDischarge ? 'Carga a Bordo' : 'Progreso de Carga'}
+                        </p>
+                        <div className="flex items-baseline gap-3">
+                            <span className="text-4xl font-black text-white tracking-tighter drop-shadow-md">
+                                {isDischarge ? vessel.stats.on_board_mt?.toLocaleString() : vessel.stats.loaded_mt.toLocaleString()}
                             </span>
-                            <span className="text-[10px] font-bold text-white/60">TM / {vessel.stats.total_mt.toLocaleString()}</span>
+                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">TM <span className="mx-1">/</span> {vessel.stats.total_mt.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
 
                 <button
                     onClick={toggleExpand}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 font-black text-[10px] uppercase transition-all active:scale-95 ${isExternal
-                            ? 'border-cyan-500/20 text-cyan-400 hover:bg-cyan-500/10'
-                            : 'border-blue-500/20 text-blue-400 hover:bg-blue-500/10'
+                    className={`group flex items-center gap-3 px-6 py-3 rounded-2xl border-2 font-black text-[11px] uppercase tracking-widest transition-all active:scale-95 shadow-lg ${isExternal
+                        ? 'border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20'
+                        : 'border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
                         }`}
                 >
-                    {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-                    {isExpanded ? 'Cerrar Mapa' : 'Ver Bodegas'}
+                    {isExpanded ? <Minimize2 size={16} className="group-hover:scale-110 transition-transform" /> : <Maximize2 size={16} className="group-hover:scale-110 transition-transform" />}
+                    {isExpanded ? 'COLAPSAR VISTA' : 'ESPECIFICACIONES BODEGAS'}
                 </button>
             </div>
 
-            {/* Progress Bar (Visible even when collapsed) */}
-            <div className="mb-6 relative">
-                <div className="flex justify-between items-center mb-1.5 px-0.5">
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Progreso Operación</span>
-                    <span className={`text-[10px] font-black ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>{vessel.stats.progress}%</span>
+            <div className="mb-10 relative group/progress">
+                <div className="flex justify-between items-center mb-3 px-1">
+                    <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em]">{isDischarge ? 'Progreso de Vaciado' : 'Eficiencia de Operación'}</span>
+                    <span className={`text-[11px] font-black ${isExternal ? 'text-cyan-400' : 'text-blue-400'} bg-white/5 px-2.5 py-1 rounded-lg border border-white/10`}>
+                        {vessel.stats.progress}%
+                    </span>
                 </div>
-                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div className="h-4 w-full bg-slate-950/80 rounded-full overflow-hidden border border-white/10 shadow-inner p-1">
                     <div
-                        className={`h-full transition-all duration-1000 ease-in-out relative ${isExternal ? 'bg-cyan-500 shadow-[0_0_15px_rgba(34,211,238,0.5)]' : 'bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]'}`}
+                        className={`h-full transition-all duration-1000 ease-out relative rounded-full ${isExternal ? 'bg-gradient-to-r from-cyan-600 to-cyan-400' : 'bg-gradient-to-r from-blue-600 to-blue-400'}`}
                         style={{ width: `${vessel.stats.progress}%` }}
                     >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                        <div className="absolute inset-0 bg-white/20 animate-shimmer skew-x-12"></div>
                     </div>
                 </div>
             </div>
 
-            {/* Main Ship Visualization */}
-            <div className={`relative transition-all duration-700 flex flex-col md:flex-row items-center gap-8 ${isExpanded ? 'opacity-100 scale-100 h-auto py-4' : 'opacity-40 scale-95 h-20 overflow-hidden'}`}>
+            <div className={`relative transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col items-center gap-12 ${isExpanded ? 'opacity-100 h-auto' : 'opacity-60 h-[100px] hover:opacity-100 overflow-hidden'}`}>
+                <div className="w-full flex flex-col md:flex-row items-center gap-10">
+                    <div className="flex-grow w-full">
+                        <ShipSVG vertical={false} />
+                    </div>
 
-                {/* Visualizer */}
-                <div className={`flex-1 w-full ${isExpanded ? 'md:w-3/5' : 'w-full'}`}>
-                    <ShipSVG vertical={false} />
-                </div>
-
-                {/* Vertical Visualizer for Mobile (if expanded) */}
-                <div className={`w-full md:hidden transition-all duration-500 ${isExpanded ? 'block' : 'hidden'}`}>
-                    <ShipSVG vertical={true} />
-                </div>
-
-                {/* Details Panel (Only when expanded) */}
-                {isExpanded && (
-                    <div className="w-full md:w-2/5 space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="grid grid-cols-1 gap-3">
-                            {/* General Stats Group */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Pendiente</p>
-                                    <p className="text-xl font-black text-white">{vessel.stats.pending_mt.toLocaleString()}<span className="text-[10px] ml-1 opacity-50">TM</span></p>
+                    {isExpanded && (
+                        <div className="w-full md:w-[350px] space-y-6 animate-in slide-in-from-bottom-8 duration-700">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 group/stat hover:bg-white/10 transition-all">
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1.5">{isDischarge ? 'Faltante' : 'Pendiente'}</p>
+                                    <p className="text-2xl font-black text-white">{vessel.stats.pending_mt.toLocaleString()}</p>
+                                    <p className="text-[9px] font-bold text-white/20 mt-1">TONELADAS MÉTRICAS</p>
                                 </div>
-                                <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Producto</p>
-                                    <p className="text-xs font-black text-white truncate">{vessel.product}</p>
+                                <div className="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 group/stat hover:bg-white/10 transition-all">
+                                    <p className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-1.5">Materia Prima</p>
+                                    <p className="text-sm font-black text-white line-clamp-2 leading-tight h-10">{vessel.product}</p>
                                 </div>
                             </div>
 
-                            {/* Hatch detail (If hovered) */}
-                            <div className={`min-h-[100px] transition-all duration-300 rounded-2xl border-2 p-4 flex flex-col justify-center ${hoveredHatch
-                                    ? (isExternal ? 'bg-cyan-500/10 border-cyan-400/30' : 'bg-blue-500/10 border-blue-400/30')
-                                    : 'bg-white/5 border-white/5 opacity-50'
+                            <div className={`relative overflow-hidden min-h-[140px] transition-all duration-500 rounded-[2rem] border-2 p-6 flex flex-col justify-center ${hoveredHatch
+                                ? (isExternal ? 'bg-cyan-500/10 border-cyan-400/40 shadow-[0_0_40px_rgba(34,211,238,0.15)]' : 'bg-blue-500/10 border-blue-400/40 shadow-[0_0_40px_rgba(59,130,246,0.15)]')
+                                : 'bg-white/5 border-white/10 opacity-60'
                                 }`}>
                                 {hoveredHatch ? (
                                     <>
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm font-black text-white uppercase tracking-tighter">Bodega {hoveredHatch}</span>
-                                            <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'}`}>
-                                                {vessel.hatches.find(h => h.id === hoveredHatch)?.percent}%
-                                            </span>
+                                        <div className="flex justify-between items-center mb-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-3 h-3 rounded-full animate-ping ${isExternal ? 'bg-cyan-400' : 'bg-blue-400'}`}></div>
+                                                <span className="text-xl font-black text-white tracking-tighter uppercase">Bodega {hoveredHatch}</span>
+                                            </div>
+                                            <Badge className={`px-3 py-1 font-black text-xs ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} border-none`}>
+                                                {vessel.hatches.find(h => h.id === hoveredHatch)?.percent}% {isDischarge ? 'A bordo' : 'Cargado'}
+                                            </Badge>
                                         </div>
-                                        <div className="text-2xl font-black text-white">
-                                            {vessel.hatches.find(h => h.id === hoveredHatch)?.loaded_mt.toLocaleString()}
-                                            <span className="text-[10px] font-bold text-white/40 ml-1.5">TM CARGADO</span>
+                                        <div className="space-y-1">
+                                            <div className="text-3xl font-black text-white tracking-tighter">
+                                                {vessel.hatches.find(h => h.id === hoveredHatch)?.loaded_mt.toLocaleString()}
+                                                <span className="text-xs font-bold text-white/30 ml-2">TM</span>
+                                            </div>
+                                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">{isDischarge ? 'Remanente en Bodega' : 'Total Consolidado'}</p>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="flex flex-col items-center gap-2">
-                                        <Info size={16} className="text-white/20" />
-                                        <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest text-center">Pase el cursor sobre una bodega para ver detalles</p>
+                                    <div className="flex flex-col items-center gap-4 py-4">
+                                        <div className="relative">
+                                            <Info size={32} className="text-white/10" />
+                                            <div className="absolute inset-0 bg-white/5 blur-xl"></div>
+                                        </div>
+                                        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] text-center leading-relaxed">Pase el cursor sobre una bodega<br />para auditoría técnica</p>
                                     </div>
                                 )}
                             </div>
                         </div>
+                    )}
+                </div>
 
-                        {/* Mobile Action Help */}
-                        <p className="text-[10px] text-center text-white/20 font-bold uppercase tracking-widest md:hidden animate-bounce mt-4">
-                            Deslice para navegar entre bodegas
+                {isExpanded && (
+                    <div className="w-full md:hidden py-4 animate-in slide-in-from-top-4 duration-500">
+                        <ShipSVG vertical={true} />
+                        <p className="text-[10px] text-center text-white/40 font-black uppercase tracking-widest mt-6 animate-pulse">
+                            Deslice para explorar la cubierta
                         </p>
                     </div>
                 )}
             </div>
 
             <style>{`
-                @keyframes shimmer {
-                    0% { transform: translateX(-100%); }
-                    100% { transform: translateX(100%); }
+                @keyframes float-ship {
+                    0%, 100% { transform: translateY(0px) rotate(0deg); }
+                    25% { transform: translateY(-3px) rotate(0.1deg); }
+                    75% { transform: translateY(2px) rotate(-0.1deg); }
+                }
+                .animate-float {
+                    animation: float-ship 12s ease-in-out infinite;
+                }
+                @keyframes shimmer-fast {
+                    0% { transform: translateX(-150%) skewX(-15deg); }
+                    100% { transform: translateX(150%) skewX(-15deg); }
                 }
                 .animate-shimmer {
-                    animation: shimmer 2s infinite;
+                    animation: shimmer-fast 3s infinite linear;
                 }
             `}</style>
         </div>
