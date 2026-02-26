@@ -117,14 +117,15 @@ class DocumentationController extends Controller
             ])->withInput();
         }
 
-        // 2. Validation: Unique Carta Porte per Transport Line
+        // 2. Validation: Unique Carta Porte per Transport Line (Exclude cancelled orders)
         $exists = ShipmentOrder::where('transport_company', $validated['transport_company'])
             ->where('carta_porte', $validated['carta_porte'])
+            ->where('status', '!=', 'cancelled')
             ->exists();
 
         if ($exists) {
             return back()->withErrors([
-                'carta_porte' => 'La Carta Porte "' . $validated['carta_porte'] . '" ya ha sido registrada anteriormente para la línea "' . $validated['transport_company'] . '".'
+                'carta_porte' => 'La Carta Porte "' . $validated['carta_porte'] . '" ya está en uso activo para la línea "' . $validated['transport_company'] . '".'
             ])->withInput();
         }
 
@@ -642,11 +643,10 @@ class DocumentationController extends Controller
             return back()->with('error', 'La orden ya está cancelada.');
         }
 
-        // Optionally: Check if it has weight tickets attached?
-        // If it has scale process, maybe prevent cancellation or require supervisor.
-        // For documentation module, we assume it can be cancelled if no irreversible physical action happened.
-
-        $order->update(['status' => 'cancelled']);
+        $order->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now()
+        ]);
 
         return back()->with('success', 'Orden de Embarque cancelada correctamente.');
     }
@@ -660,6 +660,22 @@ class DocumentationController extends Controller
 
         if ($order->status !== 'cancelled') {
             return back()->with('error', 'Solo las órdenes canceladas pueden ser re-abiertas.');
+        }
+
+        // 1. Rule: Cannot reopen after 24 hours
+        if ($order->cancelled_at && $order->cancelled_at->diffInHours(now()) >= 24) {
+            return back()->withErrors(['error' => 'No se puede re-abrir esta orden porque han pasado más de 24 horas desde su cancelación.']);
+        }
+
+        // 2. Rule: Validate Carta Porte isn't taken by a new order
+        $duplicateExists = ShipmentOrder::where('transport_company', $order->transport_company)
+            ->where('carta_porte', $order->carta_porte)
+            ->where('status', '!=', 'cancelled')
+            ->where('id', '!=', $order->id)
+            ->exists();
+
+        if ($duplicateExists) {
+            return back()->withErrors(['error' => 'No se puede re-abrir esta orden porque su Carta Porte ya está siendo utilizada en otra orden activa.']);
         }
 
         // Validate Balance before reopening
@@ -711,6 +727,7 @@ class DocumentationController extends Controller
 
         $exists = ShipmentOrder::where('carta_porte', $cartaPorte)
             ->where('transport_company', $transportCompany)
+            ->where('status', '!=', 'cancelled')
             ->exists();
 
         return response()->json(['exists' => $exists]);

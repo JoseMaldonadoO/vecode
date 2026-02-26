@@ -12,6 +12,10 @@ class ShipmentOrder extends Model
     use HasUuids, HasAuditTrail;
     protected $guarded = [];
 
+    protected $casts = [
+        'cancelled_at' => 'datetime',
+    ];
+
     public function sales_order()
     {
         return $this->belongsTo(SalesOrder::class, 'sales_order_id');
