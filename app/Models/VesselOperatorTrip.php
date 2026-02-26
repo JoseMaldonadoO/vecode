@@ -31,4 +31,9 @@ class VesselOperatorTrip extends Model
     {
         return $this->belongsTo(User::class, 'registered_by');
     }
+
+    public function loading_order()
+    {
+        return $this->hasOne(LoadingOrder::class);
+    }
 }

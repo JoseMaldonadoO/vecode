@@ -333,6 +333,19 @@ class AptController extends Controller
                         return back()->withErrors(['qr' => 'ALERTA: El operador no termina su proceso aún o está esperando destare. El proceso anterior debe finalizarse completamente antes de iniciar uno nuevo.']);
                     }
 
+                    // TRIP VALIDATION: "Cerrar el círculo"
+                    // Find the oldest unlinked trip for this operator in this vessel (FIFO)
+                    $pendingTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $operator->vessel_id)
+                        ->where('vessel_operator_id', $operator->id)
+                        ->whereDoesntHave('loading_order')
+                        ->where('status', '!=', 'cancelled')
+                        ->orderBy('created_at', 'asc')
+                        ->first();
+
+                    if (!$pendingTrip) {
+                        return back()->withErrors(['qr' => 'ALERTA: No se encontró un registro de salida en Muelle para este operador. Debe registrar la vuelta en Muelle antes de recibir en APT.']);
+                    }
+
                     try {
                         // Create new Order for this Burreo/Direct Trip
                         $order = \App\Models\LoadingOrder::create([
@@ -353,6 +366,7 @@ class AptController extends Controller
                             'operation_type' => 'burreo',
                             'warehouse' => $validated['warehouse'], // Assign immediately
                             'cubicle' => $validated['cubicle'],     // Assign immediately
+                            'vessel_operator_trip_id' => $pendingTrip->id, // Link to trip
                         ]);
 
                         // Auto-create Weight Ticket for Burreo
@@ -371,6 +385,9 @@ class AptController extends Controller
 
                         // Mark Order as completed immediately
                         $order->update(['status' => 'completed']);
+
+                        // Mark the trip as completed if it wasn't already (since we have weight now)
+                        $pendingTrip->update(['status' => 'completed']);
 
                         // Since we created it, we don't need to update it again below, 
                         // unless we want to keep the logic unified. 

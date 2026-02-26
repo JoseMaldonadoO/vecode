@@ -108,4 +108,9 @@ class LoadingOrder extends Model
     }
 
     protected $appends = ['client_name', 'sale_order_folio', 'customer_reference'];
+
+    public function vessel_operator_trip()
+    {
+        return $this->belongsTo(VesselOperatorTrip::class);
+    }
 }
