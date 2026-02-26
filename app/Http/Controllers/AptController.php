@@ -130,19 +130,22 @@ class AptController extends Controller
 
         $dailyOrders = $query->get();
 
-        // Patch for Burreo Weights: Use Provisional Weight from Vessel if applicable
+        // Patch for Burreo Weights: Ensure we show the correct weight (Draft > Provisional)
         foreach ($dailyOrders as $order) {
             if ($order->operation_type === 'burreo' && $order->vessel) {
-                // Ensure weight_ticket object exists to avoid null prop errors in frontend/collection
                 if (!$order->weight_ticket) {
                     $order->setRelation('weight_ticket', new \App\Models\WeightTicket([
                         'net_weight' => 0
                     ]));
                 }
 
-                // Override Net Weight with Provisional Burreo Weight
-                // NOTE: This modifies the object in memory for the response, does not save to DB.
-                $order->weight_ticket->net_weight = $order->vessel->provisional_burreo_weight ?? 0;
+                $v = $order->vessel;
+                $draft = (float) ($v->draft_weight ?? 0);
+                $prov = (float) ($v->provisional_burreo_weight ?? 0);
+
+                // If a ticket already has a weight, we might want to keep it, 
+                // but usually status view should reflect the master resolution for Burreo
+                $order->weight_ticket->net_weight = ($draft > 0) ? $draft : $prov;
             }
         }
 
@@ -389,9 +392,15 @@ class AptController extends Controller
                                 'weigh_out_at' => now(),
                             ]);
 
+                            // Verify operator existence one last time before insert to debug FK issue
+                            $opId = (int) $operator->id;
+                            if (!\App\Models\VesselOperator::where('id', $opId)->exists()) {
+                                throw new \Exception("ID de Operador {$opId} no encontrado en la base de datos justo antes de insertar en apt_scans.");
+                            }
+
                             \App\Models\AptScan::create([
                                 'loading_order_id' => $order->id,
-                                'operator_id' => $operator->id,
+                                'operator_id' => $opId,
                                 'warehouse' => (string) $validated['warehouse'],
                                 'cubicle' => (string) ($validated['cubicle'] ?? 'N/A'),
                                 'user_id' => auth()->id(),
@@ -408,7 +417,11 @@ class AptController extends Controller
                         return redirect()->back()->with('success', "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.");
 
                     } catch (\Exception $e) {
-                        \Illuminate\Support\Facades\Log::error('Burreo Operation Error: ' . $e->getMessage());
+                        \Illuminate\Support\Facades\Log::error('Burreo Operation Error: ' . $e->getMessage(), [
+                            'operator_id' => $operator->id ?? 'null',
+                            'qr' => $qr,
+                            'trace' => $e->getTraceAsString()
+                        ]);
                         return back()->withErrors(['qr' => 'Error en el proceso de Burreo: ' . $e->getMessage()]);
                     }
                 } else {
