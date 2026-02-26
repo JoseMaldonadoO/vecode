@@ -261,6 +261,8 @@ const DockScannerMockup = () => {
                 </div>
             </div>
 
+            <Dragon3D />
+
             <style>{`
                 @keyframes scan {
                     0%, 100% { top: 0; }
@@ -271,9 +273,128 @@ const DockScannerMockup = () => {
                     width: 100%;
                     animation: scan 2s ease-in-out infinite;
                 }
+
+                /* Dragon 3D Animations */
+                .dragon-container {
+                    position: fixed;
+                    top: -100px;
+                    left: -100px;
+                    width: 150px;
+                    height: 150px;
+                    z-index: 9999;
+                    pointer-events: none;
+                    perspective: 1000px;
+                    animation: fly-path 25s linear infinite;
+                    transform-style: preserve-3d;
+                }
+
+                .dragon-body {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    transform-style: preserve-3d;
+                    animation: bob 2s ease-in-out infinite;
+                }
+
+                .wing {
+                    position: absolute;
+                    top: 20%;
+                    width: 80px;
+                    height: 50px;
+                    background: #e11d48;
+                    clip-path: polygon(0% 0%, 100% 50%, 0% 100%, 20% 50%);
+                    transform-origin: left center;
+                }
+
+                .wing-left {
+                    left: 20%;
+                    animation: flap-left 0.4s ease-in-out infinite;
+                }
+
+                .wing-right {
+                    left: 20%;
+                    animation: flap-right 0.4s ease-in-out infinite;
+                    transform: scaleX(-1);
+                }
+
+                .dragon-head {
+                    position: absolute;
+                    top: 10%;
+                    left: 60%;
+                    width: 40px;
+                    height: 40px;
+                    background: #fbbf24;
+                    border-radius: 50% 50% 20% 20%;
+                    transform: rotateY(20deg);
+                }
+
+                .fire-breath {
+                    position: absolute;
+                    top: 50%;
+                    left: 100%;
+                    width: 0;
+                    height: 20px;
+                    background: linear-gradient(90deg, #f59e0b, #ef4444);
+                    border-radius: 0 50% 50% 0;
+                    opacity: 0;
+                    filter: blur(4px);
+                    animation: spit-fire 5s infinite;
+                }
+
+                @keyframes fly-path {
+                    0% { transform: translate(0, 0) rotateY(0deg) scale(0.5); }
+                    25% { transform: translate(80vw, 20vh) rotateY(180deg) scale(1.2); }
+                    50% { transform: translate(20vw, 80vh) rotateY(0deg) scale(0.8); }
+                    75% { transform: translate(90vw, 70vh) rotateY(180deg) scale(1.5); }
+                    100% { transform: translate(0, 0) rotateY(0deg) scale(0.5); }
+                }
+
+                @keyframes flap-left {
+                    0%, 100% { transform: rotateY(-40deg) rotateX(30deg); }
+                    50% { transform: rotateY(-40deg) rotateX(-60deg); }
+                }
+
+                @keyframes flap-right {
+                    0%, 100% { transform: scaleX(-1) rotateY(-40deg) rotateX(30deg); }
+                    50% { transform: scaleX(-1) rotateY(-40deg) rotateX(-60deg); }
+                }
+
+                @keyframes bob {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-20px); }
+                }
+
+                @keyframes spit-fire {
+                    0%, 80%, 100% { width: 0; opacity: 0; }
+                    85% { width: 100px; opacity: 1; }
+                    95% { width: 120px; opacity: 0.8; }
+                }
             `}</style>
         </div>
     );
 };
+
+const Dragon3D = () => (
+    <div className="dragon-container">
+        <div className="dragon-body">
+            {/* Wings */}
+            <div className="wing wing-left"></div>
+            <div className="wing wing-right"></div>
+
+            {/* Body Segments */}
+            <div className="absolute top-1/2 left-0 w-20 h-12 bg-rose-600 rounded-full transform -translate-y-1/2"></div>
+
+            {/* Head */}
+            <div className="dragon-head">
+                <div className="absolute top-2 left-6 w-2 h-2 bg-black rounded-full"></div>
+                {/* Fire */}
+                <div className="fire-breath"></div>
+            </div>
+
+            {/* Tail */}
+            <div className="absolute top-1/2 -left-10 w-16 h-6 bg-rose-700 rounded-full origin-right animate-bounce"></div>
+        </div>
+    </div>
+);
 
 export default DockScannerMockup;
