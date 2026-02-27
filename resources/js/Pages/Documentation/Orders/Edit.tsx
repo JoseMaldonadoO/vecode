@@ -687,13 +687,45 @@ export default function Edit({
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
                                     Estado
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     value={data.state}
                                     onChange={(e) => setData("state", e.target.value)}
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
-                                    placeholder="Ej. VERACRUZ"
-                                />
+                                >
+                                    <option value="">Seleccione...</option>
+                                    <option value="AGUASCALIENTES">AGUASCALIENTES</option>
+                                    <option value="BAJA CALIFORNIA">BAJA CALIFORNIA</option>
+                                    <option value="BAJA CALIFORNIA SUR">BAJA CALIFORNIA SUR</option>
+                                    <option value="CAMPECHE">CAMPECHE</option>
+                                    <option value="CHIAPAS">CHIAPAS</option>
+                                    <option value="CHIHUAHUA">CHIHUAHUA</option>
+                                    <option value="CIUDAD DE MEXICO">CIUDAD DE MÉXICO</option>
+                                    <option value="COAHUILA">COAHUILA</option>
+                                    <option value="COLIMA">COLIMA</option>
+                                    <option value="DURANGO">DURANGO</option>
+                                    <option value="ESTADO DE MEXICO">ESTADO DE MÉXICO</option>
+                                    <option value="GUANAJUATO">GUANAJUATO</option>
+                                    <option value="GUERRERO">GUERRERO</option>
+                                    <option value="HIDALGO">HIDALGO</option>
+                                    <option value="JALISCO">JALISCO</option>
+                                    <option value="MICHOACAN">MICHOACÁN</option>
+                                    <option value="MORELOS">MORELOS</option>
+                                    <option value="NAYARIT">NAYARIT</option>
+                                    <option value="NUEVO LEON">NUEVO LEÓN</option>
+                                    <option value="OAXACA">OAXACA</option>
+                                    <option value="PUEBLA">PUEBLA</option>
+                                    <option value="QUERETARO">QUERÉTARO</option>
+                                    <option value="QUINTANA ROO">QUINTANA ROO</option>
+                                    <option value="SAN LUIS POTOSI">SAN LUIS POTOSÍ</option>
+                                    <option value="SINALOA">SINALOA</option>
+                                    <option value="SONORA">SONORA</option>
+                                    <option value="TABASCO">TABASCO</option>
+                                    <option value="TAMAULIPAS">TAMAULIPAS</option>
+                                    <option value="TLAXCALA">TLAXCALA</option>
+                                    <option value="VERACRUZ">VERACRUZ</option>
+                                    <option value="YUCATAN">YUCATÁN</option>
+                                    <option value="ZACATECAS">ZACATECAS</option>
+                                </select>
                             </div>
 
                             <div className="md:col-span-2">
