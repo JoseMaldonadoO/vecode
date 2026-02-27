@@ -18,7 +18,14 @@ export default function Index({
         start_date: filters.start_date || "",
         end_date: filters.end_date || "",
     });
-    const [viewMode, setViewMode] = useState<"menu" | "table">("menu");
+
+    // Handle tab parameter from URL
+    const queryParams = new URLSearchParams(window.location.search);
+    const initialTab = queryParams.get("tab");
+
+    const [viewMode, setViewMode] = useState<"menu" | "table">(
+        initialTab === "gestion" ? "table" : "menu"
+    );
 
     const handleSearch = () => {
         router.get(route("dock.index"), pickBy(params), {
