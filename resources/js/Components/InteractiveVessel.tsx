@@ -45,6 +45,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
             <svg
                 viewBox={viewBox}
                 className={`w-full h-full transition-all duration-700 ${vertical ? '' : 'animate-sway'}`}
+                style={{ filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.3))' }}
             >
                 <defs>
                     <linearGradient id={`${vessel.id}-hull`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -53,40 +54,35 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                     </linearGradient>
 
                     <linearGradient id="hatcher-fill" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={isExternal ? '#22d3ee' : '#3b82f6'} stopOpacity="0.6" />
-                        <stop offset="100%" stopColor={isExternal ? '#0891b2' : '#1d4ed8'} stopOpacity="0.8" />
+                        <stop offset="0%" stopColor={isExternal ? '#22d3ee' : '#3b82f6'} stopOpacity="0.7" />
+                        <stop offset="100%" stopColor={isExternal ? '#0891b2' : '#1d4ed8'} stopOpacity="0.9" />
                     </linearGradient>
-
-                    <filter id="glow">
-                        <feGaussianBlur stdDeviation="3" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
                 </defs>
 
                 <g className="vessel-body">
                     {vertical ? (
-                        // Vertical Hulk (Mobile) - Capsule style
+                        // Vertical Hulk (Mobile) - Sharper Capsule
                         <>
-                            <rect x="20" y="20" width="120" height="480" fill={`url(#${vessel.id}-hull)`} stroke="#475569" strokeWidth="4" rx="60" />
+                            <rect x="20" y="30" width="120" height="460" fill={`url(#${vessel.id}-hull)`} stroke="#475569" strokeWidth="3" rx="60" />
                             {/* Bow Diamond */}
-                            <rect x="65" y="0" width="30" height="30" fill="#475569" transform="rotate(45, 80, 15)" rx="2" />
-                            {/* Stern Rounding */}
-                            <path d="M 20,460 A 60,60 0 0 0 140,460 L 140,500 L 20,500 Z" fill="#475569" opacity="0.3" />
+                            <rect x="65" y="10" width="30" height="30" fill="#475569" transform="rotate(45, 80, 25)" rx="2" />
+                            {/* Stern Finish */}
+                            <path d="M 20,440 A 60,60 0 0 0 140,440 L 140,490 L 20,490 Z" fill="#1e293b" opacity="0.4" />
                         </>
                     ) : (
-                        // Horizontal Hulk (Desktop) - Mockup Capsule Style
+                        // Horizontal Hulk (Desktop) - Aligned & Sharp
                         <>
                             {/* Main Capsule Body */}
-                            <rect x="40" y="30" width="560" height="100" fill={`url(#${vessel.id}-hull)`} stroke="#475569" strokeWidth="4" rx="50" className="shadow-2xl" />
+                            <rect x="30" y="30" width="580" height="100" fill={`url(#${vessel.id}-hull)`} stroke="#475569" strokeWidth="3" rx="50" />
 
                             {/* Bow Detail (Diamond on the left) */}
-                            <rect x="25" y="65" width="30" height="30" fill="#475569" transform="rotate(45, 40, 80)" rx="2" className="shadow-lg" />
+                            <rect x="15" y="65" width="30" height="30" fill="#475569" transform="rotate(45, 30, 80)" rx="2" />
 
-                            {/* Stern Detail (Right finish) */}
-                            <path d="M 540,30 L 590,30 A 50,50 0 0 1 590,130 L 540,130 Z" fill="#475569" opacity="0.4" stroke="#475569" strokeWidth="1" />
+                            {/* Stern Detail (Right finish accent) */}
+                            <path d="M 550,30 L 580,30 A 50,50 0 0 1 580,130 L 550,130 Z" fill="#0f172a" fillOpacity="0.4" />
 
-                            {/* Mockup aesthetic: Light top border/shine */}
-                            <path d="M 90,34 L 550,34" stroke="white" strokeOpacity="0.1" strokeWidth="2" strokeLinecap="round" />
+                            {/* Subtle line to show structure */}
+                            <line x1="100" y1="31.5" x2="550" y2="31.5" stroke="white" strokeOpacity="0.1" strokeWidth="2" />
                         </>
                     )}
 
@@ -97,8 +93,8 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                         if (vertical) {
                             rw = 80; rh = 340 / total; rx = 40; ry = 100 + (index * (rh + 10));
                         } else {
-                            // Centered hatches in the capsule
-                            rw = 440 / total; rh = 70; rx = 100 + (index * (rw + 8)); ry = 45;
+                            // Perfectly centered hatches
+                            rw = 440 / total; rh = 70; rx = 90 + (index * (rw + 8)); ry = 45;
                         }
 
                         const isSelected = selectedHatch === hatch.id;
@@ -109,44 +105,44 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                 <rect
                                     x={rx} y={ry} width={rw} height={rh}
                                     fill="#0f172a"
-                                    fillOpacity="0.4"
+                                    fillOpacity="0.5"
                                     stroke={isSelected ? accentColor : "#475569"}
                                     strokeWidth={isSelected ? "3" : "2"}
-                                    rx="12"
+                                    rx="8"
                                     className="transition-all duration-300 group-hover:stroke-slate-400"
                                 />
 
-                                {/* Fill Level (Progress) */}
+                                {/* Fill Level (Progress) - Sharp corners for better definition */}
                                 <rect
-                                    x={rx + 3}
-                                    y={ry + rh - 3 - ((rh - 6) * hatch.percent / 100)}
-                                    width={rw - 6}
-                                    height={(rh - 6) * hatch.percent / 100}
+                                    x={rx + 2}
+                                    y={ry + rh - 2 - ((rh - 4) * hatch.percent / 100)}
+                                    width={rw - 4}
+                                    height={(rh - 4) * hatch.percent / 100}
                                     fill={isSelected ? accentColor : `url(#hatcher-fill)`}
-                                    fillOpacity={isSelected ? "1" : "0.5"}
-                                    rx="8"
+                                    fillOpacity={isSelected ? "1" : "0.8"}
+                                    rx="4"
                                     className="transition-all duration-1000 ease-out"
                                 />
 
-                                {/* Glowing top of progress if loading */}
                                 {hatch.percent > 0 && hatch.percent < 100 && (
-                                    <rect
-                                        x={rx + 3}
-                                        y={ry + rh - 3 - ((rh - 6) * hatch.percent / 100)}
-                                        width={rw - 6}
-                                        height="4"
-                                        fill={isExternal ? '#22d3ee' : '#60a5fa'}
-                                        rx="2"
-                                        filter="url(#glow)"
+                                    <line
+                                        x1={rx + 2}
+                                        y1={ry + rh - 2 - ((rh - 4) * hatch.percent / 100)}
+                                        x2={rx + rw - 2}
+                                        y2={ry + rh - 2 - ((rh - 4) * hatch.percent / 100)}
+                                        stroke={isExternal ? '#22d3ee' : '#60a5fa'}
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
                                         className="animate-pulse"
                                     />
                                 )}
 
                                 <text
                                     x={rx + rw / 2}
-                                    y={ry + rh / 2 + 4}
+                                    y={ry + rh / 2 + 5}
                                     textAnchor="middle"
-                                    className={`fill-white pointer-events-none font-black text-[10px] uppercase tracking-wider ${isSelected ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} transition-opacity`}
+                                    className={`fill-white pointer-events-none font-black text-[10px] uppercase tracking-wider ${isSelected ? 'opacity-100' : 'opacity-50 group-hover:opacity-100'} transition-opacity`}
+                                    style={{ filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.5))' }}
                                 >
                                     {`B${hatch.id}`}
                                 </text>
