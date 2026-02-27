@@ -48,44 +48,45 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
             >
                 <defs>
                     <linearGradient id={`${vessel.id}-hull`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#64748b" />
+                        <stop offset="0%" stopColor="#334155" />
                         <stop offset="100%" stopColor="#1e293b" />
                     </linearGradient>
 
-                    <pattern id="draft-lines" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-                        <line x1="0" y1="5" x2="5" y2="5" stroke="#ffffff" strokeOpacity="0.1" strokeWidth="0.5" />
-                    </pattern>
+                    <linearGradient id="hatcher-fill" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor={isExternal ? '#22d3ee' : '#3b82f6'} stopOpacity="0.6" />
+                        <stop offset="100%" stopColor={isExternal ? '#0891b2' : '#1d4ed8'} stopOpacity="0.8" />
+                    </linearGradient>
+
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
                 </defs>
 
                 <g className="vessel-body">
                     {vertical ? (
-                        // Vertical Hulk (Mobile)
+                        // Vertical Hulk (Mobile) - Capsule style
                         <>
-                            <path d="M 40,10 L 120,10 L 140,80 L 140,440 L 120,510 L 40,510 L 20,440 L 20,80 Z" fill={`url(#${vessel.id}-hull)`} stroke="#0f172a" strokeWidth="2" />
-                            {/* Bridge */}
-                            <rect x="50" y="20" width="60" height="30" fill="#334155" rx="2" />
-                            <rect x="55" y="25" width="50" height="10" fill="#0ea5e9" fillOpacity="0.3" />
+                            <rect x="20" y="20" width="120" height="480" fill={`url(#${vessel.id}-hull)`} stroke="#475569" strokeWidth="4" rx="60" />
+                            {/* Bow Diamond */}
+                            <rect x="65" y="0" width="30" height="30" fill="#475569" transform="rotate(45, 80, 15)" rx="2" />
+                            {/* Stern Rounding */}
+                            <path d="M 20,460 A 60,60 0 0 0 140,460 L 140,500 L 20,500 Z" fill="#475569" opacity="0.3" />
                         </>
                     ) : (
-                        // Horizontal Hulk (Desktop)
+                        // Horizontal Hulk (Desktop) - Mockup Capsule Style
                         <>
-                            <path d="M 10,80 L 70,30 L 580,30 L 630,80 L 580,130 L 70,130 Z" fill={`url(#${vessel.id}-hull)`} stroke="#0f172a" strokeWidth="2" />
-                            {/* Draft Lines */}
-                            <path d="M 10,80 L 70,130 L 580,130 L 630,80" fill="url(#draft-lines)" />
+                            {/* Main Capsule Body */}
+                            <rect x="40" y="30" width="560" height="100" fill={`url(#${vessel.id}-hull)`} stroke="#475569" strokeWidth="4" rx="50" className="shadow-2xl" />
 
-                            {/* Expert Details: Cranes & Bridge */}
-                            <g transform="translate(30, 45)">
-                                <path d="M 0,35 L 5,0 L 45,0 L 50,35 Z" fill="#334155" /> {/* Bridge structure */}
-                                <rect x="10" y="5" width="30" height="12" fill="#0ea5e9" fillOpacity="0.2" rx="1" />
-                            </g>
+                            {/* Bow Detail (Diamond on the left) */}
+                            <rect x="25" y="65" width="30" height="30" fill="#475569" transform="rotate(45, 40, 80)" rx="2" className="shadow-lg" />
 
-                            {/* Cranes between hatches */}
-                            {[160, 300, 440].map((cx, i) => (
-                                <g key={i} transform={`translate(${cx}, 30)`}>
-                                    <rect x="0" y="-15" width="4" height="15" fill="#475569" />
-                                    <path d="M 2,-15 L 40,-5" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
-                                </g>
-                            ))}
+                            {/* Stern Detail (Right finish) */}
+                            <path d="M 540,30 L 590,30 A 50,50 0 0 1 590,130 L 540,130 Z" fill="#475569" opacity="0.4" stroke="#475569" strokeWidth="1" />
+
+                            {/* Mockup aesthetic: Light top border/shine */}
+                            <path d="M 90,34 L 550,34" stroke="white" strokeOpacity="0.1" strokeWidth="2" strokeLinecap="round" />
                         </>
                     )}
 
@@ -96,42 +97,62 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                         if (vertical) {
                             rw = 80; rh = 340 / total; rx = 40; ry = 100 + (index * (rh + 10));
                         } else {
-                            rw = 420 / total; rh = 60; rx = 120 + (index * (rw + 8)); ry = 50;
+                            // Centered hatches in the capsule
+                            rw = 440 / total; rh = 70; rx = 100 + (index * (rw + 8)); ry = 45;
                         }
 
                         const isSelected = selectedHatch === hatch.id;
 
                         return (
                             <g key={hatch.id} className="cursor-pointer group" onClick={() => setSelectedHatch(isSelected ? null : hatch.id)}>
+                                {/* Hold Container */}
                                 <rect
                                     x={rx} y={ry} width={rw} height={rh}
                                     fill="#0f172a"
-                                    stroke={isSelected ? accentColor : "rgba(255,255,255,0.15)"}
-                                    strokeWidth={isSelected ? "4" : "2"}
+                                    fillOpacity="0.4"
+                                    stroke={isSelected ? accentColor : "#475569"}
+                                    strokeWidth={isSelected ? "3" : "2"}
                                     rx="12"
-                                    className="transition-all duration-300"
+                                    className="transition-all duration-300 group-hover:stroke-slate-400"
                                 />
-                                {/* Progress Bar inside Hatch */}
+
+                                {/* Fill Level (Progress) */}
                                 <rect
-                                    x={rx + 2}
-                                    y={ry + rh - 2 - ((rh - 4) * hatch.percent / 100)}
-                                    width={rw - 4}
-                                    height={(rh - 4) * hatch.percent / 100}
-                                    fill={isSelected ? accentColor : (isExternal ? '#22d3ee' : '#3b82f6')}
+                                    x={rx + 3}
+                                    y={ry + rh - 3 - ((rh - 6) * hatch.percent / 100)}
+                                    width={rw - 6}
+                                    height={(rh - 6) * hatch.percent / 100}
+                                    fill={isSelected ? accentColor : `url(#hatcher-fill)`}
                                     fillOpacity={isSelected ? "1" : "0.5"}
-                                    rx="2"
+                                    rx="8"
                                     className="transition-all duration-1000 ease-out"
                                 />
+
+                                {/* Glowing top of progress if loading */}
+                                {hatch.percent > 0 && hatch.percent < 100 && (
+                                    <rect
+                                        x={rx + 3}
+                                        y={ry + rh - 3 - ((rh - 6) * hatch.percent / 100)}
+                                        width={rw - 6}
+                                        height="4"
+                                        fill={isExternal ? '#22d3ee' : '#60a5fa'}
+                                        rx="2"
+                                        filter="url(#glow)"
+                                        className="animate-pulse"
+                                    />
+                                )}
+
                                 <text
                                     x={rx + rw / 2}
                                     y={ry + rh / 2 + 4}
                                     textAnchor="middle"
-                                    className="fill-white/80 pointer-events-none font-black text-[9px] uppercase"
+                                    className={`fill-white pointer-events-none font-black text-[10px] uppercase tracking-wider ${isSelected ? 'opacity-100' : 'opacity-40 group-hover:opacity-100'} transition-opacity`}
                                 >
                                     {`B${hatch.id}`}
                                 </text>
+
                                 {isSelected && (
-                                    <circle cx={rx + rw / 2} cy={ry - 10} r="4" fill={accentColor} className="animate-ping" />
+                                    <circle cx={rx + rw / 2} cy={ry + rh + 12} r="3" fill={accentColor} className="animate-bounce" />
                                 )}
                             </g>
                         );
