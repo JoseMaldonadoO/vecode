@@ -45,7 +45,11 @@ interface Operator {
     brand_model: string;
 }
 
-products,
+export default function Edit({
+    auth,
+    order,
+    clients,
+    products,
     sales_orders,
     scale_operators,
     queryParams,
@@ -55,8 +59,8 @@ products,
     clients: Client[];
     products: Product[];
     sales_orders: any[];
-    scale_operators ?: { id: number; name: string }[];
-    queryParams ?: any;
+    scale_operators?: { id: number; name: string }[];
+    queryParams?: any;
 }) {
     // Helper to find partial match for product
     const findProduct = () => {
