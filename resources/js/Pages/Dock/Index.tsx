@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import { Users, Ship, Filter, X, List, ArrowLeft, Truck } from "lucide-react";
+import { Users, Ship, Filter, X, List, ArrowLeft, Truck, Plus } from "lucide-react";
 import Pagination from "@/Components/Pagination";
 import { useState } from "react";
 import { pickBy } from "lodash";
