@@ -15,6 +15,7 @@ interface VesselStats {
     pending_mt: number;
     progress: number;
     on_board_mt?: number;
+    processed_mt?: number;
 }
 
 interface InteractiveVesselProps {

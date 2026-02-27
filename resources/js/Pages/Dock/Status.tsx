@@ -16,6 +16,7 @@ import {
     FileText,
     LogOut,
     MapPin,
+    Activity,
 } from "lucide-react";
 import {
     Card,
