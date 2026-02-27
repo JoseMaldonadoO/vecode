@@ -408,27 +408,28 @@ class DockController extends Controller
             if (!$v)
                 return ['name' => '-'];
 
-            // 1. Fetch Official Scale Tonnage (from weight_tickets)
-            $scaleTonnage = LoadingOrder::join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            // 1. Fetch Tonnage using Dashboard Logic (Source of Truth)
+            // Logic: SUM net_weight where status = 'completed' OR type = 'burreo'
+            $totalTonnageKg = LoadingOrder::join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
                 ->where('loading_orders.vessel_id', $v->id)
-                ->where('loading_orders.status', 'completed')
-                ->sum('weight_tickets.net_weight') / 1000;
+                ->where(function ($q) {
+                    $q->where('loading_orders.status', 'completed')
+                        ->orWhere('loading_orders.operation_type', 'burreo');
+                })
+                ->sum('weight_tickets.net_weight');
 
-            // 2. Fetch Trip-based Tonnage (from vessel_operator_trips - source for hold breakdown)
+            $totalProcessedMt = (float) ($totalTonnageKg / 1000);
+
+            // 2. Fetch Trip-based counts (source for hold breakdown and counts)
             $tripStats = \App\Models\VesselOperatorTrip::where('vessel_id', $v->id)
                 ->where('status', '!=', 'cancelled')
                 ->selectRaw('SUM(weight) as total_mt, hold_number')
                 ->groupBy('hold_number')
                 ->get();
-
-            $totalTripTonnage = $tripStats->sum('total_mt');
+            $programmedMt = $v->programmed_tonnage ?: 0;
 
             // Progress calculation varies by operation type
             $isDischarge = strtolower($v->operation_type) === 'descarga';
-
-            // Total progress uses official scale weight if available, fallback to trips
-            $totalProcessedMt = max($scaleTonnage, $totalTripTonnage);
-            $programmedMt = $v->programmed_tonnage ?: 0;
 
             if ($isDischarge) {
                 // For Discharge:
