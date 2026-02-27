@@ -170,11 +170,11 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                         <div className="flex items-center gap-2 mb-1">
                             {isDischarge ? <Droplets size={12} className="text-amber-400" /> : <Ship size={12} className="text-blue-400" />}
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
-                                {isDischarge ? 'Carga Remanente' : 'Total Consolidado'}
+                                PENDIENTE
                             </span>
                         </div>
                         <h4 className="text-4xl font-black text-white tracking-tighter leading-none">
-                            {isDischarge ? vessel.stats.on_board_mt?.toLocaleString() : vessel.stats.loaded_mt?.toLocaleString()}
+                            {isDischarge ? vessel.stats.on_board_mt?.toLocaleString('es-MX') : vessel.stats.pending_mt?.toLocaleString('es-MX')}
                             <span className="text-sm font-bold text-white/30 ml-2 tracking-normal uppercase">TM</span>
                         </h4>
                     </div>
@@ -183,7 +183,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                 <div className="flex items-center gap-3">
                     <div className="flex flex-col items-end">
                         <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Capacidad Total</span>
-                        <span className="text-2xl font-black text-white/70">{vessel.stats.total_mt?.toLocaleString()} TM</span>
+                        <span className="text-2xl font-black text-white/70">{vessel.stats.total_mt?.toLocaleString('es-MX')} TM</span>
                     </div>
                 </div>
             </div>
@@ -247,7 +247,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                     <div className="mt-8">
                                         <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-2">Carga Consolidada</span>
                                         <h3 className="text-6xl font-black text-white tracking-tighter flex items-end gap-3 flex-wrap">
-                                            {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString()}
+                                            {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString('es-MX')}
                                             <span className="text-xs font-black text-white/40 mb-2 tracking-widest uppercase">TONELADAS</span>
                                         </h3>
                                     </div>
@@ -268,11 +268,15 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                     {/* Unified General Stats Console */}
                     <div className="lg:col-span-12 xl:col-span-4">
                         <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 flex flex-col gap-8 group/stat hover:bg-white/10 transition-all duration-300">
-                            {/* Pendiente Group */}
+                            {/* Cargado/Descargado Group */}
                             <div className="space-y-1">
-                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block">PENDIENTE</span>
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block">
+                                    {isDischarge ? 'DESCARGADO' : 'CARGADO'}
+                                </span>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-4xl font-black text-white block leading-tight tracking-tighter">{vessel.stats.pending_mt?.toLocaleString()}</span>
+                                    <span className="text-4xl font-black text-white block leading-tight tracking-tighter">
+                                        {vessel.stats.processed_mt?.toLocaleString('es-MX')}
+                                    </span>
                                     <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">TM</span>
                                 </div>
                             </div>

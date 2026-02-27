@@ -493,6 +493,18 @@ class DockController extends Controller
                 $actualStay = (int) $arrivalDate->diffInDays($now) + 1;
             }
 
+            // 3. Detailed Trip Statistics (For Modal breakdown)
+            $tripsData = \App\Models\LoadingOrder::where('vessel_id', $v->id)
+                ->where('status', 'completed')
+                ->selectRaw("
+                    COUNT(*) as total_trips,
+                    SUM(CASE WHEN operation_type = 'burreo' THEN 1 ELSE 0 END) as burreo_trips,
+                    SUM(CASE WHEN operation_type != 'burreo' THEN 1 ELSE 0 END) as scale_trips,
+                    SUM(CASE WHEN operation_type = 'burreo' THEN (SELECT net_weight FROM weight_tickets WHERE loading_order_id = loading_orders.id LIMIT 1) ELSE 0 END) as burreo_weight,
+                    SUM(CASE WHEN operation_type != 'burreo' THEN (SELECT net_weight FROM weight_tickets WHERE loading_order_id = loading_orders.id LIMIT 1) ELSE 0 END) as scale_weight
+                ")
+                ->first();
+
             return [
                 'id' => $v->id,
                 'name' => $v->name,
@@ -509,6 +521,11 @@ class DockController extends Controller
                     'on_board_mt' => round($onBoardMt, 2),        // Current state on ship
                     'pending_mt' => round($pendingMt, 2),         // What is missing to finish
                     'progress' => $progressPercent,
+                    'total_trips' => (int) ($tripsData->total_trips ?? 0),
+                    'scale_trips' => (int) ($tripsData->scale_trips ?? 0),
+                    'burreo_trips' => (int) ($tripsData->burreo_trips ?? 0),
+                    'scale_weight_mt' => round(($tripsData->scale_weight ?? 0) / 1000, 2),
+                    'burreo_weight_mt' => round(($tripsData->burreo_weight ?? 0) / 1000, 2),
                 ],
                 'hatches' => $hatches,
                 'product' => $v->product ? $v->product->name : 'N/A'

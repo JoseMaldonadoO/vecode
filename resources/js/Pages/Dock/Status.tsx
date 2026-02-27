@@ -151,6 +151,72 @@ const VesselCard = ({
                                     <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-4`}>
                                         <div className="flex items-center gap-3">
                                             <div className={`p-2 rounded-xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
+                                                <Activity className="w-4 h-4 md:w-5 md:h-5" />
+                                            </div>
+                                            <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[9px] font-black uppercase tracking-[0.2em]`}>Viajes</span>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                Swal.fire({
+                                                    title: `<span class="text-2xl font-black uppercase tracking-tight ${isExternal ? 'text-cyan-400' : 'text-blue-500'}">Desglose de Viajes</span>`,
+                                                    html: `
+                                                        <div class="text-left space-y-4 p-4 bg-slate-900 rounded-3xl border border-white/10 shadow-2xl">
+                                                            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                                                                <div class="flex flex-col">
+                                                                    <span class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">OPERACIÓN BÁSCULA</span>
+                                                                    <span class="text-white font-black text-xl leading-none mt-1">${vessel.stats.scale_trips || 0} VUELTAS</span>
+                                                                </div>
+                                                                <div class="text-right">
+                                                                    <span class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">PESO TOTAL</span>
+                                                                    <span class="text-blue-400 font-black text-xl leading-none mt-1">${vessel.stats.scale_weight_mt?.toLocaleString('es-MX') || 0} TM</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                                                                <div class="flex flex-col">
+                                                                    <span class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">OPERACIÓN BURREO</span>
+                                                                    <span class="text-white font-black text-xl leading-none mt-1">${vessel.stats.burreo_trips || 0} VUELTAS</span>
+                                                                </div>
+                                                                <div class="text-right">
+                                                                    <span class="text-amber-400 font-black text-xl leading-none mt-1">${vessel.stats.burreo_weight_mt?.toLocaleString('es-MX') || 0} TM</span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="h-px bg-white/10 my-4"></div>
+
+                                                            <div class="flex justify-between items-center px-4 py-2">
+                                                                <span class="text-[10px] font-black text-white/50 uppercase tracking-[0.3em]">TOTAL ACUMULADO</span>
+                                                                <span class="text-2xl font-black text-white tracking-tighter text-right">
+                                                                    ${((vessel.stats.scale_weight_mt || 0) + (vessel.stats.burreo_weight_mt || 0)).toLocaleString('es-MX')} 
+                                                                    <span class="text-[10px] font-bold text-white/20 ml-1">TM</span>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    `,
+                                                    background: '#0f172a',
+                                                    width: '450px',
+                                                    showConfirmButton: true,
+                                                    confirmButtonText: 'CERRAR',
+                                                    confirmButtonColor: isExternal ? '#06b6d4' : '#3b82f6',
+                                                    customClass: {
+                                                        popup: 'rounded-[3rem] border-2 border-white/10',
+                                                        title: 'mt-6',
+                                                        confirmButton: 'rounded-2xl px-10 py-4 font-black text-[10px] tracking-widest uppercase mb-6'
+                                                    }
+                                                });
+                                            }}
+                                            className="text-right group/trips focus:outline-none"
+                                        >
+                                            <span className={`font-black text-lg md:text-2xl leading-none block transition-all group-hover/trips:scale-110 ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
+                                                {vessel.stats.total_trips || 0}
+                                            </span>
+                                            <span className="text-white/30 font-black text-[8px] uppercase tracking-widest mt-0.5 block group-hover/trips:text-white/60 transition-colors underline decoration-dotted underline-offset-4">VUELTAS REGISTRADAS</span>
+                                        </button>
+                                    </div>
+
+                                    <div className={`flex items-center justify-between border-b ${isExternal ? "border-cyan-400/20" : "border-white/10"} pb-4`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-xl ${isExternal ? 'bg-cyan-500/20 text-cyan-400' : 'bg-blue-500/20 text-blue-400'} shadow-inner`}>
                                                 <Calendar className="w-4 h-4 md:w-5 md:h-5" />
                                             </div>
                                             <span className={`${isExternal ? "text-cyan-400/60" : "text-white/50"} text-[9px] font-black uppercase tracking-[0.2em]`}>

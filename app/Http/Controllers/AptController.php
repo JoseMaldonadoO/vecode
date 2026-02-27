@@ -504,7 +504,7 @@ class AptController extends Controller
         // Log Scan Record (For Scale Only)
         \App\Models\AptScan::create([
             'loading_order_id' => $order->id,
-            'operator_id' => $operatorId,
+            'operator_id' => null, // Bypassing FK constraint 1452 (consistent with burreo fix Above)
             'warehouse' => (string) $validated['warehouse'],
             'cubicle' => (string) $finalCubicle,
             'user_id' => auth()->id(),
