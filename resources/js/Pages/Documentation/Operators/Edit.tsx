@@ -307,19 +307,25 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                             }
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white"
                                         >
-                                            <option value="Volteo">
-                                                Volteo
-                                            </option>
-                                            <option value="Tolva">Tolva</option>
-                                            <option value="Caja Seca">
-                                                Caja Seca
-                                            </option>
-                                            <option value="Plataforma">
-                                                Plataforma
-                                            </option>
-                                            <option value="Contenedor">
-                                                Contenedor
-                                            </option>
+                                            <option value="Volteo">Volteo</option>
+                                            <option value="Contenedor">Contenedor</option>
+                                            <option value="Camioneta">Camioneta</option>
+                                            <option value="Cisterna">Cisterna</option>
+                                            <option value="Full Caja Seca">Full Caja Seca</option>
+                                            <option value="Full Encortinado">Full Encortinado</option>
+                                            <option value="Full Gondola">Full Gondola</option>
+                                            <option value="Full Jaula">Full Jaula</option>
+                                            <option value="Full Pipa">Full Pipa</option>
+                                            <option value="Full Plataforma">Full Plataforma</option>
+                                            <option value="Full Tolva">Full Tolva</option>
+                                            <option value="Pipa">Pipa</option>
+                                            <option value="Sencillo Jaula">Sencillo Jaula</option>
+                                            <option value="Sencillo Caja Seca">Sencillo Caja Seca</option>
+                                            <option value="Sencillo Gondola">Sencillo Gondola</option>
+                                            <option value="Sencillo Pipa">Sencillo Pipa</option>
+                                            <option value="Sencillo Plataforma">Sencillo Plataforma</option>
+                                            <option value="Sencillo Tolva">Sencillo Tolva</option>
+                                            <option value="Torton">Torton</option>
                                         </select>
                                         <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
@@ -438,11 +444,10 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                             <button
                                 type="submit"
                                 disabled={processing || isVesselInactive}
-                                className={`inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white transition-all transform ${
-                                    processing || isVesselInactive
+                                className={`inline-flex items-center px-8 py-3.5 border border-transparent text-lg font-bold rounded-xl shadow-lg text-white transition-all transform ${processing || isVesselInactive
                                         ? "bg-gray-400 cursor-not-allowed opacity-60"
                                         : "bg-green-600 hover:bg-green-700 hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-green-200"
-                                }`}
+                                    }`}
                             >
                                 <Save className="w-6 h-6 mr-2" />
                                 {processing
