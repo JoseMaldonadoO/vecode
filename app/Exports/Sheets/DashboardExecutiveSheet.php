@@ -26,7 +26,12 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
     protected $stats;
     protected $charts;
     protected $filters;
-    protected $dataStartRow = 28; // Data starts lower to make room for charts
+    protected $dataStartRow = 32;
+
+    // Paleta Proagro
+    protected $primaryGreen = '166534'; // Verde Oscuro
+    protected $lightGreen = 'f0fdf4';   // Verde Fondo
+    protected $goldAccent = 'fbbf24';   // Acento visual
 
     public function __construct($stats, $charts, $filters)
     {
@@ -38,32 +43,20 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
     public function drawings()
     {
         $drawings = [];
-        $tenant = config('app.tenant');
-
-        // Logo VECODE (System)
-        if (file_exists(public_path('images/Logo_vde.png'))) {
-            $drawing = new Drawing();
-            $drawing->setName('Logo VECODE');
-            $drawing->setDescription('Logo VECODE');
-            $drawing->setPath(public_path('images/Logo_vde.png'));
-            $drawing->setHeight(50);
-            $drawing->setCoordinates('B2');
-            $drawing->setOffsetX(10);
-            $drawings[] = $drawing;
+        // Tenant Logo (Prioritize Proagro)
+        $logoPath = public_path('images/Proagro2.png');
+        if (!file_exists($logoPath)) {
+            $logoPath = public_path('images/Logo_vde.png');
         }
 
-        // Tenant Logo
-        $logoPath = $tenant && $tenant->logo ? public_path(str_replace('/', DIRECTORY_SEPARATOR, ltrim($tenant->logo, '/'))) : public_path('images/Proagro2.png');
-
         if (file_exists($logoPath)) {
-            $drawing2 = new Drawing();
-            $drawing2->setName('Logo ' . ($tenant ? $tenant->name : 'Tenant'));
-            $drawing2->setDescription('Logo ' . ($tenant ? $tenant->name : 'Tenant'));
-            $drawing2->setPath($logoPath);
-            $drawing2->setHeight(50);
-            $drawing2->setCoordinates('E2');
-            $drawing2->setOffsetX(50);
-            $drawings[] = $drawing2;
+            $drawing = new Drawing();
+            $drawing->setName('Logo Corporativo');
+            $drawing->setPath($logoPath);
+            $drawing->setHeight(55);
+            $drawing->setCoordinates('B2');
+            $drawing->setOffsetY(5);
+            $drawings[] = $drawing;
         }
 
         return $drawings;
@@ -73,51 +66,45 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
     {
         $rows = [];
 
-        // --- DASHBOARD HEADER AREA (Blue Background) ---
-        // Row 1-6 will be colored Blue to mimic the Web App Header
+        // Header Background Area (Rows 1-6)
+        for ($i = 0; $i < 6; $i++) $rows[] = ['', '', '', '', '', ''];
+
+        $rows[3] = ['', '  REPORTE EJECUTIVO DE OPERACIONES', '', '', '', ''];
+        $rows[4] = ['', '  ' . $this->getFilterContext(), '', '', '', ''];
+        $rows[5] = ['', '  Generado: ' . Carbon::now()->format('d/m/Y H:i'), '', '', '', ''];
+
+        // Spacers
         $rows[] = ['', '', '', '', '', ''];
         $rows[] = ['', '', '', '', '', ''];
-        $rows[] = ['', '', '', '', '', ''];
-        $rows[] = ['', 'REPORTE EJECUTIVO DE OPERACIONES', '', '', '', ''];
-        $rows[] = ['', 'Generado por VECODE | ' . Carbon::now()->format('d/m/Y H:i'), '', '', '', ''];
 
-        // Context Line
-        $rows[] = ['', $this->getFilterContext(), '', '', '', ''];
-
-        // --- KPI CARDS AREA ---
-        $rows[] = ['', '', '', '', '', '']; // Spacer
-
-        // KPI Headers
-        $rows[] = ['', 'TONELAJE TOTAL', 'VIAJES', 'UNIDADES EN CIRCUITO', 'BÁSCULA (MT)', 'BURREO (MT)'];
-
-        // KPI Values
+        // KPI CARDS Labels
+        $rows[] = ['', 'TONELAJE TOTAL', 'VIAJES COMPLETADOS', 'UNIDADES EN CIRCUITO', 'BÁSCULA (MT)', 'BURREO (MT)'];
+        // KPI CARDS Values
         $rows[] = [
             '',
-            number_format($this->stats['total_tonnage'] / 1000, 3) . ' MT',
+            number_format($this->stats['total_tonnage'] / 1000, 2) . ' MT',
             $this->stats['trips_completed'],
             $this->stats['units_in_circuit'],
-            number_format($this->stats['total_scale'] / 1000, 3),
-            number_format($this->stats['total_burreo'] / 1000, 3)
+            number_format($this->stats['total_scale'] / 1000, 2),
+            number_format($this->stats['total_burreo'] / 1000, 2)
         ];
 
-        $rows[] = ['', '', '', '', '', '']; // Spacer
+        // Chart Space (Rows 11-30)
+        for ($i = 0; $i < 20; $i++) $rows[] = ['', '', '', '', '', ''];
 
-        // Space for Chart (Rows 11-26 approx)
-        for ($i = 0; $i < 16; $i++) {
-            $rows[] = ['', '', '', '', '', ''];
-        }
+        // Table Header
+        $rows[] = ['', 'RESUMEN SEMANAL / HISTÓRICO (Últimos días)', '', '', '', ''];
+        $rows[] = ['', 'Fecha', 'Total (MT)', 'Báscula (MT)', 'Burreo (MT)', ''];
 
-        $rows[] = ['', 'DETALLE DIARIO', '', '', '', '']; // Table Header
-        $rows[] = ['', 'Fecha', 'Total (MT)', 'Báscula (MT)', 'Burreo (MT)', '']; // Table Columns
-
-        // Data Rows for Chart Source
-        foreach ($this->charts['daily_tonnage'] as $day) {
+        // Data (Max 10 rows for executive view)
+        $dailyData = array_slice($this->charts['daily_tonnage'], -10);
+        foreach ($dailyData as $day) {
             $rows[] = [
                 '',
                 $day['date'],
-                round($day['total'] / 1000, 3),
-                round($day['scale'] / 1000, 3),
-                round($day['burreo'] / 1000, 3),
+                round($day['total'] / 1000, 2),
+                round($day['scale'] / 1000, 2),
+                round($day['burreo'] / 1000, 2),
                 ''
             ];
         }
@@ -127,113 +114,81 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
 
     public function charts()
     {
-        $rowCount = count($this->charts['daily_tonnage']);
-        if ($rowCount === 0)
-            return [];
+        $rowCount = count(array_slice($this->charts['daily_tonnage'], -10));
+        if ($rowCount === 0) return [];
 
-        $startRow = 29;
+        $startRow = $this->dataStartRow + 1;
         $endRow = $startRow + $rowCount - 1;
 
-        // Series 1: Total Tonnage (Column C)
-        // Categories: Dates (Column B)
-        $categories = [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Dashboard Ejecutivo\'!$B$' . $startRow . ':$B$' . $endRow, null, $rowCount)];
-
-        // Values
-        $values = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Dashboard Ejecutivo\'!$C$' . $startRow . ':$C$' . $endRow, null, $rowCount),
-        ];
+        $categories = [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, '\'Dashboard\'!$B$' . $startRow . ':$B$' . $endRow, null, $rowCount)];
+        $values = [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, '\'Dashboard\'!$C$' . $startRow . ':$C$' . $endRow, null, $rowCount)];
 
         $series = new DataSeries(
-            DataSeries::TYPE_BARCHART, // Plot Type
+            DataSeries::TYPE_BARCHART,
             DataSeries::GROUPING_CLUSTERED,
             range(0, count($values) - 1),
-            [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, null, null, 1, ['Total (MT)'])], // Legend Labels
+            [new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, null, null, 1, ['Tonnaje Diario'])],
             $categories,
             $values
         );
 
         $layout = new \PhpOffice\PhpSpreadsheet\Chart\Layout();
-        $layout->setShowVal(true);
+        $layout->setShowVal(true); // Data labels on top
+        $layout->setShowLeaderLines(true);
 
         $plotArea = new PlotArea($layout, [$series]);
         $legend = new Legend(Legend::POSITION_BOTTOM, null, false);
-        $title = new Title('Historia de Descarga Diaria');
+        $title = new Title('Curva de Descarga Operativa');
 
-        $chart = new Chart(
-            'daily_tonnage_chart',
-            $title,
-            $legend,
-            $plotArea,
-            true,
-            'gap',
-            null,
-            null
-        );
-
-        $chart->setTopLeftPosition('B11');
-        $chart->setBottomRightPosition('F26'); // Position in the spacer area
+        $chart = new Chart('executive_chart', $title, $legend, $plotArea, true, 'gap', null, null);
+        $chart->setTopLeftPosition('B12');
+        $chart->setBottomRightPosition('F30');
 
         return [$chart];
     }
 
     public function styles(Worksheet $sheet)
     {
-        $tenant = config('app.tenant');
-        $primaryColor = $tenant ? str_replace('#', '', $tenant->primary_color) : '1e3a8a';
-        $secondaryColor = $tenant ? str_replace('#', '', $tenant->secondary_color) : 'bfdbfe';
-
-        // 1. Header Background (Rows 1-6)
-        $sheet->getStyle('A1:F6')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($primaryColor);
-
-        // 2. Main Title
-        $sheet->mergeCells('B4:F4');
-        $sheet->getStyle('B4')->getFont()->setBold(true)->setSize(18)->getColor()->setARGB('FFFFFF');
-        $sheet->getStyle('B4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-
-        // 3. Subtitle / Details
-        $sheet->mergeCells('B5:F5');
-        $sheet->getStyle('B5')->getFont()->setSize(11)->getColor()->setARGB('cbd5e1'); // Slate 300
-
-        $sheet->mergeCells('B6:F6');
-        $sheet->getStyle('B6')->getFont()->setBold(true)->setSize(11)->getColor()->setARGB($secondaryColor);
-
-        // 4. KPI Headers
-        $sheet->getStyle('B8:F8')->getFont()->setBold(true)->getColor()->setARGB('64748b'); // Slate 500
-        $sheet->getStyle('B8:F8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        // 5. KPI Values (Big Cards)
-        $sheet->getStyle('B9:F9')->getFont()->setBold(true)->setSize(14)->getColor()->setARGB($primaryColor);
-        $sheet->getStyle('B9:F9')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        // Add Borders to KPIs to look like Cards
-        $sheet->getStyle('B8:F9')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('B8:F9')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('f8fafc'); // Slate 50
-
-        // 6. Data Table Header
-        $tableHeaderRow = 27;
-        $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
-        $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($primaryColor);
-        $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
-        $colHeaderRow = 28;
-        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getFont()->setBold(true)->getColor()->setARGB($primaryColor);
-        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
-
-        // 7. Table Data
-        $lastRow = $sheet->getHighestRow();
-        if ($lastRow >= 29) {
-            $sheet->getStyle('B28:E' . $lastRow)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        }
-
-        // Hide Gridlines
         $sheet->setShowGridlines(false);
+        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Segoe UI');
+
+        // Header Style
+        $sheet->getStyle('A1:F7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($this->primaryGreen);
+        $sheet->getStyle('B4')->getFont()->setBold(true)->setSize(22)->getColor()->setARGB('FFFFFF');
+        $sheet->getStyle('B5:B6')->getFont()->setSize(10)->getColor()->setARGB('dcfce7'); // Light green text
+
+        // KPI Styles (Cards)
+        $kpiRange = 'B9:F10';
+        $sheet->getStyle('B9:F9')->getFont()->setBold(true)->setSize(9)->getColor()->setARGB('64748b'); // Slate 500
+        $sheet->getStyle('B10:F10')->getFont()->setBold(true)->setSize(18)->getColor()->setARGB($this->primaryGreen);
+        $sheet->getStyle($kpiRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle($kpiRange)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFFFFF');
+        
+        // Card Borders
+        $styleArray = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THICK,
+                    'color' => ['argb' => 'e2e8f0'],
+                ],
+            ],
+        ];
+        $sheet->getStyle($kpiRange)->applyFromArray($styleArray);
+
+        // Table Style
+        $tableHeader = $this->dataStartRow - 1;
+        $sheet->getStyle('B' . $tableHeader . ':E' . $tableHeader)->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
+        $sheet->getStyle('B' . $tableHeader . ':E' . $tableHeader)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($this->primaryGreen);
+        
+        $lastRow = $sheet->getHighestRow();
+        $sheet->getStyle('B' . $this->dataStartRow . ':E' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('B' . $this->dataStartRow . ':E' . $lastRow)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($this->lightGreen);
+
+        return [];
     }
 
     public function columnWidths(): array
     {
-        return [
-            'A' => 2,   // Margin
-            'B' => 25,  // Date / Metric
             'C' => 18,  // Value
             'D' => 18,  // Value
             'E' => 18,  // Value
