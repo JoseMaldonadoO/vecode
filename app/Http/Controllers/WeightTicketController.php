@@ -885,7 +885,7 @@ class WeightTicketController extends Controller
 
     public function printTicket($id)
     {
-        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket.weighmaster', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'sales_order', 'shipment_order.sales_order'])
+        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket.weighmaster', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'shipment_order.creator', 'vessel_operator.creator', 'sales_order', 'shipment_order.sales_order'])
             ->findOrFail($id);
 
         $ticket = $order->weight_ticket;
@@ -993,7 +993,9 @@ class WeightTicketController extends Controller
             'exit_at' => $exitDate->format('d/m/Y H:i'),
 
             'weighmaster' => $ticket->weighmaster?->name ?? 'BASCULA',
-            'documenter' => 'DOCUMENTACIÓN',
+            'documenter' => $isSale
+                ? ($order->shipment_order->creator->name ?? 'DOCUMENTACIÓN')
+                : ($order->vessel_operator->creator->name ?? 'DOCUMENTACIÓN'),
         ];
 
         return Inertia::render('Scale/Ticket', [
