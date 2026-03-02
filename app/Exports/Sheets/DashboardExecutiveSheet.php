@@ -67,7 +67,8 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         $rows = [];
 
         // Header Background Area (Rows 1-6)
-        for ($i = 0; $i < 6; $i++) $rows[] = ['', '', '', '', '', ''];
+        for ($i = 0; $i < 6; $i++)
+            $rows[] = ['', '', '', '', '', ''];
 
         $rows[3] = ['', '  REPORTE EJECUTIVO DE OPERACIONES', '', '', '', ''];
         $rows[4] = ['', '  ' . $this->getFilterContext(), '', '', '', ''];
@@ -90,7 +91,8 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         ];
 
         // Chart Space (Rows 11-30)
-        for ($i = 0; $i < 20; $i++) $rows[] = ['', '', '', '', '', ''];
+        for ($i = 0; $i < 20; $i++)
+            $rows[] = ['', '', '', '', '', ''];
 
         // Table Header
         $rows[] = ['', 'RESUMEN SEMANAL / HISTÓRICO (Últimos días)', '', '', '', ''];
@@ -115,7 +117,8 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
     public function charts()
     {
         $rowCount = count(array_slice($this->charts['daily_tonnage'], -10));
-        if ($rowCount === 0) return [];
+        if ($rowCount === 0)
+            return [];
 
         $startRow = $this->dataStartRow + 1;
         $endRow = $startRow + $rowCount - 1;
@@ -163,7 +166,7 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         $sheet->getStyle('B10:F10')->getFont()->setBold(true)->setSize(18)->getColor()->setARGB($this->primaryGreen);
         $sheet->getStyle($kpiRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle($kpiRange)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFFFFF');
-        
+
         // Card Borders
         $styleArray = [
             'borders' => [
@@ -179,7 +182,7 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
         $tableHeader = $this->dataStartRow - 1;
         $sheet->getStyle('B' . $tableHeader . ':E' . $tableHeader)->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
         $sheet->getStyle('B' . $tableHeader . ':E' . $tableHeader)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($this->primaryGreen);
-        
+
         $lastRow = $sheet->getHighestRow();
         $sheet->getStyle('B' . $this->dataStartRow . ':E' . $lastRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('B' . $this->dataStartRow . ':E' . $lastRow)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($this->lightGreen);
@@ -189,16 +192,19 @@ class DashboardExecutiveSheet implements FromArray, WithTitle, WithStyles, WithC
 
     public function columnWidths(): array
     {
-            'C' => 18,  // Value
-            'D' => 18,  // Value
-            'E' => 18,  // Value
-            'F' => 18,  // Value
+        return [
+            'A' => 4,
+            'B' => 28,
+            'C' => 20,
+            'D' => 20,
+            'E' => 20,
+            'F' => 20,
         ];
     }
 
     public function title(): string
     {
-        return 'Dashboard Ejecutivo';
+        return 'Dashboard';
     }
 
     private function getFilterContext()

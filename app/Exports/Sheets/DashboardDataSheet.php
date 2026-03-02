@@ -129,6 +129,6 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
 
     public function title(): string
     {
-        return 'Data Fuente (Cómputo)';
+        return 'Data Fuente';
     }
 }
