@@ -470,7 +470,9 @@ class WeightTicketController extends Controller
             $orderData = [
                 'id' => $order->id,
                 'folio' => $order->folio,
-                'provider' => $order->client_name ?? ($order->client->business_name ?? ($order->client->name ?? 'N/A')),
+                'provider' => $order->shipment_order?->client?->business_name
+                    ?? $order->shipment_order?->client?->name
+                    ?? ($order->client_name ?? ($order->client->business_name ?? 'N/A')),
                 'product' => $productName,
                 'driver' => $driver,
                 'vehicle_plate' => $tractorPlate,
@@ -600,7 +602,7 @@ class WeightTicketController extends Controller
                     }
 
                     // BEFORE suggesting a new entry, check if this operator already has an active order "In Plant"
-                    $activeOrder = LoadingOrder::with(['client', 'product', 'vessel'])
+                    $activeOrder = LoadingOrder::with(['client', 'product', 'vessel', 'shipment_order.client'])
                         ->where(function ($q) {
                             $q->where('status', 'loading')
                                 ->orWhere('status', 'authorized')
@@ -634,7 +636,9 @@ class WeightTicketController extends Controller
                         return response()->json([
                             'type' => 'loading_order',
                             'id' => $activeOrder->id,
-                            'provider' => $activeOrder->client_name ?? ($activeOrder->client->name ?? ($operator->vessel->client->name ?? 'N/A')),
+                            'provider' => $activeOrder->shipment_order?->client?->business_name
+                                ?? $activeOrder->shipment_order?->client?->name
+                                ?? ($activeOrder->client_name ?? ($activeOrder->client->name ?? ($operator->vessel->client->name ?? 'N/A'))),
                             'driver' => $activeOrder->operator_name ?? 'N/A',
                             'vehicle_plate' => $activeOrder->tractor_plate ?? 'N/A',
                             'product' => $activeOrder->product?->name ?? ($operator->vessel->product->name ?? 'N/A'),
