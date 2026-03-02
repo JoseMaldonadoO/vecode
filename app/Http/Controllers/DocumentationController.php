@@ -406,6 +406,32 @@ class DocumentationController extends Controller
     }
 
     /**
+     * Export Standard Shipment Orders (Not SADER)
+     */
+    public function exportStandard(Request $request)
+    {
+        $filters = $request->all();
+        $filters['is_sader'] = false;
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\ShipmentOrdersExport($filters),
+            'OE_General_' . date('Ymd_His') . '.xlsx'
+        );
+    }
+
+    /**
+     * Export SADER Shipment Orders
+     */
+    public function exportSader(Request $request)
+    {
+        $filters = $request->all();
+        $filters['is_sader'] = true;
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\ShipmentOrdersExport($filters),
+            'OE_SADER_' . date('Ymd_His') . '.xlsx'
+        );
+    }
+
+    /**
      * Print the Shipment Order (Orden de Embarque) in legacy format.
      */
     public function printOrder($id)

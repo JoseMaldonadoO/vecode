@@ -179,6 +179,8 @@ Route::middleware('auth')->group(function () {
     // Shipment Orders (Documentation)
     Route::controller(\App\Http\Controllers\DocumentationController::class)->group(function () {
         Route::get('/documentation/shipment-orders', 'shipmentOrdersIndex')->name('documentation.orders.index');
+        Route::get('/documentation/shipment-orders/export-standard', 'exportStandard')->name('documentation.orders.export-standard');
+        Route::get('/documentation/shipment-orders/export-sader', 'exportSader')->name('documentation.orders.export-sader');
         Route::get('/documentation/shipment-orders/create', 'createOrder')->name('documentation.create');
         Route::post('/documentation/shipment-orders', 'storeOrder')->name('documentation.store');
         Route::get('/documentation/shipment-orders/{id}/edit', 'editOrder')->name('documentation.edit');
