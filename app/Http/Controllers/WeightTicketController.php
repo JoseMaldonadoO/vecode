@@ -865,6 +865,7 @@ class WeightTicketController extends Controller
                     'weigh_out_at' => now(),
                     'lot_id' => $validated['lot_id'] ?? null,
                     'packaging_type' => $validated['packaging_type'] ?? null,
+                    'weighmaster_id' => auth()->id(),
                 ]);
 
                 // Update Order Status
@@ -884,7 +885,7 @@ class WeightTicketController extends Controller
 
     public function printTicket($id)
     {
-        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'sales_order', 'shipment_order.sales_order'])
+        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket.weighmaster', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'sales_order', 'shipment_order.sales_order'])
             ->findOrFail($id);
 
         $ticket = $order->weight_ticket;
@@ -991,7 +992,7 @@ class WeightTicketController extends Controller
             'entry_at' => $entryDate->format('d/m/Y H:i'),
             'exit_at' => $exitDate->format('d/m/Y H:i'),
 
-            'weighmaster' => auth()->user()->name ?? 'BASCULA',
+            'weighmaster' => $ticket->weighmaster?->name ?? 'BASCULA',
             'documenter' => 'DOCUMENTACIÓN',
         ];
 

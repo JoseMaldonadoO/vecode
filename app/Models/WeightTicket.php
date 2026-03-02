@@ -27,6 +27,11 @@ class WeightTicket extends Model
         return $this->belongsTo(Lot::class);
     }
 
+    public function weighmaster()
+    {
+        return $this->belongsTo(User::class, 'weighmaster_id');
+    }
+
     public function shipmentOrder()
     {
         return $this->belongsTo(ShipmentOrder::class);

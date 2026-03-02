@@ -401,6 +401,7 @@ class AptController extends Controller
                                 'loading_order_id' => $order->id,
                                 'ticket_number' => 'B-' . $order->folio,
                                 'weighing_status' => 'completed',
+                                'weighmaster_id' => auth()->id(),
                                 'is_burreo' => true,
                                 'tare_weight' => $finalWeightKg,
                                 'net_weight' => $finalWeightKg,
