@@ -98,7 +98,7 @@ class DashboardController extends Controller
         // 5. Calculate Charts Data
         $dailyTonnage = (clone $baseQuery)
             ->select([
-                OperationalTimeHelper::getSqlDateOffset('weight_tickets.weigh_out_at') . ' as date',
+                DB::raw(OperationalTimeHelper::getSqlDateOffset('weight_tickets.weigh_out_at') . ' as date'),
                 DB::raw('SUM(weight_tickets.net_weight) as total'),
                 DB::raw('SUM(CASE WHEN loading_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo'),
                 DB::raw('SUM(CASE WHEN loading_orders.operation_type != "burreo" OR loading_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale')
