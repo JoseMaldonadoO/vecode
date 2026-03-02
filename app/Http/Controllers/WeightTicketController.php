@@ -33,6 +33,7 @@ class WeightTicketController extends Controller
             'exit_operator',
             'vessel_operator',
             'shipment_order.items.product',
+            'shipment_order.client',
             'vessel'
         ])
             ->whereHas('weight_ticket', function ($q) {
@@ -120,7 +121,9 @@ class WeightTicketController extends Controller
             return [
                 'id' => $order->id,
                 'folio' => $order->folio,
-                'provider' => $order->client_name,
+                'provider' => $order->shipment_order?->client?->business_name
+                    ?? $order->shipment_order?->client?->name
+                    ?? $order->client_name,
                 'product' => $productName,
                 'entry_weight' => $ticket->tare_weight,
                 'vehicle_plate' => $tractorPlate,
