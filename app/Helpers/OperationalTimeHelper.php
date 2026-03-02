@@ -30,7 +30,7 @@ class OperationalTimeHelper
      */
     public static function getSqlDateOffset($column)
     {
-        return DB::raw("DATE(DATE_SUB($column, INTERVAL 7 HOUR))");
+        return "DATE(DATE_SUB($column, INTERVAL 7 HOUR))";
     }
 
     /**
