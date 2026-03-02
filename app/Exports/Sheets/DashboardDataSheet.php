@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\OperationalTimeHelper;
 use Carbon\Carbon;
 
-class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle, ShouldAutoSize, \Maatwebsite\Excel\Concerns\WithStyles
+class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle, ShouldAutoSize
 {
     protected $filters;
 
@@ -79,18 +79,18 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
     public function headings(): array
     {
         return [
-            'ID VIAJE',
-            'TICKET',
-            'FECHA / HORA SALIDA',
-            'OPERADOR CONDUCTOR',
-            'ECONÓMICO',
-            'PLACAS',
-            'PRODUCTO',
-            'ALMACÉN',
-            'CUBÍCULO',
-            'PESO NETO (TM)',
-            'TIPO OPERACIÓN',
-            'ESTATUS'
+            'ID Viaje',
+            'Ticket',
+            'Fecha Salida',
+            'Operador',
+            'Económico',
+            'Placas',
+            'Producto',
+            'Almacén',
+            'Cubículo',
+            'Peso Neto (TM)',
+            'Tipo Op.',
+            'Estatus'
         ];
     }
 
@@ -107,28 +107,13 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
             $order->warehouse,
             $order->cubicle,
             $order->net_weight / 1000,
-            strtoupper($order->operation_type ?? 'Báscula'),
-            strtoupper($order->status)
+            ucfirst($order->operation_type ?? 'Báscula'),
+            ucfirst($order->status)
         ];
-    }
-
-    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet)
-    {
-        // Freeze first row
-        $sheet->freezePane('A2');
-
-        // Header Style
-        $sheet->getStyle('A1:L1')->getFont()->setBold(true)->getColor()->setARGB('FFFFFF');
-        $sheet->getStyle('A1:L1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('166534');
-
-        // Font
-        $sheet->getParent()->getDefaultStyle()->getFont()->setName('Segoe UI');
-
-        return [];
     }
 
     public function title(): string
     {
-        return 'Data Fuente';
+        return 'Data Cruda (Source)';
     }
 }
