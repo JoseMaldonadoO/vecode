@@ -229,7 +229,7 @@ class DashboardController extends Controller
             ->where('operation_type', 'burreo')
             ->whereNotNull('economic_number')
             ->where('economic_number', '!=', '')
-            ->whereIn('status', ['weighing_in', 'loading', 'weighing_out', 'completed'])
+            ->whereIn('status', ['weighing_in', 'loading', 'weighing_out'])
             ->distinct()
             ->count('economic_number');
 
