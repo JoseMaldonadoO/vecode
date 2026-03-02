@@ -13,6 +13,7 @@ use App\Models\WeightTicket;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\OperationalTimeHelper;
 
 class AptController extends Controller
 {
@@ -123,7 +124,8 @@ class AptController extends Controller
         // So we filter by the date the valid action happened. 
         // For simplicity and user expectation: Filter by `entry_at` (Date of Entry) matches selected date.
         // This shows "What entered on this day".
-        $query->whereDate('entry_at', $date);
+        $range = OperationalTimeHelper::getOperationalRange($date);
+        $query->whereBetween('entry_at', $range);
 
         // Include all relevant statuses
         $query->whereIn('status', ['loading', 'authorized', 'completed', 'closed', 'weighing_out']);
@@ -259,7 +261,8 @@ class AptController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+            $range = OperationalTimeHelper::getOperationalRange($request->date);
+            $query->whereBetween('created_at', $range);
         }
 
         if (isset($filters['vessel_id'])) {
@@ -419,9 +422,10 @@ class AptController extends Controller
                             $pendingTrip->update(['status' => 'completed']);
                         });
 
+                        $range = OperationalTimeHelper::getOperationalRange();
                         $dailyCount = \App\Models\LoadingOrder::where('operator_name', $operator->operator_name)
                             ->where('operation_type', 'burreo')
-                            ->whereDate('created_at', now())
+                            ->whereBetween('created_at', $range)
                             ->count();
 
                         return redirect()->back()->with('success', "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.");

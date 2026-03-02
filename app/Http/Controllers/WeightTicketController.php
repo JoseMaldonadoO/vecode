@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Vessel; // Assuming we need this for origin/destination if related
 use App\Models\VesselOperator; // Legacy fallback?
 use App\Models\ShipmentOrder;
+use App\Helpers\OperationalTimeHelper;
 
 class WeightTicketController extends Controller
 {
@@ -232,7 +233,8 @@ class WeightTicketController extends Controller
         }
 
         if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+            $range = OperationalTimeHelper::getOperationalRange($request->date);
+            $query->whereBetween('created_at', $range);
         }
 
         $tickets = $query->paginate(10)

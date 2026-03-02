@@ -9,6 +9,8 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\OperationalTimeHelper;
+use Carbon\Carbon;
 
 class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle, ShouldAutoSize
 {
@@ -38,9 +40,13 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         }
 
         if ($dateStart && $dateEnd) {
-            $query->whereBetween('weight_tickets.weigh_out_at', [$dateStart . ' 00:00:00', $dateEnd . ' 23:59:59']);
+            $query->whereBetween('weight_tickets.weigh_out_at', [
+                $dateStart . ' 07:00:00',
+                Carbon::parse($dateEnd)->addDay()->format('Y-m-d') . ' 06:59:59'
+            ]);
         } elseif ($specificDate) {
-            $query->whereDate('weight_tickets.weigh_out_at', $specificDate);
+            $range = OperationalTimeHelper::getOperationalRange($specificDate);
+            $query->whereBetween('weight_tickets.weigh_out_at', $range);
         }
 
         if ($warehouse) {

@@ -8,6 +8,7 @@ use App\Models\ExitOperator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Helpers\OperationalTimeHelper;
 
 class SurveillanceController extends Controller
 {
@@ -187,7 +188,8 @@ class SurveillanceController extends Controller
             ->orderBy('exit_at', 'desc');
 
         if ($request->has('date')) {
-            $query->whereDate('entry_at', $request->date);
+            $range = OperationalTimeHelper::getOperationalRange($request->date);
+            $query->whereBetween('entry_at', $range);
         }
 
         return response()->json($query->paginate(15));
