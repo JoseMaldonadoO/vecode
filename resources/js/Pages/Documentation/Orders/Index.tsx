@@ -179,20 +179,52 @@ export default function Index({
                         </h2>
                     </div>
                     <div className="mt-4 flex flex-col sm:flex-row gap-2 md:mt-0 md:ml-4">
-                        <a
-                            href={route("documentation.orders.export-standard", pickBy({ search, status }))}
+                        <button
+                            onClick={() => {
+                                Swal.fire({
+                                    title: 'Seleccionar Fecha para Excel (Gral)',
+                                    html: '<input type="date" id="export-date" class="swal2-input" value="' + new Date().toISOString().split('T')[0] + '">',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Exportar',
+                                    cancelButtonText: 'Cancelar',
+                                    preConfirm: () => {
+                                        return (document.getElementById('export-date') as HTMLInputElement).value;
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        const exportDate = result.value;
+                                        window.location.href = route("documentation.orders.export-standard", pickBy({ search, status, date: exportDate }));
+                                    }
+                                });
+                            }}
                             className="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-bold text-green-600 bg-white hover:bg-green-50 transition-all"
                         >
                             <FileText className="w-5 h-5 mr-2" />
                             Excel (Gral)
-                        </a>
-                        <a
-                            href={route("documentation.orders.export-sader", pickBy({ search, status }))}
+                        </button>
+                        <button
+                            onClick={() => {
+                                Swal.fire({
+                                    title: 'Seleccionar Fecha para Excel (SADER)',
+                                    html: '<input type="date" id="export-date" class="swal2-input" value="' + new Date().toISOString().split('T')[0] + '">',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Exportar',
+                                    cancelButtonText: 'Cancelar',
+                                    preConfirm: () => {
+                                        return (document.getElementById('export-date') as HTMLInputElement).value;
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        const exportDate = result.value;
+                                        window.location.href = route("documentation.orders.export-sader", pickBy({ search, status, date: exportDate }));
+                                    }
+                                });
+                            }}
                             className="inline-flex items-center px-4 py-2 border border-green-700 rounded-md shadow-sm text-sm font-bold text-white bg-green-700 hover:bg-green-800 transition-all"
                         >
                             <FileText className="w-5 h-5 mr-2" />
                             Excel (SADER)
-                        </a>
+                        </button>
                         <Link
                             href={route("documentation.create")}
                             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"

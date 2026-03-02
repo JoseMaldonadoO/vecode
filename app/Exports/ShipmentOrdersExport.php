@@ -8,10 +8,17 @@ use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Carbon\Carbon;
 use App\Helpers\OperationalTimeHelper;
 
-class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
+class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithColumnFormatting, WithEvents
 {
     protected $filters;
 
@@ -32,7 +39,8 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 'weight_ticket.weighmaster',
                 'creator',
                 'loadingOrders',
-                'items.product'
+                'items.product',
+                'origin'
             ]);
 
         // Filter by SADER
@@ -63,12 +71,16 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         // Operational Range Filter if provided
         if (!empty($this->filters['date'])) {
             $range = OperationalTimeHelper::getOperationalRange($this->filters['date']);
-            // We use the OE creation date or the weigh_out_at from the ticket?
-            // Usually, report is by date of OE or date of load.
-            // Requirement says: "FECHA DE CARGA (con el corte operativo que se agrego)"
-            // So we should filter by weight_ticket.weigh_out_at if it exists.
-            $query->whereHas('weight_ticket', function ($q) use ($range) {
-                $q->whereBetween('weigh_out_at', $range);
+
+            // Priority 1: weigh_out_at from weight_ticket (Completed orders)
+            // Priority 2: created_at from shipment_order (Pending orders)
+            $query->where(function ($q) use ($range) {
+                $q->whereHas('weight_ticket', function ($q2) use ($range) {
+                    $q2->whereBetween('weigh_out_at', $range);
+                })->orWhere(function ($q3) use ($range) {
+                    $q3->whereDoesntHave('weight_ticket')
+                        ->whereBetween('created_at', $range);
+                });
             });
         }
 
@@ -82,10 +94,13 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     {
         return [
             'FECHA DE CARGA',
+            'CATEGORIA',
+            'ORIGEN DEL PRODUCTO',
             'ORDEN DE VENTA',
             'O.E',
             'CLIENTE',
             'CONSIGNADO',
+            'PRIMER CONSIGNADO',
             'DESTINO CONSIGNADO',
             'ESTADO',
             'CODIGO',
@@ -126,7 +141,6 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         if ($productObj) {
             $productCode = $productObj->code;
         } else {
-            // Fallback search by name
             $p = Product::where('name', $productName)->first();
             if ($p)
                 $productCode = $p->code;
@@ -135,14 +149,17 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         // Fecha de Carga
         $fechaCarga = $ticket && $ticket->weigh_out_at
             ? Carbon::parse($ticket->weigh_out_at)->format('d/m/Y')
-            : Carbon::parse($order->date)->format('d/m/Y');
+            : Carbon::parse($order->created_at)->format('d/m/Y');
 
         return [
             $fechaCarga,
-            $order->sales_order?->sale_order ?? 'N/A',
+            'SIN DATOS',
+            ($order->origin ? (is_object($order->origin) ? $order->origin->name : $order->origin) : 'N/A'),
+            $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
             $order->folio,
             $order->client_name ?? ($order->client->business_name ?? 'N/A'),
             $order->consigned_to ?? 'N/A',
+            'SIN DATOS',
             $order->destination ?? 'N/A',
             $order->state ?? 'N/A',
             $productCode,
@@ -153,13 +170,13 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             $ticket->tare_weight ?? 0,
             $ticket->net_weight ?? 0,
             $order->programmed_tons ?? 0,
-            $order->sacks_count ?? 'N/A',
+            $order->sacks_count ? preg_replace('/[^0-9]/', '', $order->sacks_count) : '0',
             $ticket->packaging_type ?? 'N/A',
             $loadingOrder->warehouse ?? 'N/A',
-            $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('H:i') : '---',
-            $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('H:i') : '---',
+            $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('h:i A') : '---',
+            $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('h:i A') : '---',
             $order->transport_company ?? 'N/A',
-            $order->operator_name ?? 'N/A',
+            $order->operator_name ?? ($order->driver->name ?? 'N/A'),
             $order->carta_porte ?? 'N/A',
             $order->unit_type ?? 'N/A',
             $order->tractor_plate ?? 'N/A',
@@ -167,6 +184,52 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             $order->trailer_plate ?? 'N/A',
             $order->creator->name ?? 'DOCUMENTACIÓN',
             $ticket->weighmaster->name ?? '---'
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $isSader = $this->filters['is_sader'] ?? false;
+        $headerColor = $isSader ? '22C55E' : '4F46E5'; // Green 500 (Proagro) vs Indigo 600
+
+        return [
+            1 => [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => $headerColor]
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ],
+            'A:AF' => [
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ],
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [
+            'O' => '#,##0.00', // PB
+            'P' => '#,##0.00', // PT
+            'Q' => '#,##0.00', // PN
+            'R' => '#,##0.00', // P.PROG
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                // Set Filter on Headings
+                $event->sheet->setAutoFilter('A1:AF1');
+            },
         ];
     }
 }
