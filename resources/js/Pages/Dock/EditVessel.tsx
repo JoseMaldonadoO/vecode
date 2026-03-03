@@ -917,6 +917,8 @@ export default function EditVessel({
                                                                 step="0.01"
                                                                 value={hold.tonnage}
                                                                 onChange={(e: any) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                onWheel={(e: any) => e.target.blur()}
+                                                                onWheelCapture={(e: any) => e.target.blur()}
                                                                 className="w-full pr-12"
                                                                 placeholder="0.00"
                                                             />
@@ -1063,6 +1065,8 @@ export default function EditVessel({
                                                                 step="0.01"
                                                                 value={hold.tonnage}
                                                                 onChange={(e: any) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                onWheel={(e: any) => e.target.blur()}
+                                                                onWheelCapture={(e: any) => e.target.blur()}
                                                                 className="w-full pr-12"
                                                                 placeholder="0.00"
                                                             />

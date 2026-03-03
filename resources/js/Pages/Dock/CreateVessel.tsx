@@ -883,6 +883,7 @@ export default function CreateVessel({
                                                                 step="0.01"
                                                                 value={hold.tonnage}
                                                                 onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                                 className="w-full pr-12"
                                                                 placeholder="0.00"
                                                             />
@@ -1025,6 +1026,7 @@ export default function CreateVessel({
                                                                 step="0.01"
                                                                 value={hold.tonnage}
                                                                 onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                                 className="w-full pr-12"
                                                                 placeholder="0.00"
                                                             />
