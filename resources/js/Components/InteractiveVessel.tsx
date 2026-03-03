@@ -5,6 +5,9 @@ import { Badge } from "@/Components/ui/badge";
 interface Hatch {
     id: number;
     name: string;
+    total_mt: number;
+    processed_mt: number;
+    pending_mt: number;
     loaded_mt: number;
     percent: number;
     trip_count: number;
@@ -228,47 +231,82 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                 <Anchor size={120} />
                             </div>
 
-                            {selectedHatch ? (
-                                <div className="relative z-10 flex flex-col justify-between h-full">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <Badge className={`${isExternal ? 'bg-cyan-500 text-cyan-950' : 'bg-blue-600 text-white'} font-black px-4 py-1.5 rounded-lg border-none`}>
-                                                BODEGA {selectedHatch}
-                                            </Badge>
-                                            <span className="text-white/60 font-black text-[11px] uppercase tracking-widest italic">Activa</span>
+                            {selectedHatch ? (() => {
+                                const hatch = vessel.hatches.find(h => h.id === selectedHatch);
+                                if (!hatch) return null;
+
+                                return (
+                                    <div className="relative z-10 flex flex-col h-full">
+                                        <div className="flex items-center justify-between mb-8">
+                                            <div className="flex items-center gap-3">
+                                                <Badge className={`${isExternal ? 'bg-cyan-500 text-cyan-950' : 'bg-blue-600 text-white'} font-black px-4 py-1.5 rounded-lg border-none`}>
+                                                    BODEGA {selectedHatch}
+                                                </Badge>
+                                                <span className="text-white/60 font-black text-[11px] uppercase tracking-widest italic">{hatch.name}</span>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 bg-black/40 px-5 py-3 rounded-2xl border border-white/5 backdrop-blur-md">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-1">PROGRESO</span>
+                                                    <span className={`text-2xl font-black leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
+                                                        {hatch.percent}%
+                                                    </span>
+                                                </div>
+                                                <div className="w-px h-6 bg-white/10" />
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-1">VUELTAS</span>
+                                                    <span className="text-2xl font-black text-indigo-400 leading-none">
+                                                        {hatch.trip_count || 0}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="bg-black/50 px-6 py-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center backdrop-blur-md">
-                                            <span className="text-[9px] font-black text-white/40 uppercase mb-1 tracking-widest leading-none">ESTADO</span>
-                                            <span className={`text-4xl font-black leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
-                                                {vessel.hatches.find(h => h.id === selectedHatch)?.percent}%
-                                            </span>
-                                        </div>
-                                    </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            {/* TOTAL */}
+                                            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex flex-col gap-1 hover:bg-white/10 transition-all group/total">
+                                                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">TOTAL</span>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-3xl font-black text-white tracking-tighter">
+                                                        {hatch.total_mt?.toLocaleString('es-MX')}
+                                                    </span>
+                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">TM</span>
+                                                </div>
+                                            </div>
 
-                                    <div className="mt-8 flex justify-between items-end">
-                                        <div>
-                                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-2">Carga Consolidada</span>
-                                            <h3 className="text-6xl font-black text-white tracking-tighter flex items-end gap-3 flex-wrap">
-                                                {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString('es-MX')}
-                                                <span className="text-xs font-black text-white/40 mb-2 tracking-widest uppercase">TONELADAS</span>
-                                            </h3>
-                                        </div>
-                                        <div className="text-right pb-1">
-                                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-1">Vueltas</span>
-                                            <h3 className="text-4xl font-black text-indigo-400 tracking-tighter leading-none">
-                                                {vessel.hatches.find(h => h.id === selectedHatch)?.trip_count || 0}
-                                            </h3>
+                                            {/* PROCESADO */}
+                                            <div className={`bg-white/5 border ${isExternal ? 'border-cyan-500/20' : 'border-blue-500/20'} rounded-3xl p-6 flex flex-col gap-1 hover:bg-white/10 transition-all group/processed`}>
+                                                <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isExternal ? 'text-cyan-400/60' : 'text-blue-400/60'}`}>
+                                                    {isDischarge ? 'DESCARGADO' : 'CARGADO'}
+                                                </span>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className={`text-3xl font-black tracking-tighter ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
+                                                        {hatch.processed_mt?.toLocaleString('es-MX')}
+                                                    </span>
+                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">TM</span>
+                                                </div>
+                                            </div>
+
+                                            {/* PENDIENTE */}
+                                            <div className="bg-indigo-600/20 border border-indigo-500/30 rounded-3xl p-6 flex flex-col gap-1 hover:bg-indigo-600/30 transition-all group/pending shadow-[0_0_40px_rgba(79,70,229,0.1)]">
+                                                <span className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em]">PENDIENTE</span>
+                                                <div className="flex items-baseline gap-2">
+                                                    <span className="text-3xl font-black text-white tracking-tighter">
+                                                        {hatch.pending_mt?.toLocaleString('es-MX')}
+                                                    </span>
+                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">TM</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center py-6">
-                                    <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mb-4 text-white/20">
-                                        <Info size={24} />
+                                );
+                            })() : (
+                                <div className="flex flex-col items-center py-10">
+                                    <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center mb-6 text-white/20 bg-white/5 animate-pulse">
+                                        <Info size={32} />
                                     </div>
-                                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] text-center">
-                                        Seleccione una bodega para <br /> auditoría de carga
+                                    <p className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] text-center max-w-xs leading-relaxed">
+                                        Seleccione una bodega del Buque <br /> para ver el desglose operativo
                                     </p>
                                 </div>
                             )}

@@ -490,10 +490,13 @@ class DockController extends Controller
                     $hTripCount = (int) ($hStat->trip_count ?? 0);
 
                     if ($isDischarge) {
-                        $remainingInHatch = max(0, $hProgrammedMt - $hWeightMt);
-                        $hatchPercent = $hProgrammedMt > 0 ? round(($remainingInHatch / $hProgrammedMt) * 100, 1) : 0;
-                        $hatchDisplayWeight = round($remainingInHatch, 2);
+                        $processedHatchMt = $hWeightMt;
+                        $pendingHatchMt = max(0, $hProgrammedMt - $hWeightMt);
+                        $hatchPercent = $hProgrammedMt > 0 ? round(($pendingHatchMt / $hProgrammedMt) * 100, 1) : 0;
+                        $hatchDisplayWeight = round($pendingHatchMt, 2);
                     } else {
+                        $processedHatchMt = $hWeightMt;
+                        $pendingHatchMt = max(0, $hProgrammedMt - $hWeightMt);
                         $hatchPercent = $hProgrammedMt > 0 ? round(($hWeightMt / $hProgrammedMt) * 100, 1) : 0;
                         $hatchDisplayWeight = round($hWeightMt, 2);
                     }
@@ -501,6 +504,9 @@ class DockController extends Controller
                     $hatches[] = [
                         'id' => $hNumber,
                         'name' => $holdData['hold_number_label'] ?? "Bodega $hNumber",
+                        'total_mt' => round($hProgrammedMt, 2),
+                        'processed_mt' => round($processedHatchMt, 2),
+                        'pending_mt' => round($pendingHatchMt, 2),
                         'loaded_mt' => $hatchDisplayWeight,
                         'percent' => $hatchPercent,
                         'trip_count' => $hTripCount
