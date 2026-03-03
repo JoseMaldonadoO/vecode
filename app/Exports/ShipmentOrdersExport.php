@@ -370,7 +370,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $lastCol = $isSader ? 'AG' : 'AF';
 
                 // Set Filter on Headings row
-                $event->sheet->setAutoFilter("A$headerRow:$lastCol");
+                $event->sheet->setAutoFilter("A{$headerRow}:{$lastCol}{$headerRow}");
             },
         ];
     }
