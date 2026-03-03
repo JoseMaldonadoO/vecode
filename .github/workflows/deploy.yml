@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v28 (SADER Robust Origin & Miles Format - Plan V9)
+# Force trigger: v29 (SADER Tons Conversion & Dot Decimals - Plan V10)
 
 on:
   push:

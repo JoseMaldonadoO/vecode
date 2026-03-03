@@ -254,10 +254,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $productName,
                 $order->presentation ?? 'N/A',
                 $ticket->lot->folio ?? 'N/A',
-                $ticket->gross_weight ?? 0,
-                $ticket->tare_weight ?? 0,
-                $ticket->net_weight ?? 0,
-                $order->programmed_tons ?? 0,
+                ($ticket->gross_weight ?? 0) / 1000,
+                ($ticket->tare_weight ?? 0) / 1000,
+                ($ticket->net_weight ?? 0) / 1000,
+                (float) ($order->programmed_tons ?? 0),
                 $sacksValue,
                 $ticket->packaging_type ?? 'N/A',
                 $loadingOrder->warehouse ?? 'N/A',
@@ -367,10 +367,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
         if ($isSader) {
             return [
-                'P' => '#,##0', // PB
-                'Q' => '#,##0', // PT
-                'R' => '#,##0', // PN
-                'S' => '#,##0', // P.PROG
+                'P' => '0.000', // PB
+                'Q' => '0.000', // PT
+                'R' => '0.000', // PN
+                'S' => '0.00', // P.PROG
             ];
         }
 
