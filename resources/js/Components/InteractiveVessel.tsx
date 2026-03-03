@@ -237,29 +237,29 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
 
                                 return (
                                     <div className="relative z-10 flex flex-col h-full">
-                                        {/* Header Detail */}
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-                                            <div className="flex items-center gap-4">
-                                                <Badge className={`${isExternal ? 'bg-cyan-500 text-cyan-950' : 'bg-blue-600 text-white'} font-black px-5 py-2 rounded-xl border-none shadow-lg shadow-blue-500/20`}>
+                                        {/* Simplified Header */}
+                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-12">
+                                            <div className="flex flex-col">
+                                                <span className="text-indigo-400/60 font-black text-[10px] uppercase tracking-[0.4em] leading-none mb-3">OPERACIÓN EN CURSO</span>
+                                                <h3 className="text-5xl font-black text-white tracking-tighter leading-none flex items-baseline gap-4">
                                                     BODEGA {selectedHatch}
-                                                </Badge>
-                                                <div className="flex flex-col">
-                                                    <span className="text-white/40 font-black text-[9px] uppercase tracking-[0.2em] leading-none mb-1">IDENTIFICADOR</span>
-                                                    <span className="text-white font-bold text-sm uppercase tracking-tight italic">{hatch.name}</span>
-                                                </div>
+                                                    {hatch.name && hatch.name !== `Bodega ${selectedHatch}` && hatch.name !== `${selectedHatch}` && (
+                                                        <span className="text-xl font-medium text-white/30 tracking-tight italic">/ {hatch.name}</span>
+                                                    )}
+                                                </h3>
                                             </div>
 
-                                            <div className="flex items-center gap-4 bg-black/60 px-6 py-3.5 rounded-[1.5rem] border border-white/5 backdrop-blur-xl shadow-2xl">
-                                                <div className="flex flex-col items-center min-w-[60px]">
-                                                    <span className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5">PROGRESO</span>
-                                                    <span className={`text-2xl font-black leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
+                                            <div className="flex items-center gap-6 bg-white/[0.03] px-8 py-5 rounded-[2rem] border border-white/5 backdrop-blur-xl group/metrics hover:bg-white/[0.06] transition-colors">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 group-hover/metrics:text-white/50 transition-colors">PROGRESO</span>
+                                                    <span className={`text-3xl font-black leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'} drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]`}>
                                                         {hatch.percent}%
                                                     </span>
                                                 </div>
-                                                <div className="w-px h-8 bg-white/10" />
-                                                <div className="flex flex-col items-center min-w-[60px]">
-                                                    <span className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-1.5">VUELTAS</span>
-                                                    <span className="text-2xl font-black text-indigo-400 leading-none">
+                                                <div className="w-px h-10 bg-white/10" />
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 group-hover/metrics:text-white/50 transition-colors">VUELTAS</span>
+                                                    <span className="text-3xl font-black text-indigo-400 leading-none drop-shadow-[0_0_15px_rgba(129,140,248,0.3)]">
                                                         {hatch.trip_count || 0}
                                                     </span>
                                                 </div>
