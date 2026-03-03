@@ -45,6 +45,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 'sales_order',
                 'weight_ticket.lot',
                 'weight_ticket.weighmaster',
+                'weight_ticket.loadingOrder',
                 'creator',
                 'loadingOrders',
                 'items.product',
@@ -203,9 +204,9 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         }
 
         // Weight/Date Logic
-        $fechaCarga = $ticket && $ticket->weigh_out_at
-            ? Carbon::parse($ticket->weigh_out_at)->format('d/m/Y')
-            : Carbon::parse($order->created_at)->format('d/m/Y');
+        $rawDate = $ticket->weigh_out_at ?? $order->created_at;
+        $fechaCarga = OperationalTimeHelper::getOperativeDate($rawDate);
+        $fechaCarga = Carbon::parse($fechaCarga)->format('d/m/Y');
 
         // Sacks Calculation Logic (Numeric and Precise)
         $sacksValue = '0';
@@ -230,7 +231,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
         if ($isSader) {
             return [
-                $ticket->folio ?? 'N/A',
+                $ticket->loadingOrder->folio ?? 'N/A',
                 $fechaCarga,
                 'SIN DATOS',
                 ($order->origin_relation ? $order->origin_relation->name : ($order->getAttributes()['origin'] ?? $order->origin ?? 'N/A')),

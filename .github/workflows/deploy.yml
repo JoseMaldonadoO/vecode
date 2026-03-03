@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v22 (SADER Reporting Restored - Plan V4)
+# Force trigger: v23 (SADER Operative Date & Real Folio Fix - Plan V5)
 
 on:
   push:
