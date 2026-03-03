@@ -41,6 +41,11 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         $isSader = $this->filters['is_sader'] ?? false;
 
         $query = ShipmentOrder::query()
+            ->select('shipment_orders.*')
+            ->selectRaw(
+                'COALESCE(so.name, shipment_orders.origin) as origin_name'
+            )
+            ->leftJoin('shipment_origins as so', 'so.id', '=', 'shipment_orders.origin_id')
             ->with([
                 'client',
                 'sales_order',
@@ -50,7 +55,6 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 'creator',
                 'loadingOrders',
                 'items.product',
-                'origin'
             ]);
 
         // Filter by SADER
@@ -243,7 +247,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $ticketFolio,
                 $fechaCarga,
                 'SIN DATOS',
-                ($order->origin instanceof ShipmentOrigin ? $order->origin->name : ($order->getRawOriginal('origin') ?: 'N/A')),
+                ($order->origin_name ?: 'N/A'),
                 $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
                 $order->folio,
                 $order->client?->business_name ?? ($order->client_name ?? 'N/A'),
