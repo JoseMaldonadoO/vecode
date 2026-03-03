@@ -86,12 +86,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
             $query->where(function ($q) use ($range, $isSader) {
                 if ($isSader) {
-                    // For SADER, be more inclusive: 
-                    // Orders created in the range OR orders with tickets weighed in the range
-                    $q->whereBetween('created_at', $range)
-                        ->orWhereHas('weight_ticket', function ($q2) use ($range) {
-                            $q2->whereBetween('weigh_out_at', $range);
-                        });
+                    // For SADER, filter EXCLUSIVELY by weigh out date to match physical completion
+                    $q->whereHas('weight_ticket', function ($q2) use ($range) {
+                        $q2->whereBetween('weigh_out_at', $range);
+                    });
                 } else {
                     // Standard General logic: Weighed out OR (if no ticket) created in range
                     $q->whereHas('weight_ticket', function ($q2) use ($range) {
@@ -231,10 +229,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $ticket->folio ?? 'N/A',
                 $fechaCarga,
                 'SIN DATOS',
-                ($order->origin_relation ? $order->origin_relation->name : ($order->origin ?? 'N/A')),
+                ($order->origin_relation ? $order->origin_relation->name : ($order->getAttributes()['origin'] ?? $order->origin ?? 'N/A')),
                 $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
                 $order->folio,
-                $order->client_name ?? ($order->client->business_name ?? 'N/A'),
+                $order->client?->business_name ?? ($order->client_name ?? 'N/A'),
                 $order->consigned_to ?? 'N/A',
                 'SIN DATOS',
                 $order->destination ?? 'N/A',
