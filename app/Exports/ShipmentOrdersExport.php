@@ -11,20 +11,28 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use Carbon\Carbon;
 use App\Helpers\OperationalTimeHelper;
 
-class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithColumnFormatting, WithEvents
+class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithColumnFormatting, WithEvents, WithCustomStartCell
 {
     protected $filters;
 
     public function __construct($filters)
     {
         $this->filters = $filters;
+    }
+
+    public function startCell(): string
+    {
+        // For SADER, start data at row 6 to leave room for header
+        return ($this->filters['is_sader'] ?? false) ? 'A6' : 'A1';
     }
 
     public function query()
@@ -46,12 +54,16 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         // Filter by SADER
         if ($isSader) {
             $query->where('consigned_to', 'SADER');
+            // SADER only wants COMPLETED orders (those that already have weights/ticket)
+            $query->where('status', 'completed');
         } else {
             $query->where(function ($q) {
                 $q->where('consigned_to', '!=', 'SADER')
                     ->orWhereNull('consigned_to')
                     ->orWhere('consigned_to', 'N/A');
             });
+            // Regular export keeps previous filters or all active
+            $query->where('status', '!=', 'cancelled');
         }
 
         // Active filters from UI
@@ -72,8 +84,6 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         if (!empty($this->filters['date'])) {
             $range = OperationalTimeHelper::getOperationalRange($this->filters['date']);
 
-            // Priority 1: weigh_out_at from weight_ticket (Completed orders)
-            // Priority 2: created_at from shipment_order (Pending orders)
             $query->where(function ($q) use ($range) {
                 $q->whereHas('weight_ticket', function ($q2) use ($range) {
                     $q2->whereBetween('weigh_out_at', $range);
@@ -84,29 +94,62 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             });
         }
 
-        // Exclude cancelled
-        $query->where('status', '!=', 'cancelled');
-
         return $query->orderByDesc('created_at');
     }
 
     public function headings(): array
     {
+        if ($this->filters['is_sader'] ?? false) {
+            return [
+                'TICKET',
+                'FECHA DE CARGA',
+                'CATEGORIA',
+                'ORIGEN DEL PRODUCTO',
+                'ORDEN DE VENTA',
+                'O.E',
+                'CLIENTE',
+                'CONSIGNADO',
+                'PRIMER CONSIGNADO',
+                'DESTINO CONSIGNADO',
+                'ESTADO',
+                'CODIGO',
+                'PRODUCTO',
+                'PRESENTACION',
+                'NO. DE LOTE',
+                'PB',
+                'PT',
+                'PN',
+                'P.PROG',
+                'NO. DE SACOS',
+                'ENVASE',
+                'ALMACEN',
+                'ENTRADA',
+                'SALIDA',
+                'LINEA TRANSPORTISTA',
+                'OPERADOR',
+                'CARTA PORTE',
+                'TIPO DE UNIDAD',
+                'P.TRACTOR',
+                'ECONOMICO',
+                'P.REMOLQUE',
+                'DOCUMENTADOR',
+                'OP. DE BASCULA'
+            ];
+        }
+
+        // General Report (Keep standard columns)
         return [
             'FECHA DE CARGA',
-            'CATEGORIA',
-            'ORIGEN DEL PRODUCTO',
             'ORDEN DE VENTA',
             'O.E',
             'CLIENTE',
             'CONSIGNADO',
-            'PRIMER CONSIGNADO',
             'DESTINO CONSIGNADO',
             'ESTADO',
             'CODIGO',
             'PRODUCTO',
             'PRESENTACION',
-            'EL NUMERO DE LOTE',
+            'NO. DE LOTE',
             'PB',
             'PT',
             'PN',
@@ -132,6 +175,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     {
         $ticket = $order->weight_ticket;
         $loadingOrder = $order->loadingOrders->first();
+        $isSader = $this->filters['is_sader'] ?? false;
 
         // Product Logic
         $productObj = $order->items->first()?->product;
@@ -146,20 +190,77 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $productCode = $p->code;
         }
 
-        // Fecha de Carga
+        // Weight/Date Logic
         $fechaCarga = $ticket && $ticket->weigh_out_at
             ? Carbon::parse($ticket->weigh_out_at)->format('d/m/Y')
             : Carbon::parse($order->created_at)->format('d/m/Y');
 
+        // Sacks Calculation Logic (Numeric and Precise)
+        $sacksValue = '0';
+        if ($order->presentation && strpos(strtoupper($order->presentation), 'ENVASADO') !== false) {
+            $tons = (float) ($order->programmed_tons ?? 0);
+            if ($order->sacks_count && strpos(strtoupper($order->sacks_count), 'KG') !== false) {
+                $size = (int) preg_replace('/[^0-9]/', '', $order->sacks_count);
+                if ($size > 0) {
+                    $sacksValue = round(($tons * 1000) / $size);
+                }
+            } else {
+                // Fallback using net weight if available
+                $netWeight = (float) ($ticket->net_weight ?? 0);
+                if ($netWeight > 0 && $order->sacks_count) {
+                    $size = (int) preg_replace('/[^0-9]/', '', $order->sacks_count);
+                    if ($size > 0) {
+                        $sacksValue = round($netWeight / $size);
+                    }
+                }
+            }
+        }
+
+        if ($isSader) {
+            return [
+                $ticket->folio ?? 'N/A',
+                $fechaCarga,
+                'SIN DATOS',
+                ($order->origin_relation ? $order->origin_relation->name : ($order->origin ?? 'N/A')),
+                $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
+                $order->folio,
+                $order->client_name ?? ($order->client->business_name ?? 'N/A'),
+                $order->consigned_to ?? 'N/A',
+                'SIN DATOS',
+                $order->destination ?? 'N/A',
+                $order->state ?? 'N/A',
+                $productCode,
+                $productName,
+                $order->presentation ?? 'N/A',
+                $ticket->lot->folio ?? 'N/A',
+                $ticket->gross_weight ?? 0,
+                $ticket->tare_weight ?? 0,
+                $ticket->net_weight ?? 0,
+                $order->programmed_tons ?? 0,
+                $sacksValue,
+                $ticket->packaging_type ?? 'N/A',
+                $loadingOrder->warehouse ?? 'N/A',
+                $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('h:i A') : '---',
+                $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('h:i A') : '---',
+                $order->transport_company ?? 'N/A',
+                $order->operator_name ?? ($order->driver->name ?? 'N/A'),
+                $order->carta_porte ?? 'N/A',
+                $order->unit_type ?? 'N/A',
+                $order->tractor_plate ?? 'N/A',
+                $order->economic_number ?? 'N/A',
+                $order->trailer_plate ?? 'N/A',
+                $order->creator->name ?? 'DOCUMENTACIÓN',
+                $ticket->weighmaster->name ?? '---'
+            ];
+        }
+
+        // Map for General Report
         return [
             $fechaCarga,
-            'SIN DATOS',
-            ($order->origin ? (is_object($order->origin) ? $order->origin->name : $order->origin) : 'N/A'),
             $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
             $order->folio,
             $order->client_name ?? ($order->client->business_name ?? 'N/A'),
             $order->consigned_to ?? 'N/A',
-            'SIN DATOS',
             $order->destination ?? 'N/A',
             $order->state ?? 'N/A',
             $productCode,
@@ -170,13 +271,13 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             $ticket->tare_weight ?? 0,
             $ticket->net_weight ?? 0,
             $order->programmed_tons ?? 0,
-            $order->sacks_count ? preg_replace('/[^0-9]/', '', $order->sacks_count) : '0',
+            $order->sacks_count ?? 'N/A',
             $ticket->packaging_type ?? 'N/A',
             $loadingOrder->warehouse ?? 'N/A',
-            $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('h:i A') : '---',
-            $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('h:i A') : '---',
+            $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('H:i') : '---',
+            $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('H:i') : '---',
             $order->transport_company ?? 'N/A',
-            $order->operator_name ?? ($order->driver->name ?? 'N/A'),
+            $order->operator_name ?? 'N/A',
             $order->carta_porte ?? 'N/A',
             $order->unit_type ?? 'N/A',
             $order->tractor_plate ?? 'N/A',
@@ -190,10 +291,12 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     public function styles(Worksheet $sheet)
     {
         $isSader = $this->filters['is_sader'] ?? false;
-        $headerColor = $isSader ? '22C55E' : '4F46E5'; // Green 500 (Proagro) vs Indigo 600
+        $headerColor = $isSader ? '22C55E' : '4F46E5';
+        $headerRow = $isSader ? 6 : 1;
+        $lastCol = $isSader ? 'AG' : 'AF';
 
-        return [
-            1 => [
+        $styles = [
+            $headerRow => [
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
@@ -204,22 +307,57 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                     'vertical' => Alignment::VERTICAL_CENTER,
                 ],
             ],
-            'A:AF' => [
+            "A:$lastCol" => [
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
                     'vertical' => Alignment::VERTICAL_CENTER,
                 ],
             ],
         ];
+
+        if ($isSader) {
+            // Corporate Header Styling
+            $sheet->mergeCells('A1:AG1');
+            $sheet->mergeCells('A2:AG2');
+            $sheet->mergeCells('A3:AG3');
+            $sheet->mergeCells('A4:AG4');
+            $sheet->mergeCells('A5:AG5');
+
+            $sheet->setCellValue('A1', 'PRO-AGROINDUSTRIA, S.A. DE C.V.');
+            $sheet->setCellValue('A2', 'CONTROL DE PESAJE DE UNIDADES');
+            $sheet->setCellValue('A3', 'JEFATURA DE TRAFICO');
+            $sheet->setCellValue('A4', '');
+            $sheet->setCellValue('A5', 'REGISTRO DE SALIDA DE PRODUCTO');
+
+            $sheet->getStyle('A1:AG5')->getFont()->setBold(true);
+            $sheet->getStyle('A1')->getFont()->setSize(14);
+            $sheet->getStyle('A1:AG5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            // Red Line under corporate header (A1 to AG1 bottom)
+            $sheet->getStyle('A1:AG1')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK)->getColor()->setRGB('FF0000');
+        }
+
+        return $styles;
     }
 
     public function columnFormats(): array
     {
+        $isSader = $this->filters['is_sader'] ?? false;
+
+        if ($isSader) {
+            return [
+                'P' => '#,##0.00', // PB
+                'Q' => '#,##0.00', // PT
+                'R' => '#,##0.00', // PN
+                'S' => '#,##0.00', // P.PROG
+            ];
+        }
+
         return [
-            'O' => '#,##0.00', // PB
-            'P' => '#,##0.00', // PT
-            'Q' => '#,##0.00', // PN
-            'R' => '#,##0.00', // P.PROG
+            'L' => '#,##0.00', // PB
+            'M' => '#,##0.00', // PT
+            'N' => '#,##0.00', // PN
+            'O' => '#,##0.00', // P.PROG
         ];
     }
 
@@ -227,8 +365,12 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                // Set Filter on Headings
-                $event->sheet->setAutoFilter('A1:AF1');
+                $isSader = $this->filters['is_sader'] ?? false;
+                $headerRow = $isSader ? 6 : 1;
+                $lastCol = $isSader ? 'AG' : 'AF';
+
+                // Set Filter on Headings row
+                $event->sheet->setAutoFilter("A$headerRow:$lastCol");
             },
         ];
     }
