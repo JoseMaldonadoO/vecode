@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v24 (SADER Robust Filters - Plan V6)
+# Force trigger: v26 (SADER Date Precision & Robust Timeouts - Plan V7)
 
 on:
   push:
@@ -83,11 +83,11 @@ jobs:
       - name: 🚀 Extract and Fix permissions
         run: |
           echo "Ejecutando extract_debug.php..."
-          curl -v --max-time 60 https://pro-agroindustria.com/extract_debug.php
+          curl -v --max-time 180 https://pro-agroindustria.com/extract_debug.php
           echo "Ejecutando fix_perms.php..."
-          curl -v --max-time 30 https://pro-agroindustria.com/fix_perms.php
+          curl -v --max-time 60 https://pro-agroindustria.com/fix_perms.php
           echo "Ejecutando migraciones..."
-          curl -v --max-time 60 https://pro-agroindustria.com/migrate.php
+          curl -v --max-time 120 https://pro-agroindustria.com/migrate.php
           echo "Chequeo de salud final..."
-          curl -v --max-time 30 https://pro-agroindustria.com/deploy_health_check.php
+          curl -v --max-time 60 https://pro-agroindustria.com/deploy_health_check.php
           echo "Despliegue completado e inspeccionado."
