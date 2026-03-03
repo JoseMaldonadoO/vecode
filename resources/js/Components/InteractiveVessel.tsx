@@ -237,90 +237,81 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
 
                                 return (
                                     <div className="relative z-10 flex flex-col h-full">
-                                        {/* Simplified Header */}
-                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-12">
+                                        {/* Simplified Compact Header */}
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                                             <div className="flex flex-col">
-                                                <span className="text-indigo-400/60 font-black text-[10px] uppercase tracking-[0.4em] leading-none mb-3">OPERACIÓN EN CURSO</span>
-                                                <h3 className="text-5xl font-black text-white tracking-tighter leading-none flex items-baseline gap-4">
+                                                <span className="text-indigo-400/60 font-black text-[9px] uppercase tracking-[0.3em] leading-none mb-2">DETALLE OPERATIVO</span>
+                                                <h3 className="text-3xl font-black text-white tracking-tighter leading-none flex items-baseline gap-3">
                                                     BODEGA {selectedHatch}
                                                     {hatch.name && hatch.name !== `Bodega ${selectedHatch}` && hatch.name !== `${selectedHatch}` && (
-                                                        <span className="text-xl font-medium text-white/30 tracking-tight italic">/ {hatch.name}</span>
+                                                        <span className="text-base font-medium text-white/20 tracking-tight italic">/ {hatch.name}</span>
                                                     )}
                                                 </h3>
                                             </div>
 
-                                            <div className="flex items-center gap-6 bg-white/[0.03] px-8 py-5 rounded-[2rem] border border-white/5 backdrop-blur-xl group/metrics hover:bg-white/[0.06] transition-colors">
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 group-hover/metrics:text-white/50 transition-colors">PROGRESO</span>
-                                                    <span className={`text-3xl font-black leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'} drop-shadow-[0_0_15px_rgba(59,130,246,0.3)]`}>
+                                            <div className="flex items-center gap-4 bg-white/[0.02] px-5 py-3 rounded-xl border border-white/5 backdrop-blur-xl group/metrics hover:bg-white/[0.05] transition-colors shadow-xl">
+                                                <div className="flex flex-col items-center min-w-[45px]">
+                                                    <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.1em] mb-1 group-hover/metrics:text-white/40 transition-colors">PROGRESO</span>
+                                                    <span className={`text-xl font-black leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
                                                         {hatch.percent}%
                                                     </span>
                                                 </div>
-                                                <div className="w-px h-10 bg-white/10" />
-                                                <div className="flex flex-col items-center">
-                                                    <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-2 group-hover/metrics:text-white/50 transition-colors">VUELTAS</span>
-                                                    <span className="text-3xl font-black text-indigo-400 leading-none drop-shadow-[0_0_15px_rgba(129,140,248,0.3)]">
+                                                <div className="w-px h-6 bg-white/10" />
+                                                <div className="flex flex-col items-center min-w-[45px]">
+                                                    <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.1em] mb-1 group-hover/metrics:text-white/40 transition-colors">VUELTAS</span>
+                                                    <span className="text-xl font-black text-indigo-400 leading-none">
                                                         {hatch.trip_count || 0}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Metrics Grid */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-2">
+                                        {/* Metrics Grid - Optimized Scaling */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                             {/* TOTAL */}
-                                            <div className="relative overflow-hidden bg-white/[0.03] border border-white/10 rounded-[2rem] p-7 flex flex-col gap-2 hover:bg-white/[0.07] transition-all duration-300 group/total">
-                                                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover/total:opacity-20 transition-opacity">
-                                                    <Maximize2 size={16} className="text-white" />
-                                                </div>
-                                                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-1">TOTAL PROGRAMADO</span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className="text-4xl font-black text-white tracking-tighter leading-none">
+                                            <div className="relative overflow-hidden bg-white/[0.02] border border-white/10 rounded-xl p-4 flex flex-col gap-1.5 hover:bg-white/[0.04] transition-all group/total">
+                                                <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">TOTAL PROG.</span>
+                                                <div className="flex items-baseline gap-1.5">
+                                                    <span className="text-xl font-black text-white tracking-tight leading-none">
                                                         {hatch.total_mt?.toLocaleString('es-MX')}
                                                     </span>
-                                                    <span className="text-[11px] font-black text-white/20 uppercase tracking-widest">TM</span>
+                                                    <span className="text-[8px] font-black text-white/10 uppercase tracking-widest">TM</span>
                                                 </div>
                                             </div>
 
                                             {/* PROCESADO */}
-                                            <div className={`relative overflow-hidden bg-white/[0.03] border ${isExternal ? 'border-cyan-500/20' : 'border-blue-500/20'} rounded-[2rem] p-7 flex flex-col gap-2 hover:bg-white/[0.07] transition-all duration-300 group/processed`}>
-                                                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover/processed:opacity-30 transition-opacity">
-                                                    <Anchor size={16} className={isExternal ? 'text-cyan-400' : 'text-blue-400'} />
-                                                </div>
-                                                <span className={`text-[10px] font-black uppercase tracking-[0.3em] mb-1 ${isExternal ? 'text-cyan-400/60' : 'text-blue-400/60'}`}>
+                                            <div className={`relative overflow-hidden bg-white/[0.02] border ${isExternal ? 'border-cyan-500/10' : 'border-blue-500/10'} rounded-xl p-4 flex flex-col gap-1.5 hover:bg-white/[0.04] transition-all group/processed`}>
+                                                <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${isExternal ? 'text-cyan-400/40' : 'text-blue-400/40'}`}>
                                                     {isDischarge ? 'DESCARGADO' : 'CARGADO'}
                                                 </span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className={`text-4xl font-black tracking-tighter leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
+                                                <div className="flex items-baseline gap-1.5">
+                                                    <span className={`text-xl font-black tracking-tight leading-none ${isExternal ? 'text-cyan-400' : 'text-blue-400'}`}>
                                                         {hatch.processed_mt?.toLocaleString('es-MX')}
                                                     </span>
-                                                    <span className="text-[11px] font-black text-white/20 uppercase tracking-widest">TM</span>
+                                                    <span className="text-[8px] font-black text-white/10 uppercase tracking-widest">TM</span>
                                                 </div>
                                             </div>
 
                                             {/* PENDIENTE */}
-                                            <div className="relative overflow-hidden bg-indigo-500/10 border border-indigo-500/20 rounded-[2rem] p-7 flex flex-col gap-2 hover:bg-indigo-500/20 transition-all duration-500 group/pending shadow-[0_20px_50px_rgba(79,70,229,0.05)]">
-                                                <div className="absolute top-0 right-0 p-3 opacity-20 group-hover/pending:opacity-40 transition-opacity">
-                                                    <Activity size={16} className="text-indigo-400" />
-                                                </div>
-                                                <span className="text-[10px] font-black text-indigo-300/80 uppercase tracking-[0.3em] mb-1">PENDIENTE</span>
-                                                <div className="flex items-baseline gap-2">
-                                                    <span className="text-4xl font-black text-white tracking-tighter leading-none">
+                                            <div className="relative overflow-hidden bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4 flex flex-col gap-1.5 hover:bg-indigo-500/10 transition-all group/pending">
+                                                <span className="text-[8px] font-black text-indigo-300/60 uppercase tracking-[0.2em]">PENDIENTE</span>
+                                                <div className="flex items-baseline gap-1.5">
+                                                    <span className="text-xl font-black text-white tracking-tight leading-none">
                                                         {hatch.pending_mt?.toLocaleString('es-MX')}
                                                     </span>
-                                                    <span className="text-[11px] font-black text-indigo-300/30 uppercase tracking-widest">TM</span>
+                                                    <span className="text-[8px] font-black text-indigo-300/20 uppercase tracking-widest">TM</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 );
                             })() : (
-                                <div className="flex flex-col items-center py-12">
-                                    <div className="w-20 h-20 rounded-3xl border border-white/5 flex items-center justify-center mb-6 text-white/10 bg-white/[0.02] backdrop-blur-md">
-                                        <Info size={40} className="opacity-20" />
+                                <div className="flex flex-col items-center py-8">
+                                    <div className="w-12 h-12 rounded-xl border border-white/5 flex items-center justify-center mb-4 text-white/5 bg-white/[0.01]">
+                                        <Info size={24} className="opacity-10" />
                                     </div>
-                                    <p className="text-[11px] font-black text-white/20 uppercase tracking-[0.4em] text-center max-w-xs leading-relaxed">
-                                        Seleccione una bodega <br /> para inspección táctica
+                                    <p className="text-[9px] font-black text-white/10 uppercase tracking-[0.4em] text-center max-w-xs leading-relaxed">
+                                        Seleccione una bodega <br /> para auditoría
                                     </p>
                                 </div>
                             )}
@@ -354,7 +345,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             <style>{`
                 @keyframes sway {
@@ -365,7 +356,7 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                     animation: sway 10s ease-in-out infinite;
                 }
             `}</style>
-        </div>
+        </div >
     );
 };
 
