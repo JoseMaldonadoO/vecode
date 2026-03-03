@@ -32,8 +32,8 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
     public function startCell(): string
     {
-        // For SADER, start data at row 6 to leave room for header
-        return ($this->filters['is_sader'] ?? false) ? 'A6' : 'A1';
+        // All reports now start at A6 to accommodate corporate header
+        return 'A6';
     }
 
     public function query()
@@ -120,51 +120,17 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
     public function headings(): array
     {
-        if ($this->filters['is_sader'] ?? false) {
-            return [
-                'TICKET',
-                'FECHA DE CARGA',
-                'CATEGORIA',
-                'ORIGEN DEL PRODUCTO',
-                'ORDEN DE VENTA',
-                'O.E',
-                'CLIENTE',
-                'CONSIGNADO',
-                'PRIMER CONSIGNADO',
-                'DESTINO CONSIGNADO',
-                'ESTADO',
-                'CODIGO',
-                'PRODUCTO',
-                'PRESENTACION',
-                'NO. DE LOTE',
-                'PB',
-                'PT',
-                'PN',
-                'P.PROG',
-                'NO. DE SACOS',
-                'ENVASE',
-                'ALMACEN',
-                'ENTRADA',
-                'SALIDA',
-                'LINEA TRANSPORTISTA',
-                'OPERADOR',
-                'CARTA PORTE',
-                'TIPO DE UNIDAD',
-                'P.TRACTOR',
-                'ECONOMICO',
-                'P.REMOLQUE',
-                'DOCUMENTADOR',
-                'OP. DE BASCULA'
-            ];
-        }
-
-        // General Report (Keep standard columns)
+        // Unified headings for all reports
         return [
+            'TICKET',
             'FECHA DE CARGA',
+            'CATEGORIA',
+            'ORIGEN DEL PRODUCTO',
             'ORDEN DE VENTA',
             'O.E',
             'CLIENTE',
             'CONSIGNADO',
+            'PRIMER CONSIGNADO',
             'DESTINO CONSIGNADO',
             'ESTADO',
             'CODIGO',
@@ -237,73 +203,39 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             }
         }
 
-        if ($isSader) {
-            $ticketFolio = $ticket?->loadingOrder?->folio
-                ?? $ticket?->ticket_number
-                ?? $order->folio
-                ?? 'N/A';
+        $ticketFolio = $ticket?->loadingOrder?->folio
+            ?? $ticket?->ticket_number
+            ?? $order->folio
+            ?? 'N/A';
 
-            return [
-                $ticketFolio,
-                $fechaCarga,
-                'SIN DATOS',
-                ($order->origin_name ?: 'N/A'),
-                $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
-                $order->folio,
-                $order->client?->business_name ?? ($order->client_name ?? 'N/A'),
-                $order->consigned_to ?? 'N/A',
-                'SIN DATOS',
-                $order->destination ?? 'N/A',
-                $order->state ?? 'N/A',
-                $productCode,
-                $productName,
-                $order->presentation ?? 'N/A',
-                $ticket->lot->folio ?? 'N/A',
-                ($ticket->gross_weight ?? 0) / 1000,
-                ($ticket->tare_weight ?? 0) / 1000,
-                ($ticket->net_weight ?? 0) / 1000,
-                (float) ($order->programmed_tons ?? 0),
-                $sacksValue,
-                $ticket->packaging_type ?? 'N/A',
-                $loadingOrder->warehouse ?? 'N/A',
-                $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('h:i A') : '---',
-                $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('h:i A') : '---',
-                $order->transport_company ?? 'N/A',
-                $order->operator_name ?? ($order->driver->name ?? 'N/A'),
-                $order->carta_porte ?? 'N/A',
-                $order->unit_type ?? 'N/A',
-                $order->tractor_plate ?? 'N/A',
-                $order->economic_number ?? 'N/A',
-                $order->trailer_plate ?? 'N/A',
-                $order->creator->name ?? 'DOCUMENTACIÓN',
-                $ticket->weighmaster->name ?? '---'
-            ];
-        }
-
-        // Map for General Report
+        // Unified Mapping (Tons for all reports)
         return [
+            $ticketFolio,
             $fechaCarga,
+            'SIN DATOS',
+            ($order->origin_name ?: 'N/A'),
             $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
             $order->folio,
-            $order->client_name ?? ($order->client->business_name ?? 'N/A'),
+            $order->client?->business_name ?? ($order->client_name ?? 'N/A'),
             $order->consigned_to ?? 'N/A',
+            'SIN DATOS',
             $order->destination ?? 'N/A',
             $order->state ?? 'N/A',
             $productCode,
             $productName,
             $order->presentation ?? 'N/A',
             $ticket->lot->folio ?? 'N/A',
-            $ticket->gross_weight ?? 0,
-            $ticket->tare_weight ?? 0,
-            $ticket->net_weight ?? 0,
-            $order->programmed_tons ?? 0,
-            $order->sacks_count ?? 'N/A',
+            ($ticket->gross_weight ?? 0) / 1000,
+            ($ticket->tare_weight ?? 0) / 1000,
+            ($ticket->net_weight ?? 0) / 1000,
+            (float) ($order->programmed_tons ?? 0),
+            $sacksValue,
             $ticket->packaging_type ?? 'N/A',
             $loadingOrder->warehouse ?? 'N/A',
-            $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('H:i') : '---',
-            $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('H:i') : '---',
+            $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('h:i A') : '---',
+            $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('h:i A') : '---',
             $order->transport_company ?? 'N/A',
-            $order->operator_name ?? 'N/A',
+            $order->operator_name ?? ($order->driver->name ?? 'N/A'),
             $order->carta_porte ?? 'N/A',
             $order->unit_type ?? 'N/A',
             $order->tractor_plate ?? 'N/A',
@@ -341,27 +273,25 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             ],
         ];
 
-        if ($isSader) {
-            // Corporate Header Styling
-            $sheet->mergeCells('A1:AG1');
-            $sheet->mergeCells('A2:AG2');
-            $sheet->mergeCells('A3:AG3');
-            $sheet->mergeCells('A4:AG4');
-            $sheet->mergeCells('A5:AG5');
+        // All reports now use corporate styling
+        $sheet->mergeCells('A1:AG1');
+        $sheet->mergeCells('A2:AG2');
+        $sheet->mergeCells('A3:AG3');
+        $sheet->mergeCells('A4:AG4');
+        $sheet->mergeCells('A5:AG5');
 
-            $sheet->setCellValue('A1', 'PRO-AGROINDUSTRIA, S.A. DE C.V.');
-            $sheet->setCellValue('A2', 'CONTROL DE PESAJE DE UNIDADES');
-            $sheet->setCellValue('A3', 'JEFATURA DE TRAFICO');
-            $sheet->setCellValue('A4', '');
-            $sheet->setCellValue('A5', 'REGISTRO DE SALIDA DE PRODUCTO');
+        $sheet->setCellValue('A1', 'PRO-AGROINDUSTRIA, S.A. DE C.V.');
+        $sheet->setCellValue('A2', 'CONTROL DE PESAJE DE UNIDADES');
+        $sheet->setCellValue('A3', 'JEFATURA DE TRAFICO');
+        $sheet->setCellValue('A4', '');
+        $sheet->setCellValue('A5', 'REGISTRO DE SALIDA DE PRODUCTO');
 
-            $sheet->getStyle('A1:AG5')->getFont()->setBold(true);
-            $sheet->getStyle('A1')->getFont()->setSize(14);
-            $sheet->getStyle('A1:AG5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:AG5')->getFont()->setBold(true);
+        $sheet->getStyle('A1')->getFont()->setSize(14);
+        $sheet->getStyle('A1:AG5')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-            // Red Line under corporate header (A1 to AG1 bottom)
-            $sheet->getStyle('A1:AG1')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK)->getColor()->setRGB('FF0000');
-        }
+        // Red Line under corporate header (A1 to AG1 bottom)
+        $sheet->getStyle('A1:AG1')->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK)->getColor()->setRGB('FF0000');
 
         return $styles;
     }
@@ -370,20 +300,11 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     {
         $isSader = $this->filters['is_sader'] ?? false;
 
-        if ($isSader) {
-            return [
-                'P' => '0.000', // PB
-                'Q' => '0.000', // PT
-                'R' => '0.000', // PN
-                'S' => '0.00', // P.PROG
-            ];
-        }
-
         return [
-            'L' => '#,##0.00', // PB
-            'M' => '#,##0.00', // PT
-            'N' => '#,##0.00', // PN
-            'O' => '#,##0.00', // P.PROG
+            'P' => '0.000', // PB
+            'Q' => '0.000', // PT
+            'R' => '0.000', // PN
+            'S' => '0.00',  // P.PROG
         ];
     }
 
@@ -392,8 +313,8 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $isSader = $this->filters['is_sader'] ?? false;
-                $headerRow = $isSader ? 6 : 1;
-                $lastCol = $isSader ? 'AG' : 'AF';
+                $headerRow = 6;
+                $lastCol = 'AG';
 
                 // Set Filter on Headings row
                 $event->sheet->setAutoFilter("A{$headerRow}:{$lastCol}{$headerRow}");

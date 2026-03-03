@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v31 (SADER V12 - LEFT JOIN origin_name - Definitive Fix)
+# Force trigger: v32 (Report Unification V14 - General matches SADER design)
 
 on:
   push:
