@@ -144,8 +144,20 @@ class DockController extends Controller
             }
         }
 
+        if (in_array($request->operation_type, ['Carga', 'Descarga']) && !empty($request->holds)) {
+            $totalHoldTonnage = collect($request->holds)->sum(function ($hold) {
+                return (float) ($hold['tonnage'] ?? 0);
+            });
+
+            if (abs($totalHoldTonnage - (float) ($request->programmed_tonnage ?? 0)) > 0.1) {
+                return back()->withErrors([
+                    'error' => "La suma de las toneladas de las bodegas ($totalHoldTonnage TM) debe ser igual al tonelaje programado ({$request->programmed_tonnage} TM)."
+                ])->withInput();
+            }
+        }
+
         try {
-            Vessel::create($validated);
+            Vessel::create($request->all());
             return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Vessel Create Error: ' . $e->getMessage());
@@ -273,6 +285,18 @@ class DockController extends Controller
                 ])->withInput();
             }
         }
+        if (in_array($request->operation_type, ['Carga', 'Descarga']) && !empty($request->holds)) {
+            $totalHoldTonnage = collect($request->holds)->sum(function ($hold) {
+                return (float) ($hold['tonnage'] ?? 0);
+            });
+
+            if (abs($totalHoldTonnage - (float) ($request->programmed_tonnage ?? 0)) > 0.1) {
+                return back()->withErrors([
+                    'error' => "La suma de las toneladas de las bodegas ($totalHoldTonnage TM) debe ser igual al tonelaje programado ({$request->programmed_tonnage} TM)."
+                ])->withInput();
+            }
+        }
+
         $vessel->update($request->all());
 
         return redirect()->route('dock.index')->with('success', 'Buque actualizado exitosamente.');
@@ -455,32 +479,26 @@ class DockController extends Controller
 
             $pendingMt = $isDischarge ? $onBoardMt : max(0, $programmedMt - $totalProcessedMt);
 
-            // Prepare Hatch Breakdown (Using Trip Data)
+            // Prepare Hatch Breakdown
             $hatches = [];
             if ($v->holds && is_array($v->holds)) {
-                $hatchesCount = count($v->holds);
-                $avgPerHatch = $programmedMt / max(1, $hatchesCount);
-
-                foreach ($v->holds as $hIndex => $hName) {
-                    $hNumber = $hIndex + 1;
+                foreach ($v->holds as $hIndex => $holdData) {
+                    $hNumber = $holdData['hold_number'] ?? ($hIndex + 1);
+                    $hProgrammedMt = (float) ($holdData['tonnage'] ?? 0);
                     $hWeightMt = $tripStats->where('hold_number', $hNumber)->first()->total_mt ?? 0;
 
                     if ($isDischarge) {
-                        // For discharge: hatch percent is % REMAINING in that hatch? 
-                        // Actually, UI usually shows progress of the task. 
-                        // But user specifically asked for "se le va quitando".
-                        // Let's show % on board for discharge in hatch circles.
-                        $remainingInHatch = max(0, $avgPerHatch - $hWeightMt);
-                        $hatchPercent = $avgPerHatch > 0 ? round(($remainingInHatch / $avgPerHatch) * 100, 1) : 0;
+                        $remainingInHatch = max(0, $hProgrammedMt - $hWeightMt);
+                        $hatchPercent = $hProgrammedMt > 0 ? round(($remainingInHatch / $hProgrammedMt) * 100, 1) : 0;
                         $hatchDisplayWeight = round($remainingInHatch, 2);
                     } else {
-                        $hatchPercent = $avgPerHatch > 0 ? round(($hWeightMt / $avgPerHatch) * 100, 1) : 0;
+                        $hatchPercent = $hProgrammedMt > 0 ? round(($hWeightMt / $hProgrammedMt) * 100, 1) : 0;
                         $hatchDisplayWeight = round($hWeightMt, 2);
                     }
 
                     $hatches[] = [
                         'id' => $hNumber,
-                        'name' => $hName ?: "Bodega $hNumber",
+                        'name' => $holdData['hold_number_label'] ?? "Bodega $hNumber",
                         'loaded_mt' => $hatchDisplayWeight,
                         'percent' => $hatchPercent
                     ];

@@ -126,8 +126,32 @@ export default function EditVessel({
         setData("holds", newHolds);
     };
 
+    const totalHoldTonnage = data.holds.reduce((acc: number, hold: any) => acc + (parseFloat(hold.tonnage) || 0), 0);
+    const isTonnageMismatch = data.holds.length > 0 &&
+        (data.operation_type === "Descarga" || data.operation_type === "Carga") &&
+        Math.abs(totalHoldTonnage - (parseFloat(data.programmed_tonnage) || 0)) > 0.01;
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (isTonnageMismatch) {
+            Swal.fire({
+                title: '<span style="color: #ef4444; font-weight: 700;">Desfase de Tonelaje</span>',
+                html: `
+                    <div style="text-align: left;">
+                        <p style="color: #4b5563;">La suma del peso en las bodegas (<b>${totalHoldTonnage.toFixed(2)} TM</b>) no coincide con el tonelaje programado (<b>${data.programmed_tonnage} TM</b>).</p>
+                        <p style="color: #ef4444; font-weight: bold; margin-top: 10px;">Diferencia: ${(totalHoldTonnage - (parseFloat(data.programmed_tonnage) || 0)).toFixed(2)} TM</p>
+                        <p style="font-size: 0.875rem; color: #6b7280; margin-top: 10px;">Por favor ajuste los pesos antes de continuar.</p>
+                    </div>
+                `,
+                icon: "warning",
+                iconColor: "#f59e0b",
+                confirmButtonColor: "#4f46e5",
+                confirmButtonText: "Entendido",
+            });
+            return;
+        }
+
         put(route("dock.vessel.update", vessel.id), {
             onSuccess: () => {
                 Swal.fire({
@@ -846,6 +870,22 @@ export default function EditVessel({
                                     </div>
 
                                     {/* Holds Distribution */}
+                                    {data.holds.length > 0 && (
+                                        <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between mb-6">
+                                            <div>
+                                                <p className="text-sm text-indigo-900 font-bold uppercase tracking-wider">Resumen de Bodegas</p>
+                                                <p className="text-xs text-indigo-600">Suma total asignada a bodegas</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className={`text-xl font-black ${isTonnageMismatch ? 'text-red-600' : 'text-green-600'}`}>
+                                                    {totalHoldTonnage.toFixed(2)} / {data.programmed_tonnage || '0'} <small className="text-xs">TM</small>
+                                                </p>
+                                                {isTonnageMismatch && (
+                                                    <p className="text-[10px] text-red-500 font-bold animate-pulse">EL TONELAJE NO COINCIDE</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="md:col-span-2 pt-4 border-t border-blue-100">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                             <div>
@@ -976,6 +1016,22 @@ export default function EditVessel({
                                     </div>
 
                                     {/* Holds Distribution */}
+                                    {data.holds.length > 0 && (
+                                        <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between mb-6">
+                                            <div>
+                                                <p className="text-sm text-indigo-900 font-bold uppercase tracking-wider">Resumen de Bodegas</p>
+                                                <p className="text-xs text-indigo-600">Suma total asignada a bodegas</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className={`text-xl font-black ${isTonnageMismatch ? 'text-red-600' : 'text-green-600'}`}>
+                                                    {totalHoldTonnage.toFixed(2)} / {data.programmed_tonnage || '0'} <small className="text-xs">TM</small>
+                                                </p>
+                                                {isTonnageMismatch && (
+                                                    <p className="text-[10px] text-red-500 font-bold animate-pulse">EL TONELAJE NO COINCIDE</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="pt-4 border-t border-orange-100">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                             <div>
