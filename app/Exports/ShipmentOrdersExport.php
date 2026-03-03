@@ -109,13 +109,13 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                         $q2->whereBetween('weigh_out_at', $range);
                     })->orWhere(function ($q3) use ($range) {
                         $q3->whereDoesntHave('weight_ticket')
-                            ->whereBetween('created_at', $range);
+                            ->whereBetween('shipment_orders.created_at', $range);
                     });
                 }
             });
         }
 
-        return $query->orderByDesc('created_at');
+        return $query->orderByDesc('shipment_orders.created_at');
     }
 
     public function headings(): array
