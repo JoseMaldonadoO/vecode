@@ -242,7 +242,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $ticketFolio,
                 $fechaCarga,
                 'SIN DATOS',
-                ($order->origin_relation ? $order->origin_relation->name : ($order->getAttributes()['origin'] ?? $order->origin ?? 'N/A')),
+                ($order->origin ? $order->origin->name : ($order->getAttributes()['origin'] ?? 'N/A')),
                 $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
                 $order->folio,
                 $order->client?->business_name ?? ($order->client_name ?? 'N/A'),
@@ -367,10 +367,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
         if ($isSader) {
             return [
-                'P' => '#,##0.00', // PB
-                'Q' => '#,##0.00', // PT
-                'R' => '#,##0.00', // PN
-                'S' => '#,##0.00', // P.PROG
+                'P' => '#.##0', // PB
+                'Q' => '#.##0', // PT
+                'R' => '#.##0', // PN
+                'S' => '#.##0', // P.PROG
             ];
         }
 

@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v26 (SADER Date Precision & Robust Timeouts - Plan V7)
+# Force trigger: v27 (SADER Origin fix & Number Format - Plan V8)
 
 on:
   push:
