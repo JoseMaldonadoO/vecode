@@ -54,7 +54,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
         // Filter by SADER
         if ($isSader) {
-            $query->where('consigned_to', 'SADER');
+            $query->where(function ($q) {
+                $q->whereRaw("UPPER(TRIM(consigned_to)) = 'SADER'")
+                    ->orWhere('consigned_to', 'SADER');
+            });
             // Only include records that have physically completed the weighing process
             $query->whereHas('weight_ticket', function ($q) {
                 $q->whereNotNull('weigh_out_at');
@@ -71,7 +74,8 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         $query->where('status', '!=', 'cancelled');
 
         // Active filters from UI
-        if (!empty($this->filters['search'])) {
+        // SADER report should IGNORE the search filter to ensure full daily availability
+        if (!$isSader && !empty($this->filters['search'])) {
             $search = $this->filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('folio', 'like', "%{$search}%")
@@ -230,8 +234,13 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         }
 
         if ($isSader) {
+            $ticketFolio = $ticket?->loadingOrder?->folio
+                ?? $ticket?->ticket_number
+                ?? $order->folio
+                ?? 'N/A';
+
             return [
-                $ticket->loadingOrder->folio ?? 'N/A',
+                $ticketFolio,
                 $fechaCarga,
                 'SIN DATOS',
                 ($order->origin_relation ? $order->origin_relation->name : ($order->getAttributes()['origin'] ?? $order->origin ?? 'N/A')),
