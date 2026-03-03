@@ -19,6 +19,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Carbon\Carbon;
 use App\Helpers\OperationalTimeHelper;
+use App\Models\ShipmentOrigin;
 
 class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithColumnFormatting, WithEvents, WithCustomStartCell
 {
@@ -242,7 +243,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 $ticketFolio,
                 $fechaCarga,
                 'SIN DATOS',
-                ($order->origin?->name ?? ($order->getAttribute('origin') ?: 'N/A')),
+                ($order->origin instanceof ShipmentOrigin ? $order->origin->name : ($order->getRawOriginal('origin') ?: 'N/A')),
                 $order->sale_order_folio ?? ($order->sales_order?->folio ?? 'N/A'),
                 $order->folio,
                 $order->client?->business_name ?? ($order->client_name ?? 'N/A'),
