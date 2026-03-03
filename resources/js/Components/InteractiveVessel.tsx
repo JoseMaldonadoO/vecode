@@ -7,6 +7,7 @@ interface Hatch {
     name: string;
     loaded_mt: number;
     percent: number;
+    trip_count: number;
 }
 
 interface VesselStats {
@@ -245,12 +246,20 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                         </div>
                                     </div>
 
-                                    <div className="mt-8">
-                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-2">Carga Consolidada</span>
-                                        <h3 className="text-6xl font-black text-white tracking-tighter flex items-end gap-3 flex-wrap">
-                                            {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString('es-MX')}
-                                            <span className="text-xs font-black text-white/40 mb-2 tracking-widest uppercase">TONELADAS</span>
-                                        </h3>
+                                    <div className="mt-8 flex justify-between items-end">
+                                        <div>
+                                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-2">Carga Consolidada</span>
+                                            <h3 className="text-6xl font-black text-white tracking-tighter flex items-end gap-3 flex-wrap">
+                                                {vessel.hatches.find(h => h.id === selectedHatch)?.loaded_mt?.toLocaleString('es-MX')}
+                                                <span className="text-xs font-black text-white/40 mb-2 tracking-widest uppercase">TONELADAS</span>
+                                            </h3>
+                                        </div>
+                                        <div className="text-right pb-1">
+                                            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block mb-1">Vueltas</span>
+                                            <h3 className="text-4xl font-black text-indigo-400 tracking-tighter leading-none">
+                                                {vessel.hatches.find(h => h.id === selectedHatch)?.trip_count || 0}
+                                            </h3>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (

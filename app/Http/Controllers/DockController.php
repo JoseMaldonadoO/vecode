@@ -447,7 +447,7 @@ class DockController extends Controller
             // 2. Fetch Trip-based counts (source for hold breakdown and counts)
             $tripStats = \App\Models\VesselOperatorTrip::where('vessel_id', $v->id)
                 ->where('status', '!=', 'cancelled')
-                ->selectRaw('SUM(weight) as total_mt, hold_number')
+                ->selectRaw('SUM(weight) as total_mt, COUNT(*) as trip_count, hold_number')
                 ->groupBy('hold_number')
                 ->get();
             $programmedMt = $v->programmed_tonnage ?: 0;
@@ -485,7 +485,9 @@ class DockController extends Controller
                 foreach ($v->holds as $hIndex => $holdData) {
                     $hNumber = $holdData['hold_number'] ?? ($hIndex + 1);
                     $hProgrammedMt = (float) ($holdData['tonnage'] ?? 0);
-                    $hWeightMt = $tripStats->where('hold_number', $hNumber)->first()->total_mt ?? 0;
+                    $hStat = $tripStats->where('hold_number', $hNumber)->first();
+                    $hWeightMt = $hStat->total_mt ?? 0;
+                    $hTripCount = (int) ($hStat->trip_count ?? 0);
 
                     if ($isDischarge) {
                         $remainingInHatch = max(0, $hProgrammedMt - $hWeightMt);
@@ -500,7 +502,8 @@ class DockController extends Controller
                         'id' => $hNumber,
                         'name' => $holdData['hold_number_label'] ?? "Bodega $hNumber",
                         'loaded_mt' => $hatchDisplayWeight,
-                        'percent' => $hatchPercent
+                        'percent' => $hatchPercent,
+                        'trip_count' => $hTripCount
                     ];
                 }
             }
