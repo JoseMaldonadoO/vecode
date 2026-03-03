@@ -84,13 +84,23 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         if (!empty($this->filters['date'])) {
             $range = OperationalTimeHelper::getOperationalRange($this->filters['date']);
 
-            $query->where(function ($q) use ($range) {
-                $q->whereHas('weight_ticket', function ($q2) use ($range) {
-                    $q2->whereBetween('weigh_out_at', $range);
-                })->orWhere(function ($q3) use ($range) {
-                    $q3->whereDoesntHave('weight_ticket')
-                        ->whereBetween('created_at', $range);
-                });
+            $query->where(function ($q) use ($range, $isSader) {
+                if ($isSader) {
+                    // For SADER, be more inclusive: 
+                    // Orders created in the range OR orders with tickets weighed in the range
+                    $q->whereBetween('created_at', $range)
+                        ->orWhereHas('weight_ticket', function ($q2) use ($range) {
+                            $q2->whereBetween('weigh_out_at', $range);
+                        });
+                } else {
+                    // Standard General logic: Weighed out OR (if no ticket) created in range
+                    $q->whereHas('weight_ticket', function ($q2) use ($range) {
+                        $q2->whereBetween('weigh_out_at', $range);
+                    })->orWhere(function ($q3) use ($range) {
+                        $q3->whereDoesntHave('weight_ticket')
+                            ->whereBetween('created_at', $range);
+                    });
+                }
             });
         }
 
