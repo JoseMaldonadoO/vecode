@@ -54,17 +54,20 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         // Filter by SADER
         if ($isSader) {
             $query->where('consigned_to', 'SADER');
-            // SADER only wants COMPLETED orders (those that already have weights/ticket)
-            $query->where('status', 'completed');
+            // Only include records that have physically completed the weighing process
+            $query->whereHas('weight_ticket', function ($q) {
+                $q->whereNotNull('weigh_out_at');
+            });
         } else {
             $query->where(function ($q) {
                 $q->where('consigned_to', '!=', 'SADER')
                     ->orWhereNull('consigned_to')
                     ->orWhere('consigned_to', 'N/A');
             });
-            // Regular export keeps previous filters or all active
-            $query->where('status', '!=', 'cancelled');
         }
+
+        // Always exclude cancelled orders
+        $query->where('status', '!=', 'cancelled');
 
         // Active filters from UI
         if (!empty($this->filters['search'])) {
@@ -86,10 +89,11 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
             $query->where(function ($q) use ($range, $isSader) {
                 if ($isSader) {
-                    // For SADER, filter EXCLUSIVELY by weigh out date to match physical completion
-                    $q->whereHas('weight_ticket', function ($q2) use ($range) {
-                        $q2->whereBetween('weigh_out_at', $range);
-                    });
+                    // For SADER, filter INCLUSIVELY (Created in range OR Weighed out in range)
+                    $q->whereBetween('created_at', $range)
+                        ->orWhereHas('weight_ticket', function ($q2) use ($range) {
+                            $q2->whereBetween('weigh_out_at', $range);
+                        });
                 } else {
                     // Standard General logic: Weighed out OR (if no ticket) created in range
                     $q->whereHas('weight_ticket', function ($q2) use ($range) {
