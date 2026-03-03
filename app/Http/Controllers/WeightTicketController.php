@@ -341,9 +341,12 @@ class WeightTicketController extends Controller
             return back()->withErrors(['error' => 'Ticket no encontrado.']);
         }
 
+        $activeLots = \App\Models\Lot::where('status', 'open')->orderBy('created_at', 'desc')->get(['id', 'folio']);
+
         return Inertia::render('Scale/Tickets/Edit', [
             'ticket' => $order->weight_ticket,
-            'order' => $order
+            'order' => $order,
+            'active_lots' => $activeLots
         ]);
     }
 
@@ -363,6 +366,8 @@ class WeightTicketController extends Controller
             'tare_weight' => 'required|numeric|min:0',
             'gross_weight' => 'required|numeric|min:0',
             'net_weight' => 'required|numeric|min:0', // calculated usually, but allowed to edit?
+            'lot_id' => 'nullable|exists:lots,id',
+            'packaging_type' => 'nullable|string',
             'observations' => 'nullable|string',
         ]);
 
@@ -370,6 +375,8 @@ class WeightTicketController extends Controller
             'tare_weight' => $validated['tare_weight'],
             'gross_weight' => $validated['gross_weight'],
             'net_weight' => $validated['net_weight'],
+            'lot_id' => $validated['lot_id'],
+            'packaging_type' => $validated['packaging_type'],
         ]);
 
         // Also update Order observations if needed

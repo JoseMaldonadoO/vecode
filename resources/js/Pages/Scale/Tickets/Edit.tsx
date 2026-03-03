@@ -11,15 +11,21 @@ export default function Edit({
     auth,
     ticket,
     order,
+    active_lots = [],
 }: {
     auth: any;
     ticket: any;
     order: any;
+    active_lots: any[];
 }) {
+    const isSale = !!order.shipment_order_id || !order.vessel_id;
+
     const { data, setData, put, processing, errors, reset } = useForm({
         tare_weight: ticket.tare_weight || 0,
         gross_weight: ticket.gross_weight || 0,
         net_weight: ticket.net_weight || 0,
+        lot_id: ticket.lot_id || "",
+        packaging_type: ticket.packaging_type || "N/A",
         observations: order.observation || "",
     });
 
@@ -27,7 +33,7 @@ export default function Edit({
     useEffect(() => {
         const net = Math.abs(
             (parseFloat(data.gross_weight) || 0) -
-                (parseFloat(data.tare_weight) || 0),
+            (parseFloat(data.tare_weight) || 0),
         );
         setData("net_weight", net);
     }, [data.gross_weight, data.tare_weight]);
@@ -177,6 +183,66 @@ export default function Edit({
                                     afectará los reportes y el inventario.
                                     Asegúrese de tener autorización.
                                 </p>
+                            </div>
+                        </div>
+
+                        {/* Manual Fields Section */}
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <span className="w-1 h-6 bg-indigo-500 rounded-full"></span>
+                                Campos Manuales de Destare
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-xl border border-gray-100">
+                                {/* Lot */}
+                                <div>
+                                    <InputLabel
+                                        htmlFor="lot_id"
+                                        value="LOTE"
+                                        className="text-indigo-900 font-bold"
+                                    />
+                                    <select
+                                        id="lot_id"
+                                        value={data.lot_id}
+                                        onChange={(e) => setData("lot_id", e.target.value)}
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm font-bold"
+                                    >
+                                        <option value="">N/A</option>
+                                        {active_lots.map((lot: any) => (
+                                            <option key={lot.id} value={lot.id}>
+                                                {lot.folio}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError
+                                        message={errors.lot_id}
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                {/* Packaging Type (Only for Sales) */}
+                                {isSale && (
+                                    <div>
+                                        <InputLabel
+                                            htmlFor="packaging_type"
+                                            value="ENVASE"
+                                            className="text-indigo-900 font-bold"
+                                        />
+                                        <select
+                                            id="packaging_type"
+                                            value={data.packaging_type}
+                                            onChange={(e) => setData("packaging_type", e.target.value)}
+                                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm font-bold"
+                                        >
+                                            <option value="N/A">N/A</option>
+                                            <option value="PRO-AGRO">PRO-AGRO</option>
+                                            <option value="FERTINAL">FERTINAL</option>
+                                        </select>
+                                        <InputError
+                                            message={errors.packaging_type}
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
