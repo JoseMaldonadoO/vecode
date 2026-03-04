@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v42 (General Report: Completed records only filter)
+# Force trigger: v43 (OE Documentation: Mandatory and Positive Programmed Tons)
 
 on:
   push:

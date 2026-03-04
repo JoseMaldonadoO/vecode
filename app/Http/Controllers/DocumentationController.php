@@ -96,10 +96,10 @@ class DocumentationController extends Controller
             'origin_id' => 'nullable|exists:shipment_origins,id',
             'destination' => 'nullable|string',
             'product' => 'nullable|string', // Text snapshot or ID? Form implies text/select
-            'presentation' => 'nullable|string',
+            'presentation' => 'required|string',
             'sack_type' => 'nullable|string', // Frontend supplemental field
             'sacks_count' => 'nullable|string',
-            'programmed_tons' => 'nullable|numeric',
+            'programmed_tons' => 'required|numeric|gt:0',
             'balance' => 'nullable', // Frontend field for shortage_balance
             'shortage_balance' => 'nullable|string',
             'documenter_name' => 'nullable|string',
@@ -615,10 +615,11 @@ class DocumentationController extends Controller
             // Shipment
             'destination' => 'nullable|string',
             'product' => 'nullable|string',
-            'presentation' => 'nullable|string',
+            'presentation' => 'required|string',
             'sack_type' => 'nullable|string',
             'sacks_count' => 'nullable|string',
-            'programmed_tons' => 'nullable|numeric',
+            'programmed_tons' => 'required|numeric|gt:0',
+            'origin_id' => 'required',
             'balance' => 'nullable',
             'shortage_balance' => 'nullable|string',
             'observations' => 'nullable|string',

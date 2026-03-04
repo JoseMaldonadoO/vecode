@@ -802,15 +802,17 @@ export default function Create({
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Ton. Programadas
+                                    Ton. Programadas <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="number"
                                     step="0.01"
+                                    required
+                                    min="0.01"
                                     value={data.programmed_tons}
                                     onWheel={(e) => e.currentTarget.blur()}
                                     onChange={(e) => setData("programmed_tons", e.target.value)}
-                                    className={`w-full rounded-lg shadow-sm focus:ring-indigo-500 py-2.5 px-3 font-bold ${Number(data.programmed_tons) > Number(data.balance)
+                                    className={`w-full rounded-lg shadow-sm focus:ring-indigo-500 py-2.5 px-3 font-bold ${(Number(data.programmed_tons) > Number(data.balance) || (data.programmed_tons !== "" && Number(data.programmed_tons) <= 0))
                                         ? 'border-red-500 focus:border-red-500 bg-red-50'
                                         : 'border-gray-300 focus:border-indigo-500'
                                         }`}
@@ -819,6 +821,11 @@ export default function Create({
                                 {Number(data.programmed_tons) > Number(data.balance) && (
                                     <p className="text-red-600 text-[10px] mt-1 font-bold animate-pulse">
                                         ❌ Excede el saldo de la OV ({data.balance} TM)
+                                    </p>
+                                )}
+                                {data.programmed_tons !== "" && Number(data.programmed_tons) <= 0 && (
+                                    <p className="text-red-600 text-[10px] mt-1 font-bold">
+                                        ❌ El tonelaje debe ser mayor a 0
                                     </p>
                                 )}
                                 {errors.programmed_tons && (
