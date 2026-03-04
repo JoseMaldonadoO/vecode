@@ -71,9 +71,11 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             });
         } else {
             $query->where(function ($q) {
-                $q->where('consigned_to', '!=', 'SADER')
-                    ->orWhereNull('consigned_to')
-                    ->orWhere('consigned_to', 'N/A');
+                // EXCLUDE SADER robustly
+                $q->where(function ($sq) {
+                    $sq->whereRaw("UPPER(TRIM(COALESCE(consigned_to, ''))) != 'SADER'")
+                        ->orWhereNull('consigned_to');
+                });
             });
         }
 
@@ -324,9 +326,11 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     public function styles(Worksheet $sheet)
     {
         $isSader = $this->filters['is_sader'] ?? false;
-        $headerColor = $isSader ? '22C55E' : '4F46E5';
-        $headerRow = $isSader ? 6 : 1;
-        $lastCol = $isSader ? 'AG' : 'AF';
+        // Unified Green color for all reports (SADER Green)
+        $headerColor = '22C55E';
+        // Always start styling from Row 6 (where headings are)
+        $headerRow = 6;
+        $lastCol = 'AG';
 
         $styles = [
             $headerRow => [
