@@ -380,7 +380,7 @@ class WeightTicketController extends Controller
             'packaging_type' => $validated['packaging_type'],
         ]);
 
-        // Determine Warehouse to update in LoadingOrder
+        // Determine Warehouse to update in LoadingOrder and ShipmentOrder
         $finalWarehouse = $order->warehouse;
         if (!empty($validated['lot_id'])) {
             $lot = \App\Models\Lot::find($validated['lot_id']);
@@ -391,8 +391,12 @@ class WeightTicketController extends Controller
             $finalWarehouse = $validated['warehouse'];
         }
 
-        // Always ensure the linked LoadingOrder reflects the correct warehouse for SADER
+        // Always ensure both the OE and the linked LoadingOrder reflect the correct warehouse
         $order->update(['warehouse' => $finalWarehouse]);
+        if ($order instanceof \App\Models\ShipmentOrder) {
+            // Also update the first loading order to ensure data consistency for queries
+            $order->loadingOrders()->first()?->update(['warehouse' => $finalWarehouse]);
+        }
 
         // Also update Order observations if needed
         if ($request->has('observations')) {

@@ -20,6 +20,8 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use Carbon\Carbon;
 use App\Helpers\OperationalTimeHelper;
 use App\Models\ShipmentOrigin;
+use App\Models\Lot;
+use Illuminate\Support\Facades\DB;
 
 class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithColumnFormatting, WithEvents, WithCustomStartCell
 {
@@ -161,25 +163,73 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
     public function map($order): array
     {
         // Robust Ticket & LoadingOrder Resolution
+        // Goal: Find the ticket that actually has the lot assigned during Destare.
         $ticket = null;
         $loadingOrder = null;
 
-        // Iterate loading orders to find the ticket with a lot (Destare priority)
+        // 1. Try to find a ticket with a lot within associated loading orders
         foreach ($order->loadingOrders as $lo) {
             if ($lo->weight_ticket) {
-                if (!$ticket || $lo->weight_ticket->lot_id) {
+                // If it has a lot, this is definitely our target
+                if ($lo->weight_ticket->lot_id) {
+                    $ticket = $lo->weight_ticket;
+                    $loadingOrder = $lo;
+                    break;
+                }
+                // Fallback to the first ticket found if none have a lot yet
+                if (!$ticket) {
                     $ticket = $lo->weight_ticket;
                     $loadingOrder = $lo;
                 }
-                if ($ticket->lot_id)
-                    break;
             }
         }
 
-        // Fallbacks
-        $ticket = $ticket ?? $order->weight_ticket;
+        // 2. Fallback to the direct ticket if still no lot found
+        if (!$ticket || !$ticket->lot_id) {
+            if ($order->weight_ticket) {
+                $ticket = $order->weight_ticket;
+                // If this direct ticket has a lot, use it.
+            }
+        }
+
+        // 3. Ensure we have at least any loading order for warehouse/etc fallback
         $loadingOrder = $loadingOrder ?? $order->loadingOrders->first();
+
         $isSader = $this->filters['is_sader'] ?? false;
+
+        // Lot Folio Resolution (Master Strategy V18.2)
+        // We scan everything: Direct OE ticket, and then all Loading Orders (Trips)
+        $lotFolio = 'N/A';
+        $foundLotId = null;
+
+        // Priority 1: Check early for the direct ticket if it exists and has a lot
+        if ($order->weight_ticket && $order->weight_ticket->lot_id) {
+            $ticket = $order->weight_ticket;
+            $foundLotId = $ticket->lot_id;
+        }
+
+        // Priority 2: Scan Loading Orders if still no lot
+        if (!$foundLotId) {
+            foreach ($order->loadingOrders as $lo) {
+                if ($lo->weight_ticket && $lo->weight_ticket->lot_id) {
+                    $ticket = $lo->weight_ticket;
+                    $foundLotId = $ticket->lot_id;
+                    $loadingOrder = $lo;
+                    break;
+                }
+            }
+        }
+
+        // Final resolution of the folio string
+        if ($foundLotId) {
+            // Try Eloquent relationship first (if loaded)
+            if ($ticket->lot && !empty($ticket->lot->folio)) {
+                $lotFolio = $ticket->lot->folio;
+            } else {
+                // Absolute fallback: Direct query to DB to bypass relationship depth issues
+                $lotFolio = DB::table('lots')->where('id', $foundLotId)->value('folio') ?? 'N/A';
+            }
+        }
 
         // Product Logic
         $productObj = $order->items->first()?->product;
@@ -241,7 +291,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             $productCode,
             $productName,
             $order->presentation ?? 'N/A',
-            $ticket->lot->folio ?? 'N/A',
+            $lotFolio,
             ($ticket->gross_weight ?? 0) / 1000,
             ($ticket->tare_weight ?? 0) / 1000,
             ($ticket->net_weight ?? 0) / 1000,
