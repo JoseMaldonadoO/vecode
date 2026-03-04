@@ -21,7 +21,6 @@ class SalesController extends Controller
         $query = \App\Models\SalesOrder::with([
             'client',
             'product',
-            'shipments.loadingOrders.weight_ticket', // Required for balance calculation
         ]);
 
         if ($request->has('search')) {
@@ -62,18 +61,16 @@ class SalesController extends Controller
     /**
      * Get detailed trip breakdown for a specific Sales Order (AJAX)
      */
-    public function breakdown(string $id)
+    public function breakdown(Request $request, string $id)
     {
-        $order = \App\Models\SalesOrder::with([
-            'loading_orders.weight_ticket',
-            'loading_orders.shipment_order',
-            'loading_orders.driver',
-            'loading_orders.transporter'
-        ])->findOrFail($id);
+        $order = \App\Models\SalesOrder::findOrFail($id);
 
-        return response()->json([
-            'loading_orders' => $order->loading_orders
-        ]);
+        $loading_orders = $order->loading_orders()
+            ->with(['weight_ticket', 'shipment_order', 'driver', 'transporter'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return response()->json($loading_orders);
     }
 
     public function create()

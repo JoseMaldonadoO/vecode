@@ -86,8 +86,9 @@ export default function Index({
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [breakdownLoading, setBreakdownLoading] = useState(false);
     const [breakdownData, setBreakdownData] = useState<any[]>([]);
+    const [breakdownLinks, setBreakdownLinks] = useState<any[]>([]);
     const [currentTripPage, setCurrentTripPage] = useState(1);
-    const tripsPerPage = 10;
+    const [totalTripPages, setTotalTripPages] = useState(1);
 
     useEffect(() => {
         if (flash?.success) {
@@ -132,30 +133,17 @@ export default function Index({
 
     const filteredOrders = orders.data;
 
-    // Trip Pagination Logic
-    const paginatedTrips = useMemo(() => {
-        if (!selectedOrder) return [];
-        const activeTrips = breakdownData.filter(t => t.status !== 'cancelled');
-        const startIndex = (currentTripPage - 1) * tripsPerPage;
-        return activeTrips.slice(startIndex, startIndex + tripsPerPage);
-    }, [selectedOrder, breakdownData, currentTripPage]);
-
-    const totalTripPages = useMemo(() => {
-        if (!selectedOrder) return 0;
-        const activeTrips = breakdownData.filter(t => t.status !== 'cancelled');
-        return Math.ceil(activeTrips.length / tripsPerPage);
-    }, [selectedOrder, breakdownData]);
-
-    const handleOpenBreakdown = async (order: Order) => {
-        setSelectedOrder(order);
+    const handleOpenBreakdown = async (order: Order, page = 1) => {
+        if (page === 1) setSelectedOrder(order);
         setBreakdownLoading(true);
-        setBreakdownData([]);
-        setCurrentTripPage(1);
+        setCurrentTripPage(page);
 
         try {
-            const response = await fetch(route("sales.orders.breakdown", order.id));
+            const response = await fetch(route("sales.orders.breakdown", { id: order.id, page }));
             const data = await response.json();
-            setBreakdownData(data.loading_orders || []);
+            setBreakdownData(data.data || []);
+            setBreakdownLinks(data.links || []);
+            setTotalTripPages(data.last_page || 1);
         } catch (error) {
             console.error("Error fetching breakdown:", error);
         } finally {
@@ -505,8 +493,8 @@ export default function Index({
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-100">
-                                    {paginatedTrips.length > 0 ? (
-                                        paginatedTrips.map((trip) => {
+                                    {breakdownData.length > 0 ? (
+                                        breakdownData.map((trip) => {
                                             const isCompleted = trip.weight_ticket?.weighing_status === 'completed';
                                             const weight = isCompleted
                                                 ? (trip.weight_ticket?.net_weight || 0) / 1000
@@ -578,15 +566,15 @@ export default function Index({
                             </span>
                             <div className="flex gap-2">
                                 <button
-                                    onClick={() => setCurrentTripPage(p => Math.max(1, p - 1))}
-                                    disabled={currentTripPage === 1}
+                                    onClick={() => handleOpenBreakdown(selectedOrder!, currentTripPage - 1)}
+                                    disabled={currentTripPage === 1 || breakdownLoading}
                                     className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
                                 </button>
                                 <button
-                                    onClick={() => setCurrentTripPage(p => Math.min(totalTripPages, p + 1))}
-                                    disabled={currentTripPage === totalTripPages}
+                                    onClick={() => handleOpenBreakdown(selectedOrder!, currentTripPage + 1)}
+                                    disabled={currentTripPage === totalTripPages || breakdownLoading}
                                     className="p-2 border border-gray-200 rounded-lg hover:bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
                                 >
                                     <ChevronRight className="w-5 h-5" />

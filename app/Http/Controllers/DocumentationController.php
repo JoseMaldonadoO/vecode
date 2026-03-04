@@ -148,7 +148,10 @@ class DocumentationController extends Controller
             }
         }
 
-        ShipmentOrder::create($validated + ['status' => 'created']);
+        $order = ShipmentOrder::create($validated + ['status' => 'created']);
+
+        // Sync Sales Order for pre-calculated totals (especially for ENVASADO)
+        $salesOrder->syncLoadedQuantity();
 
         return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque creada correctamente.');
     }
@@ -656,6 +659,14 @@ class DocumentationController extends Controller
 
         $order->update($validated);
 
+        // Sync Sales Order (especially if programmed_tons or sales_order_id changed)
+        $order->sales_order?->syncLoadedQuantity();
+        if ($validated['sales_order_id'] != $order->getOriginal('sales_order_id')) {
+            // Also sync the old sales order if it was changed
+            $oldSalesOrder = SalesOrder::find($order->getOriginal('sales_order_id'));
+            $oldSalesOrder?->syncLoadedQuantity();
+        }
+
         $queryParams = $request->input('queryParams', []);
 
         return redirect()->route('documentation.orders.index', $queryParams)->with('success', 'Orden de Embarque actualizada correctamente.');
@@ -676,6 +687,9 @@ class DocumentationController extends Controller
             'status' => 'cancelled',
             'cancelled_at' => now()
         ]);
+
+        // Sync Sales Order
+        $order->sales_order?->syncLoadedQuantity();
 
         return back()->with('success', 'Orden de Embarque cancelada correctamente.');
     }
@@ -741,6 +755,9 @@ class DocumentationController extends Controller
         }
 
         $order->update(['status' => 'created']);
+
+        // Sync Sales Order
+        $salesOrder->syncLoadedQuantity();
 
         return redirect()->route('documentation.orders.index')->with('success', 'Orden de Embarque re-abierta correctamente.');
     }

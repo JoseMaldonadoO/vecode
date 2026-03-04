@@ -55,27 +55,32 @@ class SalesOrder extends Model
 
     public function getLoadedQuantityAttribute()
     {
+        // Performance: If the denormalized column exists and we are in production-scaling mode,
+        // we should favor the column. We keep the fallback for backward compatibility during migration.
+        if (array_key_exists('loaded_quantity', $this->attributes)) {
+            return (float) $this->attributes['loaded_quantity'];
+        }
+
+        return $this->calculateLoadedQuantity();
+    }
+
+    /**
+     * The original heavy calculation logic, now available as a helper.
+     */
+    public function calculateLoadedQuantity(): float
+    {
         $total = 0;
 
         // Traverse: SalesOrder -> ShipmentOrder -> LoadingOrder -> WeightTicket
-        // This is the most robust path as shipment_order_id is always present.
-        // Check if relationships are already loaded to avoid N+1
-        if ($this->relationLoaded('shipments')) {
-            $shipments = $this->shipments->where('status', '!=', 'cancelled');
-        } else {
-            $shipments = $this->shipments()
-                ->with(['loadingOrders.weight_ticket'])
-                ->where('status', '!=', 'cancelled')
-                ->get();
-        }
+        $shipments = $this->shipments()
+            ->with(['loadingOrders.weight_ticket'])
+            ->where('status', '!=', 'cancelled')
+            ->get();
 
         foreach ($shipments as $shipment) {
-            // Check if loadingOrders is loaded on the shipment
-            $trips = $shipment->relationLoaded('loadingOrders')
-                ? $shipment->loadingOrders
-                : $shipment->loadingOrders()->with('weight_ticket')->get();
+            $trips = $shipment->loadingOrders;
 
-            // 1. Packed Product (ENVASADO): Bypasses scale, counts immediately upon creation
+            // 1. Packed Product (ENVASADO): Bypasses scale, counts immediately
             if (strtoupper($shipment->presentation) === 'ENVASADO') {
                 $total += (float) ($shipment->programmed_tons ?? 0);
                 continue;
@@ -88,10 +93,8 @@ class SalesOrder extends Model
 
                 if ($trip->weight_ticket) {
                     if ($trip->weight_ticket->weighing_status === 'completed') {
-                        // Completed: Use actual Net Weight from Scale
                         $total += ($trip->weight_ticket->net_weight / 1000);
                     } else {
-                        // In Yard: Use programmed weight as reservation
                         $total += (float) ($trip->programmed_tons ?? 0);
                     }
                 }
@@ -101,10 +104,21 @@ class SalesOrder extends Model
         return (float) $total;
     }
 
+    /**
+     * Force a synchronization of the denormalized column.
+     * This should be called whenever a weight ticket is completed or a shipment is modified.
+     */
+    public function syncLoadedQuantity(): void
+    {
+        $this->updateQuietly([
+            'loaded_quantity' => $this->calculateLoadedQuantity()
+        ]);
+    }
+
     public function getBalanceAttribute()
     {
         return max(0, $this->total_quantity - $this->loaded_quantity);
     }
 
-    protected $appends = ['loaded_quantity', 'balance'];
+    protected $appends = ['balance']; // 'loaded_quantity' is now a real attribute
 }

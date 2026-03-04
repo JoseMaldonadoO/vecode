@@ -380,6 +380,13 @@ class WeightTicketController extends Controller
             'packaging_type' => $validated['packaging_type'],
         ]);
 
+        // Sync Sales Order if linked
+        if ($order->sales_order_id) {
+            $order->sales_order?->syncLoadedQuantity();
+        } elseif ($order instanceof \App\Models\ShipmentOrder && $order->sales_order_id) {
+            $order->sales_order?->syncLoadedQuantity();
+        }
+
         // Determine Warehouse to update in LoadingOrder and ShipmentOrder
         $finalWarehouse = null; // Default to null for cleanup
         if (!empty($validated['lot_id'])) {
@@ -416,6 +423,11 @@ class WeightTicketController extends Controller
 
                 if ($order->weight_ticket) {
                     $order->weight_ticket->delete();
+                }
+
+                // Sync Sales Order if linked
+                if ($order->sales_order_id) {
+                    $order->sales_order?->syncLoadedQuantity();
                 }
 
                 // Reset Order
@@ -922,6 +934,11 @@ class WeightTicketController extends Controller
                     'destare_status' => 'completed',
                     'warehouse' => $finalWarehouse,
                 ]);
+
+                // Sync Sales Order if linked
+                if ($order->sales_order_id) {
+                    $order->sales_order?->syncLoadedQuantity();
+                }
             });
 
             return redirect()->route('scale.ticket.print', ['id' => $validated['shipment_order_id']])->with('success', 'Salida registrada correctamente.');
