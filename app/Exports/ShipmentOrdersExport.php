@@ -160,8 +160,25 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
     public function map($order): array
     {
-        $loadingOrder = $order->loadingOrders->first();
-        $ticket = $order->weight_ticket ?? $loadingOrder?->weight_ticket;
+        // Robust Ticket & LoadingOrder Resolution
+        $ticket = null;
+        $loadingOrder = null;
+
+        // Iterate loading orders to find the ticket with a lot (Destare priority)
+        foreach ($order->loadingOrders as $lo) {
+            if ($lo->weight_ticket) {
+                if (!$ticket || $lo->weight_ticket->lot_id) {
+                    $ticket = $lo->weight_ticket;
+                    $loadingOrder = $lo;
+                }
+                if ($ticket->lot_id)
+                    break;
+            }
+        }
+
+        // Fallbacks
+        $ticket = $ticket ?? $order->weight_ticket;
+        $loadingOrder = $loadingOrder ?? $order->loadingOrders->first();
         $isSader = $this->filters['is_sader'] ?? false;
 
         // Product Logic

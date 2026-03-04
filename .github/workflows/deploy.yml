@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v36 (Fix Lot Folio visibility in SADER Report)
+# Force trigger: v37 (Robust Lot Folio resolution in SADER Report)
 
 on:
   push:
