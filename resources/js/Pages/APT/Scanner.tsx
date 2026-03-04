@@ -130,7 +130,7 @@ export default function Scanner({
                                 </div>
                                 <p class="text-sm text-gray-700 leading-relaxed font-medium">
                                     Este barco opera bajo el esquema de <b>Chief Foreman</b>.<br/>
-                                    Se ha omitido la validación de salida de Muelle.
+                                    El registro de muelle <b>NO es requerido</b> para procesar en APT.
                                 </p>
                                 <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 italic text-[11px] text-indigo-700 font-bold">
                                     Paso Siguiente: Seleccione Almacén y Cubículo para completar la descarga.

@@ -102,10 +102,10 @@ export default function Trips({
                                 </div>
                                 <p class="text-sm text-gray-700 leading-relaxed font-medium">
                                     Este barco opera bajo el esquema de <b>Chief Foreman</b>.<br/>
-                                    Las validaciones de muelle son opcionales para APT.
+                                    El registro de muelle <b>NO es requerido</b> para procesar en APT.
                                 </p>
                                 <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 italic text-[11px] text-indigo-700 font-bold">
-                                    Nota: Aún puede registrar la vuelta si hay personal disponible.
+                                    Nota: El registro en este módulo es meramente informativo.
                                 </div>
                             </div>
                         `,
