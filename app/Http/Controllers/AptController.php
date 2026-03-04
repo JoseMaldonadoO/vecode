@@ -363,7 +363,7 @@ class AptController extends Controller
                         ->orderBy('created_at', 'asc')
                         ->first();
 
-                    if (!$pendingTrip) {
+                    if (!$pendingTrip && !$operator->vessel->has_chief_foreman) {
                         return back()->withErrors(['qr' => 'ALERTA: No se encontró un registro de salida en Muelle. El operador debe registrar su vuelta en Muelle antes de descargar en APT.']);
                     }
 
@@ -394,7 +394,7 @@ class AptController extends Controller
                                 'operation_type' => 'burreo',
                                 'warehouse' => $validated['warehouse'],
                                 'cubicle' => $validated['cubicle'] ?? 'N/A',
-                                'vessel_operator_trip_id' => $pendingTrip->id,
+                                'vessel_operator_trip_id' => $pendingTrip->id ?? null,
                             ]);
 
                             \App\Models\WeightTicket::create([
@@ -420,7 +420,9 @@ class AptController extends Controller
                                 'user_id' => auth()->id(),
                             ]);
 
-                            $pendingTrip->update(['status' => 'completed']);
+                            if ($pendingTrip) {
+                                $pendingTrip->update(['status' => 'completed']);
+                            }
                         });
 
                         $range = OperationalTimeHelper::getOperationalRange();

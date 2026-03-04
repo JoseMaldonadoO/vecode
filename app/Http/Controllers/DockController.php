@@ -70,8 +70,9 @@ class DockController extends Controller
             'programmed_tonnage' => 'required_if:operation_type,Descarga,Carga|nullable|numeric|min:0',
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
             'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
-            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
             'holds' => 'nullable|array',
+            'has_chief_foreman' => 'nullable|boolean',
         ];
 
         $messages = [
@@ -535,13 +536,13 @@ class DockController extends Controller
             // Harmonize modal weights with totalProcessedMt (max between official and trips)
             $modalScaleWeightMt = ($tripsData->scale_weight ?? 0) / 1000;
             $modalBurreoWeightMt = max(($tripsData->burreo_weight ?? 0) / 1000, $totalProcessedMt - $modalScaleWeightMt);
-
             return [
                 'id' => $v->id,
                 'name' => $v->name,
                 'type' => $v->vessel_type ?? 'B/T',
                 'operation_type' => $v->operation_type,
                 'is_discharge' => $isDischarge,
+                'has_chief_foreman' => (bool) $v->has_chief_foreman,
                 'stay_days' => $actualStay,
                 'programmed_days' => $v->stay_days,
                 'etb' => $v->berthal_datetime ? (is_string($v->berthal_datetime) ? date('d/m/Y H:i', strtotime($v->berthal_datetime)) : $v->berthal_datetime->format('d/m/Y H:i')) : '-',

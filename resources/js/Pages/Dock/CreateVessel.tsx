@@ -66,6 +66,7 @@ export default function CreateVessel({
         observations: "",
         apt_operation_type: "scale", // Default
         holds: [] as { hold_number: number; tonnage: string }[],
+        has_chief_foreman: false,
     });
 
     // Reset fields if operation type changes

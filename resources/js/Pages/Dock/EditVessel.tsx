@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, useForm, Link } from "@inertiajs/react";
-import { Anchor, Save, ArrowLeft, LayoutGrid } from "lucide-react";
+import { Anchor, Save, ArrowLeft, LayoutGrid, Briefcase } from "lucide-react";
 import { useEffect } from "react";
 import TextInput from "@/Components/TextInput";
 import Swal from "sweetalert2";
@@ -59,6 +59,7 @@ export default function EditVessel({
         observations: vessel.observations || "",
         apt_operation_type: vessel.apt_operation_type || "scale",
         holds: vessel.holds || [] as { hold_number: number; tonnage: string }[],
+        has_chief_foreman: !!vessel.has_chief_foreman,
     });
 
     // Reset product/tons if opertion type changes from Descarga or Carga
@@ -289,6 +290,85 @@ export default function EditVessel({
                                             {errors.vessel_type}
                                         </p>
                                     )}
+                                </div>
+
+                                {/* Chief Foreman Switch - Edit Mode */}
+                                <div className="md:col-span-1 flex items-end">
+                                    <div className={`w-full p-4 rounded-xl border transition-all duration-500 flex items-center justify-between group ${data.has_chief_foreman
+                                        ? "bg-gradient-to-br from-amber-50 to-orange-50 border-orange-200 shadow-md"
+                                        : "bg-gray-50 border-gray-100 hover:border-gray-200"
+                                        }`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-lg transition-colors duration-500 ${data.has_chief_foreman ? "bg-orange-500 text-white shadow-lg" : "bg-gray-200 text-gray-500"}`}>
+                                                <Briefcase className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className={`text-xs font-black uppercase tracking-wider transition-colors duration-500 ${data.has_chief_foreman ? "text-orange-700" : "text-gray-400 group-hover:text-gray-600"}`}>
+                                                    Chief Foreman
+                                                </p>
+                                                <p className="text-[10px] text-gray-400 leading-tight tracking-tight">Modo Manual</p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newValue = !data.has_chief_foreman;
+
+                                                if (newValue) {
+                                                    Swal.fire({
+                                                        title: '<span class="text-amber-600 font-black">ACTIVAR BYPASS</span>',
+                                                        html: `
+                                                            <div class="text-left space-y-4">
+                                                                <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                                                    <p class="text-xs text-amber-800 leading-relaxed font-medium">
+                                                                        Este cambio es inmediato. El APT podrá escanear unidades sin que estas pasen por Muelle.
+                                                                    </p>
+                                                                </div>
+                                                                <p class="text-[10px] text-gray-500 italic">Ideal para turnos sin personal en muelle.</p>
+                                                            </div>
+                                                        `,
+                                                        icon: "warning",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Activar Foreman",
+                                                        cancelButtonText: "Cancelar",
+                                                        confirmButtonColor: "#f59e0b",
+                                                        customClass: {
+                                                            popup: 'rounded-3xl border-none shadow-2xl',
+                                                            confirmButton: 'rounded-xl font-bold px-6 py-3',
+                                                            cancelButton: 'rounded-xl font-bold px-6 py-3'
+                                                        }
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) setData("has_chief_foreman", true);
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        title: '<span class="text-indigo-600 font-black">DESACTIVAR BYPASS</span>',
+                                                        text: "¿Restablecer validaciones de Muelle?",
+                                                        icon: "question",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Sí, activar SCAN",
+                                                        cancelButtonText: "Cancelar",
+                                                        confirmButtonColor: "#4f46e5",
+                                                        customClass: {
+                                                            popup: 'rounded-3xl border-none shadow-2xl',
+                                                            confirmButton: 'rounded-xl font-bold px-6 py-3',
+                                                            cancelButton: 'rounded-xl font-bold px-6 py-3'
+                                                        }
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) setData("has_chief_foreman", false);
+                                                    });
+                                                }
+                                            }}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-500 shadow-inner ${data.has_chief_foreman ? "bg-orange-500 ring-4 ring-orange-100" : "bg-gray-200"
+                                                }`}
+                                        >
+                                            <span
+                                                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xl transition-transform duration-500 ${data.has_chief_foreman ? "translate-x-6" : "translate-x-1"
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-bold text-gray-700 mb-1">

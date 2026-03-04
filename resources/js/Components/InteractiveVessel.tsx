@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Ship, Info, Maximize2, Minimize2, Anchor, Droplets, ChevronRight, Activity } from 'lucide-react';
+import { Ship, Info, Maximize2, Minimize2, Anchor, Droplets, ChevronRight, Activity, Briefcase } from 'lucide-react';
 import { Badge } from "@/Components/ui/badge";
 
 interface Hatch {
@@ -30,6 +30,7 @@ interface InteractiveVesselProps {
         hatches: Hatch[];
         product: string;
         is_discharge?: boolean;
+        has_chief_foreman?: boolean;
     };
     isExternal?: boolean;
 }
@@ -231,6 +232,15 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                 <Anchor size={120} />
                             </div>
 
+                            {vessel.has_chief_foreman && (
+                                <div className="absolute top-0 left-0 w-full p-2 bg-gradient-to-r from-amber-500/20 to-transparent border-l-4 border-amber-500 z-20">
+                                    <div className="flex items-center gap-2">
+                                        <Briefcase size={12} className="text-amber-400" />
+                                        <span className="text-[10px] font-black text-amber-200 uppercase tracking-widest">Modo Chief Foreman Activo - Validaciones de Muelle Omitidas</span>
+                                    </div>
+                                </div>
+                            )}
+
                             {selectedHatch ? (() => {
                                 const hatch = vessel.hatches.find(h => h.id === selectedHatch);
                                 if (!hatch) return null;
@@ -259,12 +269,21 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                                 <div className="w-px h-6 bg-white/10" />
                                                 <div className="flex flex-col items-center min-w-[45px]">
                                                     <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.1em] mb-1 group-hover/metrics:text-white/40 transition-colors">VUELTAS</span>
-                                                    <span className="text-xl font-black text-indigo-400 leading-none">
-                                                        {hatch.trip_count || 0}
+                                                    <span className={`text-xl font-black leading-none ${vessel.has_chief_foreman ? 'text-white/20' : 'text-indigo-400'}`}>
+                                                        {vessel.has_chief_foreman ? '--' : (hatch.trip_count || 0)}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {vessel.has_chief_foreman && (
+                                            <div className="mb-4 p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl flex items-center gap-3">
+                                                <Info size={14} className="text-amber-500/50 shrink-0" />
+                                                <p className="text-[8px] text-amber-200/40 uppercase font-bold tracking-tighter leading-tight">
+                                                    En modo Foreman, el tonelaje se registra directamente desde APT. El detalle de vueltas individuales por bodega no está disponible.
+                                                </p>
+                                            </div>
+                                        )}
 
                                         {/* Metrics Grid - Optimized Scaling */}
                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
