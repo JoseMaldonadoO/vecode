@@ -338,7 +338,7 @@ export default function EditVessel({
                                                             confirmButton: 'rounded-xl font-bold px-6 py-3',
                                                             cancelButton: 'rounded-xl font-bold px-6 py-3'
                                                         }
-                                                    }).then((result) => {
+                                                    }).then((result: any) => {
                                                         if (result.isConfirmed) setData("has_chief_foreman", true);
                                                     });
                                                 } else {
@@ -355,7 +355,7 @@ export default function EditVessel({
                                                             confirmButton: 'rounded-xl font-bold px-6 py-3',
                                                             cancelButton: 'rounded-xl font-bold px-6 py-3'
                                                         }
-                                                    }).then((result) => {
+                                                    }).then((result: any) => {
                                                         if (result.isConfirmed) setData("has_chief_foreman", false);
                                                     });
                                                 }
