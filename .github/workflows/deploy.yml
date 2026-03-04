@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v41 (General Report aesthetics and filtering refinement)
+# Force trigger: v42 (General Report: Completed records only filter)
 
 on:
   push:

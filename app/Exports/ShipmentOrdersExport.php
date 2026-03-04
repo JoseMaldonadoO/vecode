@@ -77,6 +77,10 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                         ->orWhereNull('consigned_to');
                 });
             });
+            // V21: Only include records that have physically completed the weighing process for General Report too
+            $query->whereHas('weight_ticket', function ($q) {
+                $q->whereNotNull('weigh_out_at');
+            });
         }
 
         // Always exclude cancelled orders
@@ -108,12 +112,9 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                         $q2->whereBetween('weigh_out_at', $range);
                     });
                 } else {
-                    // Standard General logic: Weighed out OR (if no ticket) created in range
+                    // V21: General Report now only filters by completed weighing too
                     $q->whereHas('weight_ticket', function ($q2) use ($range) {
                         $q2->whereBetween('weigh_out_at', $range);
-                    })->orWhere(function ($q3) use ($range) {
-                        $q3->whereDoesntHave('weight_ticket')
-                            ->whereBetween('shipment_orders.created_at', $range);
                     });
                 }
             });
