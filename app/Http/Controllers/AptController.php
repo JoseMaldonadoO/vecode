@@ -363,7 +363,7 @@ class AptController extends Controller
                         ->orderBy('created_at', 'asc')
                         ->first();
 
-                    if (!$pendingTrip && !$operator->vessel->has_chief_foreman) {
+                    if (!$pendingTrip && $operator->vessel->has_chief_foreman) {
                         return back()->withErrors(['qr' => 'ALERTA: No se encontró un registro de salida en Muelle. El operador debe registrar su vuelta en Muelle antes de descargar en APT.']);
                     }
 
@@ -432,9 +432,6 @@ class AptController extends Controller
                             ->count();
 
                         $msg = "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.";
-                        if ($operator->vessel->has_chief_foreman) {
-                            $msg = "🚀 [MODO FOREMAN] " . $msg . " - Bypass de Muelle procesado correctamente.";
-                        }
 
                         return redirect()->back()->with('success', $msg);
 

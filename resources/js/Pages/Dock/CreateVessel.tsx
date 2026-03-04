@@ -334,26 +334,25 @@ export default function CreateVessel({
 
                                                 if (newValue) {
                                                     Swal.fire({
-                                                        title: '<span class="text-amber-600 font-black">¿ACTIVAR MODO FOREMAN?</span>',
+                                                        title: '<span class="text-indigo-600 font-black">¿ACTIVAR MODO FOREMAN?</span>',
                                                         html: `
                                                             <div class="text-left space-y-4">
-                                                                <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
-                                                                    <p class="text-sm text-amber-800 leading-relaxed">
-                                                                        Al activar este modo, el sistema <b>no exigirá escaneos en muelle</b> para este barco.
+                                                                <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                                                                    <p class="text-sm text-indigo-800 leading-relaxed">
+                                                                        Al activar este modo, el sistema <b>REQUERIRÁ</b> que las unidades pasen por muelle antes de descargar en APT.
                                                                     </p>
                                                                 </div>
                                                                 <ul class="text-xs text-gray-600 space-y-2 list-disc pl-4">
-                                                                    <li>Los operadores irán <b>directos al APT</b> sin registrar vueltas.</li>
-                                                                    <li>El Status Muelle no mostrará detalles de bodegas individuales.</li>
-                                                                    <li>Módulo de Muelle quedará <b>inactivo</b> para este buque.</li>
+                                                                    <li>Garantiza que se registre cada vuelta en Muelle.</li>
+                                                                    <li>Habilita el control estricto de bodegas.</li>
                                                                 </ul>
                                                             </div>
                                                         `,
                                                         icon: "info",
                                                         showCancelButton: true,
-                                                        confirmButtonText: "Sí, activar bypass",
+                                                        confirmButtonText: "Sí, activar Foreman",
                                                         cancelButtonText: "Cancelar",
-                                                        confirmButtonColor: "#f59e0b",
+                                                        confirmButtonColor: "#4f46e5",
                                                         customClass: {
                                                             popup: 'rounded-3xl border-none shadow-2xl',
                                                             confirmButton: 'rounded-xl font-bold px-6 py-3',
@@ -364,19 +363,19 @@ export default function CreateVessel({
                                                     });
                                                 } else {
                                                     Swal.fire({
-                                                        title: '<span class="text-indigo-600 font-black">¿REGRESAR A MODO ESTRICTO?</span>',
+                                                        title: '<span class="text-amber-600 font-black">¿ACTIVAR BYPASS?</span>',
                                                         html: `
                                                             <div class="text-left">
                                                                 <p class="text-sm text-gray-600">
-                                                                    Se restablecerán todas las validaciones FIFO. <b>Muelle deberá registrar cada vuelta</b> antes de permitir la descarga en APT.
+                                                                    Se permitirá que las unidades salten el registro de muelle. <b>Ideal para turnos sin personal en muelle.</b>
                                                                 </p>
                                                             </div>
                                                         `,
-                                                        icon: "question",
+                                                        icon: "warning",
                                                         showCancelButton: true,
-                                                        confirmButtonText: "Sí, modo estricto",
+                                                        confirmButtonText: "Sí, activar bypass",
                                                         cancelButtonText: "Cancelar",
-                                                        confirmButtonColor: "#4f46e5",
+                                                        confirmButtonColor: "#f59e0b",
                                                         customClass: {
                                                             popup: 'rounded-3xl border-none shadow-2xl',
                                                             confirmButton: 'rounded-xl font-bold px-6 py-3',

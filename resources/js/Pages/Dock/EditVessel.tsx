@@ -317,22 +317,22 @@ export default function EditVessel({
 
                                                 if (newValue) {
                                                     Swal.fire({
-                                                        title: '<span class="text-amber-600 font-black">ACTIVAR BYPASS</span>',
+                                                        title: '<span class="text-indigo-600 font-black">ACTIVAR MODO FOREMAN</span>',
                                                         html: `
                                                             <div class="text-left space-y-4">
-                                                                <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
-                                                                    <p class="text-xs text-amber-800 leading-relaxed font-medium">
-                                                                        Este cambio es inmediato. El APT podrá escanear unidades sin que estas pasen por Muelle.
+                                                                <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                                                                    <p class="text-xs text-indigo-800 leading-relaxed font-medium">
+                                                                        Al activar este modo, el sistema <b>REQUERIRÁ</b> que las unidades pasen por muelle antes de descargar en APT.
                                                                     </p>
                                                                 </div>
-                                                                <p class="text-[10px] text-gray-500 italic">Ideal para turnos sin personal en muelle.</p>
+                                                                <p class="text-[10px] text-gray-500 italic">Ideal para control estricto de muelle.</p>
                                                             </div>
                                                         `,
-                                                        icon: "warning",
+                                                        icon: "info",
                                                         showCancelButton: true,
                                                         confirmButtonText: "Activar Foreman",
                                                         cancelButtonText: "Cancelar",
-                                                        confirmButtonColor: "#f59e0b",
+                                                        confirmButtonColor: "#4f46e5",
                                                         customClass: {
                                                             popup: 'rounded-3xl border-none shadow-2xl',
                                                             confirmButton: 'rounded-xl font-bold px-6 py-3',
@@ -343,13 +343,13 @@ export default function EditVessel({
                                                     });
                                                 } else {
                                                     Swal.fire({
-                                                        title: '<span class="text-indigo-600 font-black">DESACTIVAR BYPASS</span>',
-                                                        text: "¿Restablecer validaciones de Muelle?",
-                                                        icon: "question",
+                                                        title: '<span class="text-amber-600 font-black">ACTIVAR BYPASS</span>',
+                                                        text: "¿Permitir que las unidades salten el registro de muelle?",
+                                                        icon: "warning",
                                                         showCancelButton: true,
-                                                        confirmButtonText: "Sí, activar SCAN",
+                                                        confirmButtonText: "Activar Bypass",
                                                         cancelButtonText: "Cancelar",
-                                                        confirmButtonColor: "#4f46e5",
+                                                        confirmButtonColor: "#f59e0b",
                                                         customClass: {
                                                             popup: 'rounded-3xl border-none shadow-2xl',
                                                             confirmButton: 'rounded-xl font-bold px-6 py-3',
