@@ -302,524 +302,183 @@ export default function CreateVessel({
                                         <option value="M/V">M/V</option>
                                         <option value="B/T">B/T</option>
                                     </select>
-                                    {errors.vessel_type && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.vessel_type}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="md:col-span-2">
-                                    <InputLabel value="Nombre del Buque" />
-                                    <TextInput
-                                        value={data.name}
-                                        onChange={(e) =>
-                                            setData("name", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                        placeholder="Ej. MSC ALEXANDRA"
-                                    />
-                                    {errors.name && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.name}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Nacionalidad" />
-                                    <TextInput
-                                        value={data.nationality}
-                                        onChange={(e) =>
-                                            setData(
-                                                "nationality",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.nationality && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.nationality}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="N# IMO" />
-                                    <TextInput
-                                        value={data.imo_number}
-                                        onChange={(e) =>
-                                            setData(
-                                                "imo_number",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.imo_number && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.imo_number}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Matrícula" />
-                                    <TextInput
-                                        value={data.registration_number}
-                                        onChange={(e) =>
-                                            setData(
-                                                "registration_number",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.registration_number && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.registration_number}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Section 2: Technical Specs */}
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                <Ruler className="w-5 h-5 mr-3" />
-                                2. Especificaciones Técnicas
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <InputLabel value="Eslora (m)" />
-                                    <TextInput
-                                        type="number"
-                                        step="0.01"
-                                        value={data.length}
-                                        onChange={(e) =>
-                                            setData("length", e.target.value)
-                                        }
-                                        onWheel={(e) =>
-                                            (
-                                                e.target as HTMLInputElement
-                                            ).blur()
-                                        }
-                                        className="w-full mt-1"
-                                        placeholder="0.00"
-                                    />
-                                    {errors.length && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.length}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Manga (m)" />
-                                    <TextInput
-                                        type="number"
-                                        step="0.01"
-                                        value={data.beam}
-                                        onChange={(e) =>
-                                            setData("beam", e.target.value)
-                                        }
-                                        onWheel={(e) =>
-                                            (
-                                                e.target as HTMLInputElement
-                                            ).blur()
-                                        }
-                                        className="w-full mt-1"
-                                        placeholder="0.00"
-                                    />
-                                    {errors.beam && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.beam}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Calado (m)" />
-                                    <TextInput
-                                        type="number"
-                                        step="0.01"
-                                        value={data.draft}
-                                        onChange={(e) =>
-                                            setData("draft", e.target.value)
-                                        }
-                                        onWheel={(e) =>
-                                            (
-                                                e.target as HTMLInputElement
-                                            ).blur()
-                                        }
-                                        className="w-full mt-1"
-                                        placeholder="0.00"
-                                    />
-                                    {errors.draft && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.draft}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Section 3: Arrival Info */}
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                <Calendar className="w-5 h-5 mr-3" />
-                                3. Datos de Arribo
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div>
-                                    <InputLabel value="Llegada Muelle Externo" />
-                                    <TextInput
-                                        type="date"
-                                        value={data.external_dock_arrival_date}
-                                        onChange={(e) =>
-                                            setData("external_dock_arrival_date", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.external_dock_arrival_date && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.external_dock_arrival_date}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Hora Llegada M. Externo" />
-                                    <TextInput
-                                        type="time"
-                                        value={data.external_dock_arrival_time}
-                                        onChange={(e) =>
-                                            setData("external_dock_arrival_time", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.external_dock_arrival_time && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.external_dock_arrival_time}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Salida Muelle Externo" />
-                                    <TextInput
-                                        type="date"
-                                        value={data.external_dock_departure_date}
-                                        onChange={(e) =>
-                                            setData("external_dock_departure_date", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.external_dock_departure_date && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.external_dock_departure_date}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Hora Salida M. Externo" />
-                                    <TextInput
-                                        type="time"
-                                        value={data.external_dock_departure_time}
-                                        onChange={(e) =>
-                                            setData("external_dock_departure_time", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.external_dock_departure_time && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.external_dock_departure_time}
-                                        </p>
-                                    )}
                                 </div>
 
-                                <div>
-                                    <InputLabel value="ETA (Estimado Arribo)" />
-                                    <TextInput
-                                        type="date"
-                                        value={data.eta}
-                                        onChange={(e) =>
-                                            setData("eta", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    {errors.eta && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.eta}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Fecha Atraco (ETB)" />
-                                    <TextInput
-                                        type="date"
-                                        value={data.docking_date}
-                                        onChange={(e) =>
-                                            setData(
-                                                "docking_date",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Puerto Proagro
-                                    </p>
-                                    {errors.docking_date && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.docking_date}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Hora Atraco" />
-                                    <TextInput
-                                        type="time"
-                                        value={data.docking_time}
-                                        onChange={(e) =>
-                                            setData(
-                                                "docking_time",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Puerto Proagro
-                                    </p>
-                                    {errors.docking_time && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.docking_time}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Muelle Asignado" />
-                                    <select
-                                        value={data.dock}
-                                        onChange={(e) =>
-                                            setData("dock", e.target.value)
-                                        }
-                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 ${errors.dock ? "border-red-500 ring-1 ring-red-500" : ""}`}
-                                    >
-                                        <option value="">Seleccione...</option>
-                                        <option value="ECO">ECO</option>
-                                        <option value="WHISKY">WHISKY</option>
-                                    </select>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Requerido para Status
-                                    </p>
-                                    {errors.dock && (
-                                        <p className="text-red-500 text-xs mt-1 font-bold">
-                                            {errors.dock}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* New Operation Type Buttons (Scale vs Burreo) */}
-                            <div className="mt-8 pt-6 border-t border-gray-100">
-                                <InputLabel
-                                    value="Operación en APT"
-                                    className="text-center mb-3 text-indigo-800 font-bold"
-                                />
-                                <div className="flex justify-center gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setData(
-                                                "apt_operation_type",
-                                                "scale",
-                                            )
-                                        }
-                                        className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
-                                            ${data.apt_operation_type ===
-                                                "scale"
-                                                ? "border-indigo-600 bg-indigo-50 text-indigo-800 shadow-md ring-2 ring-indigo-500/20"
-                                                : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
-                                            }
-                                        `}
-                                    >
-                                        <div
-                                            className={`p-2 rounded-lg ${data.apt_operation_type === "scale" ? "bg-indigo-600 text-white" : "bg-gray-100"}`}
-                                        >
-                                            <Save className="w-5 h-5" />
+                                {/* Chief Foreman Switch - Unicorn Design */}
+                                <div className="md:col-span-1 flex items-end">
+                                    <div className={`w-full p-4 rounded-xl border transition-all duration-500 flex items-center justify-between group ${data.has_chief_foreman
+                                        ? "bg-gradient-to-br from-amber-50 to-orange-50 border-orange-200 shadow-md"
+                                        : "bg-gray-50 border-gray-100 hover:border-gray-200"
+                                        }`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-lg transition-colors duration-500 ${data.has_chief_foreman ? "bg-orange-500 text-white shadow-lg" : "bg-gray-200 text-gray-500"}`}>
+                                                <Briefcase className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className={`text-xs font-black uppercase tracking-wider transition-colors duration-500 ${data.has_chief_foreman ? "text-orange-700" : "text-gray-400 group-hover:text-gray-600"}`}>
+                                                    Chief Foreman
+                                                </p>
+                                                <p className="text-[10px] text-gray-400 leading-tight">Bypass Muelle</p>
+                                            </div>
                                         </div>
-                                        <span className="font-bold text-sm">
-                                            DESCARGA BASCULA
-                                        </span>
-                                    </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setData(
-                                                "apt_operation_type",
-                                                "burreo",
-                                            )
-                                        }
-                                        className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
-                                            ${data.apt_operation_type ===
-                                                "burreo"
-                                                ? "border-orange-500 bg-orange-50 text-orange-800 shadow-md ring-2 ring-orange-500/20"
-                                                : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
-                                            }
-                                        `}
-                                    >
-                                        <div
-                                            className={`p-2 rounded-lg ${data.apt_operation_type === "burreo" ? "bg-orange-500 text-white" : "bg-gray-100"}`}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newValue = !data.has_chief_foreman;
+
+                                                if (newValue) {
+                                                    Swal.fire({
+                                                        title: '<span class="text-amber-600 font-black">¿ACTIVAR MODO FOREMAN?</span>',
+                                                        html: `
+                                                            <div class="text-left space-y-4">
+                                                                <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                                                    <p class="text-sm text-amber-800 leading-relaxed">
+                                                                        Al activar este modo, el sistema <b>no exigirá escaneos en muelle</b> para este barco.
+                                                                    </p>
+                                                                </div>
+                                                                <ul class="text-xs text-gray-600 space-y-2 list-disc pl-4">
+                                                                    <li>Los operadores irán <b>directos al APT</b> sin registrar vueltas.</li>
+                                                                    <li>El Status Muelle no mostrará detalles de bodegas individuales.</li>
+                                                                    <li>Módulo de Muelle quedará <b>inactivo</b> para este buque.</li>
+                                                                </ul>
+                                                            </div>
+                                                        `,
+                                                        icon: "info",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Sí, activar bypass",
+                                                        cancelButtonText: "Cancelar",
+                                                        confirmButtonColor: "#f59e0b",
+                                                        customClass: {
+                                                            popup: 'rounded-3xl border-none shadow-2xl',
+                                                            confirmButton: 'rounded-xl font-bold px-6 py-3',
+                                                            cancelButton: 'rounded-xl font-bold px-6 py-3'
+                                                        }
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) setData("has_chief_foreman", true);
+                                                    });
+                                                } else {
+                                                    Swal.fire({
+                                                        title: '<span class="text-indigo-600 font-black">¿REGRESAR A MODO ESTRICTO?</span>',
+                                                        html: `
+                                                            <div class="text-left">
+                                                                <p class="text-sm text-gray-600">
+                                                                    Se restablecerán todas las validaciones FIFO. <b>Muelle deberá registrar cada vuelta</b> antes de permitir la descarga en APT.
+                                                                </p>
+                                                            </div>
+                                                        `,
+                                                        icon: "question",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Sí, modo estricto",
+                                                        cancelButtonText: "Cancelar",
+                                                        confirmButtonColor: "#4f46e5",
+                                                        customClass: {
+                                                            popup: 'rounded-3xl border-none shadow-2xl',
+                                                            confirmButton: 'rounded-xl font-bold px-6 py-3',
+                                                            cancelButton: 'rounded-xl font-bold px-6 py-3'
+                                                        }
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) setData("has_chief_foreman", false);
+                                                    });
+                                                }
+                                            }}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-500 shadow-inner overflow-hidden ${data.has_chief_foreman ? "bg-orange-500 ring-4 ring-orange-100" : "bg-gray-200"
+                                                }`}
                                         >
-                                            <Ship className="w-5 h-5" />
-                                        </div>
-                                        <span className="font-bold text-sm">
-                                            BURREO
-                                        </span>
-                                    </button>
-                                </div>
-                                {errors.apt_operation_type && (
-                                    <p className="text-red-500 text-xs mt-2 text-center font-bold">
-                                        {errors.apt_operation_type}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Section 4: Operation & Clients */}
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                <Briefcase className="w-5 h-5 mr-3" />
-                                4. Detalles de la Operación
-                            </h4>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div>
-                                    <InputLabel value="Cliente" />
-                                    <select
-                                        value={data.client_id}
-                                        onChange={(e) =>
-                                            setData("client_id", e.target.value)
-                                        }
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
-                                    >
-                                        <option value="">
-                                            Seleccione Cliente...
-                                        </option>
-                                        {(clients || []).map((c: any) => (
-                                            <option key={c.id} value={c.id}>
-                                                {c.business_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.client_id && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.client_id}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <InputLabel value="Tipo de Operación" />
-                                    <select
-                                        value={data.operation_type}
-                                        onChange={(e) =>
-                                            setData(
-                                                "operation_type",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
-                                    >
-                                        <option value="Resguardo">
-                                            Resguardo
-                                        </option>
-                                        <option value="Descarga">
-                                            Descarga
-                                        </option>
-                                        <option value="Carga">Carga</option>
-                                    </select>
-                                    {errors.operation_type && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.operation_type}
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Conditional Fields based on Operation Type */}
-                            {data.operation_type === "Descarga" && (
-                                <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <InputLabel value="Puerto de Origen" />
+                                            <span
+                                                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xl transition-transform duration-500 ${data.has_chief_foreman ? "translate-x-6" : "translate-x-1"
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <InputLabel value="Nombre del Buque" />
                                         <TextInput
-                                            value={data.origin_port}
+                                            value={data.name}
+                                            onChange={(e) =>
+                                                setData("name", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                            placeholder="Ej. MSC ALEXANDRA"
+                                        />
+                                        {errors.name && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.name}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Nacionalidad" />
+                                        <TextInput
+                                            value={data.nationality}
                                             onChange={(e) =>
                                                 setData(
-                                                    "origin_port",
+                                                    "nationality",
                                                     e.target.value,
                                                 )
                                             }
                                             className="w-full mt-1"
                                         />
-                                        {errors.origin_port && (
+                                        {errors.nationality && (
                                             <p className="text-red-500 text-xs mt-1">
-                                                {errors.origin_port}
+                                                {errors.nationality}
                                             </p>
                                         )}
                                     </div>
                                     <div>
-                                        <InputLabel value="Puerto de Carga" />
+                                        <InputLabel value="N# IMO" />
                                         <TextInput
-                                            value={data.loading_port}
+                                            value={data.imo_number}
                                             onChange={(e) =>
                                                 setData(
-                                                    "loading_port",
+                                                    "imo_number",
                                                     e.target.value,
                                                 )
                                             }
                                             className="w-full mt-1"
                                         />
-                                        {errors.loading_port && (
+                                        {errors.imo_number && (
                                             <p className="text-red-500 text-xs mt-1">
-                                                {errors.loading_port}
+                                                {errors.imo_number}
                                             </p>
                                         )}
                                     </div>
                                     <div>
-                                        <InputLabel value="Producto" />
-                                        <select
-                                            value={data.product_id}
+                                        <InputLabel value="Matrícula" />
+                                        <TextInput
+                                            value={data.registration_number}
                                             onChange={(e) =>
                                                 setData(
-                                                    "product_id",
+                                                    "registration_number",
                                                     e.target.value,
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 bg-white"
-                                        >
-                                            <option value="">
-                                                Seleccione...
-                                            </option>
-                                            {products.map((p: any) => (
-                                                <option key={p.id} value={p.id}>
-                                                    {p.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.product_id && (
+                                            className="w-full mt-1"
+                                        />
+                                        {errors.registration_number && (
                                             <p className="text-red-500 text-xs mt-1">
-                                                {errors.product_id}
+                                                {errors.registration_number}
                                             </p>
                                         )}
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Section 2: Technical Specs */}
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                    <Ruler className="w-5 h-5 mr-3" />
+                                    2. Especificaciones Técnicas
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
-                                        <InputLabel value="Toneladas Programadas" />
+                                        <InputLabel value="Eslora (m)" />
                                         <TextInput
                                             type="number"
                                             step="0.01"
-                                            value={data.programmed_tonnage}
+                                            value={data.length}
                                             onChange={(e) =>
-                                                setData(
-                                                    "programmed_tonnage",
-                                                    e.target.value,
-                                                )
+                                                setData("length", e.target.value)
                                             }
                                             onWheel={(e) =>
                                                 (
@@ -827,100 +486,385 @@ export default function CreateVessel({
                                                 ).blur()
                                             }
                                             className="w-full mt-1"
+                                            placeholder="0.00"
                                         />
-                                        {errors.programmed_tonnage && (
+                                        {errors.length && (
                                             <p className="text-red-500 text-xs mt-1">
-                                                {errors.programmed_tonnage}
+                                                {errors.length}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Manga (m)" />
+                                        <TextInput
+                                            type="number"
+                                            step="0.01"
+                                            value={data.beam}
+                                            onChange={(e) =>
+                                                setData("beam", e.target.value)
+                                            }
+                                            onWheel={(e) =>
+                                                (
+                                                    e.target as HTMLInputElement
+                                                ).blur()
+                                            }
+                                            className="w-full mt-1"
+                                            placeholder="0.00"
+                                        />
+                                        {errors.beam && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.beam}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Calado (m)" />
+                                        <TextInput
+                                            type="number"
+                                            step="0.01"
+                                            value={data.draft}
+                                            onChange={(e) =>
+                                                setData("draft", e.target.value)
+                                            }
+                                            onWheel={(e) =>
+                                                (
+                                                    e.target as HTMLInputElement
+                                                ).blur()
+                                            }
+                                            className="w-full mt-1"
+                                            placeholder="0.00"
+                                        />
+                                        {errors.draft && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.draft}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section 3: Arrival Info */}
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                    <Calendar className="w-5 h-5 mr-3" />
+                                    3. Datos de Arribo
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div>
+                                        <InputLabel value="Llegada Muelle Externo" />
+                                        <TextInput
+                                            type="date"
+                                            value={data.external_dock_arrival_date}
+                                            onChange={(e) =>
+                                                setData("external_dock_arrival_date", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        {errors.external_dock_arrival_date && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.external_dock_arrival_date}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Hora Llegada M. Externo" />
+                                        <TextInput
+                                            type="time"
+                                            value={data.external_dock_arrival_time}
+                                            onChange={(e) =>
+                                                setData("external_dock_arrival_time", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        {errors.external_dock_arrival_time && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.external_dock_arrival_time}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Salida Muelle Externo" />
+                                        <TextInput
+                                            type="date"
+                                            value={data.external_dock_departure_date}
+                                            onChange={(e) =>
+                                                setData("external_dock_departure_date", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        {errors.external_dock_departure_date && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.external_dock_departure_date}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Hora Salida M. Externo" />
+                                        <TextInput
+                                            type="time"
+                                            value={data.external_dock_departure_time}
+                                            onChange={(e) =>
+                                                setData("external_dock_departure_time", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        {errors.external_dock_departure_time && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.external_dock_departure_time}
                                             </p>
                                         )}
                                     </div>
 
-                                    {/* Holds Distribution */}
-                                    <div className="md:col-span-2 pt-4 border-t border-blue-100">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                            <div>
-                                                <InputLabel value="Número de Bodegas" />
-                                                <select
-                                                    value={data.holds.length}
-                                                    onChange={(e) => handleHoldsCountChange(parseInt(e.target.value))}
-                                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 bg-white"
-                                                >
-                                                    <option value="0">Sin Bodegas</option>
-                                                    <option value="1">1 Bodega</option>
-                                                    <option value="2">2 Bodegas</option>
-                                                    <option value="3">3 Bodegas</option>
-                                                    <option value="4">4 Bodegas</option>
-                                                    <option value="5">5 Bodegas</option>
-                                                    <option value="6">6 Bodegas</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {data.holds.length > 0 && (
-                                            <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-indigo-900 font-bold uppercase tracking-wider">Resumen de Bodegas</p>
-                                                    <p className="text-xs text-indigo-600">Suma total asignada a bodegas</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className={`text-xl font-black ${isTonnageMismatch ? 'text-red-600' : 'text-green-600'}`}>
-                                                        {totalHoldTonnage.toFixed(2)} / {data.programmed_tonnage || '0'} <small className="text-xs">TM</small>
-                                                    </p>
-                                                    {isTonnageMismatch && (
-                                                        <p className="text-[10px] text-red-500 font-bold animate-pulse">EL TONELAJE NO COINCIDE</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {data.holds.length > 0 && (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                                                {data.holds.map((hold: any, idx: number) => (
-                                                    <div key={idx}>
-                                                        <InputLabel value={`Bodega ${hold.hold_number}`} />
-                                                        <div className="relative mt-1">
-                                                            <TextInput
-                                                                type="number"
-                                                                step="0.01"
-                                                                value={hold.tonnage}
-                                                                onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
-                                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                                                                className="w-full pr-12"
-                                                                placeholder="0.00"
-                                                            />
-                                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                                <span className="text-gray-500 font-bold text-xs">TM</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
+                                    <div>
+                                        <InputLabel value="ETA (Estimado Arribo)" />
+                                        <TextInput
+                                            type="date"
+                                            value={data.eta}
+                                            onChange={(e) =>
+                                                setData("eta", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        {errors.eta && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.eta}
+                                            </p>
                                         )}
                                     </div>
-                                </div>
-                            )}
-
-                            {data.operation_type === "Carga" && (
-                                <div className="bg-orange-50 p-6 rounded-xl border border-orange-100 mb-6 space-y-6">
                                     <div>
-                                        <InputLabel value="Puerto de Destino" />
+                                        <InputLabel value="Fecha Atraco (ETB)" />
                                         <TextInput
-                                            value={data.destination_port}
+                                            type="date"
+                                            value={data.docking_date}
                                             onChange={(e) =>
                                                 setData(
-                                                    "destination_port",
+                                                    "docking_date",
                                                     e.target.value,
                                                 )
                                             }
                                             className="w-full mt-1"
                                         />
-                                        {errors.destination_port && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Puerto Proagro
+                                        </p>
+                                        {errors.docking_date && (
                                             <p className="text-red-500 text-xs mt-1">
-                                                {errors.destination_port}
+                                                {errors.docking_date}
                                             </p>
                                         )}
                                     </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <InputLabel value="Hora Atraco" />
+                                        <TextInput
+                                            type="time"
+                                            value={data.docking_time}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "docking_time",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Puerto Proagro
+                                        </p>
+                                        {errors.docking_time && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.docking_time}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Muelle Asignado" />
+                                        <select
+                                            value={data.dock}
+                                            onChange={(e) =>
+                                                setData("dock", e.target.value)
+                                            }
+                                            className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 ${errors.dock ? "border-red-500 ring-1 ring-red-500" : ""}`}
+                                        >
+                                            <option value="">Seleccione...</option>
+                                            <option value="ECO">ECO</option>
+                                            <option value="WHISKY">WHISKY</option>
+                                        </select>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Requerido para Status
+                                        </p>
+                                        {errors.dock && (
+                                            <p className="text-red-500 text-xs mt-1 font-bold">
+                                                {errors.dock}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* New Operation Type Buttons (Scale vs Burreo) */}
+                                <div className="mt-8 pt-6 border-t border-gray-100">
+                                    <InputLabel
+                                        value="Operación en APT"
+                                        className="text-center mb-3 text-indigo-800 font-bold"
+                                    />
+                                    <div className="flex justify-center gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setData(
+                                                    "apt_operation_type",
+                                                    "scale",
+                                                )
+                                            }
+                                            className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
+                                            ${data.apt_operation_type ===
+                                                    "scale"
+                                                    ? "border-indigo-600 bg-indigo-50 text-indigo-800 shadow-md ring-2 ring-indigo-500/20"
+                                                    : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
+                                                }
+                                        `}
+                                        >
+                                            <div
+                                                className={`p-2 rounded-lg ${data.apt_operation_type === "scale" ? "bg-indigo-600 text-white" : "bg-gray-100"}`}
+                                            >
+                                                <Save className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-bold text-sm">
+                                                DESCARGA BASCULA
+                                            </span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setData(
+                                                    "apt_operation_type",
+                                                    "burreo",
+                                                )
+                                            }
+                                            className={`flex-1 max-w-[200px] py-4 rounded-xl border-2 transition-all duration-300 flex flex-col items-center gap-2
+                                            ${data.apt_operation_type ===
+                                                    "burreo"
+                                                    ? "border-orange-500 bg-orange-50 text-orange-800 shadow-md ring-2 ring-orange-500/20"
+                                                    : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
+                                                }
+                                        `}
+                                        >
+                                            <div
+                                                className={`p-2 rounded-lg ${data.apt_operation_type === "burreo" ? "bg-orange-500 text-white" : "bg-gray-100"}`}
+                                            >
+                                                <Ship className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-bold text-sm">
+                                                BURREO
+                                            </span>
+                                        </button>
+                                    </div>
+                                    {errors.apt_operation_type && (
+                                        <p className="text-red-500 text-xs mt-2 text-center font-bold">
+                                            {errors.apt_operation_type}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Section 4: Operation & Clients */}
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                    <Briefcase className="w-5 h-5 mr-3" />
+                                    4. Detalles de la Operación
+                                </h4>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <InputLabel value="Cliente" />
+                                        <select
+                                            value={data.client_id}
+                                            onChange={(e) =>
+                                                setData("client_id", e.target.value)
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
+                                        >
+                                            <option value="">
+                                                Seleccione Cliente...
+                                            </option>
+                                            {(clients || []).map((c: any) => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.business_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {errors.client_id && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.client_id}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Tipo de Operación" />
+                                        <select
+                                            value={data.operation_type}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "operation_type",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
+                                        >
+                                            <option value="Resguardo">
+                                                Resguardo
+                                            </option>
+                                            <option value="Descarga">
+                                                Descarga
+                                            </option>
+                                            <option value="Carga">Carga</option>
+                                        </select>
+                                        {errors.operation_type && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.operation_type}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Conditional Fields based on Operation Type */}
+                                {data.operation_type === "Descarga" && (
+                                    <div className="bg-blue-50 p-6 rounded-xl border border-blue-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <InputLabel value="Puerto de Origen" />
+                                            <TextInput
+                                                value={data.origin_port}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "origin_port",
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full mt-1"
+                                            />
+                                            {errors.origin_port && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.origin_port}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <InputLabel value="Puerto de Carga" />
+                                            <TextInput
+                                                value={data.loading_port}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "loading_port",
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full mt-1"
+                                            />
+                                            {errors.loading_port && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.loading_port}
+                                                </p>
+                                            )}
+                                        </div>
                                         <div>
                                             <InputLabel value="Producto" />
                                             <select
@@ -937,10 +881,7 @@ export default function CreateVessel({
                                                     Seleccione...
                                                 </option>
                                                 {products.map((p: any) => (
-                                                    <option
-                                                        key={p.id}
-                                                        value={p.id}
-                                                    >
+                                                    <option key={p.id} value={p.id}>
                                                         {p.name}
                                                     </option>
                                                 ))}
@@ -976,207 +917,349 @@ export default function CreateVessel({
                                                 </p>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Holds Distribution */}
-                                    <div className="pt-4 border-t border-orange-100">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                        {/* Holds Distribution */}
+                                        <div className="md:col-span-2 pt-4 border-t border-blue-100">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                                <div>
+                                                    <InputLabel value="Número de Bodegas" />
+                                                    <select
+                                                        value={data.holds.length}
+                                                        onChange={(e) => handleHoldsCountChange(parseInt(e.target.value))}
+                                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 bg-white"
+                                                    >
+                                                        <option value="0">Sin Bodegas</option>
+                                                        <option value="1">1 Bodega</option>
+                                                        <option value="2">2 Bodegas</option>
+                                                        <option value="3">3 Bodegas</option>
+                                                        <option value="4">4 Bodegas</option>
+                                                        <option value="5">5 Bodegas</option>
+                                                        <option value="6">6 Bodegas</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {data.holds.length > 0 && (
+                                                <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm text-indigo-900 font-bold uppercase tracking-wider">Resumen de Bodegas</p>
+                                                        <p className="text-xs text-indigo-600">Suma total asignada a bodegas</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className={`text-xl font-black ${isTonnageMismatch ? 'text-red-600' : 'text-green-600'}`}>
+                                                            {totalHoldTonnage.toFixed(2)} / {data.programmed_tonnage || '0'} <small className="text-xs">TM</small>
+                                                        </p>
+                                                        {isTonnageMismatch && (
+                                                            <p className="text-[10px] text-red-500 font-bold animate-pulse">EL TONELAJE NO COINCIDE</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {data.holds.length > 0 && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                                                    {data.holds.map((hold: any, idx: number) => (
+                                                        <div key={idx}>
+                                                            <InputLabel value={`Bodega ${hold.hold_number}`} />
+                                                            <div className="relative mt-1">
+                                                                <TextInput
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={hold.tonnage}
+                                                                    onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                                    className="w-full pr-12"
+                                                                    placeholder="0.00"
+                                                                />
+                                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                                    <span className="text-gray-500 font-bold text-xs">TM</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {data.operation_type === "Carga" && (
+                                    <div className="bg-orange-50 p-6 rounded-xl border border-orange-100 mb-6 space-y-6">
+                                        <div>
+                                            <InputLabel value="Puerto de Destino" />
+                                            <TextInput
+                                                value={data.destination_port}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "destination_port",
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                className="w-full mt-1"
+                                            />
+                                            {errors.destination_port && (
+                                                <p className="text-red-500 text-xs mt-1">
+                                                    {errors.destination_port}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
-                                                <InputLabel value="Número de Bodegas" />
+                                                <InputLabel value="Producto" />
                                                 <select
-                                                    value={data.holds.length}
-                                                    onChange={(e) => handleHoldsCountChange(parseInt(e.target.value))}
+                                                    value={data.product_id}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "product_id",
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 bg-white"
                                                 >
-                                                    <option value="0">Sin Bodegas</option>
-                                                    <option value="1">1 Bodega</option>
-                                                    <option value="2">2 Bodegas</option>
-                                                    <option value="3">3 Bodegas</option>
-                                                    <option value="4">4 Bodegas</option>
-                                                    <option value="5">5 Bodegas</option>
-                                                    <option value="6">6 Bodegas</option>
+                                                    <option value="">
+                                                        Seleccione...
+                                                    </option>
+                                                    {products.map((p: any) => (
+                                                        <option
+                                                            key={p.id}
+                                                            value={p.id}
+                                                        >
+                                                            {p.name}
+                                                        </option>
+                                                    ))}
                                                 </select>
+                                                {errors.product_id && (
+                                                    <p className="text-red-500 text-xs mt-1">
+                                                        {errors.product_id}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <InputLabel value="Toneladas Programadas" />
+                                                <TextInput
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={data.programmed_tonnage}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "programmed_tonnage",
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    onWheel={(e) =>
+                                                        (
+                                                            e.target as HTMLInputElement
+                                                        ).blur()
+                                                    }
+                                                    className="w-full mt-1"
+                                                />
+                                                {errors.programmed_tonnage && (
+                                                    <p className="text-red-500 text-xs mt-1">
+                                                        {errors.programmed_tonnage}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
 
-                                        {data.holds.length > 0 && (
-                                            <div className="mt-4 p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                                        {/* Holds Distribution */}
+                                        <div className="pt-4 border-t border-orange-100">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                                 <div>
-                                                    <p className="text-sm text-orange-900 font-bold uppercase tracking-wider">Resumen de Bodegas</p>
-                                                    <p className="text-xs text-orange-600">Suma total asignada a bodegas</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className={`text-xl font-black ${isTonnageMismatch ? 'text-red-700' : 'text-green-600'}`}>
-                                                        {totalHoldTonnage.toFixed(2)} / {data.programmed_tonnage || '0'} <small className="text-xs">TM</small>
-                                                    </p>
-                                                    {isTonnageMismatch && (
-                                                        <p className="text-[10px] text-red-500 font-bold animate-pulse">EL TONELAJE NO COINCIDE</p>
-                                                    )}
+                                                    <InputLabel value="Número de Bodegas" />
+                                                    <select
+                                                        value={data.holds.length}
+                                                        onChange={(e) => handleHoldsCountChange(parseInt(e.target.value))}
+                                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1 bg-white"
+                                                    >
+                                                        <option value="0">Sin Bodegas</option>
+                                                        <option value="1">1 Bodega</option>
+                                                        <option value="2">2 Bodegas</option>
+                                                        <option value="3">3 Bodegas</option>
+                                                        <option value="4">4 Bodegas</option>
+                                                        <option value="5">5 Bodegas</option>
+                                                        <option value="6">6 Bodegas</option>
+                                                    </select>
                                                 </div>
                                             </div>
-                                        )}
 
-                                        {data.holds.length > 0 && (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                                                {data.holds.map((hold: any, idx: number) => (
-                                                    <div key={idx}>
-                                                        <InputLabel value={`Bodega ${hold.hold_number}`} />
-                                                        <div className="relative mt-1">
-                                                            <TextInput
-                                                                type="number"
-                                                                step="0.01"
-                                                                value={hold.tonnage}
-                                                                onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
-                                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                                                                className="w-full pr-12"
-                                                                placeholder="0.00"
-                                                            />
-                                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                                <span className="text-gray-500 font-bold text-xs">TM</span>
+                                            {data.holds.length > 0 && (
+                                                <div className="mt-4 p-4 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm text-orange-900 font-bold uppercase tracking-wider">Resumen de Bodegas</p>
+                                                        <p className="text-xs text-orange-600">Suma total asignada a bodegas</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className={`text-xl font-black ${isTonnageMismatch ? 'text-red-700' : 'text-green-600'}`}>
+                                                            {totalHoldTonnage.toFixed(2)} / {data.programmed_tonnage || '0'} <small className="text-xs">TM</small>
+                                                        </p>
+                                                        {isTonnageMismatch && (
+                                                            <p className="text-[10px] text-red-500 font-bold animate-pulse">EL TONELAJE NO COINCIDE</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {data.holds.length > 0 && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                                                    {data.holds.map((hold: any, idx: number) => (
+                                                        <div key={idx}>
+                                                            <InputLabel value={`Bodega ${hold.hold_number}`} />
+                                                            <div className="relative mt-1">
+                                                                <TextInput
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={hold.tonnage}
+                                                                    onChange={(e) => handleHoldTonnageChange(idx, e.target.value)}
+                                                                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                                    className="w-full pr-12"
+                                                                    placeholder="0.00"
+                                                                />
+                                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                                    <span className="text-gray-500 font-bold text-xs">TM</span>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Section 5: Agencies & Logistics */}
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                    <FileText className="w-5 h-5 mr-3" />
+                                    5. Agencias y Logística
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <InputLabel value="Importador" />
+                                        <TextInput
+                                            value={data.importer}
+                                            onChange={(e) =>
+                                                setData("importer", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Agencia Consignataria" />
+                                        <TextInput
+                                            value={data.consignee_agency}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "consignee_agency",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Agencia Aduanal" />
+                                        <TextInput
+                                            value={data.customs_agency}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "customs_agency",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full mt-1"
+                                        />
                                     </div>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Section 5: Agencies & Logistics */}
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                <FileText className="w-5 h-5 mr-3" />
-                                5. Agencias y Logística
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <InputLabel value="Importador" />
-                                    <TextInput
-                                        value={data.importer}
-                                        onChange={(e) =>
-                                            setData("importer", e.target.value)
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel value="Agencia Consignataria" />
-                                    <TextInput
-                                        value={data.consignee_agency}
-                                        onChange={(e) =>
-                                            setData(
-                                                "consignee_agency",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                </div>
-                                <div>
-                                    <InputLabel value="Agencia Aduanal" />
-                                    <TextInput
-                                        value={data.customs_agency}
-                                        onChange={(e) =>
-                                            setData(
-                                                "customs_agency",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                </div>
                             </div>
-                        </div>
 
-                        {/* Section 6: Planning & Departure */}
-                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                                <Navigation className="w-5 h-5 mr-3" />
-                                6. Planificación y Salida
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <InputLabel value="Días de Estadía" />
-                                    <TextInput
-                                        type="number"
-                                        value={data.stay_days}
-                                        onChange={(e) =>
-                                            setData("stay_days", e.target.value)
-                                        }
-                                        onWheel={(e) =>
-                                            (
-                                                e.target as HTMLInputElement
-                                            ).blur()
-                                        }
-                                        className="w-full mt-1"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Días de estadía programados
-                                    </p>
-                                    {errors.stay_days && (
-                                        <p className="text-red-500 text-xs mt-1">
-                                            {errors.stay_days}
+                            {/* Section 6: Planning & Departure */}
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <h4 className="text-indigo-800 font-bold mb-6 flex items-center text-lg bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                                    <Navigation className="w-5 h-5 mr-3" />
+                                    6. Planificación y Salida
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <InputLabel value="Días de Estadía" />
+                                        <TextInput
+                                            type="number"
+                                            value={data.stay_days}
+                                            onChange={(e) =>
+                                                setData("stay_days", e.target.value)
+                                            }
+                                            onWheel={(e) =>
+                                                (
+                                                    e.target as HTMLInputElement
+                                                ).blur()
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Días de estadía programados
                                         </p>
-                                    )}
+                                        {errors.stay_days && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                {errors.stay_days}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <InputLabel value="ETC (Estimado Final)" />
+                                        <TextInput
+                                            type="date"
+                                            value={data.etc}
+                                            onChange={(e) =>
+                                                setData("etc", e.target.value)
+                                            }
+                                            className="w-full mt-1"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Opcional
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <InputLabel value="Fecha de Salida" />
+                                        <TextInput
+                                            type="date"
+                                            value={data.departure_date}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "departure_date",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full mt-1 bg-gray-50"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Llenar al zarpe
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <InputLabel value="ETC (Estimado Final)" />
-                                    <TextInput
-                                        type="date"
-                                        value={data.etc}
+                                <div className="mt-4">
+                                    <InputLabel value="Observaciones" />
+                                    <textarea
+                                        value={data.observations}
                                         onChange={(e) =>
-                                            setData("etc", e.target.value)
+                                            setData("observations", e.target.value)
                                         }
-                                        className="w-full mt-1"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Opcional
-                                    </p>
-                                </div>
-                                <div>
-                                    <InputLabel value="Fecha de Salida" />
-                                    <TextInput
-                                        type="date"
-                                        value={data.departure_date}
-                                        onChange={(e) =>
-                                            setData(
-                                                "departure_date",
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full mt-1 bg-gray-50"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Llenar al zarpe
-                                    </p>
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
+                                        rows={3}
+                                    ></textarea>
                                 </div>
                             </div>
-                            <div className="mt-4">
-                                <InputLabel value="Observaciones" />
-                                <textarea
-                                    value={data.observations}
-                                    onChange={(e) =>
-                                        setData("observations", e.target.value)
-                                    }
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 mt-1"
-                                    rows={3}
-                                ></textarea>
-                            </div>
-                        </div>
 
-                        <div className="pt-4 flex justify-end">
-                            <PrimaryButton
-                                disabled={processing}
-                                className="w-full md:w-auto h-12 px-8 text-base bg-green-600 hover:bg-green-700 shadow-lg transform transition hover:scale-[1.02]"
-                            >
-                                <Save className="w-5 h-5 mr-2" />
-                                {processing
-                                    ? "Guardando Registro..."
-                                    : "Guardar Barco"}
-                            </PrimaryButton>
-                        </div>
+                            <div className="pt-4 flex justify-end">
+                                <PrimaryButton
+                                    disabled={processing}
+                                    className="w-full md:w-auto h-12 px-8 text-base bg-green-600 hover:bg-green-700 shadow-lg transform transition hover:scale-[1.02]"
+                                >
+                                    <Save className="w-5 h-5 mr-2" />
+                                    {processing
+                                        ? "Guardando Registro..."
+                                        : "Guardar Barco"}
+                                </PrimaryButton>
+                            </div>
                     </form>
 
                     {/* Footer Legend */}
