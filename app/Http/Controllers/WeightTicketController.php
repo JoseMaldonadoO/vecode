@@ -676,6 +676,7 @@ class WeightTicketController extends Controller
                             'vessel_etb' => $operator->vessel->etb,
                             'force_burreo' => false,
                             'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
+                            'has_chief_foreman' => (bool) ($operator->vessel->has_chief_foreman ?? false),
                         ]);
                     }
 
@@ -720,6 +721,7 @@ class WeightTicketController extends Controller
                         'force_burreo' => false,
                         'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
                         'vessel_operator_id_val' => $operator->id, // Added this to be explicit
+                        'has_chief_foreman' => (bool) ($operator->vessel->has_chief_foreman ?? false),
                     ]);
                 }
             }

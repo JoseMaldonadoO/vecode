@@ -64,6 +64,7 @@ class DockTripController extends Controller
                 'name' => $operator->vessel->name,
                 'holds' => $operator->vessel->holds,
                 'operation_type' => $operator->vessel->apt_operation_type, // General operation type (scale/burreo)
+                'has_chief_foreman' => $operator->vessel->has_chief_foreman,
             ],
         ]);
     }

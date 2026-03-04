@@ -14,6 +14,8 @@ import {
     Warehouse,
     Edit,
     Trash2,
+    Briefcase,
+    Sparkles,
 } from "lucide-react";
 import axios from "axios";
 import { pickBy } from "lodash";
@@ -56,6 +58,10 @@ export default function Scanner({
     const [vesselFilter, setVesselFilter] = useState(filters.vessel_id || "");
     const [vesselSearch, setVesselSearch] = useState("");
     const [showInactiveVessels, setShowInactiveVessels] = useState(false);
+    const [showManualSearch, setShowManualSearch] = useState(false);
+    const [manualQuery, setManualQuery] = useState("");
+    const [manualResults, setManualResults] = useState<any[]>([]);
+    const [isSearchingManual, setIsSearchingManual] = useState(false);
 
     const handleFilterChange = (newFilters: any) => {
         const mergedFilters = pickBy({
@@ -113,6 +119,34 @@ export default function Scanner({
                 params: { qr: cleanCode, context: "apt" },
             });
             if (response.data) {
+                // Chief Foreman Mode Feedback
+                if (response.data.has_chief_foreman) {
+                    await Swal.fire({
+                        title: '<span class="text-amber-600 font-black">MODO FOREMAN DETECTADO</span>',
+                        html: `
+                            <div class="text-center space-y-4">
+                                <div class="inline-block p-4 bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-sm mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg>
+                                </div>
+                                <p class="text-sm text-gray-700 leading-relaxed font-medium">
+                                    Este barco opera bajo el esquema de <b>Chief Foreman</b>.<br/>
+                                    Se ha omitido la validación de salida de Muelle.
+                                </p>
+                                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 italic text-[11px] text-indigo-700 font-bold">
+                                    Paso Siguiente: Seleccione Almacén y Cubículo para completar la descarga.
+                                </div>
+                            </div>
+                        `,
+                        icon: "info",
+                        confirmButtonText: "Entendido, proceder",
+                        confirmButtonColor: "#f59e0b",
+                        customClass: {
+                            popup: 'rounded-3xl border-none shadow-2xl',
+                            confirmButton: 'rounded-xl font-bold px-8 py-3',
+                        }
+                    });
+                }
+
                 setScanResult(response.data);
                 setData("qr", cleanCode);
 
@@ -151,6 +185,27 @@ export default function Scanner({
     const handleScan = (e: React.FormEvent) => {
         e.preventDefault();
         handleCodeFound(scanInput);
+    };
+
+    const handleManualSearch = async () => {
+        if (manualQuery.length < 2) return;
+        setIsSearchingManual(true);
+        try {
+            const response = await axios.get(route("apt.operators.search"), {
+                params: { q: manualQuery },
+            });
+            setManualResults(response.data);
+        } catch (error) {
+            console.error("Manual Search Error:", error);
+        } finally {
+            setIsSearchingManual(false);
+        }
+    };
+
+    const selectManualOperator = (operator: any) => {
+        const fakeQr = `OP ${operator.id}|${operator.operator_name}`;
+        setShowManualSearch(false);
+        handleCodeFound(fakeQr);
     };
 
     const submitForm = (e: React.FormEvent) => {
@@ -223,6 +278,76 @@ export default function Scanner({
                     Volver al menú
                 </Link>
             </div>
+
+            {/* Manual Search Modal */}
+            <Modal show={showManualSearch} onClose={() => setShowManualSearch(false)} maxWidth="2xl">
+                <div className="p-8">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <Search className="w-6 h-6 text-indigo-600" />
+                            Búsqueda Manual de Operador
+                        </h3>
+                        <button onClick={() => setShowManualSearch(false)} className="text-gray-400 hover:text-gray-600 p-2">
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    <div className="mb-6">
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={manualQuery}
+                                onChange={(e) => setManualQuery(e.target.value)}
+                                onKeyUp={(e) => e.key === 'Enter' && handleManualSearch()}
+                                className="w-full pl-11 pr-4 py-3 rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all"
+                                placeholder="Nombre del operador o No. Económico..."
+                                autoFocus
+                            />
+                            <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 ml-1">Para buscar presione Enter o el botón de búsqueda.</p>
+                    </div>
+
+                    <button
+                        onClick={handleManualSearch}
+                        disabled={isSearchingManual || manualQuery.length < 2}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50 mb-6"
+                    >
+                        {isSearchingManual ? 'Buscando...' : 'Buscar'}
+                    </button>
+
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                        {manualResults.map((op) => (
+                            <button
+                                key={op.id}
+                                onClick={() => selectManualOperator(op)}
+                                className="w-full text-left p-4 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/50 transition-all group"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-bold text-gray-900 group-hover:text-indigo-700 transition-colors">
+                                            {op.operator_name}
+                                        </div>
+                                        <div className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                                            <span className="bg-gray-100 px-2 py-0.5 rounded text-xs font-bold">#{op.economic_number}</span>
+                                            <span>|</span>
+                                            <span>{op.vessel?.name || 'Sin Barco'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <CheckCircle className="w-5 h-5" />
+                                    </div>
+                                </div>
+                            </button>
+                        ))}
+                        {manualResults.length === 0 && !isSearchingManual && manualQuery !== '' && (
+                            <div className="text-center py-8 text-gray-400 italic">
+                                No se encontraron resultados.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </Modal>
 
             {/* Edit Modal */}
             {editingScan && (
@@ -532,7 +657,7 @@ export default function Scanner({
                                     <X className="w-6 h-6" />
                                 </button>
                                 <QrReader
-                                    onResult={(result: any, error) => {
+                                    onResult={(result: any, error: any) => {
                                         if (!!result) {
                                             const text =
                                                 typeof result.getText ===
@@ -551,37 +676,48 @@ export default function Scanner({
                                 </p>
                             </div>
                         ) : (
-                            <div className="flex justify-center mb-6">
+                            <div className="flex flex-col items-center gap-6">
                                 <button
                                     onClick={() => setShowCamera(true)}
-                                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+                                    className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200 active:scale-95 font-bold"
                                 >
                                     <Camera className="w-5 h-5" />
                                     Usar Cámara
                                 </button>
-                            </div>
-                        )}
 
-                        {!showCamera && (
-                            <form
-                                onSubmit={handleScan}
-                                className="max-w-md mx-auto"
-                            >
-                                <div className="relative">
-                                    <input
-                                        ref={inputRef}
-                                        type="text"
-                                        value={scanInput}
-                                        onChange={(e) =>
-                                            setScanInput(e.target.value)
-                                        }
-                                        className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-indigo-300 focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 text-lg transition-all"
-                                        placeholder="Escanee o escriba código..."
-                                        autoComplete="off"
-                                    />
-                                    <QrCode className="w-6 h-6 text-gray-400 absolute left-3 top-3.5" />
+                                <div className="w-full max-w-xs h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+
+                                <form
+                                    onSubmit={handleScan}
+                                    className="w-full max-w-md mx-auto"
+                                >
+                                    <div className="relative group">
+                                        <input
+                                            ref={inputRef}
+                                            type="text"
+                                            value={scanInput}
+                                            onChange={(e) =>
+                                                setScanInput(e.target.value)
+                                            }
+                                            className="w-full pl-11 pr-4 py-4 rounded-2xl border-2 border-gray-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50/50 text-lg transition-all shadow-sm placeholder:text-gray-300"
+                                            placeholder="Ingresar código manualmente..."
+                                            autoComplete="off"
+                                        />
+                                        <QrCode className="w-6 h-6 text-gray-300 absolute left-3.5 top-4 group-focus-within:text-indigo-500 transition-colors" />
+                                    </div>
+                                </form>
+
+                                <div className="mt-2 text-center">
+                                    <p className="text-gray-400 text-sm mb-2 font-medium">¿El QR no es legible o no está disponible?</p>
+                                    <button
+                                        onClick={() => setShowManualSearch(true)}
+                                        className="text-indigo-600 hover:text-indigo-800 font-black text-sm flex items-center justify-center gap-2 mx-auto transition-all group"
+                                    >
+                                        <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                        <span className="border-b-2 border-indigo-100 group-hover:border-indigo-600 transition-colors">Búsqueda Avanzada de Operador</span>
+                                    </button>
                                 </div>
-                            </form>
+                            </div>
                         )}
                     </div>
                 ) : (
@@ -829,7 +965,8 @@ export default function Scanner({
                             </form>
                         </div>
                     </div>
-                )}
+                )
+                }
 
                 {/* Recent Scans */}
                 <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 mt-8">

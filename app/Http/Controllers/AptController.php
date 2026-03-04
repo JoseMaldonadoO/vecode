@@ -431,7 +431,12 @@ class AptController extends Controller
                             ->whereBetween('created_at', $range)
                             ->count();
 
-                        return redirect()->back()->with('success', "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.");
+                        $msg = "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.";
+                        if ($operator->vessel->has_chief_foreman) {
+                            $msg = "🚀 [MODO FOREMAN] " . $msg . " - Bypass de Muelle procesado correctamente.";
+                        }
+
+                        return redirect()->back()->with('success', $msg);
 
                     } catch (\Exception $e) {
                         \Illuminate\Support\Facades\Log::error('Burreo Operation Error: ' . $e->getMessage(), [

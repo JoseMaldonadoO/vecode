@@ -92,6 +92,33 @@ export default function Trips({
                 params: { qr: cleanCode },
             });
             if (response.data) {
+                if (response.data.vessel.has_chief_foreman) {
+                    await Swal.fire({
+                        title: '<span class="text-amber-600 font-black">MODO FOREMAN ACTIVADO</span>',
+                        html: `
+                            <div class="text-center space-y-4">
+                                <div class="inline-block p-4 bg-amber-50 rounded-2xl border-2 border-amber-200 shadow-sm mb-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path><rect width="20" height="14" x="2" y="6" rx="2"></rect></svg>
+                                </div>
+                                <p class="text-sm text-gray-700 leading-relaxed font-medium">
+                                    Este barco opera bajo el esquema de <b>Chief Foreman</b>.<br/>
+                                    Las validaciones de muelle son opcionales para APT.
+                                </p>
+                                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 italic text-[11px] text-indigo-700 font-bold">
+                                    Nota: Aún puede registrar la vuelta si hay personal disponible.
+                                </div>
+                            </div>
+                        `,
+                        icon: "info",
+                        confirmButtonText: "Continuar Registro",
+                        confirmButtonColor: "#f59e0b",
+                        customClass: {
+                            popup: 'rounded-3xl border-none shadow-2xl',
+                            confirmButton: 'rounded-xl font-bold px-8 py-3',
+                        }
+                    });
+                }
+
                 setScanResult(response.data);
                 setData((d: any) => ({
                     ...d,
@@ -158,7 +185,7 @@ export default function Trips({
             cancelButtonColor: '#6b7280',
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
-        }).then((result) => {
+        }).then((result: any) => {
             if (result.isConfirmed) {
                 router.delete(route("dock.trips.destroy", id));
             }
@@ -230,7 +257,7 @@ export default function Trips({
                                     <X className="w-6 h-6" />
                                 </button>
                                 <QrReader
-                                    onResult={(result: any, error) => {
+                                    onResult={(result: any, error: any) => {
                                         if (!!result) {
                                             const text = typeof result.getText === "function" ? result.getText() : result.text;
                                             handleCodeFound(text);
