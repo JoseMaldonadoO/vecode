@@ -220,15 +220,23 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             }
         }
 
-        // Final resolution of the folio string
+        // Final resolution of the folio string and Warehouse
+        $warehouseValue = null;
         if ($foundLotId) {
-            // Try Eloquent relationship first (if loaded)
-            if ($ticket->lot && !empty($ticket->lot->folio)) {
-                $lotFolio = $ticket->lot->folio;
-            } else {
-                // Absolute fallback: Direct query to DB to bypass relationship depth issues
-                $lotFolio = DB::table('lots')->where('id', $foundLotId)->value('folio') ?? 'N/A';
-            }
+            // Priority 1: Get warehouse directly from the Lot record
+            $lotData = DB::table('lots')->where('id', $foundLotId)->first(['folio', 'warehouse']);
+            $lotFolio = $lotData->folio ?? 'N/A';
+            $warehouseValue = $lotData->warehouse ?? null;
+        }
+
+        // Final Almacen resolution (Lot Warehouse > Loading Order Warehouse > OE Warehouse)
+        $almacen = $warehouseValue
+            ?? $loadingOrder->warehouse
+            ?? $order->warehouse
+            ?? 'N/A';
+
+        if (empty($almacen) || $almacen === 'N/A') {
+            $almacen = 'N/A';
         }
 
         // Product Logic
@@ -298,7 +306,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
             (float) ($order->programmed_tons ?? 0),
             $sacksValue,
             $ticket->packaging_type ?? 'N/A',
-            $loadingOrder->warehouse ?? 'N/A',
+            $almacen,
             $ticket && $ticket->weigh_in_at ? Carbon::parse($ticket->weigh_in_at)->format('h:i A') : '---',
             $ticket && $ticket->weigh_out_at ? Carbon::parse($ticket->weigh_out_at)->format('h:i A') : '---',
             $order->transport_company ?? 'N/A',

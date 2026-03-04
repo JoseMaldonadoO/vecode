@@ -381,17 +381,18 @@ class WeightTicketController extends Controller
         ]);
 
         // Determine Warehouse to update in LoadingOrder and ShipmentOrder
-        $finalWarehouse = $order->warehouse;
+        $finalWarehouse = null; // Default to null for cleanup
         if (!empty($validated['lot_id'])) {
             $lot = \App\Models\Lot::find($validated['lot_id']);
             if ($lot && $lot->warehouse) {
                 $finalWarehouse = $lot->warehouse;
             }
-        } elseif (!empty($validated['warehouse'])) {
+        } elseif (!empty($validated['warehouse']) && $validated['warehouse'] !== 'N/A') {
             $finalWarehouse = $validated['warehouse'];
         }
 
         // Always ensure both the OE and the linked LoadingOrder reflect the correct warehouse
+        // This update will now correctly set 'warehouse' to NULL if $finalWarehouse is null
         $order->update(['warehouse' => $finalWarehouse]);
         if ($order instanceof \App\Models\ShipmentOrder) {
             // Also update the first loading order to ensure data consistency for queries
