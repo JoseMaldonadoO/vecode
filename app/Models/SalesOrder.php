@@ -55,13 +55,13 @@ class SalesOrder extends Model
 
     public function getLoadedQuantityAttribute()
     {
-        // Performance: If the denormalized column exists and we are in production-scaling mode,
-        // we should favor the column. We keep the fallback for backward compatibility during migration.
-        if (array_key_exists('loaded_quantity', $this->attributes)) {
-            return (float) $this->attributes['loaded_quantity'];
+        // Safety: If the column doesn't exist in the query result or is 0,
+        // we fallback to real-time calculation to ensure data integrity during transition.
+        if (!array_key_exists('loaded_quantity', $this->attributes) || (float) $this->attributes['loaded_quantity'] === 0.0) {
+            return $this->calculateLoadedQuantity();
         }
 
-        return $this->calculateLoadedQuantity();
+        return (float) $this->attributes['loaded_quantity'];
     }
 
     /**

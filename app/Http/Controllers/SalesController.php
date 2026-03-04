@@ -21,6 +21,7 @@ class SalesController extends Controller
         $query = \App\Models\SalesOrder::with([
             'client',
             'product',
+            'shipments.loadingOrders.weight_ticket', // Temporary fallback safety
         ]);
 
         if ($request->has('search')) {
