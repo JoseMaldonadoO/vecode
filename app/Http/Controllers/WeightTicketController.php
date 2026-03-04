@@ -847,6 +847,7 @@ class WeightTicketController extends Controller
             'weight' => 'required|numeric|min:0',
             'lot_id' => 'nullable|exists:lots,id',
             'packaging_type' => 'nullable|string',
+            'warehouse' => 'nullable|string',
         ]);
 
         try {
@@ -882,10 +883,22 @@ class WeightTicketController extends Controller
                     'weighmaster_id' => auth()->id(),
                 ]);
 
-                // Update Order Status
+                // Determine Warehouse to update in LoadingOrder
+                $finalWarehouse = $order->warehouse;
+                if (!empty($validated['lot_id'])) {
+                    $lot = \App\Models\Lot::find($validated['lot_id']);
+                    if ($lot && $lot->warehouse) {
+                        $finalWarehouse = $lot->warehouse;
+                    }
+                } elseif (!empty($validated['warehouse'])) {
+                    $finalWarehouse = $validated['warehouse'];
+                }
+
+                // Update Order Status and Warehouse
                 $order->update([
                     'status' => 'completed',
                     'destare_status' => 'completed',
+                    'warehouse' => $finalWarehouse,
                 ]);
             });
 

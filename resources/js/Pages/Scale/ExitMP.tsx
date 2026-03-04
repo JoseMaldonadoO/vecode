@@ -50,6 +50,7 @@ export default function ExitMP({
         scale_id: active_scale_id, // Exit Scale
         lot_id: "",
         packaging_type: "N/A",
+        warehouse: order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : "",
     });
 
     useEffect(() => {
@@ -515,6 +516,28 @@ export default function ExitMP({
                                                 {active_lots.map((lot: any) => (
                                                     <option key={lot.id} value={lot.id}>{lot.folio}</option>
                                                 ))}
+                                            </select>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between items-center">
+                                                <InputLabel value="ALMACÉN" className="text-indigo-600 font-black" />
+                                                {data.lot_id && (
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Auto por Lote</span>
+                                                )}
+                                            </div>
+                                            <select
+                                                value={data.lot_id ? (active_lots.find(l => l.id === data.lot_id)?.warehouse || "") : data.warehouse}
+                                                onChange={e => setData("warehouse", e.target.value)}
+                                                disabled={!!data.lot_id}
+                                                className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${!!data.lot_id ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700'}`}
+                                            >
+                                                <option value="">Seleccionar Almacén...</option>
+                                                <option value="Almacen 1">Almacen 1</option>
+                                                <option value="Almacen 2">Almacen 2</option>
+                                                <option value="Almacen 3">Almacen 3</option>
+                                                <option value="Almacen 4">Almacen 4</option>
+                                                <option value="Almacen 5">Almacen 5</option>
                                             </select>
                                         </div>
 

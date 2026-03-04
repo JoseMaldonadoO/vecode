@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v33 (Fix SQL ambiguity - Column created_at is ambiguous)
+# Force trigger: v34 (Warehouse selection in Destare - Persistent in SADER Report)
 
 on:
   push:
