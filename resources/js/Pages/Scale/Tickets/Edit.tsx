@@ -26,6 +26,7 @@ export default function Edit({
         net_weight: ticket.net_weight || 0,
         lot_id: ticket.lot_id || "",
         packaging_type: ticket.packaging_type || "N/A",
+        warehouse: order.warehouse || "",
         observations: order.observation || "",
     });
 
@@ -215,6 +216,33 @@ export default function Edit({
                                     </select>
                                     <InputError
                                         message={errors.lot_id}
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                {/* Warehouse */}
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center">
+                                        <InputLabel value="ALMACÉN" className="text-indigo-900 font-bold" />
+                                        {data.lot_id && (
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase">Auto por Lote</span>
+                                        )}
+                                    </div>
+                                    <select
+                                        value={data.lot_id ? (active_lots.find((l: any) => l.id === data.lot_id)?.warehouse || "") : data.warehouse}
+                                        onChange={e => setData("warehouse", e.target.value)}
+                                        disabled={!!data.lot_id}
+                                        className={`mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm font-bold ${!!data.lot_id ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700'}`}
+                                    >
+                                        <option value="">N/A</option>
+                                        <option value="Almacen 1">Almacen 1</option>
+                                        <option value="Almacen 2">Almacen 2</option>
+                                        <option value="Almacen 3">Almacen 3</option>
+                                        <option value="Almacen 4">Almacen 4</option>
+                                        <option value="Almacen 5">Almacen 5</option>
+                                    </select>
+                                    <InputError
+                                        message={errors.warehouse}
                                         className="mt-2"
                                     />
                                 </div>

@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v34 (Warehouse selection in Destare - Persistent in SADER Report)
+# Force trigger: v35 (Warehouse selection in Ticket Edit - Persists in SADER)
 
 on:
   push:

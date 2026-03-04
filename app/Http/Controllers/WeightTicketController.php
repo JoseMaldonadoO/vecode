@@ -368,6 +368,7 @@ class WeightTicketController extends Controller
             'net_weight' => 'required|numeric|min:0', // calculated usually, but allowed to edit?
             'lot_id' => 'nullable|exists:lots,id',
             'packaging_type' => 'nullable|string',
+            'warehouse' => 'nullable|string',
             'observations' => 'nullable|string',
         ]);
 
@@ -378,6 +379,20 @@ class WeightTicketController extends Controller
             'lot_id' => $validated['lot_id'],
             'packaging_type' => $validated['packaging_type'],
         ]);
+
+        // Determine Warehouse to update in LoadingOrder
+        $finalWarehouse = $order->warehouse;
+        if (!empty($validated['lot_id'])) {
+            $lot = \App\Models\Lot::find($validated['lot_id']);
+            if ($lot && $lot->warehouse) {
+                $finalWarehouse = $lot->warehouse;
+            }
+        } elseif (!empty($validated['warehouse'])) {
+            $finalWarehouse = $validated['warehouse'];
+        }
+
+        // Always ensure the linked LoadingOrder reflects the correct warehouse for SADER
+        $order->update(['warehouse' => $finalWarehouse]);
 
         // Also update Order observations if needed
         if ($request->has('observations')) {
