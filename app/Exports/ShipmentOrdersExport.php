@@ -53,7 +53,7 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                 'weight_ticket.weighmaster',
                 'weight_ticket.loadingOrder',
                 'creator',
-                'loadingOrders',
+                'loadingOrders.weight_ticket.lot',
                 'items.product',
             ]);
 
@@ -160,8 +160,8 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
 
     public function map($order): array
     {
-        $ticket = $order->weight_ticket;
         $loadingOrder = $order->loadingOrders->first();
+        $ticket = $order->weight_ticket ?? $loadingOrder?->weight_ticket;
         $isSader = $this->filters['is_sader'] ?? false;
 
         // Product Logic
