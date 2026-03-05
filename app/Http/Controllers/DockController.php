@@ -158,7 +158,7 @@ class DockController extends Controller
         }
 
         try {
-            Vessel::create($request->all());
+            Vessel::create($validated);
             return redirect()->route('dock.index')->with('success', 'Barco registrado correctamente.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Vessel Create Error: ' . $e->getMessage());
@@ -211,7 +211,9 @@ class DockController extends Controller
             'programmed_tonnage' => 'required_if:operation_type,Descarga,Carga|nullable|numeric|min:0',
             'destination_port' => 'required_if:operation_type,Carga|nullable|string|max:255',
             'origin_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
-            'loading_port' => 'required_if:operation_type,Descarga|nullable|string|max:255',
+            'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
+            'holds' => 'nullable|array',
+            'has_chief_foreman' => 'nullable|boolean',
         ];
 
         $messages = [
@@ -298,7 +300,7 @@ class DockController extends Controller
             }
         }
 
-        $vessel->update($request->all());
+        $vessel->update($validated);
 
         return redirect()->route('dock.index')->with('success', 'Buque actualizado exitosamente.');
     }
