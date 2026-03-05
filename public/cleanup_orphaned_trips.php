@@ -10,25 +10,47 @@ use App\Models\VesselOperatorTrip;
 header('Content-Type: text/plain');
 
 try {
-    echo "Iniciando limpieza AGRESIVA de viajes huérfanos (Muelle)...\n";
+    echo "Iniciando limpieza DIAGNÓSTICA de viajes (Muelle)...\n";
 
-    // Find trips where operator or vessel no longer exists OR IDs are null
-    $orphans = VesselOperatorTrip::query()
-        ->whereNull('vessel_operator_id')
-        ->orWhereNull('vessel_id')
-        ->orWhereDoesntHave('operator')
-        ->orWhereDoesntHave('vessel')
+    // Total count
+    $total = DB::table('vessel_operator_trips')->count();
+    echo "Total de viajes en la tabla: {$total}\n";
+
+    // Direct SQL for orphans
+    $orphans = DB::table('vessel_operator_trips as t')
+        ->leftJoin('vessel_operators as o', 't.vessel_operator_id', '=', 'o.id')
+        ->whereNull('o.id')
+        ->select('t.id', 't.vessel_operator_id')
         ->get();
 
     $count = $orphans->count();
-    echo "Se han encontrado {$count} registros inconsistentes.\n";
+    echo "Viajes sin operador (SQL directo): {$count}\n";
 
-    foreach ($orphans as $trip) {
-        echo "Eliminando Viaje ID: {$trip->id} (Operador ID: " . ($trip->vessel_operator_id ?? 'NULL') . ", Barco ID: " . ($trip->vessel_id ?? 'NULL') . ")\n";
-        DB::table('vessel_operator_trips')->where('id', $trip->id)->delete();
+    if ($count > 0) {
+        foreach ($orphans as $o) {
+            echo "Huérfano: TripID {$o->id} -> OpID " . ($o->vessel_operator_id ?? 'NULL') . "\n";
+            DB::table('vessel_operator_trips')->where('id', $o->id)->delete();
+        }
+        echo "✅ Registros eliminados.\n";
     }
 
-    echo "\n✅ Limpieza completada con éxito.\n";
+    // Direct SQL for vessels
+    $orphansV = DB::table('vessel_operator_trips as t')
+        ->leftJoin('vessels as v', 't.vessel_id', '=', 'v.id')
+        ->whereNull('v.id')
+        ->select('t.id', 't.vessel_id')
+        ->get();
+
+    $countV = $orphansV->count();
+    echo "Viajes sin barco (SQL directo): {$countV}\n";
+
+    if ($countV > 0) {
+        foreach ($orphansV as $ov) {
+            echo "Huérfano (Barco): TripID {$ov->id} -> VesselID " . ($ov->vessel_id ?? 'NULL') . "\n";
+            DB::table('vessel_operator_trips')->where('id', $ov->id)->delete();
+        }
+        echo "✅ Registros (Barco) eliminados.\n";
+    }
     echo "\n[INFO] Por seguridad, borre este archivo (public/cleanup_orphaned_trips.php) después de usarlo.\n";
 
 } catch (\Exception $e) {
