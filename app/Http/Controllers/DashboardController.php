@@ -213,27 +213,42 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units in Circuit
-        // 1. Scale/Standard: Active orders in the yard (authorized -> weighing_out)
-        $scaleInCircuit = LoadingOrder::where('vessel_id', $vesselId)
-            ->where(function ($q) {
+        // Units in Circuit (Dynamic & Reactive to Filters)
+        $circuitQuery = LoadingOrder::where('vessel_id', $vesselId)
+            ->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out']);
+
+        if ($warehouse) {
+            $circuitQuery->where('warehouse', $warehouse);
+        }
+        if ($operator) {
+            $circuitQuery->where('operator_name', $operator);
+        }
+
+        if ($operationType === 'scale') {
+            $circuitQuery->where(function ($q) {
                 $q->whereNull('operation_type')->orWhere('operation_type', 'scale');
-            })
-            ->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])
-            ->count();
+            });
+            $unitsInCircuit = $circuitQuery->count();
+        } elseif ($operationType === 'burreo') {
+            $circuitQuery->where('operation_type', 'burreo');
+            $unitsInCircuit = $circuitQuery->whereNotNull('economic_number')
+                ->where('economic_number', '!=', '')
+                ->distinct()
+                ->count('economic_number');
+        } else {
+            // 'all' Mode: Sum of Scale units + Unique Burreo units
+            $scaleQuery = (clone $circuitQuery)->where(function ($q) {
+                $q->whereNull('operation_type')->orWhere('operation_type', 'scale');
+            });
 
-        // 2. Burreo: Count unique Economic Numbers that have at least one trip (LoadingOrder) for this vessel
-        // This represents the fleet of trucks currently working on the Burreo for this vessel.
-        // FILTER: Only count units that have actual activity (weighing/loading/completed), ignoring 'created' or 'authorized' if they haven't moved.
-        $burreoInCircuit = LoadingOrder::where('vessel_id', $vesselId)
-            ->where('operation_type', 'burreo')
-            ->whereNotNull('economic_number')
-            ->where('economic_number', '!=', '')
-            ->whereIn('status', ['weighing_in', 'loading', 'weighing_out'])
-            ->distinct()
-            ->count('economic_number');
+            $burreoQuery = (clone $circuitQuery)->where('operation_type', 'burreo')
+                ->whereNotNull('economic_number')
+                ->where('economic_number', '!=', '');
 
-        $unitsInCircuit = $scaleInCircuit + $burreoInCircuit;
+            $unitsInCircuit = $scaleQuery->count() + $burreoQuery->distinct()->count('economic_number');
+        }
+
+        $unitsInCircuit = (int) $unitsInCircuit;
         // $unitsDischarging removed as per request
 
         // Total Tonnes (Net Weight from Tickets in Kg)
