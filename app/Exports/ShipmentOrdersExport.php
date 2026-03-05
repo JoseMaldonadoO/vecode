@@ -102,7 +102,13 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         }
 
         // Operational Range Filter if provided
-        if (!empty($this->filters['date'])) {
+        if (!empty($this->filters['start_date']) && !empty($this->filters['end_date'])) {
+            $range = OperationalTimeHelper::getOperationalRange($this->filters['start_date'], $this->filters['end_date']);
+
+            $query->whereHas('weight_ticket', function ($q2) use ($range) {
+                $q2->whereBetween('weigh_out_at', $range);
+            });
+        } elseif (!empty($this->filters['date'])) {
             $range = OperationalTimeHelper::getOperationalRange($this->filters['date']);
 
             $query->where(function ($q) use ($range, $isSader) {

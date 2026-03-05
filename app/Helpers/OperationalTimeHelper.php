@@ -8,15 +8,17 @@ use Illuminate\Support\Facades\DB;
 class OperationalTimeHelper
 {
     /**
-     * Devuelve el rango operativo [inicio, fin] para una fecha determinada.
-     * Si la fecha es '2024-03-02', el rango es de '2024-03-02 07:00:00' a '2024-03-03 06:59:59'.
+     * Devuelve el rango operativo [inicio, fin] para una fecha o rango de fechas.
+     * Si se pasa solo $startDate ('2024-03-02'), el rango es de '2024-03-02 07:00:00' a '2024-03-03 06:59:59'.
+     * Si se pasan ambas, el rango cubre desde el inicio de la primera hasta el fin de la segunda.
      */
-    public static function getOperationalRange($date = null)
+    public static function getOperationalRange($startDate = null, $endDate = null)
     {
-        $day = $date ? Carbon::parse($date) : Carbon::today();
+        $startDay = $startDate ? Carbon::parse($startDate) : Carbon::today();
+        $endDay = $endDate ? Carbon::parse($endDate) : $startDay->copy();
 
-        $start = $day->copy()->setTime(7, 0, 0);
-        $end = $day->copy()->addDay()->setTime(6, 59, 59);
+        $start = $startDay->copy()->setTime(7, 0, 0);
+        $end = $endDay->copy()->addDay()->setTime(6, 59, 59);
 
         return [
             $start->format('Y-m-d H:i:s'),

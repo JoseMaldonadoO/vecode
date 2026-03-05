@@ -182,18 +182,28 @@ export default function Index({
                         <button
                             onClick={() => {
                                 Swal.fire({
-                                    title: 'Seleccionar Fecha para Excel (Gral)',
-                                    html: '<input type="date" id="export-date" class="swal2-input" value="' + new Date().toISOString().split('T')[0] + '">',
+                                    title: 'Exportar Excel (Gral)',
+                                    html: `
+                                        <div style="text-align: left;">
+                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px;">Fecha Inicio:</label>
+                                            <input type="date" id="export-start-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">Fecha Fin:</label>
+                                            <input type="date" id="export-end-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                        </div>
+                                    `,
                                     showCancelButton: true,
                                     confirmButtonText: 'Exportar',
                                     cancelButtonText: 'Cancelar',
                                     preConfirm: () => {
-                                        return (document.getElementById('export-date') as HTMLInputElement).value;
+                                        return {
+                                            start: (document.getElementById('export-start-date') as HTMLInputElement).value,
+                                            end: (document.getElementById('export-end-date') as HTMLInputElement).value,
+                                        };
                                     }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        const exportDate = result.value;
-                                        window.location.href = route("documentation.orders.export-standard", pickBy({ search, status, date: exportDate }));
+                                        const { start, end } = result.value;
+                                        window.location.href = route("documentation.orders.export-standard", pickBy({ search, status, start_date: start, end_date: end }));
                                     }
                                 });
                             }}
@@ -205,18 +215,28 @@ export default function Index({
                         <button
                             onClick={() => {
                                 Swal.fire({
-                                    title: 'Seleccionar Fecha para Excel (SADER)',
-                                    html: '<input type="date" id="export-date" class="swal2-input" value="' + new Date().toISOString().split('T')[0] + '">',
+                                    title: 'Exportar Excel (SADER)',
+                                    html: `
+                                        <div style="text-align: left;">
+                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px;">Fecha Inicio:</label>
+                                            <input type="date" id="export-start-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">Fecha Fin:</label>
+                                            <input type="date" id="export-end-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                        </div>
+                                    `,
                                     showCancelButton: true,
                                     confirmButtonText: 'Exportar',
                                     cancelButtonText: 'Cancelar',
                                     preConfirm: () => {
-                                        return (document.getElementById('export-date') as HTMLInputElement).value;
+                                        return {
+                                            start: (document.getElementById('export-start-date') as HTMLInputElement).value,
+                                            end: (document.getElementById('export-end-date') as HTMLInputElement).value,
+                                        };
                                     }
                                 }).then((result) => {
                                     if (result.isConfirmed) {
-                                        const exportDate = result.value;
-                                        window.location.href = route("documentation.orders.export-sader", pickBy({ search, status, date: exportDate }));
+                                        const { start, end } = result.value;
+                                        window.location.href = route("documentation.orders.export-sader", pickBy({ search, status, start_date: start, end_date: end }));
                                     }
                                 });
                             }}
