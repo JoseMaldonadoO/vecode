@@ -156,6 +156,10 @@ export default function QrPrint({ auth, operator: initialOperator }: { auth: any
                                             <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Unidad</p>
                                             <p className="text-lg font-bold text-gray-800 uppercase">{selectedOperator.unit_type} - {selectedOperator.brand_model || 'S/M'}</p>
                                         </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Número Económico</p>
+                                            <p className="text-lg font-black text-indigo-600 uppercase">{selectedOperator.economic_number || 'N/A'}</p>
+                                        </div>
                                     </div>
                                     <div className="space-y-4 text-right">
                                         <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
@@ -212,6 +216,10 @@ export default function QrPrint({ auth, operator: initialOperator }: { auth: any
                                     <div>
                                         <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Unidad</p>
                                         <p className="text-lg font-bold text-gray-800 uppercase leading-tight">{selectedOperator.unit_type} - {selectedOperator.brand_model || 'S/M'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Número Económico</p>
+                                        <p className="text-lg font-black text-indigo-600 uppercase leading-tight">{selectedOperator.economic_number || 'N/A'}</p>
                                     </div>
                                 </div>
                                 <div className="space-y-4 text-right">
