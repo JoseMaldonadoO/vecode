@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v53 (Scale: Fix Search Import)
+# Force trigger: v54 (Scale: Restore Menu Buttons Design)
 
 on:
   push:

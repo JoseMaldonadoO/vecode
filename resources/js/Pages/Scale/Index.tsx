@@ -183,7 +183,7 @@ export default function Index({
         <DashboardLayout user={auth.user} header="Báscula - Panel de Control">
             <Head title="Báscula" />
 
-            <div className="max-w-[98%] mx-auto py-8 px-4 space-y-8">
+            <div className={`${viewMode === 'menu' ? 'max-w-7xl' : 'max-w-[98%]'} mx-auto py-8 px-4 space-y-8 transition-all duration-300`}>
                 {/* Scale Selector */}
                 <div className="flex justify-end">
                     <button
@@ -232,20 +232,17 @@ export default function Index({
 
                         <button
                             onClick={() => setViewMode("table")}
-                            className="group relative bg-white rounded-2xl shadow-sm border-2 border-green-100 p-8 flex flex-col items-center justify-center text-center transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-green-500 overflow-hidden w-full"
+                            className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-green-500 w-full"
                         >
-                            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-green-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="relative z-10">
-                                <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 bg-green-100 text-green-600 shadow-inner">
-                                    <Scale className="w-10 h-10" />
-                                </div>
-                                <h3 className="text-xl font-black text-gray-900 tracking-tight">Destare</h3>
-                                <div className="text-sm font-bold text-green-600 uppercase tracking-widest mt-1">Unidades en Planta</div>
-                                <div className="mt-4 flex items-center justify-center gap-2 px-3 py-1 bg-gray-50 rounded-full border border-gray-100 group-hover:bg-green-50 group-hover:border-green-200 transition-colors">
-                                    <Activity className="w-3 h-3 text-green-500 animate-pulse" />
-                                    <span className="text-xs font-bold text-gray-600 group-hover:text-green-700">{pending_exit.length} unidades activas</span>
-                                </div>
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 bg-green-50 text-green-600">
+                                <Scale className="w-8 h-8" />
                             </div>
+                            <h3 className="font-bold text-gray-800">Destare</h3>
+                            <div className="text-[10px] font-bold text-green-600 uppercase tracking-widest mt-1">Unidades en Planta</div>
+                            <p className="text-xs text-gray-400 mt-2 font-medium px-4 flex items-center gap-1 justify-center">
+                                <Activity className="w-3 h-3 text-green-500 animate-pulse" />
+                                {pending_exit.length} unidades activas
+                            </p>
                         </button>
                     </div>
                 ) : (
