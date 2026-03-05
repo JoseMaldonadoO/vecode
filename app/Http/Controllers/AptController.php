@@ -431,7 +431,8 @@ class AptController extends Controller
                             ->whereBetween('created_at', $range)
                             ->count();
 
-                        $msg = "✅ Nueva Entrada Registrada: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.";
+                        $foremanLabel = $operator->vessel->has_chief_foreman ? " [MODO FOREMAN]" : "";
+                        $msg = "✅ Nueva Entrada Registrada{$foremanLabel}: Descarga #{$dailyCount} del día. Peso vinculado: " . number_format($finalWeightKg) . " kg.";
 
                         return redirect()->back()->with('success', $msg);
 

@@ -233,10 +233,10 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                             </div>
 
                             {vessel.has_chief_foreman && (
-                                <div className="absolute top-0 left-0 w-full p-2 bg-gradient-to-r from-amber-500/20 to-transparent border-l-4 border-amber-500 z-20">
+                                <div className="absolute top-0 left-0 w-full p-2 bg-gradient-to-r from-blue-500/20 to-transparent border-l-4 border-blue-500 z-20">
                                     <div className="flex items-center gap-2">
-                                        <Briefcase size={12} className="text-amber-400" />
-                                        <span className="text-[10px] font-black text-amber-200 uppercase tracking-widest">Modo Chief Foreman Activo - Validaciones de Muelle Omitidas</span>
+                                        <Briefcase size={12} className="text-blue-400" />
+                                        <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Modo Chief Foreman Activo - Registro en Muelle REQUERIDO</span>
                                     </div>
                                 </div>
                             )}
@@ -269,8 +269,8 @@ const InteractiveVessel: React.FC<InteractiveVesselProps> = ({ vessel, isExterna
                                                 <div className="w-px h-6 bg-white/10" />
                                                 <div className="flex flex-col items-center min-w-[45px]">
                                                     <span className="text-[7px] font-black text-white/20 uppercase tracking-[0.1em] mb-1 group-hover/metrics:text-white/40 transition-colors">VUELTAS</span>
-                                                    <span className={`text-xl font-black leading-none ${vessel.has_chief_foreman ? 'text-white/20' : 'text-indigo-400'}`}>
-                                                        {vessel.has_chief_foreman ? '--' : (hatch.trip_count || 0)}
+                                                    <span className={`text-xl font-black leading-none text-indigo-400`}>
+                                                        {hatch.trip_count || 0}
                                                     </span>
                                                 </div>
                                             </div>
