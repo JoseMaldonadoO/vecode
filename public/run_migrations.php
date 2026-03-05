@@ -24,11 +24,13 @@ try {
     $hasProvisional = DB::getSchemaBuilder()->hasColumn('vessels', 'provisional_burreo_weight');
     $hasDraft = DB::getSchemaBuilder()->hasColumn('vessels', 'draft_weight');
     $hasIsBurreo = DB::getSchemaBuilder()->hasColumn('weight_tickets', 'is_burreo');
+    $hasDeletedAt = DB::getSchemaBuilder()->hasColumn('users', 'deleted_at');
 
     echo "\nVerificación de Columnas:\n";
     echo "vessels.provisional_burreo_weight: " . ($hasProvisional ? "OK" : "NO ENCONTRADA") . "\n";
     echo "vessels.draft_weight: " . ($hasDraft ? "OK" : "NO ENCONTRADA") . "\n";
     echo "weight_tickets.is_burreo: " . ($hasIsBurreo ? "OK" : "NO ENCONTRADA") . "\n";
+    echo "users.deleted_at: " . ($hasDeletedAt ? "OK" : "NO ENCONTRADA") . "\n";
 
 } catch (\Exception $e) {
     echo "ERROR: " . $e->getMessage() . "\n";
