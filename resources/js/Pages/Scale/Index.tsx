@@ -183,7 +183,7 @@ export default function Index({
         <DashboardLayout user={auth.user} header="Báscula - Panel de Control">
             <Head title="Báscula" />
 
-            <div className={`${viewMode === 'menu' ? 'max-w-7xl' : 'max-w-[98%]'} mx-auto py-8 px-4 space-y-8 transition-all duration-300`}>
+            <div className={`${viewMode === 'menu' ? 'max-w-7xl' : 'max-w-[98%]'} mx-auto py-8 px-4 space-y-8`}>
                 {/* Scale Selector */}
                 <div className="flex justify-end">
                     <button
@@ -232,7 +232,7 @@ export default function Index({
 
                         <button
                             onClick={() => setViewMode("table")}
-                            className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:border-green-500 w-full"
+                            className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-green-500 w-full"
                         >
                             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 bg-green-50 text-green-600">
                                 <Scale className="w-8 h-8" />
