@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v54 (Scale: Restore Menu Buttons Design)
+# Force trigger: v55 (Scale: Remove Button Animation)
 
 on:
   push:
