@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v48 (Documentation: QV Economic Number)
+# Force trigger: v49 (Admin: Auto Logout for Blocked Users)
 
 on:
   push:
