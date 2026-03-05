@@ -86,7 +86,13 @@ class WeightTicketController extends Controller
 
         $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
         $products = \App\Models\Product::orderBy('name')->get(['id', 'name']);
-        $clients = \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']);
+        $clientIds = $all_pending->map(function ($order) {
+            return $order->shipment_order?->client_id ?? $order->client_id;
+        })->unique()->filter()->values();
+
+        $clients = \App\Models\Client::whereIn('id', $clientIds)
+            ->orderBy('business_name')
+            ->get(['id', 'business_name']);
 
         $currentFilters = [
             'client_id' => $request->client_id ?? '',

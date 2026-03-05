@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v51 (Scale: Fix Plate Display Property)
+# Force trigger: v52 (Scale: Refined Table, Global Search, Active Client Filter)
 
 on:
   push:

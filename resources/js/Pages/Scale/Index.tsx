@@ -91,6 +91,7 @@ export default function Index({
     const [selectedPresentation, setSelectedPresentation] = useState(filters?.presentation || '');
 
     const [searchTerm, setSearchTerm] = useState(''); // Local search for convenience
+    const [searchQuery, setSearchQuery] = useState(''); // Global search for OE, Driver, Plates
 
     useEffect(() => {
         const saved = localStorage.getItem("selected_scale_id");
@@ -181,7 +182,7 @@ export default function Index({
         <DashboardLayout user={auth.user} header="Báscula - Panel de Control">
             <Head title="Báscula" />
 
-            <div className="max-w-7xl mx-auto py-8 px-4 space-y-8">
+            <div className="max-w-[98%] mx-auto py-8 px-4 space-y-8">
                 {/* Scale Selector */}
                 <div className="flex justify-end">
                     <button
@@ -290,14 +291,27 @@ export default function Index({
                                 </button>
                             </div>
 
-                            {/* Filters */}
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-3">
+                                {/* Search Bar */}
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Search className="h-4 w-4 text-gray-400" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar por OE, Chofer, Placas..."
+                                        className="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow font-medium"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+
                                 {/* Warehouse Filter (Only for Vessel) */}
                                 {operationType === 'vessel' && (
                                     <select
                                         value={selectedWarehouse}
                                         onChange={(e) => handleFilterChange('warehouse', e.target.value)}
-                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
+                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32 font-bold text-gray-700"
                                     >
                                         <option value="">Almacén</option>
                                         {warehouses?.map((w) => (
@@ -311,7 +325,7 @@ export default function Index({
                                     <select
                                         value={selectedPresentation}
                                         onChange={(e) => handleFilterChange('presentation', e.target.value)}
-                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32"
+                                        className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 w-32 font-bold text-gray-700"
                                     >
                                         <option value="">Presentación</option>
                                         <option value="GRANEL">GRANEL</option>
@@ -323,7 +337,7 @@ export default function Index({
                                 <select
                                     value={selectedProduct}
                                     onChange={(e) => handleFilterChange('product_id', e.target.value)}
-                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px] font-bold text-gray-700"
                                 >
                                     <option value="">Producto</option>
                                     {products?.map((p) => (
@@ -335,15 +349,16 @@ export default function Index({
                                 <select
                                     value={selectedClient}
                                     onChange={(e) => handleFilterChange('client_id', e.target.value)}
-                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
+                                    className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px] font-bold text-gray-700"
                                 >
                                     <option value="">Cliente</option>
                                     {clients?.map((c) => (
                                         <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
                                     ))}
                                 </select>
-                                <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm">
-                                    {pending_exit.filter(o => o.type === operationType).length}
+
+                                <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm ml-auto">
+                                    {pending_exit.filter(o => o.type === operationType).length} Registros
                                 </span>
                             </div>
                         </div>
@@ -359,7 +374,8 @@ export default function Index({
                                                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">OE</th>
                                             )}
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Chofer / Placas</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Chofer</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Placas</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
                                             {/* Removed Peso Entrada */}
@@ -374,63 +390,98 @@ export default function Index({
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 bg-white">
-                                        {pending_exit.filter(o => o.type === operationType).length > 0 ? (
-                                            pending_exit.filter(o => o.type === operationType).map((order) => (
-                                                <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
-                                                    {/* Folio */}
-                                                    <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
-                                                    {operationType === 'sale' && (
-                                                        <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
-                                                            {order.oe_folio || 'N/A'}
+                                        {pending_exit
+                                            .filter(o => o.type === operationType)
+                                            .filter(o => {
+                                                if (!searchQuery) return true;
+                                                const search = searchQuery.toLowerCase();
+                                                return (
+                                                    (o.oe_folio?.toLowerCase().includes(search)) ||
+                                                    (o.driver?.toLowerCase().includes(search)) ||
+                                                    (o.vehicle_plate?.toLowerCase().includes(search)) ||
+                                                    (o.trailer_plate?.toLowerCase().includes(search)) ||
+                                                    (o.folio?.toLowerCase().includes(search))
+                                                );
+                                            }).length > 0 ? (
+                                            pending_exit
+                                                .filter(o => o.type === operationType)
+                                                .filter(o => {
+                                                    if (!searchQuery) return true;
+                                                    const search = searchQuery.toLowerCase();
+                                                    return (
+                                                        (o.oe_folio?.toLowerCase().includes(search)) ||
+                                                        (o.driver?.toLowerCase().includes(search)) ||
+                                                        (o.vehicle_plate?.toLowerCase().includes(search)) ||
+                                                        (o.trailer_plate?.toLowerCase().includes(search)) ||
+                                                        (o.folio?.toLowerCase().includes(search))
+                                                    );
+                                                }).map((order) => (
+                                                    <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
+                                                        {/* Folio */}
+                                                        <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
+                                                        {operationType === 'sale' && (
+                                                            <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
+                                                                {order.oe_folio || 'N/A'}
+                                                            </td>
+                                                        )}
+                                                        {/* Cliente */}
+                                                        <td className="px-6 py-4">
+                                                            <div className="font-bold text-gray-800 text-xs leading-tight uppercase">{order.provider}</div>
                                                         </td>
-                                                    )}
-                                                    {/* Cliente */}
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-bold text-gray-800 text-sm leading-tight uppercase">{order.provider}</div>
-                                                    </td>
-                                                    {/* Chofer / Placas */}
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-bold text-gray-800">{order.driver}</div>
-                                                        <div className="text-xs text-gray-500 font-mono mt-0.5">
-                                                            {order.vehicle_plate}
-                                                            {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
-                                                        </div>
-                                                    </td>
-                                                    {/* Línea de Transporte */}
-                                                    <td className="px-6 py-4 text-gray-700 font-medium text-sm">
-                                                        {order.real_transport_line || 'N/A'}
-                                                    </td>
-                                                    {/* Producto */}
-                                                    <td className="px-6 py-4 text-gray-800 font-bold">{order.product}</td>
+                                                        {/* Chofer */}
+                                                        <td className="px-6 py-4">
+                                                            <div className="font-bold text-gray-800">{order.driver}</div>
+                                                        </td>
+                                                        {/* Placas */}
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded leading-none">TRACTO</span>
+                                                                    <span className="text-xs font-bold text-indigo-700 font-mono">{order.vehicle_plate}</span>
+                                                                </div>
+                                                                {order.trailer_plate && order.trailer_plate !== 'N/A' && (
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <span className="text-[10px] font-black bg-indigo-100 text-indigo-500 px-1.5 py-0.5 rounded leading-none">REMOLQUE</span>
+                                                                        <span className="text-xs font-bold text-amber-700 font-mono">{order.trailer_plate}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        {/* Línea de Transporte */}
+                                                        <td className="px-6 py-4 text-gray-700 font-medium text-sm">
+                                                            {order.real_transport_line || 'N/A'}
+                                                        </td>
+                                                        {/* Producto */}
+                                                        <td className="px-6 py-4 text-gray-800 font-bold">{order.product}</td>
 
-                                                    {/* Barco (Only for Vessel) */}
-                                                    {operationType === 'vessel' && (
-                                                        <td className="px-6 py-4 text-gray-800 font-bold">
-                                                            {order.vessel_name}
-                                                        </td>
-                                                    )}
+                                                        {/* Barco (Only for Vessel) */}
+                                                        {operationType === 'vessel' && (
+                                                            <td className="px-6 py-4 text-gray-800 font-bold">
+                                                                {order.vessel_name}
+                                                            </td>
+                                                        )}
 
-                                                    {/* Ton. Prog. (Create Only for Sale) */}
-                                                    {operationType === 'sale' && (
-                                                        <td className="px-6 py-4 font-mono font-bold text-gray-700">
-                                                            {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
+                                                        {/* Ton. Prog. (Create Only for Sale) */}
+                                                        {operationType === 'sale' && (
+                                                            <td className="px-6 py-4 font-mono font-bold text-gray-700">
+                                                                {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
+                                                            </td>
+                                                        )}
+                                                        {/* Tiempo en Planta */}
+                                                        <td className="px-6 py-4">
+                                                            <Timer entryAt={order.entry_at} />
                                                         </td>
-                                                    )}
-                                                    {/* Tiempo en Planta */}
-                                                    <td className="px-6 py-4">
-                                                        <Timer entryAt={order.entry_at} />
-                                                    </td>
-                                                    {/* Acción */}
-                                                    <td className="px-6 py-4 text-center">
-                                                        <Link
-                                                            href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                            className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
-                                                        >
-                                                            Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
-                                                        </Link>
-                                                    </td>
-                                                </tr>
-                                            ))
+                                                        {/* Acción */}
+                                                        <td className="px-6 py-4 text-center">
+                                                            <Link
+                                                                href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
+                                                                className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
+                                                            >
+                                                                Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
+                                                            </Link>
+                                                        </td>
+                                                    </tr>
+                                                ))
                                         ) : (
                                             <tr>
                                                 <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
@@ -446,84 +497,108 @@ export default function Index({
 
                             {/* Mobile View (Filtered) */}
                             <div className="lg:hidden p-4 space-y-4">
-                                {pending_exit.filter(o => o.type === operationType).length > 0 ? (
-                                    pending_exit.filter(o => o.type === operationType).map((order) => (
-                                        <div
-                                            key={order.id}
-                                            className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
-                                        >
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
-                                                        Folio: {order.folio}
-                                                        {operationType === 'sale' && (
-                                                            <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black">
-                                                                OE: {order.oe_folio}
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                    <h3 className="font-bold text-gray-900 text-lg">
-                                                        {order.driver}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-400 font-mono">
-                                                        {order.vehicle_plate}
-                                                        {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
-                                                    </p>
-                                                    <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
-                                                        {order.provider}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <Timer entryAt={order.entry_at} />
-                                                </div>
-                                            </div>
-
-                                            <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-500">Transp.:</span>
-                                                    <span className="font-medium text-gray-800">{order.real_transport_line || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-500">Producto:</span>
-                                                    <span className="font-bold text-gray-800">{order.product}</span>
-                                                </div>
-
-                                                {/* Barco only for vessel */}
-                                                {operationType === 'vessel' && (
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-500">Barco:</span>
-                                                        <span className="font-bold text-indigo-600">{order.vessel_name}</span>
-                                                    </div>
-                                                )}
-
-                                                {operationType === 'sale' && (
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-500">Ton. Prog.:</span>
-                                                        <span className="font-mono text-gray-800">
-                                                            {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
-                                                        </span>
-                                                    </div>
-                                                )}
-
-                                                {/* Warehouse only for vessel */}
-                                                {operationType === 'vessel' && (
-                                                    <div className="flex justify-between text-sm items-center">
-                                                        <span className="text-gray-500">Ubicación:</span>
-                                                        <span className={order.warehouse === "N/A" ? "text-amber-500 italic text-xs" : "text-blue-600 font-bold text-xs"}>
-                                                            {order.warehouse === "N/A" ? "Sin Asignar" : `${order.warehouse} - ${order.cubicle}`}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <Link
-                                                href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                {pending_exit
+                                    .filter(o => o.type === operationType)
+                                    .filter(o => {
+                                        if (!searchQuery) return true;
+                                        const search = searchQuery.toLowerCase();
+                                        return (
+                                            (o.oe_folio?.toLowerCase().includes(search)) ||
+                                            (o.driver?.toLowerCase().includes(search)) ||
+                                            (o.vehicle_plate?.toLowerCase().includes(search)) ||
+                                            (o.trailer_plate?.toLowerCase().includes(search)) ||
+                                            (o.folio?.toLowerCase().includes(search))
+                                        );
+                                    }).length > 0 ? (
+                                    pending_exit
+                                        .filter(o => o.type === operationType)
+                                        .filter(o => {
+                                            if (!searchQuery) return true;
+                                            const search = searchQuery.toLowerCase();
+                                            return (
+                                                (o.oe_folio?.toLowerCase().includes(search)) ||
+                                                (o.driver?.toLowerCase().includes(search)) ||
+                                                (o.vehicle_plate?.toLowerCase().includes(search)) ||
+                                                (o.trailer_plate?.toLowerCase().includes(search)) ||
+                                                (o.folio?.toLowerCase().includes(search))
+                                            );
+                                        }).map((order) => (
+                                            <div
+                                                key={order.id}
+                                                className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
                                             >
-                                                Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
-                                            </Link>
-                                        </div>
-                                    ))
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
+                                                            Folio: {order.folio}
+                                                            {operationType === 'sale' && (
+                                                                <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black">
+                                                                    OE: {order.oe_folio}
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                        <h3 className="font-bold text-gray-900 text-lg">
+                                                            {order.driver}
+                                                        </h3>
+                                                        <p className="text-sm text-gray-400 font-mono">
+                                                            {order.vehicle_plate}
+                                                            {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
+                                                        </p>
+                                                        <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
+                                                            {order.provider}
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <Timer entryAt={order.entry_at} />
+                                                    </div>
+                                                </div>
+
+                                                <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-500">Transp.:</span>
+                                                        <span className="font-medium text-gray-800">{order.real_transport_line || 'N/A'}</span>
+                                                    </div>
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-500">Producto:</span>
+                                                        <span className="font-bold text-gray-800">{order.product}</span>
+                                                    </div>
+
+                                                    {/* Barco only for vessel */}
+                                                    {operationType === 'vessel' && (
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-gray-500">Barco:</span>
+                                                            <span className="font-bold text-indigo-600">{order.vessel_name}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {operationType === 'sale' && (
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-gray-500">Ton. Prog.:</span>
+                                                            <span className="font-mono text-gray-800">
+                                                                {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Warehouse only for vessel */}
+                                                    {operationType === 'vessel' && (
+                                                        <div className="flex justify-between text-sm items-center">
+                                                            <span className="text-gray-500">Ubicación:</span>
+                                                            <span className={order.warehouse === "N/A" ? "text-amber-500 italic text-xs" : "text-blue-600 font-bold text-xs"}>
+                                                                {order.warehouse === "N/A" ? "Sin Asignar" : `${order.warehouse} - ${order.cubicle}`}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <Link
+                                                    href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
+                                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                                >
+                                                    Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
+                                                </Link>
+                                            </div>
+                                        ))
                                 ) : (
                                     <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
                                         No hay unidades en esta lista.
