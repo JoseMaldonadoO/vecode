@@ -391,7 +391,10 @@ export default function Index({
                                                     {/* Chofer / Placas */}
                                                     <td className="px-6 py-4">
                                                         <div className="font-bold text-gray-800">{order.driver}</div>
-                                                        <div className="text-xs text-gray-500 font-mono mt-0.5">{order.plate}</div>
+                                                        <div className="text-xs text-gray-500 font-mono mt-0.5">
+                                                            {order.vehicle_plate}
+                                                            {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
+                                                        </div>
                                                     </td>
                                                     {/* Línea de Transporte */}
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-sm">
@@ -463,7 +466,8 @@ export default function Index({
                                                         {order.driver}
                                                     </h3>
                                                     <p className="text-sm text-gray-400 font-mono">
-                                                        {order.plate}
+                                                        {order.vehicle_plate}
+                                                        {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
                                                     </p>
                                                     <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
                                                         {order.provider}

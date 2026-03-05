@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v50 (Scale: Redistribute Table Columns)
+# Force trigger: v51 (Scale: Fix Plate Display Property)
 
 on:
   push:
