@@ -88,13 +88,13 @@ class DashboardController extends Controller
         $stats = [
             'total_tonnage' => (clone $baseQuery)->sum('weight_tickets.net_weight'),
             'trips_completed' => (clone $baseQuery)->count(),
-            'units_in_circuit' => \App\Models\AccessLog::where('status', 'in_plant')
-                ->whereHasMorph('subject', [\App\Models\VesselOperator::class], function ($q) use ($vesselId, $operator) {
-                    $q->where('vessel_id', $vesselId);
-                    if ($operator) {
-                        $q->where('operator_name', $operator);
-                    }
-                })->count(),
+            'units_in_circuit' => \DB::table('access_logs')
+                ->join('vessel_operators', 'access_logs.subject_id', '=', 'vessel_operators.id')
+                ->where('access_logs.status', 'in_plant')
+                ->where('access_logs.subject_type', 'App\Models\VesselOperator')
+                ->where('vessel_operators.vessel_id', $vesselId)
+                ->whereNull('access_logs.exit_at')
+                ->count(),
             'total_scale' => (clone $baseQuery)->where(function ($q) {
                 $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type');
             })->sum('weight_tickets.net_weight'),
@@ -148,13 +148,11 @@ class DashboardController extends Controller
         // STRICT FILTER: Only show ACTIVE vessels (not departed)
         $vesselsList = \App\Models\Vessel::active()
             ->withCount([
-                'loadingOrders as active_loading_count' => function ($q) {
-                    $q->where('status', 'loading');
+                'loadingOrders as recent_activity_count' => function ($q) {
+                    $q->where('created_at', '>', now()->subHours(12));
                 }
             ])
-            ->withMax('loadingOrders', 'created_at')
-            ->orderByDesc('active_loading_count')
-            ->orderByDesc('loading_orders_max_created_at')
+            ->orderByDesc('recent_activity_count')
             ->orderByDesc('created_at')
             ->take(15)
             ->get(['id', 'name']);
@@ -220,14 +218,19 @@ class DashboardController extends Controller
             ->count();
 
         // Units in Circuit: Source of Truth is now the presence log (AccessLog)
-        $unitsInCircuit = \App\Models\AccessLog::where('status', 'in_plant')
-            ->whereHasMorph('subject', [\App\Models\VesselOperator::class], function ($q) use ($vesselId, $operator) {
-                $q->where('vessel_id', $vesselId);
-                if ($operator) {
-                    $q->where('operator_name', $operator);
-                }
-            })
-            ->count();
+        // Using a direct JOIN for maximum reliability across different environments
+        $unitsInCircuit = \DB::table('access_logs')
+            ->join('vessel_operators', 'access_logs.subject_id', '=', 'vessel_operators.id')
+            ->where('access_logs.status', 'in_plant')
+            ->where('access_logs.subject_type', 'App\Models\VesselOperator')
+            ->where('vessel_operators.vessel_id', $vesselId)
+            ->whereNull('access_logs.exit_at');
+
+        if ($operator) {
+            $unitsInCircuit->where('vessel_operators.operator_name', $operator);
+        }
+
+        $unitsInCircuit = $unitsInCircuit->count();
 
         $unitsInCircuit = (int) $unitsInCircuit;
         // $unitsDischarging removed as per request
