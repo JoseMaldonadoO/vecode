@@ -85,16 +85,28 @@ class DashboardController extends Controller
         }
 
         // 4. Calculate Stats for Export
+        // Units in Circuit: Count unique units with activity in the last 4 hours (Resilient Fallback)
+        $unitsInCircuit = LoadingOrder::where('vessel_id', $vesselId)
+            ->where('created_at', '>', now()->subHours(4));
+            
+        if ($operator) {
+            $unitsInCircuit->where('operator_name', $operator);
+        }
+        if ($operationType !== 'all') {
+            if ($operationType === 'scale') {
+                $unitsInCircuit->where(function ($q) {
+                    $q->where('operation_type', 'scale')->orWhereNull('operation_type');
+                });
+            } else {
+                $unitsInCircuit->where('operation_type', $operationType);
+            }
+        }
+        $unitsInCircuit = $unitsInCircuit->distinct()->count('economic_number');
+
         $stats = [
             'total_tonnage' => (clone $baseQuery)->sum('weight_tickets.net_weight'),
             'trips_completed' => (clone $baseQuery)->count(),
-            'units_in_circuit' => \DB::table('access_logs')
-                ->join('vessel_operators', 'access_logs.subject_id', '=', 'vessel_operators.id')
-                ->where('access_logs.status', 'in_plant')
-                ->where('access_logs.subject_type', 'App\Models\VesselOperator')
-                ->where('vessel_operators.vessel_id', $vesselId)
-                ->whereNull('access_logs.exit_at')
-                ->count(),
+            'units_in_circuit' => $unitsInCircuit,
             'total_scale' => (clone $baseQuery)->where(function ($q) {
                 $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type');
             })->sum('weight_tickets.net_weight'),
@@ -217,20 +229,28 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units in Circuit: Source of Truth is now the presence log (AccessLog)
-        // Using a direct JOIN for maximum reliability across different environments
-        $unitsInCircuit = \DB::table('access_logs')
-            ->join('vessel_operators', 'access_logs.subject_id', '=', 'vessel_operators.id')
-            ->where('access_logs.status', 'in_plant')
-            ->where('access_logs.subject_type', 'App\Models\VesselOperator')
-            ->where('vessel_operators.vessel_id', $vesselId)
-            ->whereNull('access_logs.exit_at');
+        // Units in Circuit: Count unique units with activity in the last 4 hours (Resilient Fallback)
+        // This handles cases where AccessLog might not be updated or Burreo units stay active.
+        $recentCircuitQuery = LoadingOrder::where('vessel_id', $vesselId)
+            ->where('created_at', '>', now()->subHours(4));
 
+        if ($warehouse) {
+            $recentCircuitQuery->where('warehouse', $warehouse);
+        }
         if ($operator) {
-            $unitsInCircuit->where('vessel_operators.operator_name', $operator);
+            $recentCircuitQuery->where('operator_name', $operator);
+        }
+        if ($operationType !== 'all') {
+            if ($operationType === 'scale') {
+                $recentCircuitQuery->where(function ($q) {
+                    $q->where('operation_type', 'scale')->orWhereNull('operation_type');
+                });
+            } else {
+                $recentCircuitQuery->where('operation_type', $operationType);
+            }
         }
 
-        $unitsInCircuit = $unitsInCircuit->count();
+        $unitsInCircuit = $recentCircuitQuery->distinct()->count('economic_number');
 
         $unitsInCircuit = (int) $unitsInCircuit;
         // $unitsDischarging removed as per request
