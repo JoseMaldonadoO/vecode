@@ -358,7 +358,8 @@ export default function Index({
                                             {operationType === 'sale' && (
                                                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">OE</th>
                                             )}
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente / Chofer</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Chofer / Placas</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
                                             {/* Removed Peso Entrada */}
@@ -383,11 +384,14 @@ export default function Index({
                                                             {order.oe_folio || 'N/A'}
                                                         </td>
                                                     )}
-                                                    {/* Cliente / Chofer */}
+                                                    {/* Cliente */}
                                                     <td className="px-6 py-4">
-                                                        <div className="text-xs text-gray-500 mb-1">{order.provider}</div>
+                                                        <div className="font-bold text-gray-800 text-sm leading-tight uppercase">{order.provider}</div>
+                                                    </td>
+                                                    {/* Chofer / Placas */}
+                                                    <td className="px-6 py-4">
                                                         <div className="font-bold text-gray-800">{order.driver}</div>
-                                                        <div className="text-sm text-gray-500 font-mono">{order.plate}</div>
+                                                        <div className="text-xs text-gray-500 font-mono mt-0.5">{order.plate}</div>
                                                     </td>
                                                     {/* Línea de Transporte */}
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-sm">
@@ -458,8 +462,11 @@ export default function Index({
                                                     <h3 className="font-bold text-gray-900 text-lg">
                                                         {order.driver}
                                                     </h3>
-                                                    <p className="text-sm text-gray-500 font-mono">
+                                                    <p className="text-sm text-gray-400 font-mono">
                                                         {order.plate}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
+                                                        {order.provider}
                                                     </p>
                                                 </div>
                                                 <div className="text-right">

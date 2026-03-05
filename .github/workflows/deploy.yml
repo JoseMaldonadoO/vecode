@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v49 (Admin: Auto Logout for Blocked Users)
+# Force trigger: v50 (Scale: Redistribute Table Columns)
 
 on:
   push:
