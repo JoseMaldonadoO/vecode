@@ -155,7 +155,7 @@ export default function Index({
         <DashboardLayout user={auth.user} header="Órdenes de Venta">
             <Head title="Órdenes de Venta" />
 
-            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="py-8 max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8 relative">
                 {/* Dynamic Alert */}
                 {showAlert && flash?.success && (
                     <div className="fixed top-24 right-8 z-50 animate-fade-in-right">
