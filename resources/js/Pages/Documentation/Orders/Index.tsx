@@ -139,7 +139,7 @@ export default function Index({
         <DashboardLayout user={auth.user} header="Órdenes de Embarque">
             <Head title="Órdenes de Embarque" />
 
-            <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="py-8 max-w-[98%] mx-auto px-4 sm:px-6 lg:px-8 relative">
                 {/* Dynamic Alert */}
                 {showAlert && flash?.success && (
                     <div className="fixed top-24 right-8 z-50 animate-fade-in-right">
@@ -312,9 +312,6 @@ export default function Index({
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Estatus
-                                    </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                                        Origen
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Fecha
@@ -507,9 +504,6 @@ export default function Index({
                                                             : order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">
-                                                {(typeof order.origin === 'object' ? order.origin?.name : order.origin) || "-"}
-                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {order.created_at
                                                     ? new Date(
@@ -522,7 +516,7 @@ export default function Index({
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={7}
+                                            colSpan={8}
                                             className="px-6 py-12 text-center text-gray-500"
                                         >
                                             <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
