@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v47 (OE Documentation: Mandatory and Positive Programmed Tons)
+# Force trigger: v48 (Documentation: QV Economic Number)
 
 on:
   push:

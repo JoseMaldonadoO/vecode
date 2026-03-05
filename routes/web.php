@@ -172,6 +172,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/apt/operator', [\App\Http\Controllers\AptController::class, 'storeOperator'])->name('apt.operators.store');
     // Admin Module
     Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::patch('users/{user}/toggle-block', [\App\Http\Controllers\Admin\AdminController::class, 'toggleBlock'])->name('users.toggle-block');
         Route::resource('users', \App\Http\Controllers\Admin\AdminController::class);
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
     });

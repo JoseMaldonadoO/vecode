@@ -49,6 +49,18 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Check if user is blocked after successful credential match
+        $user = Auth::user();
+        if ($user && $user->is_blocked) {
+            Auth::logout();
+            $this->session()->invalidate();
+            $this->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'username' => 'El acceso a este usuario ha sido bloqueado por el administrador. Favor de comunicarse para saber más detalles.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

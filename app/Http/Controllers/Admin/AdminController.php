@@ -34,6 +34,7 @@ class AdminController extends Controller
                     'username' => $user->username,
                     'email' => $user->email,
                     'roles' => $user->roles->pluck('name'),
+                    'is_blocked' => (bool) $user->is_blocked,
                     'created_at' => $user->created_at->format('Y-m-d'),
                 ];
             });
@@ -129,5 +130,19 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'Usuario eliminado correctamente.');
+    }
+
+    public function toggleBlock(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['error' => 'No puedes bloquear tu propio acceso.']);
+        }
+
+        $user->update([
+            'is_blocked' => !$user->is_blocked
+        ]);
+
+        $status = $user->is_blocked ? 'bloqueado' : 'desbloqueado';
+        return redirect()->route('admin.users.index')->with('success', "Usuario {$status} correctamente.");
     }
 }
