@@ -617,7 +617,12 @@ class DockController extends Controller
                 $loadingOrderIds = LoadingOrder::where('vessel_id', $id)->pluck('id');
                 $operatorIds = VesselOperator::where('vessel_id', $id)->pluck('id');
 
-                // 2. Delete scans (linked to orders OR operators)
+                // 2. Delete trips and scans
+                // Trips must be deleted before operators to avoid orphaned history if checks were on
+                \App\Models\VesselOperatorTrip::whereIn('vessel_operator_id', $operatorIds)
+                    ->orWhere('vessel_id', $id)
+                    ->delete();
+
                 // Note: AptScan now links to loading_order_id too
                 \App\Models\AptScan::whereIn('shipment_order_id', $shipmentOrderIds)
                     ->orWhereIn('loading_order_id', $loadingOrderIds)

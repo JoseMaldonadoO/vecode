@@ -487,15 +487,15 @@ export default function Trips({
                                                     <Truck className="h-5 w-5 text-indigo-600" />
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-black text-gray-900">{trip.operator.operator_name}</div>
-                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Eco: {trip.operator.economic_number} | {trip.operator.tractor_plate}</div>
+                                                    <div className="text-sm font-black text-gray-900">{trip.operator?.operator_name || "Operador Desconocido"}</div>
+                                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Eco: {trip.operator?.economic_number || "N/A"} | {trip.operator?.tractor_plate || "N/A"}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
-                                            <div className="text-sm font-bold text-gray-800">{trip.vessel.name}</div>
+                                            <div className="text-sm font-bold text-gray-800">{trip.vessel?.name || "Sin Barco"}</div>
                                             <div className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-indigo-50 text-indigo-700 uppercase">
-                                                Bodega {trip.hold_number}
+                                                Bodega {trip.hold_number || "N/A"}
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 whitespace-nowrap">
