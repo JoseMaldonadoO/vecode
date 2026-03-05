@@ -88,7 +88,13 @@ class DashboardController extends Controller
         $stats = [
             'total_tonnage' => (clone $baseQuery)->sum('weight_tickets.net_weight'),
             'trips_completed' => (clone $baseQuery)->count(),
-            'units_in_circuit' => LoadingOrder::where('vessel_id', $vesselId)->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out'])->count(),
+            'units_in_circuit' => \App\Models\AccessLog::where('status', 'in_plant')
+                ->whereHasMorph('subject', [\App\Models\VesselOperator::class], function ($q) use ($vesselId, $operator) {
+                    $q->where('vessel_id', $vesselId);
+                    if ($operator) {
+                        $q->where('operator_name', $operator);
+                    }
+                })->count(),
             'total_scale' => (clone $baseQuery)->where(function ($q) {
                 $q->where('loading_orders.operation_type', 'scale')->orWhereNull('loading_orders.operation_type');
             })->sum('weight_tickets.net_weight'),
@@ -213,40 +219,15 @@ class DashboardController extends Controller
             })
             ->count();
 
-        // Units in Circuit (Dynamic & Reactive to Filters)
-        $circuitQuery = LoadingOrder::where('vessel_id', $vesselId)
-            ->whereIn('status', ['authorized', 'weighing_in', 'loading', 'weighing_out']);
-
-        if ($warehouse) {
-            $circuitQuery->where('warehouse', $warehouse);
-        }
-        if ($operator) {
-            $circuitQuery->where('operator_name', $operator);
-        }
-
-        if ($operationType === 'scale') {
-            $circuitQuery->where(function ($q) {
-                $q->whereNull('operation_type')->orWhere('operation_type', 'scale');
-            });
-            $unitsInCircuit = $circuitQuery->count();
-        } elseif ($operationType === 'burreo') {
-            $circuitQuery->where('operation_type', 'burreo');
-            $unitsInCircuit = $circuitQuery->whereNotNull('economic_number')
-                ->where('economic_number', '!=', '')
-                ->distinct()
-                ->count('economic_number');
-        } else {
-            // 'all' Mode: Sum of Scale units + Unique Burreo units
-            $scaleQuery = (clone $circuitQuery)->where(function ($q) {
-                $q->whereNull('operation_type')->orWhere('operation_type', 'scale');
-            });
-
-            $burreoQuery = (clone $circuitQuery)->where('operation_type', 'burreo')
-                ->whereNotNull('economic_number')
-                ->where('economic_number', '!=', '');
-
-            $unitsInCircuit = $scaleQuery->count() + $burreoQuery->distinct()->count('economic_number');
-        }
+        // Units in Circuit: Source of Truth is now the presence log (AccessLog)
+        $unitsInCircuit = \App\Models\AccessLog::where('status', 'in_plant')
+            ->whereHasMorph('subject', [\App\Models\VesselOperator::class], function ($q) use ($vesselId, $operator) {
+                $q->where('vessel_id', $vesselId);
+                if ($operator) {
+                    $q->where('operator_name', $operator);
+                }
+            })
+            ->count();
 
         $unitsInCircuit = (int) $unitsInCircuit;
         // $unitsDischarging removed as per request
