@@ -288,85 +288,98 @@ export default function Index({
                                             className="hover:bg-indigo-50 transition-colors duration-150 group"
                                         >
                                             <td className="sticky left-0 px-4 py-4 whitespace-nowrap text-center text-sm font-medium bg-white group-hover:bg-indigo-50 z-10 shadow-[4px_0_6px_-1px_rgba(0,0,0,0.1)] transition-colors">
-                                                <Menu as="div" className="relative inline-block text-left">
-                                                    <div>
-                                                        <Menu.Button className="inline-flex justify-center w-full px-2 py-2 text-sm font-medium text-gray-700 bg-transparent rounded-full hover:bg-white/50 focus:outline-none transition-all group-hover:bg-indigo-100/50">
-                                                            <MoreHorizontal className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600" aria-hidden="true" />
-                                                        </Menu.Button>
-                                                    </div>
-                                                    <Transition
-                                                        as={Fragment}
-                                                        enter="transition ease-out duration-100"
-                                                        enterFrom="transform opacity-0 scale-95"
-                                                        enterTo="transform opacity-100 scale-100"
-                                                        leave="transition ease-in duration-75"
-                                                        leaveFrom="transform opacity-100 scale-100"
-                                                        leaveTo="transform opacity-0 scale-95"
+                                                {auth.user?.roles?.includes("Documentador") ? (
+                                                    <Link
+                                                        href={route("sales.show", {
+                                                            sale: order.id,
+                                                            module: "sales",
+                                                        })}
+                                                        className="inline-flex items-center p-2 rounded-full text-indigo-500 hover:bg-indigo-100 transition-colors"
+                                                        title="Ver Detalle"
                                                     >
-                                                        <Menu.Items
-                                                            anchor="bottom start"
-                                                            className="w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                                                        <Eye className="w-5 h-5" />
+                                                    </Link>
+                                                ) : (
+                                                    <Menu as="div" className="relative inline-block text-left">
+                                                        <div>
+                                                            <Menu.Button className="inline-flex justify-center w-full px-2 py-2 text-sm font-medium text-gray-700 bg-transparent rounded-full hover:bg-white/50 focus:outline-none transition-all group-hover:bg-indigo-100/50">
+                                                                <MoreHorizontal className="w-5 h-5 text-indigo-400 group-hover:text-indigo-600" aria-hidden="true" />
+                                                            </Menu.Button>
+                                                        </div>
+                                                        <Transition
+                                                            as={Fragment}
+                                                            enter="transition ease-out duration-100"
+                                                            enterFrom="transform opacity-0 scale-95"
+                                                            enterTo="transform opacity-100 scale-100"
+                                                            leave="transition ease-in duration-75"
+                                                            leaveFrom="transform opacity-100 scale-100"
+                                                            leaveTo="transform opacity-0 scale-95"
                                                         >
-                                                            <div className="px-1 py-1">
-                                                                <Menu.Item>
-                                                                    {({ active }) => (
-                                                                        <Link
-                                                                            href={route("sales.show", {
-                                                                                sale: order.id,
-                                                                                module: "sales",
-                                                                            })}
-                                                                            className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
-                                                                        >
-                                                                            <Eye className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />
-                                                                            Ver Detalle
-                                                                        </Link>
-                                                                    )}
-                                                                </Menu.Item>
-                                                                {!auth.user?.roles?.includes("Documentador") && order.status === "created" && (
+                                                            <Menu.Items
+                                                                anchor="bottom start"
+                                                                className="w-48 origin-top-left bg-white divide-y divide-gray-100 rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                                                            >
+                                                                <div className="px-1 py-1">
                                                                     <Menu.Item>
                                                                         {({ active }) => (
                                                                             <Link
-                                                                                href={route("sales.edit", order.id)}
+                                                                                href={route("sales.show", {
+                                                                                    sale: order.id,
+                                                                                    module: "sales",
+                                                                                })}
                                                                                 className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
                                                                             >
-                                                                                <Edit2 className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-amber-500'}`} />
-                                                                                Editar Orden
+                                                                                <Eye className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />
+                                                                                Ver Detalle
                                                                             </Link>
                                                                         )}
                                                                     </Menu.Item>
-                                                                )}
-                                                            </div>
-                                                            <div className="px-1 py-1">
-                                                                {!auth.user?.roles?.includes("Documentador") && order.status === "created" && (
-                                                                    <Menu.Item>
-                                                                        {({ active }) => (
-                                                                            <button
-                                                                                onClick={() => toggleStatus(order.id)}
-                                                                                className={`${active ? 'bg-red-600 text-white' : 'text-red-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
-                                                                            >
-                                                                                <Lock className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-red-500'}`} />
-                                                                                Cerrar Orden
-                                                                            </button>
-                                                                        )}
-                                                                    </Menu.Item>
-                                                                )}
-                                                                {!auth.user?.roles?.includes("Documentador") && order.status === "closed" && (
-                                                                    <Menu.Item>
-                                                                        {({ active }) => (
-                                                                            <button
-                                                                                onClick={() => toggleStatus(order.id)}
-                                                                                className={`${active ? 'bg-green-600 text-white' : 'text-green-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
-                                                                            >
-                                                                                <Unlock className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-green-500'}`} />
-                                                                                Abrir Orden
-                                                                            </button>
-                                                                        )}
-                                                                    </Menu.Item>
-                                                                )}
-                                                            </div>
-                                                        </Menu.Items>
-                                                    </Transition>
-                                                </Menu>
+                                                                    {!auth.user?.roles?.includes("Documentador") && order.status === "created" && (
+                                                                        <Menu.Item>
+                                                                            {({ active }) => (
+                                                                                <Link
+                                                                                    href={route("sales.edit", order.id)}
+                                                                                    className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                                >
+                                                                                    <Edit2 className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-amber-500'}`} />
+                                                                                    Editar Orden
+                                                                                </Link>
+                                                                            )}
+                                                                        </Menu.Item>
+                                                                    )}
+                                                                </div>
+                                                                <div className="px-1 py-1">
+                                                                    {!auth.user?.roles?.includes("Documentador") && order.status === "created" && (
+                                                                        <Menu.Item>
+                                                                            {({ active }) => (
+                                                                                <button
+                                                                                    onClick={() => toggleStatus(order.id)}
+                                                                                    className={`${active ? 'bg-red-600 text-white' : 'text-red-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                                >
+                                                                                    <Lock className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-red-500'}`} />
+                                                                                    Cerrar Orden
+                                                                                </button>
+                                                                            )}
+                                                                        </Menu.Item>
+                                                                    )}
+                                                                    {!auth.user?.roles?.includes("Documentador") && order.status === "closed" && (
+                                                                        <Menu.Item>
+                                                                            {({ active }) => (
+                                                                                <button
+                                                                                    onClick={() => toggleStatus(order.id)}
+                                                                                    className={`${active ? 'bg-green-600 text-white' : 'text-green-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
+                                                                                >
+                                                                                    <Unlock className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-green-500'}`} />
+                                                                                    Abrir Orden
+                                                                                </button>
+                                                                            )}
+                                                                        </Menu.Item>
+                                                                    )}
+                                                                </div>
+                                                            </Menu.Items>
+                                                        </Transition>
+                                                    </Menu>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700">
                                                 {order.folio || "N/A"}
