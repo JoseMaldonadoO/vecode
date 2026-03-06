@@ -74,7 +74,6 @@ const ScaleModal = ({
                                     </div>
                                     <div className="text-left">
                                         <div className="font-black text-gray-900 text-lg">BASCULA 0{id}</div>
-                                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Terminal Portuaria</div>
                                     </div>
                                 </div>
                                 {currentScale === id && (
@@ -86,11 +85,6 @@ const ScaleModal = ({
                         ))}
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100">
-                        <p className="text-xs text-center text-gray-400 font-bold uppercase tracking-widest">
-                            Sistema de Control de Pesaje v2.0
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>

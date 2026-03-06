@@ -11,18 +11,84 @@ import {
     ArrowRight,
     Warehouse,
     Settings,
-    Check,
     List,
     ArrowLeft,
     Search,
+    X,
+    CheckCircle2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import Modal from "@/Components/Modal";
-import SecondaryButton from "@/Components/SecondaryButton";
-import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 
 import Swal from "sweetalert2";
+
+const ScaleModal = ({
+    onSelect,
+    currentScale,
+    onClose,
+}: {
+    onSelect: (id: number) => void;
+    currentScale: number;
+    onClose: () => void;
+}) => {
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+                <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 text-white relative">
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
+                            <Scale className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-black">Seleccionar Báscula</h3>
+                            <p className="text-indigo-100 text-sm font-medium">Báscula de trabajo activa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-8">
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((id) => (
+                            <button
+                                key={id}
+                                onClick={() => onSelect(id)}
+                                className={`w-full group relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-200 ${
+                                    currentScale === id
+                                        ? "border-indigo-600 bg-indigo-50"
+                                        : "border-gray-100 hover:border-indigo-200 hover:bg-gray-50"
+                                }`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-4 rounded-xl transition-colors ${
+                                        currentScale === id
+                                            ? "bg-indigo-600 text-white"
+                                            : "bg-gray-100 text-gray-400 group-hover:bg-indigo-100 group-hover:text-indigo-600"
+                                    }`}>
+                                        <span className="text-xl font-black">{id}</span>
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="font-black text-gray-900 text-lg">BASCULA 0{id}</div>
+                                    </div>
+                                </div>
+                                {currentScale === id && (
+                                    <div className="bg-indigo-600 text-white p-2 rounded-full shadow-lg shadow-indigo-200">
+                                        <CheckCircle2 className="w-5 h-5" />
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const Timer = ({ entryAt }: { entryAt: string }) => {
     const [time, setTime] = useState("");
@@ -607,46 +673,13 @@ export default function Index({
                 )}
             </div>
 
-            {/* Scale Selection Modal */}
-            <Modal
-                show={showScaleModal}
-                onClose={() => setShowScaleModal(false)}
-            >
-                <div className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">
-                        Seleccionar Báscula de Operación
-                    </h2>
-                    <div className="grid grid-cols-3 gap-4 mb-6">
-                        {[1, 2, 3].map((id: number) => (
-                            <button
-                                key={id}
-                                onClick={() => handleScaleSelect(id)}
-                                className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${scaleId === id
-                                    ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                                    : "border-gray-200 hover:border-indigo-200"
-                                    }`}
-                            >
-                                <Scale
-                                    className={`w-8 h-8 ${scaleId === id ? "text-indigo-600" : "text-gray-400"}`}
-                                />
-                                <span className="font-bold text-lg">
-                                    Báscula {id}
-                                </span>
-                                {scaleId === id && (
-                                    <Check className="w-4 h-4 text-indigo-600" />
-                                )}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="flex justify-end">
-                        <SecondaryButton
-                            onClick={() => setShowScaleModal(false)}
-                        >
-                            Cerrar
-                        </SecondaryButton>
-                    </div>
-                </div>
-            </Modal>
+            {showScaleModal && (
+                <ScaleModal
+                    onSelect={handleScaleSelect}
+                    currentScale={scaleId}
+                    onClose={() => setShowScaleModal(false)}
+                />
+            )}
         </DashboardLayout >
     );
 }
