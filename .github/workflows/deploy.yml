@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v56 (Scale: Instant View Toggle, No Layout Transitions)
+# Force trigger: v57 (Scale: Pagination in Destare - 10 per page)
 
 on:
   push:

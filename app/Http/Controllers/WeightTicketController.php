@@ -73,12 +73,76 @@ class WeightTicketController extends Controller
             });
         }
 
-        $pending_exit_collection = $query->orderBy('entry_at', 'asc')->get();
+        // --- NEW: Server-side Search & Tab Filtering for Pagination ---
+        $activeTab = $request->input('tab', 'sale');
+        if ($activeTab === 'sale') {
+            $query->whereNotNull('shipment_order_id');
+        } else {
+            $query->whereNull('shipment_order_id');
+        }
 
-        // Extract options for filters from the UNFILTERED list (or separate query)
-        // For simplicity, we can fetch all active clients/products or just distincts from the main query without filters.
-        // Let's stick to passing all options or distincts.
-        // For this iteration, let's just pass the filtered list and maybe all Clients/Products for the dropdowns.
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('folio', 'like', "%{$search}%")
+                    ->orWhere('operator_name', 'like', "%{$search}%")
+                    ->orWhere('tractor_plate', 'like', "%{$search}%")
+                    ->orWhere('trailer_plate', 'like', "%{$search}%")
+                    ->orWhereHas('shipment_order', function ($sub) use ($search) {
+                        $sub->where('folio', 'like', "%{$search}%")
+                            ->orWhere('operator_name', 'like', "%{$search}%")
+                            ->orWhere('tractor_plate', 'like', "%{$search}%")
+                            ->orWhere('trailer_plate', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $pending_exit_paginated = $query->orderBy('entry_at', 'asc')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function ($order) {
+                // ... (mantener lógica de transformación existente)
+                $ticket = $order->weight_ticket;
+                $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
+                $tractorPlate = $order->tractor_plate;
+                $trailerPlate = $order->trailer_plate ?? 'N/A';
+
+                if ($order->shipment_order_id && $order->shipment_order) {
+                    $operatorName = $order->shipment_order->operator_name ?? $operatorName;
+                    $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
+                    $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
+                }
+
+                $programmedWeight = $order->shipment_order?->programmed_tons ?? $order->programmed_tons ?? 'N/A';
+                $productName = $order->product?->name ?? $order->shipment_order?->product?->name ?? $order->shipment_order?->product ?? 'N/A';
+
+                return [
+                    'id' => $order->id,
+                    'folio' => $order->folio,
+                    'provider' => $order->shipment_order?->client?->business_name ?? $order->shipment_order?->client?->name ?? $order->client_name,
+                    'product' => $productName,
+                    'entry_weight' => $ticket->tare_weight,
+                    'vehicle_plate' => $tractorPlate,
+                    'trailer_plate' => $trailerPlate,
+                    'driver' => $operatorName,
+                    'transport_line' => $order->transport_company,
+                    'economic_number' => $order->economic_number ?? 'N/A',
+                    'warehouse' => $order->warehouse ?? 'N/A',
+                    'cubicle' => $order->cubicle ?? 'N/A',
+                    'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
+                    'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
+                    'programmed_weight' => $programmedWeight,
+                    'entry_at' => $order->entry_at,
+                    'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+                    'oe_folio' => $order->shipment_order?->folio ?? 'N/A',
+                    'real_transport_line' => $order->shipment_order_id
+                        ? ($order->exit_operator->real_transport_line ?? (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('real_transport_line') ?? $order->transport_company))
+                        : ($order->vessel_operator->transporter_line ?? (\App\Models\VesselOperator::where('operator_name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('transporter_line') ?? $order->transport_company)),
+                    'vessel_name' => $order->vessel->name ?? 'N/A',
+                ];
+            });
+
+        // Restore Filter Options
         $all_pending = LoadingOrder::whereHas('weight_ticket', function ($q) {
             $q->where('weighing_status', 'in_progress')
                 ->where('is_burreo', false);
@@ -94,73 +158,13 @@ class WeightTicketController extends Controller
             ->orderBy('business_name')
             ->get(['id', 'business_name']);
 
-        $currentFilters = [
-            'client_id' => $request->client_id ?? '',
-            'product_id' => $request->product_id ?? '',
-            'warehouse' => $request->warehouse ?? '',
-            'presentation' => $request->presentation ?? '',
-        ];
-
-
-        $pending_exit = $pending_exit_collection->map(function ($order) {
-            $ticket = $order->weight_ticket;
-            $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
-            $tractorPlate = $order->tractor_plate;
-            $trailerPlate = $order->trailer_plate ?? 'N/A';
-
-            // SALES PRIORITY: If linked to a Shipment Order (OE), use its dynamic data
-            if ($order->shipment_order_id && $order->shipment_order) {
-                $operatorName = $order->shipment_order->operator_name ?? $operatorName;
-                $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
-                $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
-            }
-
-            $programmedWeight = $order->shipment_order?->programmed_tons ?? $order->programmed_tons ?? 'N/A';
-
-            // Determine Product Name
-            $productName = $order->product?->name
-                ?? $order->shipment_order?->product?->name
-                ?? $order->shipment_order?->product
-                ?? 'N/A';
-
-            // Re-mapping the return array for clarity
-            return [
-                'id' => $order->id,
-                'folio' => $order->folio,
-                'provider' => $order->shipment_order?->client?->business_name
-                    ?? $order->shipment_order?->client?->name
-                    ?? $order->client_name,
-                'product' => $productName,
-                'entry_weight' => $ticket->tare_weight,
-                'vehicle_plate' => $tractorPlate,
-                'trailer_plate' => $trailerPlate,
-                'driver' => $operatorName,
-                'transport_line' => $order->transport_company,
-                'economic_number' => $order->economic_number ?? 'N/A',
-                'warehouse' => $order->warehouse ?? 'N/A',
-                'cubicle' => $order->cubicle ?? 'N/A',
-                'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
-                'consignee' => $order->consignee ?? ($order->shipment_order?->consignee ?? 'N/A'),
-                'programmed_weight' => $programmedWeight,
-                'entry_at' => $order->entry_at,
-                'type' => $order->shipment_order_id ? 'sale' : 'vessel',
-                'oe_folio' => $order->shipment_order?->folio ?? 'N/A',
-                'real_transport_line' => $order->shipment_order_id
-                    ? ($order->exit_operator->real_transport_line ??
-                        (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('real_transport_line') ?? $order->transport_company))
-                    : ($order->vessel_operator->transporter_line ??
-                        (\App\Models\VesselOperator::where('operator_name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('transporter_line') ?? $order->transport_company)),
-                'vessel_name' => $order->vessel->name ?? 'N/A',
-            ];
-        });
-
         return Inertia::render('Scale/Index', [
             'pending_entry' => $pending_entry,
-            'pending_exit' => $pending_exit,
+            'pending_exit' => $pending_exit_paginated,
             'clients' => $clients,
             'products' => $products,
             'warehouses' => $warehouses,
-            'filters' => $request->only(['client_id', 'product_id', 'warehouse', 'presentation']),
+            'filters' => $request->only(['client_id', 'product_id', 'warehouse', 'presentation', 'search', 'tab']),
         ]);
     }
 

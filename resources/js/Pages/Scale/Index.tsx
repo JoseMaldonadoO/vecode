@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import Modal from "@/Components/Modal";
 import SecondaryButton from "@/Components/SecondaryButton";
 import PrimaryButton from "@/Components/PrimaryButton";
+import Pagination from "@/Components/Pagination";
 
 import Swal from "sweetalert2";
 
@@ -71,28 +72,22 @@ export default function Index({
     warehouses = [],
     filters = { client_id: '', product_id: '', warehouse: '', presentation: '' }
 }: {
-    auth: any;
-    pending_exit: any[];
-    flash?: any;
-    clients?: any[];
-    products?: any[];
     warehouses?: string[];
-    filters?: { client_id: string, product_id: string, warehouse: string, presentation: string };
+    filters?: { client_id: string, product_id: string, warehouse: string, presentation: string, search: string, tab: string };
 }) {
     // Persistent scale ID logic
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
     const [viewMode, setViewMode] = useState<"menu" | "table">("menu");
-    // State for Operation Type (Venta vs Barco)
-    const [operationType, setOperationType] = useState<'sale' | 'vessel'>('sale');
+    // State for Operation Type (Venta vs Barco) - Linked to Server Filters
+    const [operationType, setOperationType] = useState<'sale' | 'vessel'>(filters?.tab as 'sale' | 'vessel' || 'sale');
     // Filters State
     const [selectedClient, setSelectedClient] = useState(filters?.client_id || '');
     const [selectedProduct, setSelectedProduct] = useState(filters?.product_id || '');
     const [selectedWarehouse, setSelectedWarehouse] = useState(filters?.warehouse || '');
     const [selectedPresentation, setSelectedPresentation] = useState(filters?.presentation || '');
 
-    const [searchTerm, setSearchTerm] = useState(''); // Local search for convenience
-    const [searchQuery, setSearchQuery] = useState(''); // Global search for OE, Driver, Plates
+    const [searchQuery, setSearchQuery] = useState(filters?.search || ''); // Global search for OE, Driver, Plates
 
     useEffect(() => {
         const saved = localStorage.getItem("selected_scale_id");
@@ -120,11 +115,13 @@ export default function Index({
 
     // Handle Filter Change
     const handleFilterChange = (key: string, value: string) => {
-        // Update local state
+        // Update local state for immediate feedback if needed, but router handles overall
         if (key === 'client_id') setSelectedClient(value);
         if (key === 'product_id') setSelectedProduct(value);
         if (key === 'warehouse') setSelectedWarehouse(value);
         if (key === 'presentation') setSelectedPresentation(value);
+        if (key === 'search') setSearchQuery(value);
+        if (key === 'tab') setOperationType(value as 'sale' | 'vessel');
 
         // Reload with Inertia
         import('@inertiajs/react').then(({ router }) => {
@@ -134,6 +131,8 @@ export default function Index({
                 product_id: key === 'product_id' ? value : selectedProduct,
                 warehouse: key === 'warehouse' ? value : selectedWarehouse,
                 presentation: key === 'presentation' ? value : selectedPresentation,
+                search: key === 'search' ? value : searchQuery,
+                tab: key === 'tab' ? value : operationType,
             }, {
                 preserveState: true,
                 preserveScroll: true,
@@ -241,7 +240,7 @@ export default function Index({
                             <div className="text-[10px] font-bold text-green-600 uppercase tracking-widest mt-1">Unidades en Planta</div>
                             <p className="text-xs text-gray-400 mt-2 font-medium px-4 flex items-center gap-1 justify-center">
                                 <Activity className="w-3 h-3 text-green-500 animate-pulse" />
-                                {pending_exit.length} unidades activas
+                                {pending_exit.total ?? 0} unidades activas
                             </p>
                         </button>
                     </div>
@@ -270,7 +269,7 @@ export default function Index({
                             {/* Operation Type Tabs */}
                             <div className="flex p-1 bg-gray-100 rounded-lg">
                                 <button
-                                    onClick={() => setOperationType('sale')}
+                                    onClick={() => handleFilterChange('tab', 'sale')}
                                     className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${operationType === 'sale'
                                         ? 'bg-white text-indigo-600 shadow-sm'
                                         : 'text-gray-500 hover:text-gray-700'
@@ -279,7 +278,7 @@ export default function Index({
                                     VENTA
                                 </button>
                                 <button
-                                    onClick={() => setOperationType('vessel')}
+                                    onClick={() => handleFilterChange('tab', 'vessel')}
                                     className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${operationType === 'vessel'
                                         ? 'bg-white text-indigo-600 shadow-sm'
                                         : 'text-gray-500 hover:text-gray-700'
@@ -301,6 +300,7 @@ export default function Index({
                                         className="block w-64 pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow font-medium"
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleFilterChange('search', searchQuery)}
                                     />
                                 </div>
 
@@ -356,7 +356,7 @@ export default function Index({
                                 </select>
 
                                 <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm ml-auto">
-                                    {pending_exit.filter(o => o.type === operationType).length} Registros
+                                    {pending_exit.total ?? 0} Registros
                                 </span>
                             </div>
                         </div>
@@ -388,98 +388,74 @@ export default function Index({
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 bg-white">
-                                        {pending_exit
-                                            .filter(o => o.type === operationType)
-                                            .filter(o => {
-                                                if (!searchQuery) return true;
-                                                const search = searchQuery.toLowerCase();
-                                                return (
-                                                    (o.oe_folio?.toLowerCase().includes(search)) ||
-                                                    (o.driver?.toLowerCase().includes(search)) ||
-                                                    (o.vehicle_plate?.toLowerCase().includes(search)) ||
-                                                    (o.trailer_plate?.toLowerCase().includes(search)) ||
-                                                    (o.folio?.toLowerCase().includes(search))
-                                                );
-                                            }).length > 0 ? (
-                                            pending_exit
-                                                .filter(o => o.type === operationType)
-                                                .filter(o => {
-                                                    if (!searchQuery) return true;
-                                                    const search = searchQuery.toLowerCase();
-                                                    return (
-                                                        (o.oe_folio?.toLowerCase().includes(search)) ||
-                                                        (o.driver?.toLowerCase().includes(search)) ||
-                                                        (o.vehicle_plate?.toLowerCase().includes(search)) ||
-                                                        (o.trailer_plate?.toLowerCase().includes(search)) ||
-                                                        (o.folio?.toLowerCase().includes(search))
-                                                    );
-                                                }).map((order) => (
-                                                    <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
-                                                        {/* Folio */}
-                                                        <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
-                                                        {operationType === 'sale' && (
-                                                            <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
-                                                                {order.oe_folio || 'N/A'}
-                                                            </td>
-                                                        )}
-                                                        {/* Cliente */}
-                                                        <td className="px-6 py-4">
-                                                            <div className="font-bold text-gray-800 text-xs leading-tight uppercase">{order.provider}</div>
+                                        {pending_exit.data.length > 0 ? (
+                                            pending_exit.data.map((order: any) => (
+                                                <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
+                                                    {/* Folio */}
+                                                    <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
+                                                    {operationType === 'sale' && (
+                                                        <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
+                                                            {order.oe_folio || 'N/A'}
                                                         </td>
-                                                        {/* Chofer */}
-                                                        <td className="px-6 py-4">
-                                                            <div className="font-bold text-gray-800">{order.driver}</div>
-                                                        </td>
-                                                        {/* Placas */}
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex flex-col gap-1">
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded leading-none">TRACTO</span>
-                                                                    <span className="text-xs font-bold text-indigo-700 font-mono">{order.vehicle_plate}</span>
-                                                                </div>
-                                                                {order.trailer_plate && order.trailer_plate !== 'N/A' && (
-                                                                    <div className="flex items-center gap-1.5">
-                                                                        <span className="text-[10px] font-black bg-indigo-100 text-indigo-500 px-1.5 py-0.5 rounded leading-none">REMOLQUE</span>
-                                                                        <span className="text-xs font-bold text-amber-700 font-mono">{order.trailer_plate}</span>
-                                                                    </div>
-                                                                )}
+                                                    )}
+                                                    {/* Cliente */}
+                                                    <td className="px-6 py-4">
+                                                        <div className="font-bold text-gray-800 text-xs leading-tight uppercase">{order.provider}</div>
+                                                    </td>
+                                                    {/* Chofer */}
+                                                    <td className="px-6 py-4">
+                                                        <div className="font-bold text-gray-800">{order.driver}</div>
+                                                    </td>
+                                                    {/* Placas */}
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded leading-none">TRACTO</span>
+                                                                <span className="text-xs font-bold text-indigo-700 font-mono">{order.vehicle_plate}</span>
                                                             </div>
-                                                        </td>
-                                                        {/* Línea de Transporte */}
-                                                        <td className="px-6 py-4 text-gray-700 font-medium text-sm">
-                                                            {order.real_transport_line || 'N/A'}
-                                                        </td>
-                                                        {/* Producto */}
-                                                        <td className="px-6 py-4 text-gray-800 font-bold">{order.product}</td>
+                                                            {order.trailer_plate && order.trailer_plate !== 'N/A' && (
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="text-[10px] font-black bg-indigo-100 text-indigo-500 px-1.5 py-0.5 rounded leading-none">REMOLQUE</span>
+                                                                    <span className="text-xs font-bold text-amber-700 font-mono">{order.trailer_plate}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    {/* Línea de Transporte */}
+                                                    <td className="px-6 py-4 text-gray-700 font-medium text-sm">
+                                                        {order.real_transport_line || 'N/A'}
+                                                    </td>
+                                                    {/* Producto */}
+                                                    <td className="px-6 py-4 text-gray-800 font-bold">{order.product}</td>
 
-                                                        {/* Barco (Only for Vessel) */}
-                                                        {operationType === 'vessel' && (
-                                                            <td className="px-6 py-4 text-gray-800 font-bold">
-                                                                {order.vessel_name}
-                                                            </td>
-                                                        )}
+                                                    {/* Barco (Only for Vessel) */}
+                                                    {operationType === 'vessel' && (
+                                                        <td className="px-6 py-4 text-gray-800 font-bold">
+                                                            {order.vessel_name}
+                                                        </td>
+                                                    )}
 
-                                                        {/* Ton. Prog. (Create Only for Sale) */}
-                                                        {operationType === 'sale' && (
-                                                            <td className="px-6 py-4 font-mono font-bold text-gray-700">
-                                                                {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
-                                                            </td>
-                                                        )}
-                                                        {/* Tiempo en Planta */}
-                                                        <td className="px-6 py-4">
-                                                            <Timer entryAt={order.entry_at} />
+                                                    {/* Ton. Prog. (Create Only for Sale) */}
+                                                    {operationType === 'sale' && (
+                                                        <td className="px-6 py-4 font-mono font-bold text-gray-700">
+                                                            {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
                                                         </td>
-                                                        {/* Acción */}
-                                                        <td className="px-6 py-4 text-center">
-                                                            <Link
-                                                                href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                                className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
-                                                            >
-                                                                Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
-                                                            </Link>
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                                    )}
+                                                    {/* Tiempo en Planta */}
+                                                    <td className="px-6 py-4">
+                                                        <Timer entryAt={order.entry_at} />
+                                                    </td>
+                                                    {/* Acción */}
+                                                    <td className="px-6 py-4 text-center">
+                                                        <Link
+                                                            href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
+                                                            className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
+                                                        >
+                                                            Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
+                                                        </Link>
+                                                    </td>
+                                                </tr>
+                                            ))
                                         ) : (
                                             <tr>
                                                 <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
@@ -495,108 +471,84 @@ export default function Index({
 
                             {/* Mobile View (Filtered) */}
                             <div className="lg:hidden p-4 space-y-4">
-                                {pending_exit
-                                    .filter(o => o.type === operationType)
-                                    .filter(o => {
-                                        if (!searchQuery) return true;
-                                        const search = searchQuery.toLowerCase();
-                                        return (
-                                            (o.oe_folio?.toLowerCase().includes(search)) ||
-                                            (o.driver?.toLowerCase().includes(search)) ||
-                                            (o.vehicle_plate?.toLowerCase().includes(search)) ||
-                                            (o.trailer_plate?.toLowerCase().includes(search)) ||
-                                            (o.folio?.toLowerCase().includes(search))
-                                        );
-                                    }).length > 0 ? (
-                                    pending_exit
-                                        .filter(o => o.type === operationType)
-                                        .filter(o => {
-                                            if (!searchQuery) return true;
-                                            const search = searchQuery.toLowerCase();
-                                            return (
-                                                (o.oe_folio?.toLowerCase().includes(search)) ||
-                                                (o.driver?.toLowerCase().includes(search)) ||
-                                                (o.vehicle_plate?.toLowerCase().includes(search)) ||
-                                                (o.trailer_plate?.toLowerCase().includes(search)) ||
-                                                (o.folio?.toLowerCase().includes(search))
-                                            );
-                                        }).map((order) => (
-                                            <div
-                                                key={order.id}
-                                                className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
-                                            >
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
-                                                            Folio: {order.folio}
-                                                            {operationType === 'sale' && (
-                                                                <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black">
-                                                                    OE: {order.oe_folio}
-                                                                </span>
-                                                            )}
-                                                        </span>
-                                                        <h3 className="font-bold text-gray-900 text-lg">
-                                                            {order.driver}
-                                                        </h3>
-                                                        <p className="text-sm text-gray-400 font-mono">
-                                                            {order.vehicle_plate}
-                                                            {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
-                                                        </p>
-                                                        <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
-                                                            {order.provider}
-                                                        </p>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <Timer entryAt={order.entry_at} />
-                                                    </div>
-                                                </div>
-
-                                                <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-500">Transp.:</span>
-                                                        <span className="font-medium text-gray-800">{order.real_transport_line || 'N/A'}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-500">Producto:</span>
-                                                        <span className="font-bold text-gray-800">{order.product}</span>
-                                                    </div>
-
-                                                    {/* Barco only for vessel */}
-                                                    {operationType === 'vessel' && (
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-500">Barco:</span>
-                                                            <span className="font-bold text-indigo-600">{order.vessel_name}</span>
-                                                        </div>
-                                                    )}
-
-                                                    {operationType === 'sale' && (
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-500">Ton. Prog.:</span>
-                                                            <span className="font-mono text-gray-800">
-                                                                {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
+                                {pending_exit.data.length > 0 ? (
+                                    pending_exit.data.map((order: any) => (
+                                        <div
+                                            key={order.id}
+                                            className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
+                                                        Folio: {order.folio}
+                                                        {operationType === 'sale' && (
+                                                            <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black">
+                                                                OE: {order.oe_folio}
                                                             </span>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Warehouse only for vessel */}
-                                                    {operationType === 'vessel' && (
-                                                        <div className="flex justify-between text-sm items-center">
-                                                            <span className="text-gray-500">Ubicación:</span>
-                                                            <span className={order.warehouse === "N/A" ? "text-amber-500 italic text-xs" : "text-blue-600 font-bold text-xs"}>
-                                                                {order.warehouse === "N/A" ? "Sin Asignar" : `${order.warehouse} - ${order.cubicle}`}
-                                                            </span>
-                                                        </div>
-                                                    )}
+                                                        )}
+                                                    </span>
+                                                    <h3 className="font-bold text-gray-900 text-lg">
+                                                        {order.driver}
+                                                    </h3>
+                                                    <p className="text-sm text-gray-400 font-mono">
+                                                        {order.vehicle_plate}
+                                                        {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
+                                                    </p>
+                                                    <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
+                                                        {order.provider}
+                                                    </p>
                                                 </div>
-
-                                                <Link
-                                                    href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
-                                                >
-                                                    Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
-                                                </Link>
+                                                <div className="text-right">
+                                                    <Timer entryAt={order.entry_at} />
+                                                </div>
                                             </div>
-                                        ))
+
+                                            <div className="border-t border-gray-200 pt-3 flex flex-col gap-2">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-500">Transp.:</span>
+                                                    <span className="font-medium text-gray-800">{order.real_transport_line || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-500">Producto:</span>
+                                                    <span className="font-bold text-gray-800">{order.product}</span>
+                                                </div>
+
+                                                {/* Barco only for vessel */}
+                                                {operationType === 'vessel' && (
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-500">Barco:</span>
+                                                        <span className="font-bold text-indigo-600">{order.vessel_name}</span>
+                                                    </div>
+                                                )}
+
+                                                {operationType === 'sale' && (
+                                                    <div className="flex justify-between text-sm">
+                                                        <span className="text-gray-500">Ton. Prog.:</span>
+                                                        <span className="font-mono text-gray-800">
+                                                            {order.programmed_weight ? Number(order.programmed_weight).toFixed(2) : '---'} TM
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {/* Warehouse only for vessel */}
+                                                {operationType === 'vessel' && (
+                                                    <div className="flex justify-between text-sm items-center">
+                                                        <span className="text-gray-500">Ubicación:</span>
+                                                        <span className={order.warehouse === "N/A" ? "text-amber-500 italic text-xs" : "text-blue-600 font-bold text-xs"}>
+                                                            {order.warehouse === "N/A" ? "Sin Asignar" : `${order.warehouse} - ${order.cubicle}`}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <Link
+                                                href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
+                                                className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                            >
+                                                Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
+                                            </Link>
+                                        </div>
+                                    ))
                                 ) : (
                                     <div className="p-8 text-center text-gray-400 italic bg-gray-50 rounded-xl border border-dashed border-gray-300">
                                         No hay unidades en esta lista.
@@ -604,6 +556,8 @@ export default function Index({
                                 )}
                             </div>
                         </div>
+                        {/* Pagination Component */}
+                        <Pagination links={pending_exit.links} />
                     </div>
                 )}
             </div>
