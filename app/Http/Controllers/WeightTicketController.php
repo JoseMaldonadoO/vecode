@@ -82,11 +82,17 @@ class WeightTicketController extends Controller
             });
         }
 
-        // --- NEW: Server-side Search & Tab Filtering for Pagination ---
         if ($activeTab === 'sale') {
             $query->whereNotNull('shipment_order_id');
         } else {
             $query->whereNull('shipment_order_id');
+        }
+
+        if ($request->filled('scale_id')) {
+            $scaleId = $request->scale_id;
+            $query->whereHas('weight_ticket', function ($q) use ($scaleId) {
+                $q->where('scale_id', $scaleId);
+            });
         }
 
         if ($request->filled('search')) {

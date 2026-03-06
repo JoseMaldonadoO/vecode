@@ -95,8 +95,27 @@ export default function Index({
     const [searchQuery, setSearchQuery] = useState(filters?.search || ''); // Global search for OE, Driver, Plates
 
     useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
         const saved = localStorage.getItem("selected_scale_id");
-        if (saved) setScaleId(parseInt(saved));
+        
+        let currentScaleId = scaleId;
+        if (saved) {
+            currentScaleId = parseInt(saved);
+            setScaleId(currentScaleId);
+        }
+
+        // If scale_id is not in URL, and we have a saved one (or default), refresh to sync with server
+        if (!params.has('scale_id') && currentScaleId) {
+            import('@inertiajs/react').then(({ router }) => {
+                router.get(route(route().current() as string), {
+                    ...Object.fromEntries(params.entries()),
+                    scale_id: currentScaleId
+                }, {
+                    preserveState: true,
+                    replace: true
+                });
+            });
+        }
 
         if (flash?.success) {
             Swal.fire({
@@ -111,7 +130,6 @@ export default function Index({
         }
 
         // Check for view=table or view=pending in URL
-        const params = new URLSearchParams(window.location.search);
         const hasRecords = pending_exit.data && pending_exit.data.length > 0;
 
         if (params.get("view") === "table" || params.get("view") === "pending" || hasRecords) {
@@ -139,8 +157,9 @@ export default function Index({
                 product_id: key === 'product_id' ? value : selectedProduct,
                 warehouse: key === 'warehouse' ? value : selectedWarehouse,
                 presentation: key === 'presentation' ? value : selectedPresentation,
-                search: key === 'search' ? value : (key === 'tab' ? '' : searchQuery), // Clear search on tab switch maybe? Or keep it.
+                search: key === 'search' ? value : (key === 'tab' ? '' : searchQuery), 
                 tab: key === 'tab' ? value : operationType,
+                scale_id: scaleId, // Always include the current scaleId
             }, {
                 preserveState: true,
                 preserveScroll: true,
@@ -154,6 +173,24 @@ export default function Index({
         setScaleId(id);
         localStorage.setItem("selected_scale_id", id.toString());
         setShowScaleModal(false);
+
+        // Notify server about scale change to refresh the list
+        import('@inertiajs/react').then(({ router }) => {
+            router.get(route(route().current() as string), {
+                view: viewMode === 'menu' ? 'menu' : 'table',
+                client_id: selectedClient,
+                product_id: selectedProduct,
+                warehouse: selectedWarehouse,
+                presentation: selectedPresentation,
+                search: searchQuery,
+                tab: operationType,
+                scale_id: id,
+            }, {
+                preserveState: true,
+                preserveScroll: true,
+                replace: true
+            });
+        });
     };
 
     // ... buttons array ...
