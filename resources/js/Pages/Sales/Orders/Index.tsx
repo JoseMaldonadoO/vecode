@@ -291,7 +291,7 @@ export default function Index({
                                                 {auth.user?.roles?.includes("Documentador") ? (
                                                     <Link
                                                         href={route("sales.show", {
-                                                            sale: order.id,
+                                                            sales: order.id,
                                                             module: "sales",
                                                         })}
                                                         className="inline-flex items-center p-2 rounded-full text-indigo-500 hover:bg-indigo-100 transition-colors"
@@ -324,7 +324,7 @@ export default function Index({
                                                                         {({ active }) => (
                                                                             <Link
                                                                                 href={route("sales.show", {
-                                                                                    sale: order.id,
+                                                                                    sales: order.id,
                                                                                     module: "sales",
                                                                                 })}
                                                                                 className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors`}
