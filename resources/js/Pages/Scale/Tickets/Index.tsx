@@ -17,7 +17,7 @@ import {
     Ban,
     RotateCcw,
 } from "lucide-react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { debounce, pickBy } from "lodash";
 import Swal from "sweetalert2";
 import { Settings, CheckCircle2 } from "lucide-react";
