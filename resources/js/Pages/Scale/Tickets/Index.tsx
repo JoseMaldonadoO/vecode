@@ -10,7 +10,6 @@ import {
     Printer,
     ChevronLeft,
     ChevronRight,
-    ChevronRight,
     X,
     ArrowLeft,
     FileText,
