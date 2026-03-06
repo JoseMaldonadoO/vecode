@@ -573,36 +573,36 @@ export default function EntryMP({
                                 Transporte (QR)
                             </h4>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono bg-amber-50 p-6 rounded-xl border border-amber-100 mb-6">
-                                <div>
-                                    <span className="block text-gray-500 uppercase mb-1">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-amber-50 rounded-2xl border border-amber-100 shadow-inner mb-6">
+                                <div className="space-y-1">
+                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
                                         Línea
                                     </span>
-                                    <span className="font-bold text-gray-800 text-sm">
+                                    <span className="font-black text-gray-900 text-lg block leading-tight truncate" title={data.transport_line}>
                                         {data.transport_line || "-"}
                                     </span>
                                 </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase mb-1">
+                                <div className="space-y-1">
+                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
                                         Operador
                                     </span>
-                                    <span className="font-bold text-gray-800 text-sm">
+                                    <span className="font-black text-gray-900 text-lg block leading-tight truncate" title={data.driver}>
                                         {data.driver || "-"}
                                     </span>
                                 </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase mb-1">
+                                <div className="space-y-1">
+                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
                                         Placa
                                     </span>
-                                    <span className="font-bold text-gray-800 text-sm">
+                                    <span className="font-mono font-black text-gray-900 text-xl block leading-tight">
                                         {data.vehicle_plate || "-"}
                                     </span>
                                 </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase mb-1">
+                                <div className="space-y-1">
+                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
                                         Remolque
                                     </span>
-                                    <span className="font-bold text-gray-800 text-sm">
+                                    <span className="font-mono font-black text-gray-900 text-xl block leading-tight">
                                         {data.trailer_plate || "-"}
                                     </span>
                                 </div>

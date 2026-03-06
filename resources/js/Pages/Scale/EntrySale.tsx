@@ -499,30 +499,30 @@ export default function EntrySale({
                                     </div>
 
                                     <div className="border-t border-gray-100 pt-6">
-                                        <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center">
+                                        <h4 className="text-xs font-black text-indigo-500 uppercase tracking-[0.2em] mb-4 flex items-center">
                                             <Truck className="w-4 h-4 mr-2" />
                                             Transporte Asignado
                                         </h4>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-amber-50 rounded-xl border border-amber-100">
-                                            <div>
-                                                <span className="block text-xs text-gray-400 uppercase">Línea</span>
-                                                <span className="font-bold text-gray-800 text-sm block truncate" title={data.transport_line}>{data.transport_line}</span>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-amber-50 rounded-2xl border border-amber-100 shadow-inner">
+                                            <div className="space-y-1">
+                                                <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">Línea</span>
+                                                <span className="font-black text-gray-900 text-lg block leading-tight truncate" title={data.transport_line}>{data.transport_line}</span>
                                             </div>
-                                            <div>
-                                                <span className="block text-xs text-gray-400 uppercase">Operador</span>
-                                                <span className="font-bold text-gray-800 text-sm block truncate" title={data.driver}>{data.driver}</span>
+                                            <div className="space-y-1">
+                                                <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">Operador</span>
+                                                <span className="font-black text-gray-900 text-lg block leading-tight truncate" title={data.driver}>{data.driver}</span>
                                             </div>
-                                            <div>
-                                                <span className="block text-xs text-gray-400 uppercase">Placas</span>
-                                                <span className="font-mono font-bold text-gray-800 text-sm">{data.vehicle_plate}</span>
+                                            <div className="space-y-1">
+                                                <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">Placas</span>
+                                                <span className="font-mono font-black text-gray-900 text-xl block leading-tight">{data.vehicle_plate}</span>
                                             </div>
-                                            <div>
-                                                <span className="block text-xs text-gray-400 uppercase">No. Económico</span>
-                                                <span className="font-mono font-bold text-gray-800 text-sm">{data.economic_number || "N/A"}</span>
+                                            <div className="space-y-1">
+                                                <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">No. Económico</span>
+                                                <span className="font-mono font-black text-gray-900 text-xl block leading-tight">{data.economic_number || "N/A"}</span>
                                             </div>
-                                            <div>
-                                                <span className="block text-xs text-gray-400 uppercase">Remolque</span>
-                                                <span className="font-mono font-bold text-gray-800 text-sm">{data.trailer_plate || "N/A"}</span>
+                                            <div className="space-y-1">
+                                                <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">Remolque</span>
+                                                <span className="font-mono font-black text-gray-900 text-xl block leading-tight">{data.trailer_plate || "N/A"}</span>
                                             </div>
                                         </div>
                                     </div>

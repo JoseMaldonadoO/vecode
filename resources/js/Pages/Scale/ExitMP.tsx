@@ -302,20 +302,20 @@ export default function ExitMP({
                                 <h1 className="text-2xl font-black text-gray-900 tracking-tight leading-none mb-2">
                                     {order.transport_line}
                                 </h1>
-                                <div className="flex flex-wrap gap-3 mt-1">
-                                    <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-bold border border-gray-200 uppercase tracking-wider">
-                                        Placa: {order.vehicle_plate}
+                                <div className="flex flex-wrap gap-3 mt-2">
+                                    <span className="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-xl text-sm font-black border border-gray-200 shadow-sm transition-all hover:border-indigo-300">
+                                        <span className="text-[10px] text-gray-400 mr-2 uppercase tracking-widest font-black">Placa</span> {order.vehicle_plate}
                                     </span>
-                                    <span className="inline-flex items-center px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-100 uppercase tracking-wider">
-                                        Remolque: {order.trailer_plate || 'N/A'}
+                                    <span className="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-900 rounded-xl text-sm font-black border border-amber-200 shadow-sm transition-all hover:bg-amber-100">
+                                        <span className="text-[10px] text-amber-500 mr-2 uppercase tracking-widest font-black">Remolque</span> {order.trailer_plate || 'N/A'}
                                     </span>
                                     {order.economic_number && order.economic_number !== 'N/A' && (
-                                        <span className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100 uppercase tracking-wider">
-                                            Econo: {order.economic_number}
+                                        <span className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-900 rounded-xl text-sm font-black border border-blue-200 shadow-sm transition-all hover:bg-blue-100">
+                                            <span className="text-[10px] text-blue-500 mr-2 uppercase tracking-widest font-black">Econo</span> {order.economic_number}
                                         </span>
                                     )}
-                                    <span className="inline-flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold border border-indigo-100 uppercase tracking-wider">
-                                        Chofer: {order.driver}
+                                    <span className="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-900 rounded-xl text-sm font-black border border-indigo-200 shadow-sm transition-all hover:bg-indigo-100">
+                                        <span className="text-[10px] text-indigo-500 mr-2 uppercase tracking-widest font-black">Chofer</span> {order.driver}
                                     </span>
                                 </div>
                             </div>
