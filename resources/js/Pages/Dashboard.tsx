@@ -906,9 +906,9 @@ export default function Dashboard({
                                 </div>
                                 <div className="w-px h-10 bg-slate-200 self-center" />
                                 <div className="flex-1 min-w-0 text-right">
-                                    <p className="text-xs font-black text-amber-400 uppercase tracking-wider mb-0.5">Pendiente</p>
-                                    <p className="text-2xl font-black text-amber-500 truncate">
-                                        {vessel?.programmed_tonnage ? formatNumber(Math.max(0, parseFloat(vessel.programmed_tonnage) - (effectiveTotal / 1000))) : 0} <span className="text-sm font-bold text-amber-400">TM</span>
+                                    <p className="text-xs font-black text-blue-600 uppercase tracking-wider mb-0.5">Pendiente</p>
+                                    <p className="text-2xl font-black text-blue-700 truncate">
+                                        {vessel?.programmed_tonnage ? formatNumber(Math.max(0, parseFloat(vessel.programmed_tonnage) - (effectiveTotal / 1000))) : 0} <span className="text-sm font-bold text-blue-500">TM</span>
                                     </p>
                                 </div>
                             </div>
