@@ -39,8 +39,32 @@ export default function Edit({
         setData("net_weight", net);
     }, [data.gross_weight, data.tare_weight]);
 
+    // --- Dynamic Envase Logic ---
+    useEffect(() => {
+        const presentation = ticket.presentation || order.presentation;
+        if (presentation === 'GRANEL') {
+            setData("packaging_type", "N/A");
+        }
+    }, [ticket.presentation, order.presentation]);
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        const presentation = ticket.presentation || order.presentation;
+
+        // --- VALIDATION: Packaging Type for Envasado ---
+        if (presentation === 'ENVASADO' && data.packaging_type === 'N/A') {
+            import("sweetalert2").then((Swal) => {
+                Swal.default.fire({
+                    icon: 'error',
+                    title: 'Envase Obligatorio',
+                    text: 'Para productos ENVASADOS, debe seleccionar un tipo de envase diferente a N/A.',
+                    confirmButtonColor: '#3085d6',
+                });
+            });
+            return;
+        }
+
         // Use order.id because the route expects the "id" which I mapped to Order ID in controller logic (or ticket ID? Wait.)
         // In controller: destroyTicket($id) -> find Order($id).
         // updateTicket($id) -> find Order($id).
@@ -259,7 +283,8 @@ export default function Edit({
                                             id="packaging_type"
                                             value={data.packaging_type}
                                             onChange={(e) => setData("packaging_type", e.target.value)}
-                                            className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm font-bold"
+                                            disabled={(ticket.presentation || order.presentation) === 'GRANEL'}
+                                            className={`mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm font-bold ${(ticket.presentation || order.presentation) === 'GRANEL' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
                                         >
                                             <option value="N/A">N/A</option>
                                             <option value="PRO-AGRO">PRO-AGRO</option>

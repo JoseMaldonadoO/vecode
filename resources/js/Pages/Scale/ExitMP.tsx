@@ -61,6 +61,13 @@ export default function ExitMP({
         }
     }, [weight, capturedWeight]);
 
+    // --- Dynamic Envase Logic ---
+    useEffect(() => {
+        if (order?.presentation === 'GRANEL') {
+            setData("packaging_type", "N/A");
+        }
+    }, [order?.presentation]);
+
     // Handle Errors
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
@@ -102,6 +109,17 @@ export default function ExitMP({
                 icon: 'error',
                 title: 'Error',
                 text: 'El peso de salida no puede ser 0.',
+            });
+            return;
+        }
+
+        // --- VALIDATION: Packaging Type for Envasado ---
+        if (order?.presentation === 'ENVASADO' && data.packaging_type === 'N/A') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Envase Obligatorio',
+                text: 'Para productos ENVASADOS, debe seleccionar un tipo de envase diferente a N/A.',
+                confirmButtonColor: '#3085d6',
             });
             return;
         }
@@ -547,7 +565,8 @@ export default function ExitMP({
                                                 <select
                                                     value={data.packaging_type}
                                                     onChange={e => setData("packaging_type", e.target.value)}
-                                                    className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold"
+                                                    disabled={order?.presentation === 'GRANEL'}
+                                                    className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${order?.presentation === 'GRANEL' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
                                                 >
                                                     <option value="N/A">N/A</option>
                                                     <option value="PRO-AGRO">PRO-AGRO</option>
