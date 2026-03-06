@@ -884,10 +884,10 @@ export default function Dashboard({
                         {/* Stats Footer: Programmed vs Downloaded vs Pending */}
                         <div className="w-full bg-slate-50 rounded-xl p-4 border border-slate-100 z-10 mt-auto">
                             <div className="flex justify-between items-end mb-2">
-                                <span className="text-sm font-black text-slate-500 uppercase tracking-widest">
+                                <span className="text-base font-black text-slate-900 uppercase tracking-widest">
                                     Progreso
                                 </span>
-                                <span className="text-sm font-bold text-slate-500">
+                                <span className="text-base font-black text-slate-900">
                                     {formatNumber(effectiveTotal / 1000)} / {formatNumber(vessel?.programmed_tonnage || 0)} TM
                                 </span>
                             </div>
@@ -902,12 +902,12 @@ export default function Dashboard({
                             <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-200 gap-2">
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-0.5">Descargado</p>
-                                    <p className="text-xl font-black text-slate-800 truncate">{formatNumber(effectiveTotal / 1000)} <span className="text-sm font-bold text-slate-500">TM</span></p>
+                                    <p className="text-2xl font-black text-slate-800 truncate">{formatNumber(effectiveTotal / 1000)} <span className="text-sm font-bold text-slate-500">TM</span></p>
                                 </div>
                                 <div className="w-px h-10 bg-slate-200 self-center" />
                                 <div className="flex-1 min-w-0 text-right">
                                     <p className="text-xs font-black text-amber-400 uppercase tracking-wider mb-0.5">Pendiente</p>
-                                    <p className="text-xl font-black text-amber-500 truncate">
+                                    <p className="text-2xl font-black text-amber-500 truncate">
                                         {vessel?.programmed_tonnage ? formatNumber(Math.max(0, parseFloat(vessel.programmed_tonnage) - (effectiveTotal / 1000))) : 0} <span className="text-sm font-bold text-amber-400">TM</span>
                                     </p>
                                 </div>
