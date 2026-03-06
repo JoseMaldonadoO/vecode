@@ -15,6 +15,7 @@ import {
     FileText,
     Scale,
     Ban,
+    RotateCcw,
 } from "lucide-react";
 import { useState, useCallback } from "react";
 import { debounce, pickBy } from "lodash";
@@ -125,6 +126,39 @@ export default function Index({
                         Swal.fire({
                             title: "¡Cancelado!",
                             text: "El ticket ha sido cancelado. La orden está disponible para pesarse de nuevo.",
+                            icon: "success",
+                            confirmButtonColor: "#3085d6",
+                            timer: 2000,
+                        });
+                    },
+                });
+            }
+        });
+    };
+
+    const confirmReopen = (id: string, folio: string) => {
+        Swal.fire({
+            title: "¿Re-abrir Ticket?",
+            text: `El ticket del folio ${folio} dejará de estar cancelado y volverá al historial activo.`,
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#3b82f6",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Sí, re-abrir",
+            cancelButtonText: "Cancelar",
+            customClass: {
+                popup: "rounded-2xl",
+                confirmButton: "rounded-xl px-6 py-3 font-bold",
+                cancelButton: "rounded-xl px-6 py-3 font-bold",
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.patch(route("scale.tickets.reopen", id), {}, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "¡Re-abierto!",
+                            text: "El ticket ha sido restaurado.",
                             icon: "success",
                             confirmButtonColor: "#3085d6",
                             timer: 2000,
@@ -433,6 +467,17 @@ export default function Index({
                                                             title="Cancelar Ticket"
                                                         >
                                                             <Ban className="w-5 h-5" />
+                                                        </button>
+                                                    )}
+
+                                                    {/* Reopen Action - Only for Admin and cancelled tickets */}
+                                                    {auth.user?.roles?.includes("Admin") && ticket.status === 'cancelled' && (
+                                                        <button
+                                                            onClick={() => confirmReopen(ticket.ticket_id, ticket.folio)}
+                                                            className="inline-flex items-center text-blue-500 hover:text-white hover:bg-blue-500 bg-blue-50 p-2 rounded-md transition-all shadow-sm"
+                                                            title="Re-abrir Ticket"
+                                                        >
+                                                            <RotateCcw className="w-5 h-5" />
                                                         </button>
                                                     )}
 

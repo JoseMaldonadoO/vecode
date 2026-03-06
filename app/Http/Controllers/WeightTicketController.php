@@ -1166,4 +1166,41 @@ class WeightTicketController extends Controller
             'ticket' => $data
         ]);
     }
+
+    public function reopenTicket($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                $ticket = WeightTicket::findOrFail($id);
+                $order = $ticket->loadingOrder;
+
+                // 1. Determine new weighing status based on weights
+                // If it has gross weight, it was completed
+                $newStatus = ($ticket->gross_weight > 0) ? 'completed' : 'in_progress';
+
+                // 2. Mark ticket as re-opened
+                $ticket->update(['weighing_status' => $newStatus]);
+
+                // 3. Sync Loading Order status
+                if ($order) {
+                    $orderStatus = ($newStatus === 'completed') ? 'completed' : 'weighing_out';
+                    $order->update([
+                        'status' => $orderStatus,
+                        'destare_status' => ($ticket->tare_weight > 0) ? 'completed' : 'pending'
+                    ]);
+
+                    // Sync Sales Order if linked
+                    if ($order->sales_order_id) {
+                        $order->sales_order?->syncLoadedQuantity();
+                    }
+                }
+            });
+
+            return redirect()->back()->with('success', 'Ticket re-abierto correctamente.');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error reopening ticket: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al re-abrir ticket: ' . $e->getMessage()]);
+        }
+    }
 }
