@@ -118,6 +118,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scale/tickets/{id}/edit', [\App\Http\Controllers\WeightTicketController::class, 'editTicket'])->name('scale.tickets.edit');
     Route::put('/scale/tickets/{id}', [\App\Http\Controllers\WeightTicketController::class, 'updateTicket'])->name('scale.tickets.update');
     Route::delete('/scale/tickets/{id}', [\App\Http\Controllers\WeightTicketController::class, 'destroyTicket'])->name('scale.tickets.destroy');
+    Route::patch('/scale/tickets/{id}/cancel', [\App\Http\Controllers\WeightTicketController::class, 'cancelTicket'])->name('scale.tickets.cancel');
 
     Route::resource('scale', \App\Http\Controllers\WeightTicketController::class);
 

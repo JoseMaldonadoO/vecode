@@ -212,8 +212,9 @@ class WeightTicketController extends Controller
 
     public function tickets(Request $request)
     {
-        $filters = $request->only(['search', 'date', 'tab']);
+        $filters = $request->only(['search', 'date', 'tab', 'status']);
         $activeTab = $request->input('tab', 'sale');
+        $status = $request->input('status', 'active'); // Default to active (pending + completed)
 
         $query = WeightTicket::with([
             'loadingOrder' => function ($q) {
@@ -230,6 +231,17 @@ class WeightTicketController extends Controller
                 // EXCLUDE ORPHANED TICKETS: Must have at least one valid link
                 $q->has('loadingOrder')->orHas('shipmentOrder');
             });
+
+        // Status Filtering
+        if ($status === 'active') {
+            $query->whereIn('weighing_status', ['in_progress', 'completed']);
+        } elseif ($status === 'pending') {
+            $query->where('weighing_status', 'in_progress');
+        } elseif ($status === 'completed') {
+            $query->where('weighing_status', 'completed');
+        } elseif ($status === 'cancelled') {
+            $query->where('weighing_status', 'cancelled');
+        }
 
         // Tab Filtering
         if ($activeTab === 'sale') {
@@ -488,11 +500,45 @@ class WeightTicketController extends Controller
                 ]);
             });
 
-            return redirect()->back()->with('success', 'Ticket eliminado. La orden ha vuelto a estado "Autorizado".');
+            return redirect()->back()->with('success', 'Ticket eliminado permanentemente. La orden ha vuelto a estado "Autorizado".');
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error deleting ticket: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Error al eliminar ticket: ' . $e->getMessage()]);
+        }
+    }
+
+    public function cancelTicket($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                // $id can be LoadingOrder ID or WeightTicket ID depending on UI context
+                // but usually the index sends WeightTicket ID as {id} in the cancel route
+                $ticket = WeightTicket::findOrFail($id);
+                $order = $ticket->loadingOrder;
+
+                // 1. Mark ticket as cancelled
+                $ticket->update(['weighing_status' => 'cancelled']);
+
+                // 2. Revert Loading Order status to allow re-processing if it was linked
+                if ($order) {
+                    $order->update([
+                        'status' => 'authorized',
+                        'destare_status' => 'pending'
+                    ]);
+
+                    // Sync Sales Order if linked
+                    if ($order->sales_order_id) {
+                        $order->sales_order?->syncLoadedQuantity();
+                    }
+                }
+            });
+
+            return redirect()->back()->with('success', 'Ticket cancelado correctamente. El registro permanece en el historial.');
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error cancelling ticket: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al cancelar ticket: ' . $e->getMessage()]);
         }
     }
 
