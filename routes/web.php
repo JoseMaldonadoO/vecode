@@ -68,13 +68,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents/cp/{id}', [\App\Http\Controllers\DocumentsController::class, 'printBillOfLading'])->name('documents.cp');
 
     Route::get('/sales/{id}/print', [\App\Http\Controllers\SalesController::class, 'print'])->name('sales.print');
-    Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
+    
     // Sales Orders History — accessible by Comercializacion AND Documentador (read-only for the latter)
     Route::middleware(['permission:view sales orders'])->group(function () {
         Route::get('/sales/orders', [\App\Http\Controllers\SalesController::class, 'ordersIndex'])->name('sales.orders.index');
         Route::get('/sales/orders/{id}/breakdown', [\App\Http\Controllers\SalesController::class, 'breakdown'])->name('sales.orders.breakdown');
     });
-    Route::resource('sales', \App\Http\Controllers\SalesController::class);
+
+    // Protected Sales routes (Write operations)
+    Route::middleware(['role:Admin|Comercializacion'])->group(function () {
+        Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
+        Route::resource('sales', \App\Http\Controllers\SalesController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+    });
+
+    // Public/Read Sales routes
+    Route::get('/sales', [\App\Http\Controllers\SalesController::class, 'index'])->name('sales.index');
+    Route::get('/sales/{sales}', [\App\Http\Controllers\SalesController::class, 'show'])->name('sales.show');
     Route::get('/clients', [\App\Http\Controllers\ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/create', [\App\Http\Controllers\ClientController::class, 'create'])->name('clients.create');
     Route::post('/clients', [\App\Http\Controllers\ClientController::class, 'store'])->name('clients.store');

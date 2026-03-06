@@ -8,11 +8,6 @@ use Inertia\Inertia;
 
 class SalesController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('role:Admin|Comercializacion')->only(['create', 'store', 'edit', 'update', 'destroy', 'toggleStatus']);
-    }
-
     public function index(Request $request)
     {
         return Inertia::render('Sales/Index');
