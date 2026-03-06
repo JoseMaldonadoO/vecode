@@ -183,7 +183,8 @@ class VesselExecutiveSheet implements FromArray, WithTitle, WithStyles, WithColu
         $sheet->getStyle('B' . $tableHeaderRow . ':E' . $tableHeaderRow)->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($primaryColor);
 
         $colHeaderRow = 30;
-        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getFont()->setBold(true)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
+        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getFont()->setBold(true);
+        $sheet->getStyle('B' . $colHeaderRow . ':E' . $colHeaderRow)->getBorders()->getBottom()->setBorderStyle(Border::BORDER_THICK);
 
         $sheet->setShowGridlines(false);
     }
