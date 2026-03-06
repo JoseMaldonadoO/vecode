@@ -69,9 +69,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sales/{id}/print', [\App\Http\Controllers\SalesController::class, 'print'])->name('sales.print');
     Route::patch('/sales/{id}/toggle-status', [\App\Http\Controllers\SalesController::class, 'toggleStatus'])->name('sales.toggle-status');
-    // New Sales Orders History Route (Consistent with Documentation)
-    Route::get('/sales/orders', [\App\Http\Controllers\SalesController::class, 'ordersIndex'])->name('sales.orders.index');
-    Route::get('/sales/orders/{id}/breakdown', [\App\Http\Controllers\SalesController::class, 'breakdown'])->name('sales.orders.breakdown');
+    // Sales Orders History — accessible by Comercializacion AND Documentador (read-only for the latter)
+    Route::middleware(['permission:view sales orders'])->group(function () {
+        Route::get('/sales/orders', [\App\Http\Controllers\SalesController::class, 'ordersIndex'])->name('sales.orders.index');
+        Route::get('/sales/orders/{id}/breakdown', [\App\Http\Controllers\SalesController::class, 'breakdown'])->name('sales.orders.breakdown');
+    });
     Route::resource('sales', \App\Http\Controllers\SalesController::class);
     Route::get('/clients', [\App\Http\Controllers\ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/create', [\App\Http\Controllers\ClientController::class, 'create'])->name('clients.create');

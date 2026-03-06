@@ -194,15 +194,18 @@ export default function Index({
                             Historial de Órdenes de Venta
                         </h2>
                     </div>
-                    <div className="mt-4 flex md:mt-0 md:ml-4">
-                        <Link
-                            href={route("sales.create")}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
-                        >
-                            <Plus className="w-5 h-5 mr-2" />
-                            Nueva Orden de Venta
-                        </Link>
-                    </div>
+                    {/* Only show create button for non-Documentador roles */}
+                    {!auth.user?.roles?.includes("Documentador") && (
+                        <div className="mt-4 flex md:mt-0 md:ml-4">
+                            <Link
+                                href={route("sales.create")}
+                                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
+                            >
+                                <Plus className="w-5 h-5 mr-2" />
+                                Nueva Orden de Venta
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 {/* Filters & Actions */}
@@ -319,7 +322,7 @@ export default function Index({
                                                                         </Link>
                                                                     )}
                                                                 </Menu.Item>
-                                                                {order.status === "created" && (
+                                                                {!auth.user?.roles?.includes("Documentador") && order.status === "created" && (
                                                                     <Menu.Item>
                                                                         {({ active }) => (
                                                                             <Link
@@ -334,7 +337,7 @@ export default function Index({
                                                                 )}
                                                             </div>
                                                             <div className="px-1 py-1">
-                                                                {order.status === "created" && (
+                                                                {!auth.user?.roles?.includes("Documentador") && order.status === "created" && (
                                                                     <Menu.Item>
                                                                         {({ active }) => (
                                                                             <button
@@ -347,7 +350,7 @@ export default function Index({
                                                                         )}
                                                                     </Menu.Item>
                                                                 )}
-                                                                {order.status === "closed" && (
+                                                                {!auth.user?.roles?.includes("Documentador") && order.status === "closed" && (
                                                                     <Menu.Item>
                                                                         {({ active }) => (
                                                                             <button

@@ -32,7 +32,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'view surveillance operators',
             'view scale',
             'view traffic',
-            'access admin panel'
+            'access admin panel',
+            'view sales orders',   // Can view sales orders index (read-only)
         ];
 
         foreach ($permissions as $permission) {
@@ -51,7 +52,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Documentador
         $role = Role::firstOrCreate(['name' => 'Documentador']);
-        $role->givePermissionTo(['view dashboard', 'view documentation']);
+        $role->givePermissionTo(['view dashboard', 'view documentation', 'view sales orders']);
 
         // Almacen
         $role = Role::firstOrCreate(['name' => 'Almacen']);
@@ -59,7 +60,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Comercializacion
         $role = Role::firstOrCreate(['name' => 'Comercializacion']);
-        $role->givePermissionTo(['view dashboard', 'view commercialization']);
+        $role->givePermissionTo(['view dashboard', 'view commercialization', 'view sales orders']);
 
         // Vigilancia Caseta
         $role = Role::firstOrCreate(['name' => 'Vigilancia Caseta']);
