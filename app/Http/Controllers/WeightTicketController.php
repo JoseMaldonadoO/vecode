@@ -42,12 +42,19 @@ class WeightTicketController extends Controller
             });
 
         if ($request->filled('client_id')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('client_id', $request->client_id)
-                    ->orWhereHas('shipment_order', function ($sub) use ($request) {
-                        $sub->where('client_id', $request->client_id);
-                    });
-            });
+            $clientId = $request->client_id;
+            if ($activeTab === 'sale') {
+                $query->whereHas('shipment_order', function ($sub) use ($clientId) {
+                    $sub->where('client_id', $clientId);
+                });
+            } else {
+                $query->where(function ($q) use ($clientId) {
+                    $q->where('client_id', $clientId)
+                        ->orWhereHas('vessel', function ($v) use ($clientId) {
+                            $v->where('client_id', $clientId);
+                        });
+                });
+            }
         }
 
         if ($request->filled('product_id')) {
@@ -148,8 +155,18 @@ class WeightTicketController extends Controller
                 ->where('is_burreo', false);
         })->with('client', 'product')->get();
 
+        // Dynamic Filter Options (Only what is in the table)
         $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
-        $products = \App\Models\Product::orderBy('name')->get(['id', 'name']);
+
+        // Products: ONLY those present in the current pending list
+        $productIds = $all_pending->map(function ($order) {
+            return $order->product_id ?? $order->shipment_order?->product_id;
+        })->unique()->filter()->values();
+
+        $products = \App\Models\Product::whereIn('id', $productIds)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         $clientIds = $all_pending->map(function ($order) {
             return $order->shipment_order?->client_id ?? $order->client_id;
         })->unique()->filter()->values();

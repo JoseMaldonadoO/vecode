@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v58 (Scale: Fix TS Errors in Destare Pagination)
+# Force trigger: v59 (Scale: Fix Pagination Redirect & Dynamic Filters)
 
 on:
   push:

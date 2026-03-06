@@ -110,11 +110,14 @@ export default function Index({
             });
         }
 
-        // Check for view=pending in URL
+        // Check for view=table or view=pending in URL
         const params = new URLSearchParams(window.location.search);
-        if (params.get("view") === "pending" || pending_exit.length > 0) { // Auto switch if items present?
-            // Maybe not auto switch, stick to param
-            if (params.get("view") === "pending") setViewMode("table");
+        const hasRecords = pending_exit.data && pending_exit.data.length > 0;
+
+        if (params.get("view") === "table" || params.get("view") === "pending" || hasRecords) {
+            if (params.get("view") === "table" || params.get("view") === "pending") {
+                setViewMode("table");
+            }
         }
     }, [flash]);
 
@@ -136,7 +139,7 @@ export default function Index({
                 product_id: key === 'product_id' ? value : selectedProduct,
                 warehouse: key === 'warehouse' ? value : selectedWarehouse,
                 presentation: key === 'presentation' ? value : selectedPresentation,
-                search: key === 'search' ? value : searchQuery,
+                search: key === 'search' ? value : (key === 'tab' ? '' : searchQuery), // Clear search on tab switch maybe? Or keep it.
                 tab: key === 'tab' ? value : operationType,
             }, {
                 preserveState: true,
