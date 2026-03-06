@@ -16,6 +16,8 @@ class WeightTicketController extends Controller
 {
     public function index(Request $request)
     {
+        $activeTab = $request->input('tab', 'sale');
+
         // 1. Pending Entry (Authorized but no Ticket)
         $pending_entry = LoadingOrder::with(['client', 'driver', 'vehicle', 'product'])
             ->where('status', 'authorized')
@@ -81,7 +83,6 @@ class WeightTicketController extends Controller
         }
 
         // --- NEW: Server-side Search & Tab Filtering for Pagination ---
-        $activeTab = $request->input('tab', 'sale');
         if ($activeTab === 'sale') {
             $query->whereNotNull('shipment_order_id');
         } else {
@@ -153,7 +154,7 @@ class WeightTicketController extends Controller
         $all_pending = LoadingOrder::whereHas('weight_ticket', function ($q) {
             $q->where('weighing_status', 'in_progress')
                 ->where('is_burreo', false);
-        })->with('client', 'product')->get();
+        })->with(['client', 'product', 'shipment_order'])->get();
 
         // Dynamic Filter Options (Only what is in the table)
         $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
