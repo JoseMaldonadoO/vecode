@@ -73,6 +73,17 @@ interface Order {
     origin_id?: number;
     created_at: string;
     cancelled_at?: string;
+    weight_ticket?: {
+        id: string;
+        weighing_status: string;
+    };
+    loading_orders?: Array<{
+        id: string;
+        weight_ticket?: {
+            id: string;
+            weighing_status: string;
+        }
+    }>;
 }
 
 interface PageProps {
@@ -384,6 +395,21 @@ export default function Index({
                                                                         {({ active }) => (
                                                                             <button
                                                                                 onClick={() => {
+                                                                                    // --- FRONTEND VALIDATION: Check for active tickets ---
+                                                                                    const hasActiveDirectTicket = order.weight_ticket && order.weight_ticket.weighing_status !== 'cancelled';
+                                                                                    const hasActiveLoadingTicket = order.loading_orders?.some(lo => lo.weight_ticket && lo.weight_ticket.weighing_status !== 'cancelled');
+
+                                                                                    if (hasActiveDirectTicket || hasActiveLoadingTicket) {
+                                                                                        Swal.fire({
+                                                                                            title: '¡ACCIÓN BLOQUEADA!',
+                                                                                            html: `Esta Orden tiene un <b>TICKET ACTIVO</b> en Báscula. <br/><br/> Debe <b>CANCELAR EL TICKET</b> en el módulo de Báscula antes de poder cancelar la Orden de Embarque.`,
+                                                                                            icon: 'error',
+                                                                                            confirmButtonColor: '#3085d6',
+                                                                                            confirmButtonText: 'Entendido'
+                                                                                        });
+                                                                                        return;
+                                                                                    }
+
                                                                                     Swal.fire({
                                                                                         title: '¿Cancelar Orden?',
                                                                                         text: "Esta acción cambiará el estatus a cancelado.",
@@ -392,7 +418,7 @@ export default function Index({
                                                                                         confirmButtonColor: '#ef4444',
                                                                                         cancelButtonColor: '#6b7280',
                                                                                         confirmButtonText: 'Sí, cancelar',
-                                                                                        cancelButtonText: 'Cancelar'
+                                                                                        cancelButtonText: 'No, volver'
                                                                                     }).then((result) => {
                                                                                         if (result.isConfirmed) {
                                                                                             router.visit(route('documentation.cancel', order.id), {

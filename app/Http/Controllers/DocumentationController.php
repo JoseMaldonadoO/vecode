@@ -365,7 +365,7 @@ class DocumentationController extends Controller
     public function shipmentOrdersIndex(Request $request)
     {
         $query = ShipmentOrder::query()
-            ->with(['client', 'vessel', 'sales_order', 'driver', 'origin'])
+            ->with(['client', 'vessel', 'sales_order', 'driver', 'origin', 'weight_ticket', 'loadingOrders.weight_ticket'])
             ->whereIn('operation_type', ['scale', 'burreo']);
 
         if ($request->has('search')) {
@@ -678,10 +678,23 @@ class DocumentationController extends Controller
      */
     public function cancelOrder($id)
     {
-        $order = ShipmentOrder::findOrFail($id);
+        $order = ShipmentOrder::with(['weight_ticket', 'loadingOrders.weight_ticket'])->findOrFail($id);
 
         if ($order->status === 'cancelled') {
             return back()->with('error', 'La orden ya está cancelada.');
+        }
+
+        // --- VALIDATION: Check for active tickets ---
+        // 1. Direct ticket
+        if ($order->weight_ticket && $order->weight_ticket->weighing_status !== 'cancelled') {
+            return back()->with('error', 'Fallo de Cancelación: Esta Orden tiene un TICKET ACTIVO en Báscula. Debe CANCELAR PRIMERO EL TICKET en el módulo de Báscula (Historial) antes de cancelar la OE.');
+        }
+
+        // 2. Continuous tickets (via loading orders)
+        foreach ($order->loadingOrders as $lo) {
+            if ($lo->weight_ticket && $lo->weight_ticket->weighing_status !== 'cancelled') {
+                return back()->with('error', 'Fallo de Cancelación: Esta Orden tiene un TICKET ACTIVO (Orden de Carga) en Báscula. Debe CANCELAR PRIMERO EL TICKET en el módulo de Báscula (Historial) antes de cancelar la OE.');
+            }
         }
 
         $order->update([
