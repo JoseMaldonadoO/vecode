@@ -573,38 +573,51 @@ export default function EntryMP({
                                 Transporte (QR)
                             </h4>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-6 bg-amber-50 rounded-2xl border border-amber-100 shadow-inner mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 p-6 bg-amber-50 rounded-2xl border border-amber-100 shadow-inner mb-6">
+                                {/* Top Row: Line and Full Operator */}
                                 <div className="space-y-1">
-                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
+                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest text-center md:text-left">
                                         Línea
                                     </span>
-                                    <span className="font-black text-gray-900 text-lg block leading-tight truncate" title={data.transport_line}>
+                                    <span className="font-black text-gray-900 text-lg block leading-tight text-center md:text-left" title={data.transport_line}>
                                         {data.transport_line || "-"}
                                     </span>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
+                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest text-center md:text-left">
                                         Operador
                                     </span>
-                                    <span className="font-black text-gray-900 text-lg block leading-tight truncate" title={data.driver}>
+                                    <span className="font-black text-gray-900 text-lg block leading-tight text-center md:text-left break-words" title={data.driver}>
                                         {data.driver || "-"}
                                     </span>
                                 </div>
-                                <div className="space-y-1">
-                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
-                                        Placa
-                                    </span>
-                                    <span className="font-mono font-black text-gray-900 text-xl block leading-tight">
-                                        {data.vehicle_plate || "-"}
-                                    </span>
-                                </div>
-                                <div className="space-y-1">
-                                    <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest">
-                                        Remolque
-                                    </span>
-                                    <span className="font-mono font-black text-gray-900 text-xl block leading-tight">
-                                        {data.trailer_plate || "-"}
-                                    </span>
+
+                                {/* Bottom Row: Plates and Economic */}
+                                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 border-t border-amber-200/50">
+                                    <div className="space-y-1">
+                                        <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest text-center md:text-left">
+                                            P. TRACTO
+                                        </span>
+                                        <span className="font-mono font-black text-gray-900 text-xl block leading-tight text-center md:text-left">
+                                            {data.vehicle_plate || "-"}
+                                        </span>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest text-center md:text-left">
+                                            P. REMOLQUE
+                                        </span>
+                                        <span className="font-mono font-black text-gray-900 text-xl block leading-tight text-center md:text-left">
+                                            {data.trailer_plate || "-"}
+                                        </span>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <span className="block text-[10px] text-amber-600 uppercase font-black tracking-widest text-center md:text-left">
+                                            No. Económico
+                                        </span>
+                                        <span className="font-mono font-black text-gray-900 text-xl block leading-tight text-center md:text-left">
+                                            {data.economic_number || "-"}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

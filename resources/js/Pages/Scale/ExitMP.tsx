@@ -303,20 +303,20 @@ export default function ExitMP({
                                     {order.transport_line}
                                 </h1>
                                 <div className="flex flex-wrap gap-3 mt-2">
+                                    <span className="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-900 rounded-xl text-sm font-black border border-indigo-200 shadow-sm transition-all hover:bg-indigo-100">
+                                        <span className="text-[10px] text-indigo-500 mr-2 uppercase tracking-widest font-black">Chofer</span> {order.driver}
+                                    </span>
                                     <span className="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-xl text-sm font-black border border-gray-200 shadow-sm transition-all hover:border-indigo-300">
-                                        <span className="text-[10px] text-gray-400 mr-2 uppercase tracking-widest font-black">Placa</span> {order.vehicle_plate}
+                                        <span className="text-[10px] text-gray-400 mr-2 uppercase tracking-widest font-black">P. TRACTO</span> {order.vehicle_plate}
                                     </span>
                                     <span className="inline-flex items-center px-4 py-2 bg-amber-50 text-amber-900 rounded-xl text-sm font-black border border-amber-200 shadow-sm transition-all hover:bg-amber-100">
-                                        <span className="text-[10px] text-amber-500 mr-2 uppercase tracking-widest font-black">Remolque</span> {order.trailer_plate || 'N/A'}
+                                        <span className="text-[10px] text-amber-500 mr-2 uppercase tracking-widest font-black">P. REMOLQUE</span> {order.trailer_plate || 'N/A'}
                                     </span>
                                     {order.economic_number && order.economic_number !== 'N/A' && (
                                         <span className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-900 rounded-xl text-sm font-black border border-blue-200 shadow-sm transition-all hover:bg-blue-100">
                                             <span className="text-[10px] text-blue-500 mr-2 uppercase tracking-widest font-black">Econo</span> {order.economic_number}
                                         </span>
                                     )}
-                                    <span className="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-900 rounded-xl text-sm font-black border border-indigo-200 shadow-sm transition-all hover:bg-indigo-100">
-                                        <span className="text-[10px] text-indigo-500 mr-2 uppercase tracking-widest font-black">Chofer</span> {order.driver}
-                                    </span>
                                 </div>
                             </div>
                         </div>
