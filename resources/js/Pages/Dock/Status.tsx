@@ -493,23 +493,6 @@ export default function Status({
                     <ArrivalsTable arrivals={arrivals} />
                 </div>
 
-                {/* Weather / Alert Banner (Optional Unicorn Touch) */}
-                <div className="rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 p-4 flex items-start gap-3">
-                    <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
-                        <Wind className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-amber-800">
-                            Condiciones Operativas
-                        </h4>
-                        <p className="text-sm text-amber-700 mt-1">
-                            Salida del buque <strong>Ignacio Allende</strong>{" "}
-                            sujeta a condiciones del tiempo. Muelle WHISKY
-                            programado para descarga intensiva de UREA y DAP en
-                            próximas semanas.
-                        </p>
-                    </div>
-                </div>
             </div>
 
             <style>{`
