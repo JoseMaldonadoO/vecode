@@ -65,13 +65,18 @@ const Timer = ({ entryAt }: { entryAt: string }) => {
 
 export default function Index({
     auth,
-    pending_exit = [],
+    pending_exit,
     flash,
     clients = [],
     products = [],
     warehouses = [],
-    filters = { client_id: '', product_id: '', warehouse: '', presentation: '' }
+    filters = { client_id: '', product_id: '', warehouse: '', presentation: '', search: '', tab: 'sale' }
 }: {
+    auth: any;
+    pending_exit: any;
+    flash?: any;
+    clients?: any[];
+    products?: any[];
     warehouses?: string[];
     filters?: { client_id: string, product_id: string, warehouse: string, presentation: string, search: string, tab: string };
 }) {
@@ -199,7 +204,7 @@ export default function Index({
                 {viewMode === "menu" ? (
                     /* Menu Grid */
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {buttons.map((btn, index) => {
+                        {buttons.map((btn: any, index: number) => {
                             const isLink = btn.href && btn.href !== "#";
 
                             const content = (
@@ -338,7 +343,7 @@ export default function Index({
                                     className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px] font-bold text-gray-700"
                                 >
                                     <option value="">Producto</option>
-                                    {products?.map((p) => (
+                                    {products?.map((p: any) => (
                                         <option key={p.id} value={p.id}>{p.name}</option>
                                     ))}
                                 </select>
@@ -350,7 +355,7 @@ export default function Index({
                                     className="rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px] font-bold text-gray-700"
                                 >
                                     <option value="">Cliente</option>
-                                    {clients?.map((c) => (
+                                    {clients?.map((c: any) => (
                                         <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
                                     ))}
                                 </select>
@@ -572,7 +577,7 @@ export default function Index({
                         Seleccionar Báscula de Operación
                     </h2>
                     <div className="grid grid-cols-3 gap-4 mb-6">
-                        {[1, 2, 3].map((id) => (
+                        {[1, 2, 3].map((id: number) => (
                             <button
                                 key={id}
                                 onClick={() => handleScaleSelect(id)}
