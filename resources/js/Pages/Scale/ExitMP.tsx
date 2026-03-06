@@ -51,6 +51,7 @@ export default function ExitMP({
         lot_id: "",
         packaging_type: "N/A",
         warehouse: order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : "",
+        observations: (order?.type === 'sale' ? (order?.observations || "") : ""),
     });
 
     useEffect(() => {
@@ -489,6 +490,16 @@ export default function ExitMP({
                                 Detalles de la Carga
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* OE Folio — solo para Tipo Venta (PRIMERO) */}
+                                {order.type === 'sale' && order.oe_folio && (
+                                    <div className="md:col-span-2">
+                                        <InputLabel value="No. Orden de Embarque (OE)" className="text-green-700 font-black" />
+                                        <div className="p-3 bg-green-50 rounded-lg border border-green-300 font-black text-green-900 text-lg tracking-wide">
+                                            {order.oe_folio}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div>
                                     <InputLabel value="Cliente / Proveedor" />
                                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 font-bold text-gray-700">
@@ -519,6 +530,25 @@ export default function ExitMP({
                                         {order.consignee || "N/A"}
                                     </div>
                                 </div>
+
+                                {/* Observaciones — solo para Tipo Venta */}
+                                {order.type === 'sale' && (
+                                    <div className="md:col-span-2">
+                                        <InputLabel value="Observaciones" className="text-amber-700 font-black" />
+                                        <textarea
+                                            rows={3}
+                                            value={data.observations}
+                                            onChange={e => setData("observations", e.target.value)}
+                                            placeholder="Agregar observaciones para el ticket..."
+                                            className="w-full border-amber-300 rounded-xl shadow-sm focus:border-amber-500 focus:ring-amber-500 text-gray-700 resize-none"
+                                        />
+                                        {order.observations && (
+                                            <p className="text-xs text-amber-600 mt-1 font-semibold">
+                                                ⚠ Pre-cargado desde módulo de Salida
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* New Dropdowns */}
                                 <div className="space-y-4 pt-4 border-t border-gray-100 md:col-span-2">

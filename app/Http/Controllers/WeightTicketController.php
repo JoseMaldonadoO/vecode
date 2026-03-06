@@ -637,6 +637,8 @@ class WeightTicketController extends Controller
                 'type' => $order->shipment_order_id ? 'sale' : 'vessel',
                 'presentation' => $order->shipment_order?->presentation ?? 'GRANEL', // Crucial for dynamic validation
                 'programmed_tons' => $order->shipment_order->programmed_tons ?? 0,
+                'oe_folio' => $order->shipment_order?->folio ?? null,
+                'observations' => $order->observations ?? '',
             ];
         }
 
@@ -995,6 +997,7 @@ class WeightTicketController extends Controller
             'lot_id' => 'nullable|exists:lots,id',
             'packaging_type' => 'nullable|string',
             'warehouse' => 'nullable|string',
+            'observations' => 'nullable|string|max:1000',
         ]);
 
         try {
@@ -1046,6 +1049,7 @@ class WeightTicketController extends Controller
                     'status' => 'completed',
                     'destare_status' => 'completed',
                     'warehouse' => $finalWarehouse,
+                    'observations' => $validated['observations'] ?? $order->observations,
                 ]);
 
                 // Sync Sales Order if linked
@@ -1101,7 +1105,7 @@ class WeightTicketController extends Controller
         }
 
         // Observations Logic
-        $observations = $order->observation ?? '';
+        $observations = $order->observations ?? '';
         if (!$isSale && $order->vessel) {
             $observations = 'DESCARGA DE BARCO ' . $order->vessel->name . ' ' . $observations;
         }
