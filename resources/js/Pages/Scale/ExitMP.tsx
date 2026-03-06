@@ -559,21 +559,19 @@ export default function ExitMP({
                                             </select>
                                         </div>
 
-                                        {order.type === 'sale' && (
-                                            <div className="space-y-1">
-                                                <InputLabel value="ENVASE" className="text-indigo-600 font-black" />
-                                                <select
-                                                    value={data.packaging_type}
-                                                    onChange={e => setData("packaging_type", e.target.value)}
-                                                    disabled={order?.presentation === 'GRANEL'}
-                                                    className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${order?.presentation === 'GRANEL' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
-                                                >
-                                                    <option value="N/A">N/A</option>
-                                                    <option value="PRO-AGRO">PRO-AGRO</option>
-                                                    <option value="FERTINAL">FERTINAL</option>
-                                                </select>
-                                            </div>
-                                        )}
+                                        <div className="space-y-1">
+                                            <InputLabel value="ENVASE" className="text-indigo-600 font-black" />
+                                            <select
+                                                value={data.packaging_type}
+                                                onChange={e => setData("packaging_type", e.target.value)}
+                                                disabled={order?.presentation === 'GRANEL'}
+                                                className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${order?.presentation === 'GRANEL' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
+                                            >
+                                                <option value="N/A">N/A</option>
+                                                <option value="PRO-AGRO">PRO-AGRO</option>
+                                                <option value="FERTINAL">FERTINAL</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -1,5 +1,5 @@
 name: Deploy to Production (Hostinger)
-# Force trigger: v65 (Scale: Dynamic Envase validation based on Presentation)
+# Force trigger: v66 (Scale: Corrected Envase validation with Presentation)
 
 on:
   push:

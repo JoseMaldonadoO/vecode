@@ -620,6 +620,7 @@ class WeightTicketController extends Controller
                 'consignee' => $order->consignee ?? ($order->consigned_to ?? ''),
                 'programmed_weight' => $progWeight,
                 'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+                'presentation' => $order->shipment_order?->presentation ?? 'GRANEL', // Crucial for dynamic validation
                 'programmed_tons' => $order->shipment_order->programmed_tons ?? 0,
             ];
         }
@@ -707,6 +708,7 @@ class WeightTicketController extends Controller
             'destination' => $order->destination,
             'bill_of_lading' => $order->carta_porte ?? ($order->bill_of_lading ?? ''),
             'withdrawal_letter' => $order->sale_order_folio ?? '',
+            'presentation' => $order->presentation ?? 'GRANEL', // Crucial for dynamic validation
             'programmed_weight' => $programmedWeight,
         ]);
     }
