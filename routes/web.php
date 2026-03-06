@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/dock/vessel/{id}', [\App\Http\Controllers\DockController::class, 'updateVessel'])->name('dock.vessel.update');
     Route::post('/dock/vessel/{id}/mark-arrival', [\App\Http\Controllers\DockController::class, 'markArrival'])->name('dock.vessel.mark-arrival');
     Route::post('/dock/vessel/{id}/mark-departure', [\App\Http\Controllers\DockController::class, 'markDeparture'])->name('dock.vessel.mark-departure');
+    Route::get('/dock/vessel/{vessel}/export', [\App\Http\Controllers\DockController::class, 'exportVessel'])->name('dock.vessel.export');
     Route::delete('/dock/vessel/{id}/purge', [\App\Http\Controllers\DockController::class, 'purge'])->name('dock.vessel.purge');
     Route::delete('/dock/vessel/{id}', [\App\Http\Controllers\DockController::class, 'destroy'])->name('dock.vessel.destroy');
 
