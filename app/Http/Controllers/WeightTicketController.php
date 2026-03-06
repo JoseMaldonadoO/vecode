@@ -12,6 +12,11 @@ use App\Models\VesselOperator; // Legacy fallback?
 use App\Models\ShipmentOrder;
 use App\Helpers\OperationalTimeHelper;
 
+
+
+
+
+
 class WeightTicketController extends Controller
 {
     public function index(Request $request)
@@ -218,7 +223,7 @@ class WeightTicketController extends Controller
 
     public function tickets(Request $request)
     {
-        $filters = $request->only(['search', 'date', 'tab', 'status']);
+        $filters = $request->only(['search', 'date', 'tab', 'status', 'scale_id']);
         $activeTab = $request->input('tab', 'sale');
         $status = $request->input('status', 'active'); // Default to active (pending + completed)
 
@@ -282,6 +287,10 @@ class WeightTicketController extends Controller
                         ->whereDoesntHave('loadingOrder');
                 });
             });
+        }
+
+        if ($request->filled('scale_id')) {
+            $query->where('scale_id', $request->scale_id);
         }
 
         $query->orderBy('created_at', 'desc');

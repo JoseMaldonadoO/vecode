@@ -20,6 +20,82 @@ import {
 import { useState, useCallback } from "react";
 import { debounce, pickBy } from "lodash";
 import Swal from "sweetalert2";
+import { Settings, CheckCircle2 } from "lucide-react";
+
+const ScaleModal = ({ 
+    onSelect, 
+    currentScale, 
+    onClose 
+}: { 
+    onSelect: (id: number) => void; 
+    currentScale: number; 
+    onClose: () => void 
+}) => {
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+                <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 text-white relative">
+                    <button 
+                        onClick={onClose}
+                        className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md">
+                            <Scale className="w-8 h-8" />
+                        </div>
+                        <div>
+                            <h3 className="text-2xl font-black">Seleccionar Báscula</h3>
+                            <p className="text-indigo-100 text-sm font-medium">Báscula de trabajo activa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-8">
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((id) => (
+                            <button
+                                key={id}
+                                onClick={() => onSelect(id)}
+                                className={`w-full group relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-200 ${
+                                    currentScale === id
+                                        ? "border-indigo-600 bg-indigo-50"
+                                        : "border-gray-100 hover:border-indigo-200 hover:bg-gray-50"
+                                }`}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-4 rounded-xl transition-colors ${
+                                        currentScale === id 
+                                            ? "bg-indigo-600 text-white" 
+                                            : "bg-gray-100 text-gray-400 group-hover:bg-indigo-100 group-hover:text-indigo-600"
+                                    }`}>
+                                        <span className="text-xl font-black">{id}</span>
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="font-black text-gray-900 text-lg">BASCULA 0{id}</div>
+                                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Terminal Portuaria</div>
+                                    </div>
+                                </div>
+                                {currentScale === id && (
+                                    <div className="bg-indigo-600 text-white p-2 rounded-full shadow-lg shadow-indigo-200">
+                                        <CheckCircle2 className="w-5 h-5" />
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100">
+                        <p className="text-xs text-center text-gray-400 font-bold uppercase tracking-widest">
+                            Sistema de Control de Pesaje v2.0
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Index({
     auth,
@@ -34,13 +110,38 @@ export default function Index({
     const [search, setSearch] = useState(filters.search || "");
     const [date, setDate] = useState(filters.date || "");
     const [status, setStatus] = useState(filters.status || "active");
+    const [scaleId, setScaleId] = useState<number>(filters.scale_id ? parseInt(filters.scale_id) : 1);
+    const [showScaleModal, setShowScaleModal] = useState(false);
+
+    // Initial scale sync
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const saved = localStorage.getItem("selected_scale_id");
+        
+        let currentScaleId = scaleId;
+        if (saved) {
+            currentScaleId = parseInt(saved);
+            setScaleId(currentScaleId);
+        }
+
+        // If scale_id is not in URL, and we have a saved one (or default), refresh to sync with server
+        if (!params.has('scale_id') && currentScaleId) {
+            router.get(route("scale.tickets.index"), { 
+                ...Object.fromEntries(params.entries()),
+                scale_id: currentScaleId 
+            }, { 
+                preserveState: true, 
+                replace: true 
+            });
+        }
+    }, []);
 
     // Debounced Search
     const onSearchChange = useCallback(
-        debounce((query: string, dateVal: string, statusVal: string) => {
+        debounce((query: string, dateVal: string, statusVal: string, sid: number) => {
             router.get(
                 route("scale.tickets.index"),
-                pickBy({ search: query, date: dateVal, status: statusVal, tab: filters.tab }),
+                pickBy({ search: query, date: dateVal, status: statusVal, tab: filters.tab, scale_id: sid }),
                 { preserveState: true, preserveScroll: true },
             );
         }, 300),
@@ -49,25 +150,32 @@ export default function Index({
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
-        onSearchChange(e.target.value, date, status);
+        onSearchChange(e.target.value, date, status, scaleId);
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDate(e.target.value);
-        onSearchChange(search, e.target.value, status);
+        onSearchChange(search, e.target.value, status, scaleId);
     };
 
     const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newStatus = e.target.value;
         setStatus(newStatus);
-        onSearchChange(search, date, newStatus);
+        onSearchChange(search, date, newStatus, scaleId);
+    };
+
+    const handleScaleSelect = (id: number) => {
+        setScaleId(id);
+        localStorage.setItem("selected_scale_id", id.toString());
+        setShowScaleModal(false);
+        router.get(route("scale.tickets.index"), { ...filters, scale_id: id }, { preserveState: true, replace: true });
     };
 
     const clearFilters = () => {
         setSearch("");
         setDate("");
         setStatus("active");
-        router.get(route("scale.tickets.index"), { tab: filters.tab });
+        router.get(route("scale.tickets.index"), { tab: filters.tab, scale_id: scaleId });
     };
 
     const confirmDelete = (id: string, folio: string) => {
@@ -189,10 +297,27 @@ export default function Index({
                                 Volver al Panel de Báscula
                             </Link>
                         </div>
-                        <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
-                            <Scale className="mr-3 h-8 w-8 text-indigo-600" />
-                            Historial de Tickets
-                        </h2>
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
+                                <Scale className="mr-3 h-8 w-8 text-indigo-600" />
+                                Historial de Tickets
+                            </h2>
+
+                            <button
+                                onClick={() => setShowScaleModal(true)}
+                                className="flex items-center gap-3 px-6 py-3 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-300 transition-all duration-200 group"
+                            >
+                                <div className="p-2 bg-indigo-50 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <Settings className="w-5 h-5" />
+                                </div>
+                                <div className="text-left">
+                                    <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Cambiando Báscula</div>
+                                    <div className="text-sm font-black text-gray-700 leading-none">
+                                        Báscula Activa: <span className="text-indigo-600">#{scaleId}</span>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -574,6 +699,14 @@ export default function Index({
                     )}
                 </div>
             </div>
+
+            {showScaleModal && (
+                <ScaleModal 
+                    onSelect={handleScaleSelect} 
+                    currentScale={scaleId} 
+                    onClose={() => setShowScaleModal(false)} 
+                />
+            )}
         </DashboardLayout>
     );
 }
