@@ -18,7 +18,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
     // Remove baseUrl for root deployment
     const allLinks = [
         { name: 'Inicio', href: `/dashboard`, icon: LayoutDashboard, show: true, module: 'dashboard', color: 'text-indigo-400' },
-        { name: 'Comercialización', href: `/sales`, icon: ClipboardList, permission: 'view commercialization', module: 'sales', color: 'text-blue-400' },
+        { name: 'Comercialización', href: `/sales`, icon: ClipboardList, permissions: ['view commercialization', 'view sales orders'], module: 'sales', color: 'text-blue-400' },
         { name: 'Tráfico', href: `/traffic`, icon: Truck, permission: 'view traffic', role: 'Admin', module: 'traffic', color: 'text-orange-400' },
         { name: 'Vigilancia', icon: Search, href: `/surveillance`, permission: 'view surveillance', module: 'surveillance', color: 'text-red-400' },
         { name: 'Documentación', icon: FileText, href: `/documentation`, permission: 'view documentation', module: 'documentation', color: 'text-amber-400' },
@@ -34,6 +34,7 @@ export function Sidebar({ className, isMobile = false }: SidebarProps) {
         if (link.show) return true;
         if (link.role && roles.includes(link.role)) return true;
         if (link.permission && permissions.includes(link.permission)) return true;
+        if (link.permissions && link.permissions.some(p => permissions.includes(p))) return true;
         return false;
     });
 

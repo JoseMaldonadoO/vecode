@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
-import { FileText, Anchor } from "lucide-react";
+import { FileText, Anchor, ClipboardList } from "lucide-react";
 
 export default function Index({ auth }: { auth: any }) {
     const menuItems = [
@@ -27,6 +27,14 @@ export default function Index({ auth }: { auth: any }) {
             description: "Registro de operadores de salida, lista de operadores y qr de operadores.",
             color: "bg-indigo-50 text-indigo-600",
             hover: "hover:border-indigo-500",
+        },
+        {
+            name: "Órdenes de Venta",
+            icon: ClipboardList,
+            href: route("sales.orders.index"),
+            description: "Consulta de órdenes de venta (Solo Lectura).",
+            color: "bg-blue-50 text-blue-600",
+            hover: "hover:border-blue-500",
         },
     ];
 
