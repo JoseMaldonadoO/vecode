@@ -87,12 +87,21 @@ const VesselCard = ({
                         {isExternal ? "Terminal Marítima" : `Muelle ${side}`}
                     </h3>
                     {isOccupied && (
-                        <Badge
-                            variant="outline"
-                            className={`${isExternal ? 'border-cyan-500/30 text-cyan-200' : 'border-blue-500/30 text-blue-200'} bg-white/5 backdrop-blur-sm px-4 py-1 font-black text-[10px] tracking-widest uppercase rounded-full`}
-                        >
-                            EN OPERACIÓN
-                        </Badge>
+                        <div className="flex gap-2 items-center">
+                            <a
+                                href={route('dock.vessel.export', vessel.id as any)}
+                                className={`flex items-center gap-2 ${isExternal ? 'border-cyan-500/30 text-cyan-200' : 'border-blue-500/30 text-blue-200'} bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm px-4 py-1 font-black text-[10px] tracking-widest uppercase rounded-full border shadow-lg`}
+                            >
+                                <FileText className="w-3 h-3" />
+                                Exportar Excel
+                            </a>
+                            <Badge
+                                variant="outline"
+                                className={`${isExternal ? 'border-cyan-500/30 text-cyan-200' : 'border-blue-500/30 text-blue-200'} bg-white/5 backdrop-blur-sm px-4 py-1 font-black text-[10px] tracking-widest uppercase rounded-full`}
+                            >
+                                EN OPERACIÓN
+                            </Badge>
+                        </div>
                     )}
                 </div>
 

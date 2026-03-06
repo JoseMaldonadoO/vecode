@@ -5,10 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\ShipmentOrder;
 use App\Models\LoadingOrder;
 use App\Models\Vessel;
-use App\Models\VesselOperator; // Import new model
+use App\Models\VesselOperator;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\OperationalTimeHelper;
+use App\Exports\VesselStatusExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
 
 class DockController extends Controller
 {
@@ -664,5 +668,44 @@ class DockController extends Controller
             \Illuminate\Support\Facades\Log::error('Vessel Purge Error: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Error al purgar barco: ' . $e->getMessage()]);
         }
+    }
+
+    public function exportVessel(Vessel $vessel)
+    {
+        // 1. Base Query for the specific vessel (Completed Scale or any Burreo)
+        $baseQuery = LoadingOrder::query()
+            ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            ->where('loading_orders.vessel_id', $vessel->id)
+            ->where(function ($q) {
+                $q->where('loading_orders.status', 'completed')
+                    ->orWhere('loading_orders.operation_type', 'burreo');
+            });
+
+        // 2. Calculate Stats
+        $stats = [
+            'total_weight' => (clone $baseQuery)->sum('weight_tickets.net_weight'),
+            'total_trips' => (clone $baseQuery)->count(),
+            'stay_days' => $vessel->berthal_datetime ? Carbon::parse($vessel->berthal_datetime)->diffInDays(Carbon::now()) : 0,
+        ];
+
+        // 3. Daily Tonnage for Chart
+        $dailyTonnage = (clone $baseQuery)
+            ->select([
+                DB::raw(OperationalTimeHelper::getSqlDateOffset('weight_tickets.weigh_out_at') . ' as date'),
+                DB::raw('SUM(weight_tickets.net_weight) as total'),
+                DB::raw('SUM(CASE WHEN loading_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo'),
+                DB::raw('SUM(CASE WHEN loading_orders.operation_type != "burreo" OR loading_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale')
+            ])
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $charts = [
+            'daily_tonnage' => $dailyTonnage
+        ];
+
+        $fileName = 'Reporte_' . str_replace(' ', '', $vessel->name) . '_' . Carbon::now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new VesselStatusExport($vessel, $stats, $charts), $fileName);
     }
 }
