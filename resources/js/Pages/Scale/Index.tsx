@@ -515,12 +515,7 @@ export default function Index({
                                                     </td>
                                                     {/* Tracto */}
                                                     <td className="px-6 py-4">
-                                                        <div className="flex flex-col gap-1">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-[11px] font-black bg-gray-100 text-gray-500 px-2 py-0.5 rounded leading-none">TRACTO</span>
-                                                                <span className="text-xl font-black text-indigo-800 font-mono tracking-wider">{order.vehicle_plate}</span>
-                                                            </div>
-                                                        </div>
+                                                        <span className="text-xl font-black text-indigo-800 font-mono tracking-wider">{order.vehicle_plate}</span>
                                                     </td>
                                                     {/* Línea de Transporte */}
                                                     <td className="px-6 py-4 text-gray-700 font-medium text-sm">
