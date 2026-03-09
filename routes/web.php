@@ -168,6 +168,7 @@ Route::middleware('auth')->group(function () {
     // APT Module
     Route::get('/apt/qr', [\App\Http\Controllers\AptController::class, 'qrPrint'])->name('apt.qr');
     Route::get('/apt/status', [\App\Http\Controllers\AptController::class, 'status'])->name('apt.status'); // Dashboard Status
+    Route::get('/apt/status-unidades', [\App\Http\Controllers\AptController::class, 'unitStatus'])->name('apt.unit-status');
     Route::get('/apt/scanner', [\App\Http\Controllers\AptController::class, 'scanner'])->name('apt.scanner');
     Route::post('/apt/scanner', [\App\Http\Controllers\AptController::class, 'storeScan'])->name('apt.scanner.store');
     Route::put('/apt/scanner/{id}', [\App\Http\Controllers\AptController::class, 'updateScan'])->name('apt.scanner.update');

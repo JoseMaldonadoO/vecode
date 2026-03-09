@@ -6,9 +6,9 @@ import {
     Search,
     Ship,
     Anchor,
-    Scan,
     LayoutDashboard,
     Database,
+    Truck,
 } from "lucide-react";
 
 export default function Index({ auth }: { auth: any }) {
@@ -37,6 +37,14 @@ export default function Index({ auth }: { auth: any }) {
             color: "bg-teal-50 text-teal-600",
             hover: "hover:border-teal-500",
         },
+        {
+            name: "Status Unidades",
+            icon: Truck,
+            href: route("apt.unit-status"),
+            description: "Unidades en planta esperando destare.",
+            color: "bg-blue-50 text-blue-600",
+            hover: "hover:border-blue-500",
+        },
     ];
 
     return (
@@ -45,7 +53,7 @@ export default function Index({ auth }: { auth: any }) {
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {menuItems.map((item, index) => (
                             <Link
                                 key={index}

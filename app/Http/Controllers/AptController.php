@@ -12,8 +12,8 @@ use App\Models\AptScan;
 use App\Models\WeightTicket;
 use Inertia\Inertia;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
 use App\Helpers\OperationalTimeHelper;
+use Illuminate\Support\Facades\DB;
 
 class AptController extends Controller
 {
@@ -79,6 +79,67 @@ class AptController extends Controller
             });
 
         return response()->json($operators);
+    }
+
+    public function unitStatus(Request $request)
+    {
+        $activeTab = $request->input('tab', 'sale');
+
+        $query = LoadingOrder::with([
+            'client',
+            'driver',
+            'product',
+            'weight_ticket',
+            'vessel'
+        ])
+        ->whereHas('weight_ticket', function ($q) {
+            $q->where('weighing_status', 'in_progress')
+                ->where('is_burreo', false);
+        });
+
+        if ($activeTab === 'sale') {
+            $query->whereNotNull('shipment_order_id');
+        } else {
+            $query->whereNull('shipment_order_id');
+        }
+
+        if ($request->filled('client_id')) {
+            $clientId = $request->client_id;
+            if ($activeTab === 'sale') {
+                $query->whereHas('shipment_order', function ($sub) use ($clientId) {
+                    $sub->where('client_id', $clientId);
+                });
+            } else {
+                $query->where(function ($q) use ($clientId) {
+                    $q->where('client_id', $clientId)
+                        ->orWhereHas('vessel', function ($v) use ($clientId) {
+                            $v->where('client_id', $clientId);
+                        });
+                });
+            }
+        }
+
+        if ($request->filled('product_id')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('product_id', $request->product_id)
+                    ->orWhereHas('shipment_order.items', function ($sub) use ($request) {
+                        $sub->where('product_id', $request->product_id);
+                    });
+            });
+        }
+
+        if ($request->filled('warehouse')) {
+            $query->where('warehouse', $request->warehouse);
+        }
+
+        $pendingUnits = $query->orderBy('entry_at', 'asc')->paginate(15)->withQueryString();
+
+        return Inertia::render('APT/UnitStatus', [
+            'pending_exit' => $pendingUnits,
+            'filters' => $request->all(['tab', 'client_id', 'product_id', 'warehouse']),
+            'clients' => \App\Models\Client::orderBy('name')->get(['id', 'name']),
+            'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     // Status Dashboard
