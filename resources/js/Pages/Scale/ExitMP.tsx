@@ -611,6 +611,7 @@ export default function ExitMP({
                                             <select
                                                 value={data.documenter_id}
                                                 onChange={e => setData("documenter_id", e.target.value)}
+                                                required
                                                 className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold"
                                             >
                                                 <option value="">Seleccionar Documentador...</option>

@@ -423,7 +423,7 @@ class WeightTicketController extends Controller
         }
 
         $activeLots = \App\Models\Lot::where('status', 'open')->orderBy('created_at', 'desc')->get(['id', 'folio']);
-        $documenters = \App\Models\User::role('Documentador')->where('status', 'active')->orderBy('name')->get(['id', 'name']);
+        $documenters = \App\Models\User::role('Documentador')->where('is_blocked', false)->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Scale/Tickets/Edit', [
             'ticket' => $order->weight_ticket,
@@ -588,7 +588,7 @@ class WeightTicketController extends Controller
         $orderData = null;
         $activeLots = \App\Models\Lot::where('status', 'open')->orderBy('created_at', 'desc')->get(['id', 'folio']);
 
-        $documenters = \App\Models\User::role('Documentador')->where('status', 'active')->orderBy('name')->get(['id', 'name']);
+        $documenters = \App\Models\User::role('Documentador')->where('is_blocked', false)->orderBy('name')->get(['id', 'name']);
 
         if ($id) {
             $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order'])
@@ -1009,7 +1009,7 @@ class WeightTicketController extends Controller
             'packaging_type' => 'nullable|string',
             'warehouse' => 'nullable|string',
             'observations' => 'nullable|string|max:1000',
-            'documenter_id' => 'nullable|exists:users,id',
+            'documenter_id' => 'required|exists:users,id',
         ]);
 
         try {

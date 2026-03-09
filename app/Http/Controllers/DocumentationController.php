@@ -43,7 +43,7 @@ class DocumentationController extends Controller
             'sales_orders' => SalesOrder::with(['client', 'product'])
                 ->whereIn('status', ['created', 'open'])
                 ->get(),
-            'scale_operators' => User::role('Bascula')->get()->map(function ($user) {
+            'scale_operators' => User::role('Bascula')->where('is_blocked', false)->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -580,7 +580,7 @@ class DocumentationController extends Controller
                 ->orWhere('id', $order->sales_order_id)
                 ->with(['client', 'product'])
                 ->get(),
-            'scale_operators' => User::role('Bascula')->get()->map(function ($user) {
+            'scale_operators' => User::role('Bascula')->where('is_blocked', false)->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
