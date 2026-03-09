@@ -16,6 +16,7 @@ import {
     Search,
     X,
     CheckCircle2,
+    FileText,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Pagination from "@/Components/Pagination";
@@ -277,14 +278,20 @@ export default function Index({
             subtitle: "Pesaje de Tara para Operadores de Carga de Salida"
         },
         {
-            name: auth.user?.roles?.includes("Admin")
-                ? "Edita / Reimprime Ticket"
-                : "Reimprime Ticket",
+            name: "Reimprime Ticket",
             icon: Printer,
             color: "bg-purple-50 text-purple-600",
             hover: "hover:border-purple-500",
             href: route("scale.tickets.index"),
             subtitle: "Gestión de Tickets"
+        },
+        {
+            name: "Órdenes de Embarque",
+            icon: FileText,
+            color: "bg-orange-50 text-orange-600",
+            hover: "hover:border-orange-500",
+            href: route("documentation.orders.index"),
+            subtitle: "Visualización y Reimpresión de OE"
         },
     ];
 

@@ -177,11 +177,11 @@ export default function Index({
                     <div className="flex-1 min-w-0">
                         <div className="mb-4">
                             <Link
-                                href={route("documentation.index")}
+                                href={auth.user.roles?.includes('Bascula') && !auth.user.roles?.includes('Admin') ? route('scale.index') : route("documentation.index")}
                                 className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors"
                             >
                                 <ArrowLeft className="w-4 h-4 mr-1" />
-                                Volver a Documentación
+                                {auth.user.roles?.includes('Bascula') && !auth.user.roles?.includes('Admin') ? "Volver a Báscula" : "Volver a Documentación"}
                             </Link>
                         </div>
                         <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
@@ -190,79 +190,83 @@ export default function Index({
                         </h2>
                     </div>
                     <div className="mt-4 flex flex-col sm:flex-row gap-2 md:mt-0 md:ml-4">
-                        <button
-                            onClick={() => {
-                                Swal.fire({
-                                    title: 'Exportar Excel (Gral)',
-                                    html: `
-                                        <div style="text-align: left;">
-                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px;">Fecha Inicio:</label>
-                                            <input type="date" id="export-start-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
-                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">Fecha Fin:</label>
-                                            <input type="date" id="export-end-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
-                                        </div>
-                                    `,
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Exportar',
-                                    cancelButtonText: 'Cancelar',
-                                    preConfirm: () => {
-                                        return {
-                                            start: (document.getElementById('export-start-date') as HTMLInputElement).value,
-                                            end: (document.getElementById('export-end-date') as HTMLInputElement).value,
-                                        };
-                                    }
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        const { start, end } = result.value;
-                                        window.location.href = route("documentation.orders.export-standard", pickBy({ search, status, start_date: start, end_date: end }));
-                                    }
-                                });
-                            }}
-                            className="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-bold text-green-600 bg-white hover:bg-green-50 transition-all"
-                        >
-                            <FileText className="w-5 h-5 mr-2" />
-                            Excel (Gral)
-                        </button>
-                        <button
-                            onClick={() => {
-                                Swal.fire({
-                                    title: 'Exportar Excel (SADER)',
-                                    html: `
-                                        <div style="text-align: left;">
-                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px;">Fecha Inicio:</label>
-                                            <input type="date" id="export-start-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
-                                            <label style="display: block; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">Fecha Fin:</label>
-                                            <input type="date" id="export-end-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
-                                        </div>
-                                    `,
-                                    showCancelButton: true,
-                                    confirmButtonText: 'Exportar',
-                                    cancelButtonText: 'Cancelar',
-                                    preConfirm: () => {
-                                        return {
-                                            start: (document.getElementById('export-start-date') as HTMLInputElement).value,
-                                            end: (document.getElementById('export-end-date') as HTMLInputElement).value,
-                                        };
-                                    }
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        const { start, end } = result.value;
-                                        window.location.href = route("documentation.orders.export-sader", pickBy({ search, status, start_date: start, end_date: end }));
-                                    }
-                                });
-                            }}
-                            className="inline-flex items-center px-4 py-2 border border-green-700 rounded-md shadow-sm text-sm font-bold text-white bg-green-700 hover:bg-green-800 transition-all"
-                        >
-                            <FileText className="w-5 h-5 mr-2" />
-                            Excel (SADER)
-                        </button>
-                        <Link
-                            href={route("documentation.create")}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
-                        >
-                            <Plus className="w-5 h-5 mr-2" />
-                            Nueva OE
-                        </Link>
+                        {(!auth.user.roles?.includes('Bascula') || auth.user.roles?.includes('Admin')) && (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        Swal.fire({
+                                            title: 'Exportar Excel (Gral)',
+                                            html: `
+                                                <div style="text-align: left;">
+                                                    <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px;">Fecha Inicio:</label>
+                                                    <input type="date" id="export-start-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                                    <label style="display: block; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">Fecha Fin:</label>
+                                                    <input type="date" id="export-end-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                                </div>
+                                            `,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Exportar',
+                                            cancelButtonText: 'Cancelar',
+                                            preConfirm: () => {
+                                                return {
+                                                    start: (document.getElementById('export-start-date') as HTMLInputElement).value,
+                                                    end: (document.getElementById('export-end-date') as HTMLInputElement).value,
+                                                };
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                const { start, end } = result.value;
+                                                window.location.href = route("documentation.orders.export-standard", pickBy({ search, status, start_date: start, end_date: end }));
+                                            }
+                                        });
+                                    }}
+                                    className="inline-flex items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-bold text-green-600 bg-white hover:bg-green-50 transition-all"
+                                >
+                                    <FileText className="w-5 h-5 mr-2" />
+                                    Excel (Gral)
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        Swal.fire({
+                                            title: 'Exportar Excel (SADER)',
+                                            html: `
+                                                <div style="text-align: left;">
+                                                    <label style="display: block; font-size: 14px; font-weight: bold; margin-bottom: 5px;">Fecha Inicio:</label>
+                                                    <input type="date" id="export-start-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                                    <label style="display: block; font-size: 14px; font-weight: bold; margin-top: 15px; margin-bottom: 5px;">Fecha Fin:</label>
+                                                    <input type="date" id="export-end-date" class="swal2-input" style="margin-top: 0;" value="${new Date().toISOString().split('T')[0]}">
+                                                </div>
+                                            `,
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Exportar',
+                                            cancelButtonText: 'Cancelar',
+                                            preConfirm: () => {
+                                                return {
+                                                    start: (document.getElementById('export-start-date') as HTMLInputElement).value,
+                                                    end: (document.getElementById('export-end-date') as HTMLInputElement).value,
+                                                };
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                const { start, end } = result.value;
+                                                window.location.href = route("documentation.orders.export-sader", pickBy({ search, status, start_date: start, end_date: end }));
+                                            }
+                                        });
+                                    }}
+                                    className="inline-flex items-center px-4 py-2 border border-green-700 rounded-md shadow-sm text-sm font-bold text-white bg-green-700 hover:bg-green-800 transition-all"
+                                >
+                                    <FileText className="w-5 h-5 mr-2" />
+                                    Excel (SADER)
+                                </button>
+                                <Link
+                                    href={route("documentation.create")}
+                                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-md text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all transform hover:-translate-y-0.5"
+                                >
+                                    <Plus className="w-5 h-5 mr-2" />
+                                    Nueva OE
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -371,71 +375,75 @@ export default function Index({
                                                                                 </a>
                                                                             )}
                                                                         </Menu.Item>
-                                                                        <Menu.Item>
-                                                                            {({ active }) => (
-                                                                                <Link
-                                                                                    href={route("documentation.edit", {
-                                                                                        id: order.id,
-                                                                                        ...pickBy(filters),
-                                                                                        page: orders.current_page
-                                                                                    })}
-                                                                                    className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
-                                                                                >
-                                                                                    <Edit className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />
-                                                                                    Editar
-                                                                                </Link>
-                                                                            )}
-                                                                        </Menu.Item>
+                                                                        {(!auth.user.roles?.includes('Bascula') || auth.user.roles?.includes('Admin')) && (
+                                                                            <Menu.Item>
+                                                                                {({ active }) => (
+                                                                                    <Link
+                                                                                        href={route("documentation.edit", {
+                                                                                            id: order.id,
+                                                                                            ...pickBy(filters),
+                                                                                            page: orders.current_page
+                                                                                        })}
+                                                                                        className={`${active ? 'bg-indigo-600 text-white' : 'text-gray-900'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                                    >
+                                                                                        <Edit className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-indigo-500'}`} />
+                                                                                        Editar
+                                                                                    </Link>
+                                                                                )}
+                                                                            </Menu.Item>
+                                                                        )}
                                                                     </>
                                                                 )}
                                                             </div>
                                                             <div className="px-1 py-1">
                                                                 {order.status !== 'cancelled' ? (
-                                                                    <Menu.Item>
-                                                                        {({ active }) => (
-                                                                            <button
-                                                                                onClick={() => {
-                                                                                    // --- FRONTEND VALIDATION: Check for active tickets ---
-                                                                                    const hasActiveDirectTicket = order.weight_ticket && order.weight_ticket.weighing_status !== 'cancelled';
-                                                                                    const hasActiveLoadingTicket = order.loading_orders?.some(lo => lo.weight_ticket && lo.weight_ticket.weighing_status !== 'cancelled');
+                                                                    (!auth.user.roles?.includes('Bascula') || auth.user.roles?.includes('Admin')) && (
+                                                                        <Menu.Item>
+                                                                            {({ active }) => (
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        // --- FRONTEND VALIDATION: Check for active tickets ---
+                                                                                        const hasActiveDirectTicket = order.weight_ticket && order.weight_ticket.weighing_status !== 'cancelled';
+                                                                                        const hasActiveLoadingTicket = order.loading_orders?.some(lo => lo.weight_ticket && lo.weight_ticket.weighing_status !== 'cancelled');
 
-                                                                                    if (hasActiveDirectTicket || hasActiveLoadingTicket) {
-                                                                                        Swal.fire({
-                                                                                            title: '¡ACCIÓN BLOQUEADA!',
-                                                                                            html: `Esta Orden tiene un <b>TICKET ACTIVO</b> en Báscula. <br/><br/> Debe <b>CANCELAR EL TICKET</b> en el módulo de Báscula antes de poder cancelar la Orden de Embarque.`,
-                                                                                            icon: 'error',
-                                                                                            confirmButtonColor: '#3085d6',
-                                                                                            confirmButtonText: 'Entendido'
-                                                                                        });
-                                                                                        return;
-                                                                                    }
-
-                                                                                    Swal.fire({
-                                                                                        title: '¿Cancelar Orden?',
-                                                                                        text: "Esta acción cambiará el estatus a cancelado.",
-                                                                                        icon: 'warning',
-                                                                                        showCancelButton: true,
-                                                                                        confirmButtonColor: '#ef4444',
-                                                                                        cancelButtonColor: '#6b7280',
-                                                                                        confirmButtonText: 'Sí, cancelar',
-                                                                                        cancelButtonText: 'No, volver'
-                                                                                    }).then((result) => {
-                                                                                        if (result.isConfirmed) {
-                                                                                            router.visit(route('documentation.cancel', order.id), {
-                                                                                                method: 'patch',
-                                                                                                preserveScroll: true,
-                                                                                                preserveState: true,
+                                                                                        if (hasActiveDirectTicket || hasActiveLoadingTicket) {
+                                                                                            Swal.fire({
+                                                                                                title: '¡ACCIÓN BLOQUEADA!',
+                                                                                                html: `Esta Orden tiene un <b>TICKET ACTIVO</b> en Báscula. <br/><br/> Debe <b>CANCELAR EL TICKET</b> en el módulo de Báscula antes de poder cancelar la Orden de Embarque.`,
+                                                                                                icon: 'error',
+                                                                                                confirmButtonColor: '#3085d6',
+                                                                                                confirmButtonText: 'Entendido'
                                                                                             });
+                                                                                            return;
                                                                                         }
-                                                                                    });
-                                                                                }}
-                                                                                className={`${active ? 'bg-red-600 text-white' : 'text-red-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
-                                                                            >
-                                                                                <X className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-red-500'}`} />
-                                                                                Cancelar
-                                                                            </button>
-                                                                        )}
-                                                                    </Menu.Item>
+
+                                                                                        Swal.fire({
+                                                                                            title: '¿Cancelar Orden?',
+                                                                                            text: "Esta acción cambiará el estatus a cancelado.",
+                                                                                            icon: 'warning',
+                                                                                            showCancelButton: true,
+                                                                                            confirmButtonColor: '#ef4444',
+                                                                                            cancelButtonColor: '#6b7280',
+                                                                                            confirmButtonText: 'Sí, cancelar',
+                                                                                            cancelButtonText: 'No, volver'
+                                                                                        }).then((result) => {
+                                                                                            if (result.isConfirmed) {
+                                                                                                router.visit(route('documentation.cancel', order.id), {
+                                                                                                    method: 'patch',
+                                                                                                    preserveScroll: true,
+                                                                                                    preserveState: true,
+                                                                                                });
+                                                                                            }
+                                                                                        });
+                                                                                    }}
+                                                                                    className={`${active ? 'bg-red-600 text-white' : 'text-red-600'} group flex rounded-lg items-center w-full px-3 py-2 text-sm transition-colors font-bold`}
+                                                                                >
+                                                                                    <X className={`w-4 h-4 mr-2 ${active ? 'text-white' : 'text-red-500'}`} />
+                                                                                    Cancelar
+                                                                                </button>
+                                                                            )}
+                                                                        </Menu.Item>
+                                                                    )
                                                                 ) : (
                                                                     (() => {
                                                                         const isReopenAllowed = !order.cancelled_at ||
@@ -456,7 +464,7 @@ export default function Index({
                                                                                     )}
                                                                                 </Menu.Item>
 
-                                                                                {isReopenAllowed && (
+                                                                                {isReopenAllowed && (!auth.user.roles?.includes('Bascula') || auth.user.roles?.includes('Admin')) && (
                                                                                     <Menu.Item>
                                                                                         {({ active }) => (
                                                                                             <button
