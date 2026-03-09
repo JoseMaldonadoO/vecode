@@ -6,6 +6,7 @@ import {
     Search,
     Ship,
     Anchor,
+    Scan,
     LayoutDashboard,
     Database,
     Truck,
