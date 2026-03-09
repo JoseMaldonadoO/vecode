@@ -329,7 +329,7 @@ export default function Ticket({ ticket }: TicketProps) {
                 @media print {
                     @page {
                         size: letter landscape; /* Ajustar a carta horizontal para q quepan 2 o half-letter */
-                        margin: 0.5cm;
+                        margin: 1.2cm 0.5cm 0.5cm 0.5cm;
                     }
                     body {
                         -webkit-print-color-adjust: exact !important;
