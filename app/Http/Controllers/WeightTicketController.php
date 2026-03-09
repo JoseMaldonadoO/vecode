@@ -194,14 +194,20 @@ class WeightTicketController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $clientIds = $all_pending->flatMap(function ($order) {
+        $clientIds = $all_pending->flatMap(function ($order) use ($activeTab) {
             $ids = [];
-            if ($order->client_id)
-                $ids[] = $order->client_id;
-            if ($order->shipment_order?->client_id)
-                $ids[] = $order->shipment_order->client_id;
-            if ($order->vessel?->client_id)
-                $ids[] = $order->vessel->client_id;
+            if ($activeTab === 'sale') {
+                if ($order->shipment_order?->client_id) {
+                    $ids[] = $order->shipment_order->client_id;
+                }
+            } else {
+                if ($order->client_id) {
+                    $ids[] = $order->client_id;
+                }
+                if ($order->vessel?->client_id) {
+                    $ids[] = $order->vessel->client_id;
+                }
+            }
             return $ids;
         })->unique()->filter()->values();
 

@@ -197,11 +197,10 @@ export default function Index({
 
         // Check for view=table or view=pending in URL
         const hasRecords = pending_exit.data && pending_exit.data.length > 0;
+        const hasSearchParams = params.has('search') || params.has('client_id') || params.has('product_id') || params.has('warehouse') || params.has('presentation') || params.has('page');
 
-        if (params.get("view") === "table" || params.get("view") === "pending" || hasRecords) {
-            if (params.get("view") === "table" || params.get("view") === "pending") {
-                setViewMode("table");
-            }
+        if (params.get("view") === "table" || params.get("view") === "pending" || hasSearchParams) {
+            setViewMode("table");
         }
     }, [flash]);
 
@@ -341,7 +340,15 @@ export default function Index({
                         })}
 
                         <button
-                            onClick={() => setViewMode("table")}
+                            onClick={() => {
+                                setViewMode("table");
+                                import('@inertiajs/react').then(({ router }) => {
+                                    router.get(route(route().current() as string), {
+                                        view: 'table',
+                                        scale_id: scaleId
+                                    }, { preserveState: true, replace: true });
+                                });
+                            }}
                             className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-green-500 w-full"
                         >
                             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 bg-green-50 text-green-600">
