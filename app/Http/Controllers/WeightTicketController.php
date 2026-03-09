@@ -116,11 +116,54 @@ class WeightTicketController extends Controller
             });
         }
 
+        // Clone query BEFORE pagination to get dynamic filter options
+        $all_pending = (clone $query)->get();
+
+        // Restore Filter Options (Nested relations for dynamic selection)
+        // Dynamic Filter Options (Only what is in the table after ALL filters)
+        $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
+
+        // Products: ONLY those present in the current filtered list
+        $productIds = $all_pending->flatMap(function ($order) {
+            $ids = [];
+            if ($order->product_id)
+                $ids[] = $order->product_id;
+            if ($order->shipment_order?->product_id)
+                $ids[] = $order->shipment_order->product_id;
+            if ($order->shipment_order?->sales_order?->product_id)
+                $ids[] = $order->shipment_order->sales_order->product_id;
+            return $ids;
+        })->unique()->filter()->values();
+
+        $products = \App\Models\Product::whereIn('id', $productIds)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $clientIds = $all_pending->flatMap(function ($order) use ($activeTab) {
+            $ids = [];
+            if ($activeTab === 'sale') {
+                if ($order->shipment_order?->client_id) {
+                    $ids[] = $order->shipment_order->client_id;
+                }
+            } else {
+                if ($order->client_id) {
+                    $ids[] = $order->client_id;
+                }
+                if ($order->vessel?->client_id) {
+                    $ids[] = $order->vessel->client_id;
+                }
+            }
+            return $ids;
+        })->unique()->filter()->values();
+
+        $clients = \App\Models\Client::whereIn('id', $clientIds)
+            ->orderBy('business_name')
+            ->get(['id', 'business_name']);
+
         $pending_exit_paginated = $query->orderBy('entry_at', 'asc')
             ->paginate(10)
             ->withQueryString()
             ->through(function ($order) {
-                // ... (mantener lógica de transformación existente)
                 $ticket = $order->weight_ticket;
                 $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
                 $tractorPlate = $order->tractor_plate;
@@ -160,60 +203,6 @@ class WeightTicketController extends Controller
                     'vessel_name' => $order->vessel->name ?? 'N/A',
                 ];
             });
-
-        // Restore Filter Options (Nested relations for dynamic selection)
-        $all_pending_query = LoadingOrder::whereHas('weight_ticket', function ($q) {
-            $q->where('weighing_status', 'in_progress')
-                ->where('is_burreo', false);
-        })->with(['client', 'product', 'shipment_order.product', 'shipment_order.sales_order', 'vessel']);
-
-        if ($activeTab === 'sale') {
-            $all_pending_query->whereNotNull('shipment_order_id');
-        } else {
-            $all_pending_query->whereNull('shipment_order_id');
-        }
-
-        $all_pending = $all_pending_query->get();
-
-        // Dynamic Filter Options (Only what is in the table)
-        $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
-
-        // Products: ONLY those present in the current pending list (Venta/Barco depending on tab)
-        $productIds = $all_pending->flatMap(function ($order) {
-            $ids = [];
-            if ($order->product_id)
-                $ids[] = $order->product_id;
-            if ($order->shipment_order?->product_id)
-                $ids[] = $order->shipment_order->product_id;
-            if ($order->shipment_order?->sales_order?->product_id)
-                $ids[] = $order->shipment_order->sales_order->product_id;
-            return $ids;
-        })->unique()->filter()->values();
-
-        $products = \App\Models\Product::whereIn('id', $productIds)
-            ->orderBy('name')
-            ->get(['id', 'name']);
-
-        $clientIds = $all_pending->flatMap(function ($order) use ($activeTab) {
-            $ids = [];
-            if ($activeTab === 'sale') {
-                if ($order->shipment_order?->client_id) {
-                    $ids[] = $order->shipment_order->client_id;
-                }
-            } else {
-                if ($order->client_id) {
-                    $ids[] = $order->client_id;
-                }
-                if ($order->vessel?->client_id) {
-                    $ids[] = $order->vessel->client_id;
-                }
-            }
-            return $ids;
-        })->unique()->filter()->values();
-
-        $clients = \App\Models\Client::whereIn('id', $clientIds)
-            ->orderBy('business_name')
-            ->get(['id', 'business_name']);
 
         return Inertia::render('Scale/Index', [
             'pending_entry' => $pending_entry,
