@@ -477,14 +477,12 @@ export default function Index({
                                 <table className="w-full text-left border-collapse">
                                     <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900 text-white shadow-lg">
                                         <tr>
-                                            {/* Col 1: Removed Type */}
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider rounded-tl-lg">Folio</th>
                                             {operationType === 'sale' && (
                                                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">OE</th>
                                             )}
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Chofer</th>
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Placas</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Tracto</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Producto</th>
                                             {/* Removed Peso Entrada */}
@@ -502,8 +500,6 @@ export default function Index({
                                         {pending_exit.data.length > 0 ? (
                                             pending_exit.data.map((order: any) => (
                                                 <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
-                                                    {/* Folio */}
-                                                    <td className="px-6 py-4 font-mono font-bold text-indigo-600">{order.folio}</td>
                                                     {operationType === 'sale' && (
                                                         <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
                                                             {order.oe_folio || 'N/A'}
@@ -517,19 +513,13 @@ export default function Index({
                                                     <td className="px-6 py-4">
                                                         <div className="font-bold text-gray-800">{order.driver}</div>
                                                     </td>
-                                                    {/* Placas */}
+                                                    {/* Tracto */}
                                                     <td className="px-6 py-4">
                                                         <div className="flex flex-col gap-1">
-                                                            <div className="flex items-center gap-1.5">
-                                                                <span className="text-[10px] font-black bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded leading-none">TRACTO</span>
-                                                                <span className="text-xs font-bold text-indigo-700 font-mono">{order.vehicle_plate}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[11px] font-black bg-gray-100 text-gray-500 px-2 py-0.5 rounded leading-none">TRACTO</span>
+                                                                <span className="text-xl font-black text-indigo-800 font-mono tracking-wider">{order.vehicle_plate}</span>
                                                             </div>
-                                                            {order.trailer_plate && order.trailer_plate !== 'N/A' && (
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <span className="text-[10px] font-black bg-indigo-100 text-indigo-500 px-1.5 py-0.5 rounded leading-none">REMOLQUE</span>
-                                                                    <span className="text-xs font-bold text-amber-700 font-mono">{order.trailer_plate}</span>
-                                                                </div>
-                                                            )}
                                                         </div>
                                                     </td>
                                                     {/* Línea de Transporte */}
@@ -590,22 +580,20 @@ export default function Index({
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                    <span className="text-xs font-bold uppercase text-indigo-500 tracking-wider">
-                                                        Folio: {order.folio}
+                                                    <div className="flex items-center gap-2 mb-1">
                                                         {operationType === 'sale' && (
-                                                            <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black">
+                                                            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded text-[10px] font-black uppercase">
                                                                 OE: {order.oe_folio}
                                                             </span>
                                                         )}
-                                                    </span>
-                                                    <h3 className="font-bold text-gray-900 text-lg">
-                                                        {order.driver}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-400 font-mono">
+                                                    </div>
+                                                    <h3 className="font-extrabold text-indigo-900 text-xl leading-tight">
                                                         {order.vehicle_plate}
-                                                        {order.trailer_plate && order.trailer_plate !== 'N/A' && ` / ${order.trailer_plate}`}
+                                                    </h3>
+                                                    <p className="font-bold text-gray-800 text-base">
+                                                        {order.driver}
                                                     </p>
-                                                    <p className="text-[10px] font-bold text-indigo-600 uppercase mt-1">
+                                                    <p className="text-[10px] font-black text-indigo-600 uppercase mt-1 tracking-widest">
                                                         {order.provider}
                                                     </p>
                                                 </div>
