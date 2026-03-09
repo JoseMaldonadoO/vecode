@@ -53,7 +53,7 @@ const TicketCopy: React.FC<{
 
     return (
         <div
-            className={`w-[24cm] mx-auto bg-white p-6 pt-2 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? "print:break-after-page" : ""}`}
+            className={`w-[24cm] mx-auto bg-white p-6 pt-2 print:pt-10 mb-4 relative text-black font-sans box-border border border-gray-300 print:border-none ${!isLast ? "print:break-after-page" : ""}`}
         >
             {/* --- Header --- */}
             <div className="flex mb-1 items-center">
@@ -329,7 +329,7 @@ export default function Ticket({ ticket }: TicketProps) {
                 @media print {
                     @page {
                         size: letter landscape; /* Ajustar a carta horizontal para q quepan 2 o half-letter */
-                        margin: 1.2cm 0.5cm 0.5cm 0.5cm;
+                        margin: 2.5cm 0.5cm 0.5cm 0.5cm;
                     }
                     body {
                         -webkit-print-color-adjust: exact !important;
