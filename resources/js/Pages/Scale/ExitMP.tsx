@@ -29,11 +29,13 @@ export default function ExitMP({
     order,
     active_scale_id = 1,
     active_lots = [],
+    documenters = [],
 }: {
     auth: any;
     order?: any;
     active_scale_id?: number;
     active_lots?: any[];
+    documenters?: any[];
 }) {
     // State for Search
     const [qrValue, setQrValue] = useState("");
@@ -52,6 +54,7 @@ export default function ExitMP({
         packaging_type: "N/A",
         warehouse: order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : "",
         observations: (order?.type === 'sale' ? (order?.observations || "") : ""),
+        documenter_id: "",
     });
 
     useEffect(() => {
@@ -601,6 +604,23 @@ export default function ExitMP({
                                                 <option value="PRO-AGRO">PRO-AGRO</option>
                                                 <option value="FERTINAL">FERTINAL</option>
                                             </select>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <InputLabel value="DOCUMENTADOR (FIRMA)" className="text-green-600 font-black" />
+                                            <select
+                                                value={data.documenter_id}
+                                                onChange={e => setData("documenter_id", e.target.value)}
+                                                className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold"
+                                            >
+                                                <option value="">Seleccionar Documentador...</option>
+                                                {documenters.map((doc: any) => (
+                                                    <option key={doc.id} value={doc.id}>{doc.name}</option>
+                                                ))}
+                                            </select>
+                                            <p className="text-[10px] text-gray-400 mt-1 font-semibold uppercase tracking-wider">
+                                                * El elegido aparecerá en el ticket para firma
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

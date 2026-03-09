@@ -22,20 +22,20 @@ import { debounce, pickBy } from "lodash";
 import Swal from "sweetalert2";
 import { Settings, CheckCircle2 } from "lucide-react";
 
-const ScaleModal = ({ 
-    onSelect, 
-    currentScale, 
-    onClose 
-}: { 
-    onSelect: (id: number) => void; 
-    currentScale: number; 
-    onClose: () => void 
+const ScaleModal = ({
+    onSelect,
+    currentScale,
+    onClose
+}: {
+    onSelect: (id: number) => void;
+    currentScale: number;
+    onClose: () => void
 }) => {
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
                 <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 text-white relative">
-                    <button 
+                    <button
                         onClick={onClose}
                         className="absolute top-4 right-4 p-2 hover:bg-white/20 rounded-full transition-colors"
                     >
@@ -58,18 +58,16 @@ const ScaleModal = ({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`w-full group relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-200 ${
-                                    currentScale === id
+                                className={`w-full group relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-200 ${currentScale === id
                                         ? "border-indigo-600 bg-indigo-50"
                                         : "border-gray-100 hover:border-indigo-200 hover:bg-gray-50"
-                                }`}
+                                    }`}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`p-4 rounded-xl transition-colors ${
-                                        currentScale === id 
-                                            ? "bg-indigo-600 text-white" 
+                                    <div className={`p-4 rounded-xl transition-colors ${currentScale === id
+                                            ? "bg-indigo-600 text-white"
                                             : "bg-gray-100 text-gray-400 group-hover:bg-indigo-100 group-hover:text-indigo-600"
-                                    }`}>
+                                        }`}>
                                         <span className="text-xl font-black">{id}</span>
                                     </div>
                                     <div className="text-left">
@@ -111,7 +109,7 @@ export default function Index({
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const saved = localStorage.getItem("selected_scale_id");
-        
+
         let currentScaleId = scaleId;
         if (saved) {
             currentScaleId = parseInt(saved);
@@ -120,12 +118,12 @@ export default function Index({
 
         // If scale_id is not in URL, and we have a saved one (or default), refresh to sync with server
         if (!params.has('scale_id') && currentScaleId) {
-            router.get(route("scale.tickets.index"), { 
+            router.get(route("scale.tickets.index"), {
                 ...Object.fromEntries(params.entries()),
-                scale_id: currentScaleId 
-            }, { 
-                preserveState: true, 
-                replace: true 
+                scale_id: currentScaleId
+            }, {
+                preserveState: true,
+                replace: true
             });
         }
     }, []);
@@ -427,6 +425,12 @@ export default function Index({
                                         scope="col"
                                         className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
                                     >
+                                        Documentador
+                                    </th>
+                                    <th
+                                        scope="col"
+                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
+                                    >
                                         Producto / {filters.tab === 'vessel' ? 'Barco' : 'Cliente'}
                                     </th>
                                     <th
@@ -497,6 +501,14 @@ export default function Index({
                                                     }`}>
                                                     {ticket.operation}
                                                 </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="text-gray-900 font-medium text-sm">
+                                                    {ticket.documenter}
+                                                </div>
+                                                <div className="text-gray-500 text-[10px] uppercase font-bold tracking-tighter">
+                                                    Captura: {ticket.weighmaster}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="text-indigo-700 font-bold text-sm">
@@ -624,7 +636,7 @@ export default function Index({
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={6}
+                                            colSpan={8}
                                             className="px-6 py-12 text-center text-gray-500"
                                         >
                                             <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
@@ -695,10 +707,10 @@ export default function Index({
             </div>
 
             {showScaleModal && (
-                <ScaleModal 
-                    onSelect={handleScaleSelect} 
-                    currentScale={scaleId} 
-                    onClose={() => setShowScaleModal(false)} 
+                <ScaleModal
+                    onSelect={handleScaleSelect}
+                    currentScale={scaleId}
+                    onClose={() => setShowScaleModal(false)}
                 />
             )}
         </DashboardLayout>

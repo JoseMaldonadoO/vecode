@@ -36,4 +36,9 @@ class WeightTicket extends Model
     {
         return $this->belongsTo(ShipmentOrder::class);
     }
+
+    public function documenter()
+    {
+        return $this->belongsTo(User::class, 'documenter_id');
+    }
 }

@@ -12,11 +12,13 @@ export default function Edit({
     ticket,
     order,
     active_lots = [],
+    documenters = [],
 }: {
     auth: any;
     ticket: any;
     order: any;
     active_lots: any[];
+    documenters: any[];
 }) {
     const isSale = !!order.shipment_order_id || !order.vessel_id;
 
@@ -28,6 +30,7 @@ export default function Edit({
         packaging_type: ticket.packaging_type || "N/A",
         warehouse: order.warehouse || "",
         observations: order.observation || "",
+        documenter_id: ticket.documenter_id || "",
     });
 
     // Auto-calculate Net Weight when Tare or Gross changes
@@ -296,6 +299,36 @@ export default function Edit({
                                         />
                                     </div>
                                 )}
+
+                                {/* Documentador Section */}
+                                <div className="md:col-span-2 mt-4 pt-4 border-t border-gray-100">
+                                    <InputLabel
+                                        htmlFor="documenter_id"
+                                        value="DOCUMENTADOR (FIRMA)"
+                                        className="text-indigo-900 font-bold"
+                                    />
+                                    <select
+                                        id="documenter_id"
+                                        value={data.documenter_id}
+                                        onChange={(e) => setData("documenter_id", e.target.value)}
+                                        className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm font-bold"
+                                        required
+                                    >
+                                        <option value="">Seleccione Documentador...</option>
+                                        {documenters.map((doc: any) => (
+                                            <option key={doc.id} value={doc.id}>
+                                                {doc.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <InputError
+                                        message={errors.documenter_id}
+                                        className="mt-2"
+                                    />
+                                    <p className="mt-2 text-[10px] text-gray-500 italic">
+                                        Personal que firmará el remanente/ticket en sitio.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

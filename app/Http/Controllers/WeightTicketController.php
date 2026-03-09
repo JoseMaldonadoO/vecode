@@ -235,7 +235,9 @@ class WeightTicketController extends Controller
             'shipmentOrder' => function ($q) {
                 // Sales / Export
                 $q->with(['client', 'product', 'driver', 'vehicle', 'sales_order.product', 'items.product']);
-            }
+            },
+            'weighmaster',
+            'documenter'
         ])
             ->where('is_burreo', false) // EXCLUDE BURREO
             ->where(function ($q) {
@@ -396,6 +398,8 @@ class WeightTicketController extends Controller
                     'gross_weight' => $ticket->gross_weight,
                     'net_weight' => $ticket->net_weight,
                     'is_shipment_order' => !!$shipmentOrder,
+                    'documenter' => $ticket->documenter?->name ?? 'N/A',
+                    'weighmaster' => $ticket->weighmaster?->name ?? 'N/A',
                 ];
             });
 
@@ -419,11 +423,13 @@ class WeightTicketController extends Controller
         }
 
         $activeLots = \App\Models\Lot::where('status', 'open')->orderBy('created_at', 'desc')->get(['id', 'folio']);
+        $documenters = \App\Models\User::role('Documentador')->where('status', 'active')->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('Scale/Tickets/Edit', [
             'ticket' => $order->weight_ticket,
             'order' => $order,
-            'active_lots' => $activeLots
+            'active_lots' => $activeLots,
+            'documenters' => $documenters
         ]);
     }
 
@@ -447,6 +453,7 @@ class WeightTicketController extends Controller
             'packaging_type' => 'nullable|string',
             'warehouse' => 'nullable|string',
             'observations' => 'nullable|string',
+            'documenter_id' => 'required|exists:users,id',
         ]);
 
         $ticket->update([
@@ -455,6 +462,7 @@ class WeightTicketController extends Controller
             'net_weight' => $validated['net_weight'],
             'lot_id' => $validated['lot_id'],
             'packaging_type' => $validated['packaging_type'],
+            'documenter_id' => $validated['documenter_id'],
         ]);
 
         // Sync Sales Order if linked
@@ -580,6 +588,8 @@ class WeightTicketController extends Controller
         $orderData = null;
         $activeLots = \App\Models\Lot::where('status', 'open')->orderBy('created_at', 'desc')->get(['id', 'folio']);
 
+        $documenters = \App\Models\User::role('Documentador')->where('status', 'active')->orderBy('name')->get(['id', 'name']);
+
         if ($id) {
             $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order'])
                 ->findOrFail($id);
@@ -646,6 +656,7 @@ class WeightTicketController extends Controller
             'order' => $orderData,
             'active_scale_id' => (int) $request->input('scale_id', 1),
             'active_lots' => $activeLots,
+            'documenters' => $documenters,
         ]);
     }
 
@@ -998,6 +1009,7 @@ class WeightTicketController extends Controller
             'packaging_type' => 'nullable|string',
             'warehouse' => 'nullable|string',
             'observations' => 'nullable|string|max:1000',
+            'documenter_id' => 'nullable|exists:users,id',
         ]);
 
         try {
@@ -1031,6 +1043,7 @@ class WeightTicketController extends Controller
                     'lot_id' => $validated['lot_id'] ?? null,
                     'packaging_type' => $validated['packaging_type'] ?? null,
                     'weighmaster_id' => auth()->id(),
+                    'documenter_id' => $validated['documenter_id'] ?? null,
                 ]);
 
                 // Determine Warehouse to update in LoadingOrder
@@ -1068,7 +1081,7 @@ class WeightTicketController extends Controller
 
     public function printTicket($id)
     {
-        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket.weighmaster', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'shipment_order.creator', 'vessel_operator.creator', 'sales_order', 'shipment_order.sales_order'])
+        $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket.weighmaster', 'weight_ticket.documenter', 'vessel.client', 'vessel.product', 'shipment_order.client', 'shipment_order.product', 'shipment_order.creator', 'vessel_operator.creator', 'sales_order', 'shipment_order.sales_order'])
             ->findOrFail($id);
 
         $ticket = $order->weight_ticket;
@@ -1176,9 +1189,9 @@ class WeightTicketController extends Controller
             'exit_at' => $exitDate->format('d/m/Y H:i'),
 
             'weighmaster' => $ticket->weighmaster?->name ?? 'BASCULA',
-            'documenter' => $isSale
+            'documenter' => $ticket->documenter?->name ?? ($isSale
                 ? ($order->shipment_order->creator->name ?? 'DOCUMENTACIÓN')
-                : ($order->vessel_operator->creator->name ?? 'DOCUMENTACIÓN'),
+                : ($order->vessel_operator->creator->name ?? 'DOCUMENTACIÓN')),
         ];
 
         return Inertia::render('Scale/Ticket', [
