@@ -137,7 +137,7 @@ class AptController extends Controller
         return Inertia::render('APT/UnitStatus', [
             'pending_exit' => $pendingUnits,
             'filters' => $request->all(['tab', 'client_id', 'product_id', 'warehouse']),
-            'clients' => \App\Models\Client::orderBy('name')->get(['id', 'name']),
+            'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']),
             'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
         ]);
     }
