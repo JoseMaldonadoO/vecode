@@ -88,14 +88,19 @@ class AptController extends Controller
         $query = LoadingOrder::with([
             'client',
             'driver',
+            'vehicle',
             'product',
             'weight_ticket',
+            'exit_operator',
+            'vessel_operator',
+            'shipment_order.items.product',
+            'shipment_order.client',
             'vessel'
         ])
-        ->whereHas('weight_ticket', function ($q) {
-            $q->where('weighing_status', 'in_progress')
-                ->where('is_burreo', false);
-        });
+            ->whereHas('weight_ticket', function ($q) {
+                $q->where('weighing_status', 'in_progress')
+                    ->where('is_burreo', false);
+            });
 
         if ($activeTab === 'sale') {
             $query->whereNotNull('shipment_order_id');
@@ -124,6 +129,9 @@ class AptController extends Controller
                 $q->where('product_id', $request->product_id)
                     ->orWhereHas('shipment_order.items', function ($sub) use ($request) {
                         $sub->where('product_id', $request->product_id);
+                    })
+                    ->orWhereHas('shipment_order.sales_order', function ($sub) use ($request) {
+                        $sub->where('product_id', $request->product_id);
                     });
             });
         }
@@ -132,13 +140,71 @@ class AptController extends Controller
             $query->where('warehouse', $request->warehouse);
         }
 
-        $pendingUnits = $query->orderBy('entry_at', 'asc')->paginate(15)->withQueryString();
+        if ($request->filled('presentation')) {
+            $query->whereHas('shipment_order', function ($sub) use ($request) {
+                $sub->where('presentation', $request->presentation);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('folio', 'like', "%{$search}%")
+                    ->orWhere('operator_name', 'like', "%{$search}%")
+                    ->orWhere('tractor_plate', 'like', "%{$search}%")
+                    ->orWhere('trailer_plate', 'like', "%{$search}%")
+                    ->orWhereHas('shipment_order', function ($sub) use ($search) {
+                        $sub->where('folio', 'like', "%{$search}%")
+                            ->orWhere('operator_name', 'like', "%{$search}%")
+                            ->orWhere('tractor_plate', 'like', "%{$search}%")
+                            ->orWhere('trailer_plate', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $pendingUnits = $query->orderBy('entry_at', 'asc')
+            ->paginate(15)
+            ->withQueryString()
+            ->through(function ($order) {
+                $ticket = $order->weight_ticket;
+                $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
+                $tractorPlate = $order->tractor_plate;
+                $trailerPlate = $order->trailer_plate ?? 'N/A';
+
+                if ($order->shipment_order_id && $order->shipment_order) {
+                    $operatorName = $order->shipment_order->operator_name ?? $operatorName;
+                    $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
+                    $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
+                }
+
+                $productName = $order->product?->name ?? $order->shipment_order?->product?->name ?? $order->shipment_order?->product ?? 'N/A';
+
+                return [
+                    'id' => $order->id,
+                    'folio' => $order->folio,
+                    'oe_folio' => $order->shipment_order?->folio ?? 'N/A',
+                    'provider' => $order->shipment_order?->client?->business_name ?? $order->shipment_order?->client?->name ?? ($order->client?->business_name ?? $order->client_name),
+                    'product' => $productName,
+                    'entry_weight' => $ticket->tare_weight,
+                    'vehicle_plate' => $tractorPlate,
+                    'trailer_plate' => $trailerPlate,
+                    'driver' => $operatorName,
+                    'real_transport_line' => $order->transport_company ?? ($order->shipment_order?->transport_line ?? 'N/A'),
+                    'economic_number' => $order->economic_number ?? 'N/A',
+                    'warehouse' => $order->warehouse ?? 'N/A',
+                    'cubicle' => $order->cubicle ?? 'N/A',
+                    'entry_at' => $order->entry_at,
+                    'vessel_name' => $order->vessel?->name ?? 'N/A',
+                    'programmed_weight' => $order->shipment_order?->programmed_tons ?? $order->programmed_tons ?? 0,
+                ];
+            });
 
         return Inertia::render('APT/UnitStatus', [
             'pending_exit' => $pendingUnits,
-            'filters' => $request->all(['tab', 'client_id', 'product_id', 'warehouse']),
+            'filters' => $request->all(['tab', 'client_id', 'product_id', 'warehouse', 'presentation', 'search']),
             'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']),
             'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
+            'warehouses' => ['Almacén 1', 'Almacén 2', 'Almacén 3', 'Almacén 4', 'Almacén 5'],
         ]);
     }
 
