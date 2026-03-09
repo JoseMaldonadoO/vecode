@@ -421,12 +421,7 @@ export default function Index({
                                     >
                                         Operación
                                     </th>
-                                    <th
-                                        scope="col"
-                                        className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
-                                    >
-                                        Documentador
-                                    </th>
+
                                     <th
                                         scope="col"
                                         className="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider"
@@ -502,14 +497,7 @@ export default function Index({
                                                     {ticket.operation}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-gray-900 font-medium text-sm">
-                                                    {ticket.documenter}
-                                                </div>
-                                                <div className="text-gray-500 text-[10px] uppercase font-bold tracking-tighter">
-                                                    Captura: {ticket.weighmaster}
-                                                </div>
-                                            </td>
+
                                             <td className="px-6 py-4">
                                                 <div className="text-indigo-700 font-bold text-sm">
                                                     {ticket.product}
@@ -636,7 +624,7 @@ export default function Index({
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={8}
+                                            colSpan={7}
                                             className="px-6 py-12 text-center text-gray-500"
                                         >
                                             <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
