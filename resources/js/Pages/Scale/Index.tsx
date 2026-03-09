@@ -588,6 +588,7 @@ export default function Index({
                                                         )}
                                                     </div>
                                                     <h3 className="font-extrabold text-indigo-900 text-xl leading-tight">
+                                                        <span className="text-gray-500 font-bold mr-1">Tracto:</span>
                                                         {order.vehicle_plate}
                                                     </h3>
                                                     <p className="font-bold text-gray-800 text-base">
