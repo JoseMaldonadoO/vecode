@@ -947,4 +947,3 @@ class DocumentationController extends Controller
         ]);
     }
 }
-}
