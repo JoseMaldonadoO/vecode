@@ -804,6 +804,11 @@ class DocumentationController extends Controller
      * OE Tracker: Show all OE from the current operational cut (07:00 AM to 06:59 AM).
      * Separated by presentation type: Envasado, Granel, Envasado SADER.
      */
+    
+    /**
+     * OE Tracker: Show all OE from the current operational cut (07:00 AM to 06:59 AM).
+     * Separated by presentation type: Envasado, Granel, Envasado SADER, Granel SADER.
+     */
     public function oeTrackerIndex(Request $request)
     {
         $date = $request->input('date', Carbon::today()->toDateString());
@@ -881,7 +886,6 @@ class DocumentationController extends Controller
             $completedAt = null;
 
             if ($isCompleted) {
-                // If it has a weighing out time, use it. Otherwise use the OE update time.
                 if ($ticket?->weigh_out_at) {
                     $completedAt = Carbon::parse($ticket->weigh_out_at)->toIso8601String();
                 } else {
@@ -927,22 +931,26 @@ class DocumentationController extends Controller
         // Classification Logic
         $envasado = collect();
         $granel = collect();
-        $sader = collect();
+        $saderEnvasado = collect();
+        $saderGranel = collect();
 
         foreach ($allOrders as $order) {
             $pres = strtoupper($order->presentation ?? '');
             $isEnvasado = (strpos($pres, 'ENVASADO') !== false);
             $isSader = (strpos(strtoupper($order->consigned_to ?? ''), 'SADER') !== false);
 
-            if ($isEnvasado) {
-                if ($isSader) {
-                    $sader->push($order);
+            if ($isSader) {
+                if ($isEnvasado) {
+                    $saderEnvasado->push($order);
                 } else {
-                    $envasado->push($order);
+                    $saderGranel->push($order);
                 }
             } else {
-                // Default everything else to Granel if not Envasado
-                $granel->push($order);
+                if ($isEnvasado) {
+                    $envasado->push($order);
+                } else {
+                    $granel->push($order);
+                }
             }
         }
 
@@ -952,9 +960,10 @@ class DocumentationController extends Controller
         };
 
         return Inertia::render('Documentation/OeTracker/Index', [
-            'envasado' => $mapGroup($envasado),
-            'granel'   => $mapGroup($granel),
-            'sader'    => $mapGroup($sader),
+            'envasado'      => $mapGroup($envasado),
+            'granel'        => $mapGroup($granel),
+            'saderEnvasado' => $mapGroup($saderEnvasado),
+            'saderGranel'   => $mapGroup($saderGranel),
             'filters'  => [
                 'date'   => $date,
                 'search' => $search,

@@ -95,8 +95,8 @@ function TimerCell({ row }: { row: OeRow }) {
     return (
         <span
             className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-mono font-bold ${isPending
-                    ? "bg-amber-100 text-amber-800"
-                    : "bg-emerald-100 text-emerald-800"
+                ? "bg-amber-100 text-amber-800"
+                : "bg-emerald-100 text-emerald-800"
                 }`}
         >
             {isPending ? (
@@ -170,8 +170,8 @@ function OeTable({
                         <tr
                             key={row.id}
                             className={`transition-colors duration-100 ${row.is_pending
-                                    ? "hover:bg-amber-50"
-                                    : "hover:bg-emerald-50"
+                                ? "hover:bg-amber-50"
+                                : "hover:bg-emerald-50"
                                 }`}
                         >
                             <td className="px-4 py-3 text-center text-gray-400 font-semibold">{row.num}</td>
@@ -255,16 +255,16 @@ function Section({ rows, label }: { rows: OeRow[]; label: string }) {
                 <button
                     onClick={() => setSubTab("pending")}
                     className={`flex-1 py-3 text-sm font-bold transition-colors flex items-center justify-center gap-2 ${subTab === "pending"
-                            ? "bg-amber-50 text-amber-700 border-b-2 border-amber-500"
-                            : "text-gray-500 hover:bg-gray-50"
+                        ? "bg-amber-50 text-amber-700 border-b-2 border-amber-500"
+                        : "text-gray-500 hover:bg-gray-50"
                         }`}
                 >
                     <Hourglass className="w-4 h-4" />
                     Pendientes
                     <span
                         className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${subTab === "pending"
-                                ? "bg-amber-200 text-amber-800"
-                                : "bg-gray-200 text-gray-600"
+                            ? "bg-amber-200 text-amber-800"
+                            : "bg-gray-200 text-gray-600"
                             }`}
                     >
                         {pending.length}
@@ -273,16 +273,16 @@ function Section({ rows, label }: { rows: OeRow[]; label: string }) {
                 <button
                     onClick={() => setSubTab("completed")}
                     className={`flex-1 py-3 text-sm font-bold transition-colors flex items-center justify-center gap-2 ${subTab === "completed"
-                            ? "bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500"
-                            : "text-gray-500 hover:bg-gray-50"
+                        ? "bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500"
+                        : "text-gray-500 hover:bg-gray-50"
                         }`}
                 >
                     <CheckCircle2 className="w-4 h-4" />
                     Completadas
                     <span
                         className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${subTab === "completed"
-                                ? "bg-emerald-200 text-emerald-800"
-                                : "bg-gray-200 text-gray-600"
+                            ? "bg-emerald-200 text-emerald-800"
+                            : "bg-gray-200 text-gray-600"
                             }`}
                     >
                         {completed.length}
@@ -317,12 +317,25 @@ function Section({ rows, label }: { rows: OeRow[]; label: string }) {
     );
 }
 
+interface PageProps {
+    auth: any;
+    envasado: OeRow[];
+    granel: OeRow[];
+    saderEnvasado: OeRow[];
+    saderGranel: OeRow[];
+    filters: {
+        date: string;
+        search: string;
+    };
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const TABS = [
     { key: "envasado", label: "Envasado", color: "indigo" },
     { key: "granel", label: "Granel", color: "blue" },
-    { key: "sader", label: "Envasado SADER", color: "green" },
+    { key: "saderEnvasado", label: "Envasado SADER", color: "green" },
+    { key: "saderGranel", label: "Granel SADER", color: "amber" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -331,14 +344,15 @@ export default function OeTrackerIndex({
     auth,
     envasado,
     granel,
-    sader,
+    saderEnvasado,
+    saderGranel,
     filters,
 }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("envasado");
     const [date, setDate] = useState(filters.date);
     const [search, setSearch] = useState(filters.search || "");
 
-    const data: Record<TabKey, OeRow[]> = { envasado, granel, sader };
+    const data: Record<TabKey, OeRow[]> = { envasado, granel, saderEnvasado, saderGranel };
 
     const applyFilters = (newDate?: string, newSearch?: string) => {
         router.get(
@@ -363,12 +377,14 @@ export default function OeTrackerIndex({
         indigo: "border-indigo-500 text-indigo-700 bg-indigo-50",
         blue: "border-blue-500 text-blue-700 bg-blue-50",
         green: "border-green-600 text-green-700 bg-green-50",
+        amber: "border-amber-500 text-amber-700 bg-amber-50",
     };
 
     const tabIdleMap: Record<string, string> = {
         indigo: "hover:text-indigo-700 hover:bg-indigo-50",
         blue: "hover:text-blue-700 hover:bg-blue-50",
         green: "hover:text-green-700 hover:bg-green-50",
+        amber: "hover:text-amber-700 hover:bg-amber-50",
     };
 
     return (
@@ -439,15 +455,15 @@ export default function OeTrackerIndex({
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key)}
                                 className={`flex items-center gap-2 px-6 py-3 text-sm font-bold border-b-2 transition-colors whitespace-nowrap ${isActive
-                                        ? `${tabColorMap[tab.color]} border-b-4`
-                                        : `border-transparent text-gray-500 ${tabIdleMap[tab.color]}`
+                                    ? `${tabColorMap[tab.color]} border-b-4`
+                                    : `border-transparent text-gray-500 ${tabIdleMap[tab.color]}`
                                     }`}
                             >
                                 {tab.label}
                                 <span
                                     className={`px-2 py-0.5 rounded-full text-xs font-bold ${isActive
-                                            ? "bg-white/70 text-gray-800"
-                                            : "bg-gray-100 text-gray-600"
+                                        ? "bg-white/70 text-gray-800"
+                                        : "bg-gray-100 text-gray-600"
                                         }`}
                                 >
                                     {total}
