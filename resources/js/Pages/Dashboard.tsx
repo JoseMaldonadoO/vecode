@@ -80,14 +80,14 @@ export default function Dashboard({
     // --- HELPERS ---
     const formatTonnes = (val: number | any) =>
         new Intl.NumberFormat("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
         }).format((val || 0) / 1000);
 
     const formatMT = (val: number | any) =>
         new Intl.NumberFormat("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
         }).format(val || 0);
 
     const formatNumber = (val: number | any) =>
@@ -536,7 +536,7 @@ export default function Dashboard({
                                             categories={categories}
                                             colors={colors}
                                             valueFormatter={(val: any) =>
-                                                `${(val / 1000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} TM`
+                                                `${(val / 1000).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 })} TM`
                                             }
                                             showAnimation={true}
                                             showLegend={false}
@@ -681,7 +681,7 @@ export default function Dashboard({
                                                                                 unit.total_net_weight /
                                                                                 1000
                                                                             ).toFixed(
-                                                                                2,
+                                                                                3,
                                                                             )}
                                                                         </td>
                                                                     </tr>
@@ -809,7 +809,7 @@ export default function Dashboard({
                                                                                 trip.net_weight /
                                                                                 1000
                                                                             ).toFixed(
-                                                                                2,
+                                                                                3,
                                                                             )}
                                                                         </td>
                                                                     </tr>
