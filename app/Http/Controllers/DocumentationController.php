@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -793,6 +793,7 @@ class DocumentationController extends Controller
             ->exists();
 
         return response()->json(['exists' => $exists]);
+    }
 
     /**
      * OE Tracker: Show all OE from the current operational cut (07:00 AM to 06:59 AM).
