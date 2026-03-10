@@ -14,8 +14,8 @@ class OperationalTimeHelper
      */
     public static function getOperationalRange($startDate = null, $endDate = null)
     {
-        $startDay = $startDate ? Carbon::parse($startDate) : Carbon::today();
-        $endDay = $endDate ? Carbon::parse($endDate) : $startDay->copy();
+        $startDay = $startDate ?Carbon::parse($startDate) : Carbon::today();
+        $endDay = $endDate ?Carbon::parse($endDate) : $startDay->copy();
 
         $start = $startDay->copy()->setTime(7, 0, 0);
         $end = $endDay->copy()->addDay()->setTime(6, 59, 59);
@@ -44,5 +44,27 @@ class OperationalTimeHelper
         return $dt->hour < 7
             ? $dt->subDay()->format('Y-m-d')
             : $dt->format('Y-m-d');
+    }
+
+    /**
+     * Devuelve el rango estándar (00:00:00 a 23:59:59) para una fecha.
+     */
+    public static function getStandardRange($startDate = null, $endDate = null)
+    {
+        $start = $startDate ?Carbon::parse($startDate) : Carbon::today();
+        $end = $endDate ?Carbon::parse($endDate) : $start->copy();
+
+        return [
+            $start->startOfDay()->format('Y-m-d H:i:s'),
+            $end->endOfDay()->format('Y-m-d H:i:s')
+        ];
+    }
+
+    /**
+     * Devuelve la columna formateada como fecha estándar para SQL.
+     */
+    public static function getSqlDateStandard($column)
+    {
+        return "DATE($column)";
     }
 }

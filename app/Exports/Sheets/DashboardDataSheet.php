@@ -40,12 +40,11 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         }
 
         if ($dateStart && $dateEnd) {
-            $query->whereBetween('weight_tickets.weigh_out_at', [
-                $dateStart . ' 07:00:00',
-                Carbon::parse($dateEnd)->addDay()->format('Y-m-d') . ' 06:59:59'
-            ]);
-        } elseif ($specificDate) {
-            $range = OperationalTimeHelper::getOperationalRange($specificDate);
+            $range = OperationalTimeHelper::getStandardRange($dateStart, $dateEnd);
+            $query->whereBetween('weight_tickets.weigh_out_at', $range);
+        }
+        elseif ($specificDate) {
+            $range = OperationalTimeHelper::getStandardRange($specificDate);
             $query->whereBetween('weight_tickets.weigh_out_at', $range);
         }
 
@@ -68,7 +67,8 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
                 $q->where('loading_orders.operation_type', 'scale')
                     ->orWhereNull('loading_orders.operation_type');
             });
-        } elseif ($operationType === 'burreo') {
+        }
+        elseif ($operationType === 'burreo') {
             $query->where('loading_orders.operation_type', 'burreo');
         }
 
