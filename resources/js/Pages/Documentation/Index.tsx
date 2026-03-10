@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
-import { FileText, Anchor, ClipboardList } from "lucide-react";
+import { FileText, Anchor, ClipboardList, Clock } from "lucide-react";
 
 export default function Index({ auth }: { auth: any }) {
     const menuItems = [
@@ -27,6 +27,14 @@ export default function Index({ auth }: { auth: any }) {
             description: "Registro de operadores de salida, lista de operadores y qr de operadores.",
             color: "bg-indigo-50 text-indigo-600",
             hover: "hover:border-indigo-500",
+        },
+        {
+            name: "Seguimiento de OE del Día",
+            description: "Control en tiempo real de OE por presentación (Envasado, Granel, SADER).",
+            icon: Clock,
+            href: route("documentation.oe-tracker"),
+            color: "bg-indigo-50 text-indigo-600", // Adjusted to match existing color pattern
+            hover: "hover:border-indigo-500", // Adjusted to match existing hover pattern
         },
         {
             name: "Órdenes de Venta",
