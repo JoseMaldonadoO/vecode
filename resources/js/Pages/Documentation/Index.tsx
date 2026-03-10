@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
-import { FileText, Anchor, ClipboardList } from "lucide-react";
+import { FileText, Anchor, ClipboardList, Clock } from "lucide-react";
 
 export default function Index({ auth }: { auth: any }) {
     const menuItems = [
@@ -11,6 +11,14 @@ export default function Index({ auth }: { auth: any }) {
             description: "Creación e historial de órdenes de embarque.",
             color: "bg-indigo-50 text-indigo-600",
             hover: "hover:border-indigo-500",
+        },
+        {
+            name: "Seguimiento de OE del Día",
+            icon: Clock,
+            href: route("documentation.oe-tracker"),
+            description: "Visualiza las OE pendientes y completadas del corte operativo actual.",
+            color: "bg-purple-50 text-purple-600",
+            hover: "hover:border-purple-500",
         },
         {
             name: "Descarga de Barco",
