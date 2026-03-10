@@ -799,6 +799,11 @@ class DocumentationController extends Controller
      * OE Tracker: Show all OE from the current operational cut (07:00 AM to 06:59 AM).
      * Separated by presentation type: Envasado, Granel, Envasado SADER.
      */
+    
+    /**
+     * OE Tracker: Show all OE from the current operational cut (07:00 AM to 06:59 AM).
+     * Separated by presentation type: Envasado, Granel, Envasado SADER.
+     */
     public function oeTrackerIndex(Request $request)
     {
         $date = $request->input('date', Carbon::today()->toDateString());
@@ -867,15 +872,21 @@ class DocumentationController extends Controller
         $computeStatus = function (ShipmentOrder $order) use ($resolveTicket) {
             $ticket = $resolveTicket($order);
 
-            $isPending = in_array($order->status, ['created', 'loading'])
-                || !$ticket
-                || is_null($ticket->weigh_out_at);
+            // A request is completed if the OE status is 'completed'
+            // OR if it has a ticket that already weighed out.
+            $isCompleted = ($order->status === 'completed') || ($ticket && !is_null($ticket->weigh_out_at));
+            $isPending = !$isCompleted;
 
             $createdAt = $order->created_at?->toIso8601String();
             $completedAt = null;
 
-            if (!$isPending && $ticket?->weigh_out_at) {
-                $completedAt = Carbon::parse($ticket->weigh_out_at)->toIso8601String();
+            if ($isCompleted) {
+                // If it has a weighing out time, use it. Otherwise use the OE update time.
+                if ($ticket?->weigh_out_at) {
+                    $completedAt = Carbon::parse($ticket->weigh_out_at)->toIso8601String();
+                } else {
+                    $completedAt = $order->updated_at?->toIso8601String();
+                }
             }
 
             return [
@@ -913,24 +924,27 @@ class DocumentationController extends Controller
         // Fetch all matching orders
         $allOrders = (clone $baseQuery)->orderBy('created_at', 'asc')->get();
 
-        // Separate into 3 groups
+        // Classification Logic
+        $envasado = collect();
+        $granel = collect();
+        $sader = collect();
 
-        // 1. ENVASADO (not SADER)
-        $envasado = $allOrders->filter(function ($o) {
-            return strtoupper($o->presentation ?? '') === 'ENVASADO'
-                && strtoupper(trim($o->consigned_to ?? '')) !== 'SADER';
-        })->values();
+        foreach ($allOrders as $order) {
+            $pres = strtoupper($order->presentation ?? '');
+            $isEnvasado = (strpos($pres, 'ENVASADO') !== false);
+            $isSader = (strpos(strtoupper($order->consigned_to ?? ''), 'SADER') !== false);
 
-        // 2. GRANEL
-        $granel = $allOrders->filter(function ($o) {
-            return strtoupper($o->presentation ?? '') === 'GRANEL';
-        })->values();
-
-        // 3. ENVASADO SADER
-        $sader = $allOrders->filter(function ($o) {
-            return strtoupper($o->presentation ?? '') === 'ENVASADO'
-                && strtoupper(trim($o->consigned_to ?? '')) === 'SADER';
-        })->values();
+            if ($isEnvasado) {
+                if ($isSader) {
+                    $sader->push($order);
+                } else {
+                    $envasado->push($order);
+                }
+            } else {
+                // Default everything else to Granel if not Envasado
+                $granel->push($order);
+            }
+        }
 
         // Map each group
         $mapGroup = function ($collection) use ($mapOrder) {
