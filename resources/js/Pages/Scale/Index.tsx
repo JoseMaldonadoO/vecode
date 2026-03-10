@@ -17,6 +17,7 @@ import {
     X,
     CheckCircle2,
     FileText,
+    Clock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Pagination from "@/Components/Pagination";
@@ -59,18 +60,16 @@ const ScaleModal = ({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`w-full group relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-200 ${
-                                    currentScale === id
+                                className={`w-full group relative flex items-center justify-between p-6 rounded-2xl border-2 transition-all duration-200 ${currentScale === id
                                         ? "border-indigo-600 bg-indigo-50"
                                         : "border-gray-100 hover:border-indigo-200 hover:bg-gray-50"
-                                }`}
+                                    }`}
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className={`p-4 rounded-xl transition-colors ${
-                                        currentScale === id
+                                    <div className={`p-4 rounded-xl transition-colors ${currentScale === id
                                             ? "bg-indigo-600 text-white"
                                             : "bg-gray-100 text-gray-400 group-hover:bg-indigo-100 group-hover:text-indigo-600"
-                                    }`}>
+                                        }`}>
                                         <span className="text-xl font-black">{id}</span>
                                     </div>
                                     <div className="text-left">
@@ -164,7 +163,7 @@ export default function Index({
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const saved = localStorage.getItem("selected_scale_id");
-        
+
         let currentScaleId = scaleId;
         if (saved) {
             currentScaleId = parseInt(saved);
@@ -223,7 +222,7 @@ export default function Index({
                 product_id: key === 'product_id' ? value : selectedProduct,
                 warehouse: key === 'warehouse' ? value : selectedWarehouse,
                 presentation: key === 'presentation' ? value : selectedPresentation,
-                search: key === 'search' ? value : (key === 'tab' ? '' : searchQuery), 
+                search: key === 'search' ? value : (key === 'tab' ? '' : searchQuery),
                 tab: key === 'tab' ? value : operationType,
                 scale_id: scaleId, // Always include the current scaleId
             }, {
@@ -292,6 +291,14 @@ export default function Index({
             hover: "hover:border-orange-500",
             href: route("documentation.orders.index"),
             subtitle: "Visualización y Reimpresión de OE"
+        },
+        {
+            name: "Seguimiento de OE",
+            icon: Clock,
+            color: "bg-teal-50 text-teal-600",
+            hover: "hover:border-teal-500",
+            href: route("documentation.oe-tracker"),
+            subtitle: "Monitoreo del Corte Operativo"
         },
     ];
 
