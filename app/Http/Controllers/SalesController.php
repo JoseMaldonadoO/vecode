@@ -18,6 +18,15 @@ class SalesController extends Controller
      */
     public function ordersIndex(Request $request)
     {
+        $historicalDate = $request->input('historical_date');
+        $cutOff = null;
+
+        if ($historicalDate) {
+            // Get the operational range and pick the end of that day as T
+            $range = \App\Helpers\OperationalTimeHelper::getOperationalRange($historicalDate);
+            $cutOff = $range[1]; // The end of the operational day (e.g., 06:59:59 of the next day)
+        }
+
         $query = \App\Models\SalesOrder::with([
             'client',
             'product',
@@ -37,19 +46,76 @@ class SalesController extends Controller
             });
         }
 
-        // Default status to 'created' if not specified
-        $statusFilter = $request->input('status', 'created');
-        $query->where('status', $statusFilter);
+        if ($cutOff) {
+            // Filter orders created at or before the cut-off
+            $query->where('created_at', '<=', $cutOff);
+        } else {
+            // Default status to 'created' if not specified and NOT viewing history
+            $statusFilter = $request->input('status', 'created');
+            $query->where('status', $statusFilter);
+        }
 
         $orders = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate(20) // Increased pagination for better overview
             ->withQueryString();
+
+        if ($cutOff) {
+            // Transform results to show historical data
+            $orders->getCollection()->transform(function ($order) use ($cutOff) {
+                // Calculate loaded quantity up to that point
+                // Traverse: SalesOrder -> ShipmentOrder -> LoadingOrder -> WeightTicket
+                $historicalLoaded = 0;
+
+                $shipments = $order->shipments()
+                    ->where('created_at', '<=', $cutOff)
+                    ->where(function($q) use ($cutOff) {
+                        $q->whereNull('cancelled_at')
+                          ->orWhere('cancelled_at', '>', $cutOff);
+                    })
+                    ->get();
+
+                foreach ($shipments as $shipment) {
+                    // Check if it was packed/envasado at that time
+                    if (strtoupper($shipment->presentation) === 'ENVASADO') {
+                        $historicalLoaded += (float) ($shipment->programmed_tons ?? 0);
+                        continue;
+                    }
+
+                    // Otherwise sum finished weight tickets up to cutOff
+                    $tripsQuantity = \App\Models\LoadingOrder::where('shipment_order_id', $shipment->id)
+                        ->where('created_at', '<=', $cutOff)
+                        ->whereHas('weight_ticket', function($q) use ($cutOff) {
+                            $q->where('weighing_status', 'completed')
+                              ->where('weigh_out_at', '<=', $cutOff);
+                        })
+                        ->with('weight_ticket')
+                        ->get()
+                        ->sum(fn($t) => $t->weight_ticket->net_weight / 1000);
+
+                    $historicalLoaded += $tripsQuantity;
+                }
+
+                $order->loaded_quantity = $historicalLoaded;
+                
+                // Set virtual status based on balance at T
+                if ($historicalLoaded <= 0) {
+                    $order->status = 'created'; // Label as "CREADA"
+                } elseif ($historicalLoaded < $order->total_quantity) {
+                    $order->status = 'open'; // Label as "EN PROCESO"
+                } else {
+                    $order->status = 'closed'; // Label as "COMPLETADA"
+                }
+
+                return $order;
+            });
+        }
 
         return Inertia::render('Sales/Orders/Index', [
             'orders' => $orders,
             'filters' => [
                 'search' => $request->input('search'),
-                'status' => $statusFilter,
+                'status' => $cutOff ? 'historical' : ($request->input('status') ?? 'created'),
+                'historical_date' => $historicalDate,
             ],
             'flash' => [
                 'success' => session('success'),

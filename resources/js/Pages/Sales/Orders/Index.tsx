@@ -14,6 +14,7 @@ import {
     Edit2,
     Lock,
     Unlock,
+    Calendar,
 } from "lucide-react";
 import { useState, useEffect, useMemo, Fragment } from "react";
 import Modal from "@/Components/Modal";
@@ -77,11 +78,13 @@ export default function Index({
     filters: {
         search?: string;
         status?: string;
+        historical_date?: string;
     };
     flash?: { success?: string; error?: string };
 }) {
     const [search, setSearch] = useState(filters.search || "");
     const [status, setStatus] = useState(filters.status || "created");
+    const [historicalDate, setHistoricalDate] = useState(filters.historical_date || "");
     const [showAlert, setShowAlert] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [breakdownLoading, setBreakdownLoading] = useState(false);
@@ -115,10 +118,14 @@ export default function Index({
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            if (search !== (filters.search || "") || status !== (filters.status || "")) {
+            const hasSearchChanged = search !== (filters.search || "");
+            const hasStatusChanged = status !== (filters.status || "");
+            const hasDateChanged = historicalDate !== (filters.historical_date || "");
+
+            if (hasSearchChanged || hasStatusChanged || hasDateChanged) {
                 router.get(
                     route("sales.orders.index"),
-                    { search, status },
+                    { search, status, historical_date: historicalDate },
                     {
                         preserveState: true,
                         preserveScroll: true,
@@ -129,7 +136,7 @@ export default function Index({
         }, 500);
 
         return () => clearTimeout(timer);
-    }, [search, status]);
+    }, [search, status, historicalDate]);
 
     const filteredOrders = orders.data;
 
@@ -227,11 +234,34 @@ export default function Index({
                         <select
                             value={status}
                             onChange={(e) => setStatus(e.target.value)}
-                            className="block w-full md:w-48 px-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow font-bold text-gray-700"
+                            disabled={!!historicalDate}
+                            className={`block w-full md:w-48 px-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-shadow font-bold ${historicalDate ? 'text-gray-400 bg-gray-50 opacity-50 cursor-not-allowed' : 'text-gray-700'}`}
                         >
                             <option value="created">ABIERTAS</option>
                             <option value="closed">CERRADAS</option>
+                            {filters.status === 'historical' && <option value="historical">HISTÓRICO</option>}
                         </select>
+
+                        <div className="bg-white p-1 rounded-xl shadow-sm border border-gray-100 flex items-center relative group focus-within:ring-2 ring-indigo-500/20">
+                            <div className="bg-indigo-50 p-2 rounded-lg ml-1">
+                                <Calendar className="w-4 h-4 text-indigo-600" />
+                            </div>
+                            <input
+                                type="date"
+                                value={historicalDate}
+                                onChange={(e) => setHistoricalDate(e.target.value)}
+                                className="w-full border-none text-sm font-bold text-gray-700 focus:ring-0 bg-transparent"
+                            />
+                            {historicalDate && (
+                                <button 
+                                    onClick={() => setHistoricalDate("")}
+                                    className="p-1 hover:bg-gray-100 rounded-full mr-1"
+                                    title="Limpiar filtro histórico"
+                                >
+                                    <X className="w-4 h-4 text-gray-400" />
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1.5 rounded-full ml-4 whitespace-nowrap">
