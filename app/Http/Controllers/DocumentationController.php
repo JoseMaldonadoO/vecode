@@ -811,13 +811,10 @@ class DocumentationController extends Controller
      */
     public function oeTrackerIndex(Request $request)
     {
-        $date = $request->input('date', Carbon::today()->toDateString());
         $search = $request->input('search', '');
+        $module = $request->input('module', 'documentation');
 
-        // Get operational range for the selected date
-        $range = OperationalTimeHelper::getOperationalRange($date);
-
-        // Base query: OE not cancelled, created within the operational range
+        // Base query: OE not cancelled, historical (No date range)
         $baseQuery = ShipmentOrder::query()
             ->with([
                 'client',
@@ -826,8 +823,7 @@ class DocumentationController extends Controller
                 'weight_ticket',
                 'loadingOrders.weight_ticket',
             ])
-            ->whereNotIn('status', ['cancelled'])
-            ->whereBetween('created_at', $range);
+            ->whereNotIn('status', ['cancelled']);
 
         // Apply search filter
         if (!empty($search)) {
@@ -905,6 +901,14 @@ class DocumentationController extends Controller
             $resolveProduct, $resolveTicket, $resolveWarehouse, $computeStatus
         ) {
             $timing = $computeStatus($order);
+            $ticket = $resolveTicket($order);
+            
+            // Ticket status for pending rows
+            $ticketStatus = null;
+            if ($timing['is_pending']) {
+                $ticketStatus = $ticket ? 'checkmark' : 'x';
+            }
+
             return [
                 'id'                => $order->id,
                 'num'               => $index + 1,
@@ -922,6 +926,7 @@ class DocumentationController extends Controller
                 'created_at'        => $timing['created_at'],
                 'completed_at'      => $timing['completed_at'],
                 'status'            => $order->status,
+                'ticket_status'     => $ticketStatus,
             ];
         };
 
@@ -954,19 +959,20 @@ class DocumentationController extends Controller
             }
         }
 
-        // Map each group
-        $mapGroup = function ($collection) use ($mapOrder) {
-            return $collection->map(fn($o, $i) => $mapOrder($o, $i))->values();
+        // Pagination/Mapping helper
+        $prepareGroup = function ($collection) use ($mapOrder) {
+            return $collection->values()->map(fn($o, $i) => $mapOrder($o, $i));
         };
 
         return Inertia::render('Documentation/OeTracker/Index', [
-            'envasado'      => $mapGroup($envasado),
-            'granel'        => $mapGroup($granel),
-            'saderEnvasado' => $mapGroup($saderEnvasado),
-            'saderGranel'   => $mapGroup($saderGranel),
+            'envasado'      => $prepareGroup($envasado),
+            'granel'        => $prepareGroup($granel),
+            'saderEnvasado' => $prepareGroup($saderEnvasado),
+            'saderGranel'   => $prepareGroup($saderGranel),
+            'context_module' => $module,
             'filters'  => [
-                'date'   => $date,
                 'search' => $search,
+                'module' => $module,
             ],
         ]);
     }

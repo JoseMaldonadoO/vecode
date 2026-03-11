@@ -297,8 +297,8 @@ export default function Index({
             icon: Clock,
             color: "bg-teal-50 text-teal-600",
             hover: "hover:border-teal-500",
-            href: route("documentation.oe-tracker"),
-            subtitle: "Monitoreo del Corte Operativo"
+            href: route("documentation.oe-tracker", { module: 'scale' }),
+            subtitle: "Monitoreo de Carga"
         },
     ];
 

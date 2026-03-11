@@ -11,6 +11,7 @@ import {
     Calendar,
     Printer,
     RefreshCw,
+    X,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -33,16 +34,19 @@ interface OeRow {
     created_at: string;       // ISO8601
     completed_at: string | null; // ISO8601 or null
     status: string;
+    ticket_status: 'checkmark' | 'x' | null;
 }
 
 interface PageProps {
     auth: any;
     envasado: OeRow[];
     granel: OeRow[];
-    sader: OeRow[];
+    saderEnvasado: OeRow[];
+    saderGranel: OeRow[];
+    context_module?: string;
     filters: {
-        date: string;
         search: string;
+        module?: string;
     };
 }
 
@@ -148,6 +152,7 @@ function OeTable({
             <table className="min-w-full divide-y divide-gray-100 text-sm">
                 <thead className="bg-gradient-to-r from-indigo-800 to-indigo-900 text-white">
                     <tr>
+                        <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs w-10">Ticket</th>
                         <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs w-12">#</th>
                         <th className="px-4 py-3 text-left font-bold uppercase tracking-wider text-xs">OE</th>
                         <th className="px-4 py-3 text-left font-bold uppercase tracking-wider text-xs">Placa Tracto</th>
@@ -174,6 +179,19 @@ function OeTable({
                                 : "hover:bg-emerald-50"
                                 }`}
                         >
+                            <td className="px-4 py-3 text-center">
+                                {row.ticket_status === 'checkmark' && (
+                                    <div className="flex justify-center" title="Ticket generado (Pendiente de carga)">
+                                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                    </div>
+                                )}
+                                {row.ticket_status === 'x' && (
+                                    <div className="flex justify-center" title="Sin ticket generado">
+                                        <X className="w-5 h-5 text-red-500" />
+                                    </div>
+                                )}
+                                {!row.ticket_status && <span className="text-gray-300">—</span>}
+                            </td>
                             <td className="px-4 py-3 text-center text-gray-400 font-semibold">{row.num}</td>
                             <td className="px-4 py-3 font-bold text-indigo-700 uppercase whitespace-nowrap">
                                 {row.folio}
@@ -244,9 +262,24 @@ function OeTable({
 
 function Section({ rows, label }: { rows: OeRow[]; label: string }) {
     const [subTab, setSubTab] = useState<"pending" | "completed">("pending");
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
+
     const pending = rows.filter((r) => r.is_pending);
     const completed = rows.filter((r) => !r.is_pending);
-    const current = subTab === "pending" ? pending : completed;
+    const currentItems = subTab === "pending" ? pending : completed;
+
+    // Paginación lógica
+    const totalPages = Math.ceil(currentItems.length / pageSize);
+    const paginatedItems = currentItems.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    // Resetear página al cambiar de pestaña
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [subTab]);
 
     return (
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
@@ -291,23 +324,57 @@ function Section({ rows, label }: { rows: OeRow[]; label: string }) {
             </div>
 
             {/* Table */}
-            <OeTable rows={current} showWarehouse={subTab === "completed"} />
+            <OeTable rows={paginatedItems} showWarehouse={subTab === "completed"} />
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
+                    <p className="text-xs text-gray-500">
+                        Mostrando <span className="font-bold">{(currentPage - 1) * pageSize + 1}</span> a <span className="font-bold">{Math.min(currentPage * pageSize, currentItems.length)}</span> de <span className="font-bold">{currentItems.length}</span> registros
+                    </p>
+                    <div className="flex gap-2">
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(prev => prev - 1)}
+                            className="px-3 py-1 rounded border border-gray-300 text-xs font-medium hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            Anterior
+                        </button>
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setCurrentPage(i + 1)}
+                                className={`px-3 py-1 rounded border text-xs font-medium transition-colors ${currentPage === i + 1 ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(prev => prev + 1)}
+                            className="px-3 py-1 rounded border border-gray-300 text-xs font-medium hover:bg-gray-50 disabled:opacity-50"
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Totals footer */}
-            {current.length > 0 && (
+            {currentItems.length > 0 && (
                 <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex flex-wrap gap-6 text-sm text-gray-600">
                     <span>
-                        <strong className="text-gray-800">{current.length}</strong> registros
+                        <strong className="text-gray-800">{currentItems.length}</strong> registros totales
                     </span>
                     <span>
                         Tons. Programadas:{" "}
                         <strong className="text-indigo-800">
-                            {current
+                            {currentItems
                                 .reduce((s, r) => s + r.programmed_tons, 0)
                                 .toLocaleString("en-US", {
                                     minimumFractionDigits: 2,
                                     maximumFractionDigits: 2,
-                                })}{" "}
+                                })}
                             TM
                         </strong>
                     </span>
@@ -317,17 +384,6 @@ function Section({ rows, label }: { rows: OeRow[]; label: string }) {
     );
 }
 
-interface PageProps {
-    auth: any;
-    envasado: OeRow[];
-    granel: OeRow[];
-    saderEnvasado: OeRow[];
-    saderGranel: OeRow[];
-    filters: {
-        date: string;
-        search: string;
-    };
-}
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -349,28 +405,23 @@ export default function OeTrackerIndex({
     filters,
 }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("envasado");
-    const [date, setDate] = useState(filters.date);
     const [search, setSearch] = useState(filters.search || "");
 
     const data: Record<TabKey, OeRow[]> = { envasado, granel, saderEnvasado, saderGranel };
 
-    const applyFilters = (newDate?: string, newSearch?: string) => {
+    const applyFilters = (newSearch?: string) => {
         router.get(
             "/documentation/oe-tracker",
-            { date: newDate ?? date, search: newSearch ?? search },
+            { 
+                search: newSearch ?? search, 
+                module: filters.module 
+            },
             { preserveState: true, replace: true }
         );
     };
 
-    // Re-fetch when date changes
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const v = e.target.value;
-        setDate(v);
-        applyFilters(v, search);
-    };
-
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") applyFilters(date, search);
+        if (e.key === "Enter") applyFilters(search);
     };
 
     const tabColorMap: Record<string, string> = {
@@ -396,34 +447,23 @@ export default function OeTrackerIndex({
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <Link
-                            href="/documentation"
+                            href={filters.module === 'scale' ? "/scale" : "/documentation"}
                             className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors mb-2"
                         >
                             <ArrowLeft className="w-4 h-4 mr-1" />
-                            Volver a Documentación
+                            {filters.module === 'scale' ? "Volver a Báscula" : "Volver a Documentación"}
                         </Link>
                         <h2 className="text-2xl font-bold text-indigo-900 flex items-center">
                             <Clock className="mr-3 h-7 w-7 text-indigo-600" />
-                            Seguimiento de OE del Corte Operativo
+                            Monitoreo Global de OE
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            Registros de 07:00 AM a 06:59 AM del día siguiente
+                            Listado de todas las órdenes pendientes y completadas (Sin corte operativo)
                         </p>
                     </div>
 
                     {/* Filters */}
                     <div className="flex flex-wrap gap-3 items-center">
-                        {/* Date picker */}
-                        <div className="relative">
-                            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
-                            <input
-                                type="date"
-                                value={date}
-                                onChange={handleDateChange}
-                                className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            />
-                        </div>
-                        {/* Search */}
                         <div className="relative">
                             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
                             <input
@@ -436,7 +476,7 @@ export default function OeTrackerIndex({
                             />
                         </div>
                         <button
-                            onClick={() => applyFilters()}
+                            onClick={() => applyFilters(search)}
                             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
                         >
                             <RefreshCw className="w-4 h-4" />
