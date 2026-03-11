@@ -423,16 +423,20 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold
-                                                ${order.status === "created" ? "bg-blue-100 text-blue-800" : ""}
-                                                ${order.status === "closed" ? "bg-red-100 text-red-800" : ""}
+                                                ${(order.status === "created" || order.status === "open" || order.status === "in_progress") ? "bg-blue-100 text-blue-800" : ""}
+                                                ${(order.status === "closed" || order.status === "cancelled") ? "bg-red-100 text-red-800" : ""}
                                                 ${order.status === "completed" ? "bg-green-100 text-green-800" : ""}
                                             `}
                                                 >
-                                                    {order.status === "created"
-                                                        ? "ABIERTA"
-                                                        : order.status === "closed"
-                                                            ? "CERRADA"
-                                                            : order.status.toUpperCase()}
+                                                    {(() => {
+                                                        const s = order.status.toLowerCase();
+                                                        if (s === 'created') return 'ABIERTA';
+                                                        if (s === 'open' || s === 'in_progress') return 'EN PROCESO';
+                                                        if (s === 'closed') return 'CERRADA';
+                                                        if (s === 'completed') return 'COMPLETADA';
+                                                        if (s === 'cancelled') return 'CANCELADA';
+                                                        return s.toUpperCase();
+                                                    })()}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center">

@@ -103,7 +103,7 @@ class SalesController extends Controller
                 } elseif ($historicalLoaded < $order->total_quantity) {
                     $order->status = 'open'; // Label as "EN PROCESO"
                 } else {
-                    $order->status = 'closed'; // Label as "COMPLETADA"
+                    $order->status = 'completed'; // Label as "COMPLETADA"
                 }
 
                 return $order;
