@@ -97,13 +97,11 @@ class SalesController extends Controller
 
                 $order->loaded_quantity = $historicalLoaded;
                 
-                // Set virtual status based on balance at T
-                if ($historicalLoaded <= 0) {
-                    $order->status = 'created'; // Label as "CREADA"
-                } elseif ($historicalLoaded < $order->total_quantity) {
-                    $order->status = 'open'; // Label as "EN PROCESO"
+                // Set virtual status based on balance at T (match user terminology ABIERTA/CERRADA)
+                if ($historicalLoaded < $order->total_quantity) {
+                    $order->status = 'created'; // Will show as "ABIERTA"
                 } else {
-                    $order->status = 'completed'; // Label as "COMPLETADA"
+                    $order->status = 'closed'; // Will show as "CERRADA"
                 }
 
                 return $order;

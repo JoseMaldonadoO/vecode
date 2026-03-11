@@ -424,16 +424,14 @@ export default function Index({
                                                 <span
                                                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold
                                                 ${(order.status === "created" || order.status === "open" || order.status === "in_progress") ? "bg-blue-100 text-blue-800" : ""}
-                                                ${(order.status === "closed" || order.status === "cancelled") ? "bg-red-100 text-red-800" : ""}
-                                                ${order.status === "completed" ? "bg-green-100 text-green-800" : ""}
+                                                ${(order.status === "closed" || order.status === "completed") ? "bg-red-100 text-red-800" : ""}
+                                                ${order.status === "cancelled" ? "bg-gray-100 text-gray-800" : ""}
                                             `}
                                                 >
                                                     {(() => {
                                                         const s = order.status.toLowerCase();
-                                                        if (s === 'created') return 'ABIERTA';
-                                                        if (s === 'open' || s === 'in_progress') return 'EN PROCESO';
-                                                        if (s === 'closed') return 'CERRADA';
-                                                        if (s === 'completed') return 'COMPLETADA';
+                                                        if (s === 'created' || s === 'open' || s === 'in_progress') return 'ABIERTA';
+                                                        if (s === 'closed' || s === 'completed') return 'CERRADA';
                                                         if (s === 'cancelled') return 'CANCELADA';
                                                         return s.toUpperCase();
                                                     })()}
