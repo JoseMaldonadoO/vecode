@@ -438,12 +438,10 @@ export default function Edit({
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        required
+                                        readOnly
                                         value={data.operator_name}
-                                        readOnly={!!data.operator_id}
-                                        onChange={(e) => setData("operator_name", e.target.value.toUpperCase())}
                                         placeholder="Nombre completo del chofer"
-                                        className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold transition-all ${data.operator_id ? 'bg-gray-100 cursor-not-allowed text-gray-700' : 'bg-white'}`}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold transition-all bg-gray-100 cursor-not-allowed text-gray-700"
                                     />
                                     <User className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                 </div>
@@ -456,10 +454,9 @@ export default function Edit({
                                 </label>
                                 <input
                                     type="text"
+                                    readOnly
                                     value={data.transport_company}
-                                    readOnly={!!data.operator_id}
-                                    onChange={(e) => setData("transport_company", e.target.value)}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase bg-gray-100 cursor-not-allowed font-medium"
                                 />
                             </div>
 
@@ -482,10 +479,9 @@ export default function Edit({
                                 </label>
                                 <input
                                     type="text"
+                                    readOnly
                                     value={data.unit_type}
-                                    readOnly={!!data.operator_id}
-                                    onChange={(e) => setData("unit_type", e.target.value)}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase bg-gray-100 cursor-not-allowed font-medium"
                                 />
                             </div>
 
@@ -495,10 +491,9 @@ export default function Edit({
                                 </label>
                                 <input
                                     type="text"
+                                    readOnly
                                     value={data.tractor_plate}
-                                    readOnly={!!data.operator_id}
-                                    onChange={(e) => setData("tractor_plate", e.target.value)}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase bg-gray-100 cursor-not-allowed font-medium"
                                 />
                             </div>
 
@@ -508,10 +503,9 @@ export default function Edit({
                                 </label>
                                 <input
                                     type="text"
+                                    readOnly
                                     value={data.trailer_plate}
-                                    readOnly={!!data.operator_id}
-                                    onChange={(e) => setData("trailer_plate", e.target.value)}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase bg-gray-100 cursor-not-allowed font-medium"
                                 />
                             </div>
 
@@ -521,10 +515,9 @@ export default function Edit({
                                 </label>
                                 <input
                                     type="text"
+                                    readOnly
                                     value={data.economic_number}
-                                    readOnly={!!data.operator_id}
-                                    onChange={(e) => setData("economic_number", e.target.value)}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase bg-gray-100 cursor-not-allowed font-medium"
                                 />
                             </div>
 
@@ -534,10 +527,9 @@ export default function Edit({
                                 </label>
                                 <input
                                     type="text"
+                                    readOnly
                                     value={data.license_number}
-                                    readOnly={!!data.operator_id}
-                                    onChange={(e) => setData("license_number", e.target.value.toUpperCase())}
-                                    className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase ${data.operator_id ? 'bg-gray-100 cursor-not-allowed font-medium' : ''}`}
+                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase bg-gray-100 cursor-not-allowed font-medium"
                                 />
                             </div>
 
@@ -620,22 +612,38 @@ export default function Edit({
                             </div>
 
                             {data.presentation === "ENVASADO" && (
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Tamaño de Saco
-                                    </label>
-                                    <select
-                                        value={data.sack_type}
-                                        onChange={(e) => setData("sack_type", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
-                                    >
-                                        <option value="">Mantener actual ({data.sacks_count})</option>
-                                        <option value="25">25 KG</option>
-                                        <option value="50">50 KG</option>
-                                        <option value="200">200 KG</option>
-                                        <option value="500">500 KG</option>
-                                        <option value="1000">1000 KG</option>
-                                    </select>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">
+                                            Tamaño de Saco
+                                        </label>
+                                        <select
+                                            value={data.sack_type}
+                                            onChange={(e) => setData("sack_type", e.target.value)}
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
+                                        >
+                                            <option value="">Mantener actual ({data.sacks_count})</option>
+                                            <option value="25">25 KG</option>
+                                            <option value="50">50 KG</option>
+                                            <option value="200">200 KG</option>
+                                            <option value="500">500 KG</option>
+                                            <option value="1000">1000 KG</option>
+                                        </select>
+                                    </div>
+                                    {data.sack_type === "1000" && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">
+                                                Número de Sacos (Manual)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={data.sacks_count}
+                                                onChange={(e) => setData("sacks_count", e.target.value.toUpperCase())}
+                                                placeholder="Ej: 20 SACOS"
+                                                className="w-full rounded-lg border-2 border-blue-400 shadow-sm focus:border-blue-600 focus:ring-blue-200 py-2.5 px-3 font-black text-blue-900 bg-blue-50"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

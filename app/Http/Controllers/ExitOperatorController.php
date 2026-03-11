@@ -99,6 +99,20 @@ class ExitOperatorController extends Controller
 
         $operator->update($validated);
 
+        // Sync with pending shipment orders
+        \App\Models\ShipmentOrder::where('operator_id', $operator->id)
+            ->whereIn('status', ['created', 'authorized', 'weighing_in', 'loading'])
+            ->update([
+                'operator_name' => $operator->name,
+                'transport_company' => $operator->transport_line,
+                'unit_type' => $operator->unit_type,
+                'tractor_plate' => $operator->tractor_plate,
+                'trailer_plate' => $operator->trailer_plate,
+                'economic_number' => $operator->economic_number,
+                'unit_number' => $operator->brand_model,
+                'license_number' => $operator->license,
+            ]);
+
         return redirect()->route('documentation.exit-operators.index')->with('success', '¡Información actualizada con éxito!');
     }
 
