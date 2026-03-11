@@ -103,7 +103,13 @@ export default function Edit({
         product: findProduct(),
         presentation: order.presentation || "GRANEL",
         sack_type: (order.sacks_count_raw || order.sacks_count || "").toString().replace(/\D/g, ''),
-        sacks_count: order.sacks_count_raw || order.sacks_count || "",
+        sacks_count: (() => {
+            const raw = (order.sacks_count_raw || order.sacks_count || "").toString();
+            if (order.presentation === "ENVASADO" && raw === "1000 KG" && order.programmed_tons) {
+                return parseFloat(order.programmed_tons).toFixed(0) + " SACOS";
+            }
+            return raw;
+        })(),
         programmed_tons: order.programmed_tons || "",
         balance: order.shortage_balance || "", // Using shortage_balance as 'snapshot balance' for display? OR fetch current? Review controller logic
         destination: order.destination || "",

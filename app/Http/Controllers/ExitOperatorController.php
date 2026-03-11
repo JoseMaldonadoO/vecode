@@ -97,10 +97,11 @@ class ExitOperatorController extends Controller
             'trailer_plate' => 'nullable|string|max:255',
         ]);
 
+        $oldName = $operator->name;
         $operator->update($validated);
 
         // Sync with pending shipment orders
-        \App\Models\ShipmentOrder::where('operator_id', $operator->id)
+        \App\Models\ShipmentOrder::where('operator_name', $oldName)
             ->whereIn('status', ['created', 'authorized', 'weighing_in', 'loading'])
             ->update([
                 'operator_name' => $operator->name,
