@@ -119,7 +119,19 @@ class DocumentationController extends Controller
             ])->withInput();
         }
 
-        // 2. Validation: Unique Carta Porte per Transport Line (Exclude cancelled orders)
+        // 2. Normalize casing for identifiers
+        $toUpperFields = [
+            'operator_name', 'tractor_plate', 'trailer_plate', 'unit_type', 
+            'transport_company', 'consigned_to', 'destination', 
+            'economic_number', 'carta_porte', 'unit_number', 'state'
+        ];
+        foreach ($toUpperFields as $field) {
+            if (isset($validated[$field])) {
+                $validated[$field] = strtoupper(trim($validated[$field]));
+            }
+        }
+
+        // 3. Validation: Unique Carta Porte per Transport Line (Exclude cancelled orders)
         $exists = ShipmentOrder::where('transport_company', $validated['transport_company'])
             ->where('carta_porte', $validated['carta_porte'])
             ->where('status', '!=', 'cancelled')
@@ -645,6 +657,31 @@ class DocumentationController extends Controller
             }
         }
 
+        // Normalize casing for identifiers
+        $toUpperFields = [
+            'operator_name', 'tractor_plate', 'trailer_plate', 'unit_type', 
+            'transport_company', 'consigned_to', 'destination', 
+            'economic_number', 'carta_porte', 'unit_number', 'state'
+        ];
+        foreach ($toUpperFields as $field) {
+            if (isset($validated[$field])) {
+                $validated[$field] = strtoupper(trim($validated[$field]));
+            }
+        }
+
+        // Duplicate Check for Carta Porte in Update
+        $exists = ShipmentOrder::where('transport_company', $validated['transport_company'])
+            ->where('carta_porte', $validated['carta_porte'])
+            ->where('status', '!=', 'cancelled')
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors([
+                'carta_porte' => 'La Carta Porte "' . $validated['carta_porte'] . '" ya está en uso activo para la línea "' . $validated['transport_company'] . '".'
+            ])->withInput();
+        }
+
         // Logic for Sacks
         $validated['shortage_balance'] = $request->input('balance');
         if ($validated['presentation'] === 'ENVASADO') {
@@ -788,15 +825,21 @@ class DocumentationController extends Controller
     {
         $cartaPorte = $request->input('carta_porte');
         $transportCompany = $request->input('transport_company');
+        $excludeId = $request->input('exclude_id');
 
         if (!$cartaPorte || !$transportCompany) {
             return response()->json(['exists' => false]);
         }
 
-        $exists = ShipmentOrder::where('carta_porte', $cartaPorte)
+        $query = ShipmentOrder::where('carta_porte', $cartaPorte)
             ->where('transport_company', $transportCompany)
-            ->where('status', '!=', 'cancelled')
-            ->exists();
+            ->where('status', '!=', 'cancelled');
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
 
         return response()->json(['exists' => $exists]);
     }

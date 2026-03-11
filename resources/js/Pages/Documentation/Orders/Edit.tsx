@@ -119,6 +119,7 @@ export default function Edit({
     const [queryProduct, setQueryProduct] = useState(""); // Not used much if simple select
     const [queryOperator, setQueryOperator] = useState("");
     const [foundOperators, setFoundOperators] = useState<Operator[]>([]);
+    const [cartaPorteWarning, setCartaPorteWarning] = useState<string | null>(null);
 
     // Determine current OV Balance for validation
     // If editing, we need to know the *current* available balance of the OV 
@@ -211,6 +212,47 @@ export default function Edit({
             }));
         }
     };
+
+    // Alerta de Folio Duplicado
+    useEffect(() => {
+        if (errors.carta_porte) {
+            alert(errors.carta_porte);
+        }
+    }, [errors.carta_porte]);
+
+    // Validate Carta Porte Uniqueness
+    useEffect(() => {
+        const checkCartaPorte = async () => {
+            if (!data.carta_porte || !data.transport_company) {
+                setCartaPorteWarning(null);
+                return;
+            }
+
+            try {
+                const response = await axios.get(route('documentation.check-carta-porte'), {
+                    params: {
+                        carta_porte: data.carta_porte,
+                        transport_company: data.transport_company,
+                        exclude_id: order.id
+                    }
+                });
+
+                if (response.data.exists) {
+                    setCartaPorteWarning(`⚠️ La Carta Porte "${data.carta_porte}" ya está en uso por ${data.transport_company}.`);
+                } else {
+                    setCartaPorteWarning(null);
+                }
+            } catch (error) {
+                console.error("Error checking Carta Porte:", error);
+            }
+        };
+
+        const timeoutId = setTimeout(() => {
+            checkCartaPorte();
+        }, 500); // 500ms debounce
+
+        return () => clearTimeout(timeoutId);
+    }, [data.carta_porte, data.transport_company]);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -469,8 +511,16 @@ export default function Edit({
                                     required
                                     value={data.carta_porte}
                                     onChange={(e) => setData("carta_porte", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3"
+                                    className={`w-full rounded-lg shadow-sm py-2.5 px-3 uppercase ${cartaPorteWarning
+                                        ? 'border-yellow-400 focus:border-yellow-500 bg-yellow-50'
+                                        : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                                        }`}
                                 />
+                                {cartaPorteWarning && (
+                                    <p className="text-yellow-700 text-xs mt-1 font-bold animate-pulse">
+                                        {cartaPorteWarning}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
