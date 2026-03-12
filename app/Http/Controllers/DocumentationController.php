@@ -685,12 +685,13 @@ class DocumentationController extends Controller
         // Logic for Sacks
         $validated['shortage_balance'] = $request->input('balance');
         if ($validated['presentation'] === 'ENVASADO') {
-            if ($request->filled('sacks_count')) {
-                // Use manual count if provided
+            $sackType = (string)$request->input('sack_type');
+            if ($sackType === '1000' && $request->filled('sacks_count')) {
+                // Use manual count ONLY if size is 1000kg and count is provided
                 $validated['sacks_count'] = $request->input('sacks_count');
-            } elseif ($request->has('sack_type')) {
-                // Fallback to automatic format
-                $validated['sacks_count'] = $request->input('sack_type') . ' KG';
+            } elseif ($sackType && $sackType !== "") {
+                // For any other size (25, 50, 200, 500), force automatic format "X KG"
+                $validated['sacks_count'] = $sackType . ' KG';
             }
         }
         unset($validated['sack_type']);

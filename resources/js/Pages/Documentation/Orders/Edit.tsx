@@ -675,7 +675,18 @@ export default function Edit({
                                         </label>
                                         <select
                                             value={data.sack_type}
-                                            onChange={(e) => setData("sack_type", e.target.value)}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                const newSacksCount = val === "1000" 
+                                                    ? (data.programmed_tons ? (parseFloat(data.programmed_tons.toString()).toFixed(0) + " SACOS") : "")
+                                                    : "";
+                                                
+                                                setData(prev => ({
+                                                    ...prev,
+                                                    sack_type: val,
+                                                    sacks_count: newSacksCount
+                                                }));
+                                            }}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
                                         >
                                             <option value="">Mantener actual ({data.sacks_count})</option>
