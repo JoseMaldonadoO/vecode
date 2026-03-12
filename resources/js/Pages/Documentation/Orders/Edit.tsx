@@ -677,14 +677,19 @@ export default function Edit({
                                             value={data.sack_type}
                                             onChange={(e) => {
                                                 const val = e.target.value;
-                                                const newSacksCount = val === "1000" 
-                                                    ? (data.programmed_tons ? (parseFloat(data.programmed_tons.toString()).toFixed(0) + " SACOS") : "")
-                                                    : "";
+                                                let suggestion = "";
+                                                if (val && data.programmed_tons) {
+                                                    const tons = parseFloat(data.programmed_tons.toString());
+                                                    const size = parseInt(val);
+                                                    if (!isNaN(tons) && !isNaN(size) && size > 0) {
+                                                        suggestion = ((tons * 1000) / size).toFixed(0) + " SACOS";
+                                                    }
+                                                }
                                                 
                                                 setData(prev => ({
                                                     ...prev,
                                                     sack_type: val,
-                                                    sacks_count: newSacksCount
+                                                    sacks_count: suggestion
                                                 }));
                                             }}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
@@ -697,7 +702,7 @@ export default function Edit({
                                             <option value="1000">1000 KG</option>
                                         </select>
                                     </div>
-                                    {data.sack_type === "1000" && (
+                                    {data.sack_type && (
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-1">
                                                 Número de Sacos (Manual)

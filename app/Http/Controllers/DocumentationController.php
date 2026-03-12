@@ -147,7 +147,16 @@ class DocumentationController extends Controller
         $validated['shortage_balance'] = $request->input('balance');
 
         if ($validated['presentation'] === 'ENVASADO' && $request->has('sack_type')) {
-            $validated['sacks_count'] = $request->input('sack_type') . ' KG';
+            $sackType = $request->input('sack_type');
+            $validated['sacks_count'] = $sackType . ' KG';
+            
+            // Append sack size to product name if not already there
+            if ($sackType && !empty($validated['product'])) {
+                $suffix = " - {$sackType} KG";
+                if (strpos($validated['product'], $suffix) === false) {
+                    $validated['product'] .= $suffix;
+                }
+            }
         }
 
         // Remove auxiliary fields not in DB
@@ -682,15 +691,24 @@ class DocumentationController extends Controller
             ])->withInput();
         }
 
-        // Logic for Sacks
+        // Logic for Sacks and Product Description
         $validated['shortage_balance'] = $request->input('balance');
         if ($validated['presentation'] === 'ENVASADO') {
             $sackType = (string)$request->input('sack_type');
-            if ($sackType === '1000' && $request->filled('sacks_count')) {
-                // Use manual count ONLY if size is 1000kg and count is provided
+            
+            // Append sack size to product name for reports if not already there
+            if ($sackType && !empty($validated['product'])) {
+                $suffix = " - {$sackType} KG";
+                if (strpos($validated['product'], $suffix) === false) {
+                    $validated['product'] .= $suffix;
+                }
+            }
+
+            if ($request->filled('sacks_count')) {
+                // Use manual count for ANY size if provided (e.g. "35 SACOS")
                 $validated['sacks_count'] = $request->input('sacks_count');
             } elseif ($sackType && $sackType !== "") {
-                // For any other size (25, 50, 200, 500), force automatic format "X KG"
+                // Fallback to automatic format "X KG" if no manual count provided
                 $validated['sacks_count'] = $sackType . ' KG';
             }
         }

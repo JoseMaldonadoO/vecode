@@ -270,7 +270,12 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
         $sacksValue = '0';
         if ($order->presentation && strpos(strtoupper($order->presentation), 'ENVASADO') !== false) {
             $tons = (float) ($order->programmed_tons ?? 0);
-            if ($order->sacks_count && strpos(strtoupper($order->sacks_count), 'KG') !== false) {
+            
+            if ($order->sacks_count && strpos(strtoupper($order->sacks_count), 'SACO') !== false) {
+                // Use manual value directly (e.g. "35 SACOS")
+                $sacksValue = $order->sacks_count;
+            } elseif ($order->sacks_count && strpos(strtoupper($order->sacks_count), 'KG') !== false) {
+                // Standard automatic size (e.g. "50 KG")
                 $size = (int) preg_replace('/[^0-9]/', '', $order->sacks_count);
                 if ($size > 0) {
                     $sacksValue = round(($tons * 1000) / $size);
@@ -282,6 +287,17 @@ class ShipmentOrdersExport implements FromQuery, WithHeadings, WithMapping, Shou
                     $size = (int) preg_replace('/[^0-9]/', '', $order->sacks_count);
                     if ($size > 0) {
                         $sacksValue = round($netWeight / $size);
+                    }
+                }
+            }
+
+            // Ensure Product Name includes size for Envasado (Report Requirement)
+            if ($order->sacks_count && strpos(strtoupper($order->sacks_count), 'KG') !== false) {
+                preg_match('/(\d+)\s*KG/i', $order->sacks_count, $matches);
+                if (isset($matches[1])) {
+                    $suffix = " - " . $matches[1] . " KG";
+                    if (strpos($productName, $suffix) === false) {
+                        $productName .= $suffix;
                     }
                 }
             }
