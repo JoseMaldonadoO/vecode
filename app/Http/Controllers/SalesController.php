@@ -81,18 +81,26 @@ class SalesController extends Controller
                         continue;
                     }
 
-                    // Otherwise sum finished weight tickets up to cutOff
-                    $tripsQuantity = \App\Models\LoadingOrder::where('shipment_order_id', $shipment->id)
+                    // Otherwise calculate based on trips created up to cutOff
+                    $trips = \App\Models\LoadingOrder::where('shipment_order_id', $shipment->id)
                         ->where('created_at', '<=', $cutOff)
-                        ->whereHas('weight_ticket', function($q) use ($cutOff) {
-                            $q->where('weighing_status', 'completed')
-                              ->where('weigh_out_at', '<=', $cutOff);
+                        ->where(function($q) use ($cutOff) {
+                            $q->whereNull('cancelled_at')
+                              ->orWhere('cancelled_at', '>', $cutOff);
                         })
                         ->with('weight_ticket')
-                        ->get()
-                        ->sum(fn($t) => $t->weight_ticket->net_weight / 1000);
+                        ->get();
 
-                    $historicalLoaded += $tripsQuantity;
+                    foreach ($trips as $trip) {
+                        $ticket = $trip->weight_ticket;
+                        // If ticket finished before/at cut-off, use real weight
+                        if ($ticket && $ticket->weighing_status === 'completed' && $ticket->weigh_out_at <= $cutOff) {
+                            $historicalLoaded += ($ticket->net_weight / 1000);
+                        } else {
+                            // Otherwise (in progress or not yet started at that time), use programmed_tons (matches live logic)
+                            $historicalLoaded += (float) ($trip->programmed_tons ?? 0);
+                        }
+                    }
                 }
 
                 $order->loaded_quantity = $historicalLoaded;
@@ -105,7 +113,10 @@ class SalesController extends Controller
                 }
 
                 return $order;
-            });
+            })->filter(function($order) {
+                // Show only open orders for historical filter as requested
+                return $order->status === 'created';
+            })->values(); // Re-index for JSON response
         }
 
         return Inertia::render('Sales/Orders/Index', [
