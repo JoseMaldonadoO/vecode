@@ -47,8 +47,9 @@ class SalesController extends Controller
         }
 
         if ($cutOff) {
-            // Filter orders created at or before the cut-off
-            $query->where('created_at', '<=', $cutOff);
+            // Filter orders created at or before the cut-off AND avoid cancelled "noise"
+            $query->where('created_at', '<=', $cutOff)
+                  ->where('status', '!=', 'cancelled');
         } else {
             // Default status to 'created' if not specified and NOT viewing history
             $statusFilter = $request->input('status', 'created');
@@ -56,43 +57,14 @@ class SalesController extends Controller
         }
 
         $orders = $query->orderBy('created_at', 'desc')
-            ->paginate(20) // Increased pagination for better overview
+            ->paginate(100) // Large page for history to account for filtering
             ->withQueryString();
 
         if ($cutOff) {
             // Transform and filter results to show only open historical data
             $filteredItems = $orders->getCollection()->transform(function ($order) use ($cutOff) {
-                $historicalLoaded = 0;
-
-                $shipments = $order->shipments()
-                    ->where('created_at', '<=', $cutOff)
-                    ->where(function($q) use ($cutOff) {
-                        $q->whereNull('cancelled_at')
-                          ->orWhere('cancelled_at', '>', $cutOff);
-                    })
-                    ->get();
-
-                foreach ($shipments as $shipment) {
-                    if (strtoupper($shipment->presentation) === 'ENVASADO') {
-                        $historicalLoaded += (float) ($shipment->programmed_tons ?? 0);
-                        continue;
-                    }
-
-                    $trips = \App\Models\LoadingOrder::where('shipment_order_id', $shipment->id)
-                        ->where('created_at', '<=', $cutOff)
-                        ->where('status', '!=', 'cancelled')
-                        ->with('weight_ticket')
-                        ->get();
-
-                    foreach ($trips as $trip) {
-                        $ticket = $trip->weight_ticket;
-                        if ($ticket && $ticket->weighing_status === 'completed' && $ticket->weigh_out_at <= $cutOff) {
-                            $historicalLoaded += ($ticket->net_weight / 1000);
-                        } else {
-                            $historicalLoaded += (float) ($trip->programmed_tons ?? 0);
-                        }
-                    }
-                }
+                // Use the refined model method that counts all trips (direct and indirect)
+                $historicalLoaded = $order->calculateLoadedQuantity($cutOff);
 
                 $order->loaded_quantity = $historicalLoaded;
                 

@@ -40,6 +40,11 @@ class SalesOrder extends Model
         );
     }
 
+    public function trips()
+    {
+        return $this->hasMany(LoadingOrder::class, 'sales_order_id');
+    }
+
 
     public function weight_tickets()
     {
@@ -66,38 +71,64 @@ class SalesOrder extends Model
 
     /**
      * The original heavy calculation logic, now available as a helper.
+     * $cutOff allows calculating state at a specific point in time.
      */
-    public function calculateLoadedQuantity(): float
+    public function calculateLoadedQuantity($cutOff = null): float
     {
         $total = 0;
 
-        // Traverse: SalesOrder -> ShipmentOrder -> LoadingOrder -> WeightTicket
-        $shipments = $this->shipments()
-            ->with(['loadingOrders.weight_ticket'])
-            ->where('status', '!=', 'cancelled')
-            ->get();
+        // Traverse all trips directly linked to the Sales Order
+        $tripsQuery = $this->trips()
+            ->with(['weight_ticket'])
+            ->where('status', '!=', 'cancelled');
+
+        if ($cutOff) {
+            $tripsQuery->where('created_at', '<=', $cutOff);
+        }
+
+        $trips = $tripsQuery->get();
+
+        // 1. Check Packed Product (ENVASADO) from OE Snapshot
+        // We still need to handle Envasado differently as it may not have tickets
+        $shipmentsQuery = $this->shipments()
+            ->where('status', '!=', 'cancelled');
+        
+        if ($cutOff) {
+            $shipmentsQuery->where('created_at', '<=', $cutOff)
+                ->where(function($q) use ($cutOff) {
+                    $q->whereNull('cancelled_at')
+                      ->orWhere('cancelled_at', '>', $cutOff);
+                });
+        }
+        
+        $shipments = $shipmentsQuery->get();
 
         foreach ($shipments as $shipment) {
-            $trips = $shipment->loadingOrders;
-
-            // 1. Packed Product (ENVASADO): Bypasses scale, counts immediately
             if (strtoupper($shipment->presentation) === 'ENVASADO') {
                 $total += (float) ($shipment->programmed_tons ?? 0);
+            }
+        }
+
+        // 2. Sum regular trips for Bulk (GRANEL) or others using tickets
+        foreach ($trips as $trip) {
+            // Avoid double-counting if we already handled it as Envasado (Safety check)
+            if ($trip->shipment_order && strtoupper($trip->shipment_order->presentation) === 'ENVASADO') {
                 continue;
             }
 
-            // 2. Bulk Product (GRANEL): Follows standard scale flow
-            foreach ($trips as $trip) {
-                if ($trip->status === 'cancelled')
-                    continue;
-
-                if ($trip->weight_ticket) {
-                    if ($trip->weight_ticket->weighing_status === 'completed') {
-                        $total += ($trip->weight_ticket->net_weight / 1000);
-                    } else {
-                        $total += (float) ($trip->programmed_tons ?? 0);
-                    }
+            if ($trip->weight_ticket) {
+                $ticket = $trip->weight_ticket;
+                $isCompletedAtTime = ($ticket->weighing_status === 'completed' && (!$cutOff || $ticket->weigh_out_at <= $cutOff));
+                
+                if ($isCompletedAtTime) {
+                    $total += ($ticket->net_weight / 1000);
+                } else {
+                    // In progress: Use programmed_tons (matches live "optimistic" behavior)
+                    $total += (float) ($trip->programmed_tons ?? 0);
                 }
+            } else {
+                // No ticket yet: fallback to programmed_tons
+                $total += (float) ($trip->programmed_tons ?? 0);
             }
         }
 
