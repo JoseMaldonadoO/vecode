@@ -63,9 +63,16 @@ class SalesController extends Controller
         if ($cutOff) {
             // Transform and filter results to show only open historical data
             $filteredItems = $orders->getCollection()->transform(function ($order) use ($cutOff) {
-                // Use the refined model method that counts all trips (direct and indirect)
-                $historicalLoaded = $order->calculateLoadedQuantity($cutOff);
+                // 1. Check if the order was already closed manually by that date
+                // If it is closed now and was updated last before/at cut-off, it was already closed then.
+                if (($order->status === 'closed' || $order->status === 'completed') && $order->updated_at <= $cutOff) {
+                    $order->status = 'closed';
+                    $order->loaded_quantity = $order->calculateLoadedQuantity($cutOff);
+                    return $order;
+                }
 
+                // 2. Otherwise calculate based on balance at T
+                $historicalLoaded = $order->calculateLoadedQuantity($cutOff);
                 $order->loaded_quantity = $historicalLoaded;
                 
                 // Set virtual status (Use epsilon 0.001 to avoid floating point 'open' state on full orders)
