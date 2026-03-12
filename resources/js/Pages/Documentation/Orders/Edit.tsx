@@ -65,8 +65,12 @@ export default function Edit({
     // Helper to find partial match for product
     const findProduct = () => {
         // Priority: product_text (from column), then product.name (relation), then product (if string)
-        const pName = order.product_text || order.product?.name || order.product || "";
+        let pName = order.product_text || order.product?.name || order.product || "";
         if (!pName) return "";
+
+        // Remove the sack size suffix if present (e.g. "UREA AGRICOLA - 50 KG" -> "UREA AGRICOLA")
+        pName = pName.replace(/\s*-\s*\d+\s*KG\s*$/i, "").trim();
+
         // Try exact match
         if (products.some(p => p.name === pName)) return pName;
         // Try trimmed match
@@ -102,11 +106,28 @@ export default function Edit({
         // Product Data
         product: findProduct(),
         presentation: order.presentation || "GRANEL",
-        sack_type: (order.sacks_count_raw || order.sacks_count || "").toString().replace(/\D/g, ''),
+        sack_type: (() => {
+            const rawSacks = (order.sacks_count_raw || order.sacks_count || "").toString();
+            const fromSacks = rawSacks.match(/(\d+)\s*KG/i);
+            if (fromSacks) return fromSacks[1];
+
+            const pName = order.product_text || order.product?.name || order.product || "";
+            const fromProduct = pName.match(/\s*-\s*(\d+)\s*KG\s*$/i);
+            if (fromProduct) return fromProduct[1];
+
+            return "";
+        })(),
         sacks_count: (() => {
-            const raw = (order.sacks_count_raw || order.sacks_count || "").toString();
-            if (order.presentation === "ENVASADO" && raw === "1000 KG" && order.programmed_tons) {
-                return parseFloat(order.programmed_tons).toFixed(0) + " SACOS";
+            const raw = (order.sacks_count_raw || order.sacks_count || "").toString().toUpperCase();
+            if (order.presentation === "ENVASADO") {
+                // If it's just a size like "50 KG", calculate the default count
+                if (raw.includes("KG") && !raw.includes("SACO") && order.programmed_tons) {
+                    const size = parseInt(raw.replace(/\D/g, ''));
+                    const tons = parseFloat(order.programmed_tons);
+                    if (!isNaN(size) && size > 0 && !isNaN(tons)) {
+                        return ((tons * 1000) / size).toFixed(0) + " SACOS";
+                    }
+                }
             }
             return raw;
         })(),

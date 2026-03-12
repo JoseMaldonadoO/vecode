@@ -696,12 +696,14 @@ class DocumentationController extends Controller
         if ($validated['presentation'] === 'ENVASADO') {
             $sackType = (string)$request->input('sack_type');
             
+            // Clean existing suffix if present before adding updated one to avoid duplication
+            if (!empty($validated['product'])) {
+                $validated['product'] = preg_replace('/\s*-\s*\d+\s*KG\s*$/i', '', $validated['product']);
+            }
+
             // Append sack size to product name for reports if not already there
-            if ($sackType && !empty($validated['product'])) {
-                $suffix = " - {$sackType} KG";
-                if (strpos($validated['product'], $suffix) === false) {
-                    $validated['product'] .= $suffix;
-                }
+            if ($sackType) {
+                $validated['product'] .= " - {$sackType} KG";
             }
 
             if ($request->filled('sacks_count')) {
