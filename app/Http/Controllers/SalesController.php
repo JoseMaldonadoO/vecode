@@ -60,10 +60,8 @@ class SalesController extends Controller
             ->withQueryString();
 
         if ($cutOff) {
-            // Transform results to show historical data
-            $orders->getCollection()->transform(function ($order) use ($cutOff) {
-                // Calculate loaded quantity up to that point
-                // Traverse: SalesOrder -> ShipmentOrder -> LoadingOrder -> WeightTicket
+            // Transform and filter results to show only open historical data
+            $filteredItems = $orders->getCollection()->transform(function ($order) use ($cutOff) {
                 $historicalLoaded = 0;
 
                 $shipments = $order->shipments()
@@ -75,13 +73,11 @@ class SalesController extends Controller
                     ->get();
 
                 foreach ($shipments as $shipment) {
-                    // Check if it was packed/envasado at that time
                     if (strtoupper($shipment->presentation) === 'ENVASADO') {
                         $historicalLoaded += (float) ($shipment->programmed_tons ?? 0);
                         continue;
                     }
 
-                    // Otherwise calculate based on trips created up to cutOff
                     $trips = \App\Models\LoadingOrder::where('shipment_order_id', $shipment->id)
                         ->where('created_at', '<=', $cutOff)
                         ->where('status', '!=', 'cancelled')
@@ -90,11 +86,9 @@ class SalesController extends Controller
 
                     foreach ($trips as $trip) {
                         $ticket = $trip->weight_ticket;
-                        // If ticket finished before/at cut-off, use real weight
                         if ($ticket && $ticket->weighing_status === 'completed' && $ticket->weigh_out_at <= $cutOff) {
                             $historicalLoaded += ($ticket->net_weight / 1000);
                         } else {
-                            // Otherwise (in progress or not yet started at that time), use programmed_tons (matches live logic)
                             $historicalLoaded += (float) ($trip->programmed_tons ?? 0);
                         }
                     }
@@ -102,18 +96,19 @@ class SalesController extends Controller
 
                 $order->loaded_quantity = $historicalLoaded;
                 
-                // Set virtual status based on balance at T (match user terminology ABIERTA/CERRADA)
-                if ($historicalLoaded < $order->total_quantity) {
-                    $order->status = 'created'; // Will show as "ABIERTA"
+                // Set virtual status (Use epsilon 0.001 to avoid floating point 'open' state on full orders)
+                if ($historicalLoaded < ($order->total_quantity - 0.001)) {
+                    $order->status = 'created'; // "ABIERTA"
                 } else {
-                    $order->status = 'closed'; // Will show as "CERRADA"
+                    $order->status = 'closed';  // "CERRADA"
                 }
 
                 return $order;
             })->filter(function($order) {
-                // Show only open orders for historical filter as requested
                 return $order->status === 'created';
-            })->values(); // Re-index for JSON response
+            })->values();
+
+            $orders->setCollection($filteredItems);
         }
 
         return Inertia::render('Sales/Orders/Index', [
