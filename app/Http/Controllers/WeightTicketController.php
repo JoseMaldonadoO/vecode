@@ -23,18 +23,6 @@ class WeightTicketController extends Controller
     {
         $activeTab = $request->input('tab', 'sale');
 
-        // 1. Pending Entry (Authorized but no active Ticket)
-        $pending_entry = LoadingOrder::with(['client', 'driver', 'vehicle', 'product'])
-            ->where('status', 'authorized')
-            ->where(function ($q) {
-                $q->whereDoesntHave('weight_ticket')
-                    ->orWhereHas('weight_ticket', function ($wt) {
-                        $wt->where('weighing_status', 'cancelled');
-                    });
-            })
-            ->orderBy('entry_at', 'asc')
-            ->get();
-
         // 2. Pending Exit (Ticket In Progress OR Status Loading)
         $query = LoadingOrder::with([
             'client',
@@ -210,35 +198,7 @@ class WeightTicketController extends Controller
             });
 
         return Inertia::render('Scale/Index', [
-            'pending_entry' => $pending_entry->map(function ($order) {
-                $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
-                $tractorPlate = $order->tractor_plate;
-                $trailerPlate = $order->trailer_plate ?? 'N/A';
-
-                if ($order->shipment_order_id && $order->shipment_order) {
-                    $operatorName = $order->shipment_order->operator_name ?? $operatorName;
-                    $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
-                    $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
-                }
-
-                $productName = $order->product?->name ?? $order->shipment_order?->product?->name ?? $order->shipment_order?->product ?? 'N/A';
-
-                return [
-                    'id' => $order->id,
-                    'folio' => $order->folio,
-                    'provider' => $order->shipment_order?->client?->business_name ?? $order->shipment_order?->client?->name ?? $order->client_name,
-                    'product' => $productName,
-                    'vehicle_plate' => $tractorPlate,
-                    'trailer_plate' => $trailerPlate,
-                    'driver' => $operatorName,
-                    'transport_line' => $order->transport_company,
-                    'economic_number' => $order->economic_number ?? 'N/A',
-                    'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
-                    'entry_at' => $order->entry_at,
-                    'type' => $order->shipment_order_id ? 'sale' : 'vessel',
-                    'oe_folio' => $order->shipment_order?->folio ?? 'N/A',
-                ];
-            }),
+            'pending_entry' => [], // Removed submodule mapping as requested
             'pending_exit' => $pending_exit_paginated,
             'clients' => $clients,
             'products' => $products,
