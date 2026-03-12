@@ -77,6 +77,15 @@ export default function EntrySale({
         }
     }, [weight, capturedWeight]);
 
+    // Handle folio from URL for auto-search
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const folio = params.get('folio');
+        if (folio) {
+            searchOrder(folio);
+        }
+    }, []);
+
     // Handle Errors
     useEffect(() => {
         if (Object.keys(errors).length > 0) {

@@ -973,10 +973,10 @@ class DocumentationController extends Controller
             $timing = $computeStatus($order);
             $ticket = $resolveTicket($order);
             
-            // Ticket status for pending rows
+            // Ticket status for pending rows - Only checkmark if ticket is NOT cancelled
             $ticketStatus = null;
             if ($timing['is_pending']) {
-                $ticketStatus = $ticket ? 'checkmark' : 'x';
+                $ticketStatus = ($ticket && $ticket->weighing_status !== 'cancelled') ? 'checkmark' : 'x';
             }
 
             return [

@@ -131,6 +131,7 @@ const Timer = ({ entryAt }: { entryAt: string }) => {
 
 export default function Index({
     auth,
+    pending_entry = [],
     pending_exit,
     flash,
     clients = [],
@@ -139,6 +140,7 @@ export default function Index({
     filters = { client_id: '', product_id: '', warehouse: '', presentation: '', search: '', tab: 'sale' }
 }: {
     auth: any;
+    pending_entry: any[];
     pending_exit: any;
     flash?: any;
     clients?: any[];
@@ -150,6 +152,7 @@ export default function Index({
     const [scaleId, setScaleId] = useState<number>(1);
     const [showScaleModal, setShowScaleModal] = useState(false);
     const [viewMode, setViewMode] = useState<"menu" | "table">("menu");
+    const [operationStep, setOperationStep] = useState<"tare" | "destare">("destare");
     // State for Operation Type (Venta vs Barco) - Linked to Server Filters
     const [operationType, setOperationType] = useState<'sale' | 'vessel'>(filters?.tab as 'sale' | 'vessel' || 'sale');
     // Filters State
@@ -356,6 +359,31 @@ export default function Index({
                         <button
                             onClick={() => {
                                 setViewMode("table");
+                                setOperationStep("tare");
+                                import('@inertiajs/react').then(({ router }) => {
+                                    router.get(route(route().current() as string), {
+                                        view: 'table',
+                                        scale_id: scaleId
+                                    }, { preserveState: true, replace: true });
+                                });
+                            }}
+                            className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-500 w-full"
+                        >
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 bg-blue-50 text-blue-600">
+                                <Hourglass className="w-8 h-8" />
+                            </div>
+                            <h3 className="font-bold text-gray-800">Tara (Ingreso)</h3>
+                            <div className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1">Esperando Pesaje Inicial</div>
+                            <p className="text-xs text-gray-400 mt-2 font-medium px-4 flex items-center gap-1 justify-center">
+                                <Activity className="w-3 h-3 text-blue-500 animate-pulse" />
+                                {pending_entry.length ?? 0} unidades en espera
+                            </p>
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setViewMode("table");
+                                setOperationStep("destare");
                                 import('@inertiajs/react').then(({ router }) => {
                                     router.get(route(route().current() as string), {
                                         view: 'table',
@@ -368,8 +396,8 @@ export default function Index({
                             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-transform transform group-hover:scale-110 bg-green-50 text-green-600">
                                 <Scale className="w-8 h-8" />
                             </div>
-                            <h3 className="font-bold text-gray-800">Destare</h3>
-                            <div className="text-[10px] font-bold text-green-600 uppercase tracking-widest mt-1">Unidades en Planta</div>
+                            <h3 className="font-bold text-gray-800">Destare (Salida)</h3>
+                            <div className="text-[10px] font-bold text-green-600 uppercase tracking-widest mt-1">En Carga / Por Salir</div>
                             <p className="text-xs text-gray-400 mt-2 font-medium px-4 flex items-center gap-1 justify-center">
                                 <Activity className="w-3 h-3 text-green-500 animate-pulse" />
                                 {pending_exit.total ?? 0} unidades activas
@@ -391,7 +419,7 @@ export default function Index({
                                 </button>
                                 <h2 className="text-xl font-bold text-gray-800 flex items-center border-l-4 border-indigo-500 pl-4">
                                     <Truck className="w-6 h-6 mr-2 text-indigo-600" />
-                                    Pendientes de Salida
+                                    {operationStep === 'tare' ? 'Pendientes de Tara (Entrada)' : 'Pendientes de Salida (Destare)'}
                                 </h2>
                             </div>
                         </div>
@@ -399,6 +427,27 @@ export default function Index({
                         {/* TABS & FILTERS CONTAINER */}
                         <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 border-b border-gray-200 pb-4">
                             {/* Operation Type Tabs */}
+                            <div className="flex p-1 bg-gray-100 rounded-lg">
+                                <button
+                                    onClick={() => setOperationStep('tare')}
+                                    className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${operationStep === 'tare'
+                                        ? 'bg-blue-600 text-white shadow-sm'
+                                        : 'text-gray-500 hover:text-gray-700'
+                                        }`}
+                                >
+                                    TARA
+                                </button>
+                                <button
+                                    onClick={() => setOperationStep('destare')}
+                                    className={`px-4 py-2 rounded-md text-sm font-bold transition-all ${operationStep === 'destare'
+                                        ? 'bg-green-600 text-white shadow-sm'
+                                        : 'text-gray-500 hover:text-gray-700'
+                                        }`}
+                                >
+                                    DESTARE
+                                </button>
+                            </div>
+
                             <div className="flex p-1 bg-gray-100 rounded-lg">
                                 <button
                                     onClick={() => handleFilterChange('tab', 'sale')}
@@ -487,8 +536,8 @@ export default function Index({
                                     ))}
                                 </select>
 
-                                <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-sm ml-auto">
-                                    {pending_exit.total ?? 0} Registros
+                                <span className={`${operationStep === 'tare' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'} font-bold px-3 py-1 rounded-full text-sm ml-auto`}>
+                                    {operationStep === 'tare' ? pending_entry.length : (pending_exit.total ?? 0)} Registros
                                 </span>
                             </div>
                         </div>
@@ -518,8 +567,8 @@ export default function Index({
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 bg-white">
-                                        {pending_exit.data.length > 0 ? (
-                                            pending_exit.data.map((order: any) => (
+                                        {(operationStep === 'tare' ? pending_entry : pending_exit.data).length > 0 ? (
+                                            (operationStep === 'tare' ? pending_entry : pending_exit.data).map((order: any) => (
                                                 <tr key={order.id} className="hover:bg-indigo-50 transition-all duration-200 group">
                                                     {operationType === 'sale' && (
                                                         <td className="px-6 py-4 font-mono font-bold text-indigo-900 border-l border-indigo-100">
@@ -564,20 +613,29 @@ export default function Index({
                                                     </td>
                                                     {/* Acción */}
                                                     <td className="px-6 py-4 text-center">
-                                                        <Link
-                                                            href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                            className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
-                                                        >
-                                                            Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
-                                                        </Link>
+                                                        {operationStep === 'tare' ? (
+                                                            <Link
+                                                                href={(order.type === 'sale' ? route("scale.entry-sale") : route("scale.entry-mp")) + `?scale_id=${scaleId}&folio=${order.folio}`}
+                                                                className="inline-flex items-center justify-center px-3 py-1.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition shadow-sm hover:shadow-md text-sm"
+                                                            >
+                                                                Pesar Tara <ArrowRight className="w-4 h-4 ml-1.5" />
+                                                            </Link>
+                                                        ) : (
+                                                            <Link
+                                                                href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
+                                                                className="inline-flex items-center justify-center px-3 py-1.5 bg-indigo-600 text-white rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm hover:shadow-md text-sm"
+                                                            >
+                                                                Destarar <ArrowRight className="w-4 h-4 ml-1.5" />
+                                                            </Link>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                                                <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
                                                     <Truck className="mx-auto h-12 w-12 text-indigo-200 mb-3" />
-                                                    <p className="text-lg font-medium text-gray-900">No hay unidades pendientes</p>
+                                                    <p className="text-lg font-medium text-gray-900">No hay unidades en espera de {operationStep === 'tare' ? 'Tara' : 'Destare'}</p>
                                                     <p className="text-sm text-gray-500">En esta categoría.</p>
                                                 </td>
                                             </tr>
@@ -588,8 +646,8 @@ export default function Index({
 
                             {/* Mobile View (Filtered) */}
                             <div className="lg:hidden p-4 space-y-4">
-                                {pending_exit.data.length > 0 ? (
-                                    pending_exit.data.map((order: any) => (
+                                {(operationStep === 'tare' ? pending_entry : pending_exit.data).length > 0 ? (
+                                    (operationStep === 'tare' ? pending_entry : pending_exit.data).map((order: any) => (
                                         <div
                                             key={order.id}
                                             className="bg-gray-50 rounded-xl p-4 border border-gray-200 shadow-sm flex flex-col gap-3"
@@ -657,12 +715,21 @@ export default function Index({
                                                 )}
                                             </div>
 
-                                            <Link
-                                                href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
-                                                className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
-                                            >
-                                                Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
-                                            </Link>
+                                            {operationStep === 'tare' ? (
+                                                <Link
+                                                    href={(order.type === 'sale' ? route("scale.entry-sale") : route("scale.entry-mp")) + `?scale_id=${scaleId}&folio=${order.folio}`}
+                                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition shadow-md active:scale-95"
+                                                >
+                                                    Pesar Tara <ArrowRight className="w-5 h-5 ml-2" />
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href={route("scale.exit", order.id) + `?scale_id=${scaleId}`}
+                                                    className="mt-2 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-md active:scale-95"
+                                                >
+                                                    Destarar Unidad <ArrowRight className="w-5 h-5 ml-2" />
+                                                </Link>
+                                            )}
                                         </div>
                                     ))
                                 ) : (
@@ -672,8 +739,8 @@ export default function Index({
                                 )}
                             </div>
                         </div>
-                        {/* Pagination Component */}
-                        <Pagination links={pending_exit.links} />
+                        {/* Pagination Component - Only for Destare */}
+                        {operationStep === 'destare' && <Pagination links={pending_exit.links} />}
                     </div>
                 )}
             </div>

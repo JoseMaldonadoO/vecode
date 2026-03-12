@@ -85,6 +85,15 @@ export default function EntryMP({
         }
     }, [weight, capturedWeight]);
 
+    // Handle folio/qr from URL for auto-search
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const folio = params.get('folio') || params.get('qr');
+        if (folio) {
+            searchOrder(folio);
+        }
+    }, []);
+
     // Handle Errors & Flash Messages
     useEffect(() => {
         if (Object.keys(errors).length > 0) {

@@ -23,10 +23,15 @@ class WeightTicketController extends Controller
     {
         $activeTab = $request->input('tab', 'sale');
 
-        // 1. Pending Entry (Authorized but no Ticket)
+        // 1. Pending Entry (Authorized but no active Ticket)
         $pending_entry = LoadingOrder::with(['client', 'driver', 'vehicle', 'product'])
             ->where('status', 'authorized')
-            ->whereDoesntHave('weight_ticket')
+            ->where(function ($q) {
+                $q->whereDoesntHave('weight_ticket')
+                    ->orWhereHas('weight_ticket', function ($wt) {
+                        $wt->where('weighing_status', 'cancelled');
+                    });
+            })
             ->orderBy('entry_at', 'asc')
             ->get();
 
@@ -205,7 +210,35 @@ class WeightTicketController extends Controller
             });
 
         return Inertia::render('Scale/Index', [
-            'pending_entry' => $pending_entry,
+            'pending_entry' => $pending_entry->map(function ($order) {
+                $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
+                $tractorPlate = $order->tractor_plate;
+                $trailerPlate = $order->trailer_plate ?? 'N/A';
+
+                if ($order->shipment_order_id && $order->shipment_order) {
+                    $operatorName = $order->shipment_order->operator_name ?? $operatorName;
+                    $tractorPlate = $order->shipment_order->tractor_plate ?? $tractorPlate;
+                    $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
+                }
+
+                $productName = $order->product?->name ?? $order->shipment_order?->product?->name ?? $order->shipment_order?->product ?? 'N/A';
+
+                return [
+                    'id' => $order->id,
+                    'folio' => $order->folio,
+                    'provider' => $order->shipment_order?->client?->business_name ?? $order->shipment_order?->client?->name ?? $order->client_name,
+                    'product' => $productName,
+                    'vehicle_plate' => $tractorPlate,
+                    'trailer_plate' => $trailerPlate,
+                    'driver' => $operatorName,
+                    'transport_line' => $order->transport_company,
+                    'economic_number' => $order->economic_number ?? 'N/A',
+                    'reference' => $order->reference ?? ($order->shipment_order?->customer_reference ?? 'N/A'),
+                    'entry_at' => $order->entry_at,
+                    'type' => $order->shipment_order_id ? 'sale' : 'vessel',
+                    'oe_folio' => $order->shipment_order?->folio ?? 'N/A',
+                ];
+            }),
             'pending_exit' => $pending_exit_paginated,
             'clients' => $clients,
             'products' => $products,
@@ -545,6 +578,11 @@ class WeightTicketController extends Controller
                         'destare_status' => 'pending'
                     ]);
 
+                    // Revert Shipment Order status if linked
+                    if ($order->shipment_order_id) {
+                        $order->shipment_order?->update(['status' => 'authorized']);
+                    }
+
                     // Sync Sales Order if linked
                     if ($order->sales_order_id) {
                         $order->sales_order?->syncLoadedQuantity();
@@ -673,8 +711,9 @@ class WeightTicketController extends Controller
         }
 
         // Check if ticket exists via weight_ticket relation
-        if ($order->weight_ticket) {
-            return response()->json(['error' => 'Esta orden ya tiene un ticket de báscula generado.'], 403);
+        // Only block if there is an ACTIVE (non-cancelled) ticket
+        if ($order->weight_ticket && $order->weight_ticket->weighing_status !== 'cancelled') {
+            return response()->json(['error' => 'Esta orden ya tiene un ticket de báscula activo generado.'], 403);
         }
 
         // Calculate Programmed Weight and Product from Items or Direct Columns
