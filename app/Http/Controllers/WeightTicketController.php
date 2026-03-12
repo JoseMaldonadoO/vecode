@@ -157,7 +157,17 @@ class WeightTicketController extends Controller
             ->paginate(10)
             ->withQueryString()
             ->through(function ($order) {
+                // Prioritize active (in_progress) ticket over cancelled ones
                 $ticket = $order->weight_ticket;
+                if ($ticket && $ticket->weighing_status === 'cancelled') {
+                    // This logic is mostly for safety as the query filters in_progress, 
+                    // but sometimes primary weight_ticket relation might catch an older one first.
+                    $activeTicket = \App\Models\WeightTicket::where('loading_order_id', $order->id)
+                        ->where('weighing_status', 'in_progress')
+                        ->first();
+                    $ticket = $activeTicket ?: $ticket;
+                }
+
                 $operatorName = $order->operator_name ?? $order->driver->name ?? 'N/A';
                 $tractorPlate = $order->tractor_plate;
                 $trailerPlate = $order->trailer_plate ?? 'N/A';

@@ -920,15 +920,22 @@ class DocumentationController extends Controller
             return $productName;
         };
 
-        // Helper: resolve the best available ticket
+        // Helper: resolve the best available ticket (Prioritize non-cancelled)
         $resolveTicket = function (ShipmentOrder $order) {
-            if ($order->weight_ticket) {
-                return $order->weight_ticket;
+            $primaryTicket = $order->weight_ticket;
+            if ($primaryTicket && $primaryTicket->weighing_status !== 'cancelled') {
+                return $primaryTicket;
             }
+
+            // If primary is cancelled or null, look in loading orders for an active one
             foreach ($order->loadingOrders as $lo) {
-                if ($lo->weight_ticket) return $lo->weight_ticket;
+                if ($lo->weight_ticket && $lo->weight_ticket->weighing_status !== 'cancelled') {
+                    return $lo->weight_ticket;
+                }
             }
-            return null;
+
+            // Fallback to the first one available if all are cancelled
+            return $primaryTicket ?? $order->loadingOrders->pluck('weight_ticket')->filter()->first();
         };
 
         // Helper: resolve warehouse from loading orders or OE directly
