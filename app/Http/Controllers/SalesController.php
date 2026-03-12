@@ -84,10 +84,7 @@ class SalesController extends Controller
                     // Otherwise calculate based on trips created up to cutOff
                     $trips = \App\Models\LoadingOrder::where('shipment_order_id', $shipment->id)
                         ->where('created_at', '<=', $cutOff)
-                        ->where(function($q) use ($cutOff) {
-                            $q->whereNull('cancelled_at')
-                              ->orWhere('cancelled_at', '>', $cutOff);
-                        })
+                        ->where('status', '!=', 'cancelled')
                         ->with('weight_ticket')
                         ->get();
 
