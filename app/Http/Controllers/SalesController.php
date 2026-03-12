@@ -47,9 +47,10 @@ class SalesController extends Controller
         }
 
         if ($cutOff) {
-            // Filter orders created at or before the cut-off AND avoid cancelled "noise"
+            // Filter orders created at or before the cut-off 
+            // AND ONLY show orders that are currently active (matches user request "en el momento activas")
             $query->where('created_at', '<=', $cutOff)
-                  ->where('status', '!=', 'cancelled');
+                  ->whereIn('status', ['created', 'open', 'in_progress']);
         } else {
             // Default status to 'created' if not specified and NOT viewing history
             $statusFilter = $request->input('status', 'created');
@@ -57,22 +58,15 @@ class SalesController extends Controller
         }
 
         $orders = $query->orderBy('created_at', 'desc')
-            ->paginate(100) // Large page for history to account for filtering
+            ->paginate(100) // Large page for history
             ->withQueryString();
 
         if ($cutOff) {
             // Transform and filter results to show only open historical data
             $filteredItems = $orders->getCollection()->transform(function ($order) use ($cutOff) {
-                // 1. Check if the order was already closed manually by that date
-                // If it is closed now and was updated last before/at cut-off, it was already closed then.
-                if (($order->status === 'closed' || $order->status === 'completed') && $order->updated_at <= $cutOff) {
-                    $order->status = 'closed';
-                    $order->loaded_quantity = $order->calculateLoadedQuantity($cutOff);
-                    return $order;
-                }
-
-                // 2. Otherwise calculate based on balance at T
+                // Use the refined model method that counts all trips (direct and indirect)
                 $historicalLoaded = $order->calculateLoadedQuantity($cutOff);
+
                 $order->loaded_quantity = $historicalLoaded;
                 
                 // Set virtual status (Use epsilon 0.001 to avoid floating point 'open' state on full orders)
@@ -84,6 +78,7 @@ class SalesController extends Controller
 
                 return $order;
             })->filter(function($order) {
+                // Show as open in the historical view only if it was indeed open at that time
                 return $order->status === 'created';
             })->values();
 
