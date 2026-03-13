@@ -21,6 +21,7 @@ import { useState, useCallback, useEffect } from "react";
 import { debounce, pickBy } from "lodash";
 import Swal from "sweetalert2";
 import { Settings, CheckCircle2 } from "lucide-react";
+import ActiveScaleIndicator from "@/Components/ActiveScaleIndicator";
 
 const ScaleModal = ({
     onSelect,
@@ -295,20 +296,10 @@ export default function Index({
                                 Historial de Tickets
                             </h2>
 
-                            <button
-                                onClick={() => setShowScaleModal(true)}
-                                className="flex items-center gap-3 px-6 py-3 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-300 transition-all duration-200 group"
-                            >
-                                <div className="p-2 bg-indigo-50 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                    <Settings className="w-5 h-5" />
-                                </div>
-                                <div className="text-left">
-                                    <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Cambiando Báscula</div>
-                                    <div className="text-sm font-black text-gray-700 leading-none">
-                                        Báscula Activa: <span className="text-indigo-600">#{scaleId}</span>
-                                    </div>
-                                </div>
-                            </button>
+                            <ActiveScaleIndicator 
+                                scaleId={scaleId} 
+                                onClick={() => setShowScaleModal(true)} 
+                            />
                         </div>
                     </div>
                 </div>

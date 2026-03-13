@@ -25,6 +25,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useScale } from "@/Contexts/ScaleContext";
+import ActiveScaleIndicator from "@/Components/ActiveScaleIndicator";
 
 export default function EntryMP({
     auth,
@@ -279,16 +280,11 @@ export default function EntryMP({
                             </div>
                         </div>
 
-                        {/* Scale Badge */}
-                        <div className="flex items-center bg-indigo-900/50 px-4 py-2 rounded-lg border border-indigo-700/50">
-                            <Settings className="w-4 h-4 text-indigo-300 mr-2" />
-                            <span className="text-indigo-200 text-sm font-medium mr-2">
-                                Báscula Activa:
-                            </span>
-                            <span className="text-white font-bold text-lg">
-                                #{active_scale_id}
-                            </span>
-                        </div>
+                        {/* Scale Indicator */}
+                        <ActiveScaleIndicator 
+                            scaleId={active_scale_id} 
+                            className="bg-indigo-900/50 border-indigo-700/50"
+                        />
                     </div>
 
                     {/* Search Section */}

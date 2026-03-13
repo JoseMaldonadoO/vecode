@@ -23,6 +23,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useScale } from "@/Contexts/ScaleContext";
+import ActiveScaleIndicator from "@/Components/ActiveScaleIndicator";
 
 export default function EntrySale({
     auth,
@@ -249,16 +250,11 @@ export default function EntrySale({
                             </div>
                         </div>
 
-                        {/* Scale Badge */}
-                        <div className="flex items-center bg-blue-900/50 px-4 py-2 rounded-lg border border-blue-700/50">
-                            <Settings className="w-4 h-4 text-blue-300 mr-2" />
-                            <span className="text-blue-200 text-sm font-medium mr-2">
-                                Báscula Activa:
-                            </span>
-                            <span className="text-white font-bold text-lg">
-                                #{active_scale_id}
-                            </span>
-                        </div>
+                        {/* Scale Indicator */}
+                        <ActiveScaleIndicator 
+                            scaleId={active_scale_id} 
+                            className="bg-blue-900/50 border-blue-700/50"
+                        />
                     </div>
 
                     {/* Search Section */}

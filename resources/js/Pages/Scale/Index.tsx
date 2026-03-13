@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Pagination from "@/Components/Pagination";
+import ActiveScaleIndicator from "@/Components/ActiveScaleIndicator";
 
 import Swal from "sweetalert2";
 
@@ -310,14 +311,10 @@ export default function Index({
             <div className={`${viewMode === 'menu' ? 'max-w-7xl' : 'max-w-[98%]'} mx-auto py-8 px-4 space-y-8`}>
                 {/* Scale Selector */}
                 <div className="flex justify-end">
-                    <button
-                        onClick={() => setShowScaleModal(true)}
-                        className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors text-sm font-bold text-gray-700"
-                    >
-                        <Settings className="w-4 h-4" />
-                        Báscula Activa:{" "}
-                        <span className="text-indigo-600">#{scaleId}</span>
-                    </button>
+                    <ActiveScaleIndicator 
+                        scaleId={scaleId} 
+                        onClick={() => setShowScaleModal(true)} 
+                    />
                 </div>
 
                 {/* View Mode Content */}
