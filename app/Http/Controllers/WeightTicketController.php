@@ -591,8 +591,17 @@ class WeightTicketController extends Controller
     public function createEntrySale(Request $request)
     {
         $scaleId = $request->query('scale_id', 1);
+
+        $pendingShipmentOrders = \App\Models\ShipmentOrder::whereDoesntHave('weight_ticket', function ($q) {
+            $q->where('weighing_status', '!=', 'cancelled');
+        })
+            ->where('status', '!=', 'cancelled')
+            ->orderBy('created_at', 'desc')
+            ->get(['id', 'folio']);
+
         return Inertia::render('Scale/EntrySale', [
-            'active_scale_id' => (int) $scaleId
+            'active_scale_id' => (int) $scaleId,
+            'pending_shipment_orders' => $pendingShipmentOrders
         ]);
     }
 

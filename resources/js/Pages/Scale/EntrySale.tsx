@@ -28,9 +28,11 @@ import ActiveScaleIndicator from "@/Components/ActiveScaleIndicator";
 export default function EntrySale({
     auth,
     active_scale_id = 1,
+    pending_shipment_orders = [],
 }: {
     auth: any;
     active_scale_id?: number;
+    pending_shipment_orders?: { id: string; folio: string }[];
 }) {
     const { weight, isConnected, connectScale, setManualWeight } = useScale();
     const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
@@ -282,10 +284,16 @@ export default function EntrySale({
                                     <div className="relative flex-1">
                                         <input
                                             type="text"
+                                            list="pending-oes"
                                             value={folioQuery}
-                                            onChange={(e) =>
-                                                setFolioQuery(normalizeFolio(e.target.value))
-                                            }
+                                            onChange={(e) => {
+                                                const val = normalizeFolio(e.target.value);
+                                                setFolioQuery(val);
+                                                // Automatic search if selected from list
+                                                if (pending_shipment_orders.some(oe => oe.folio.toUpperCase() === val.toUpperCase())) {
+                                                    searchOrder(val);
+                                                }
+                                            }}
                                             onKeyDown={(e) =>
                                                 e.key === "Enter" &&
                                                 searchOrder()
@@ -294,6 +302,11 @@ export default function EntrySale({
                                             placeholder="Ej: 00123"
                                             autoFocus
                                         />
+                                        <datalist id="pending-oes">
+                                            {pending_shipment_orders.map((oe) => (
+                                                <option key={oe.id} value={oe.folio} />
+                                            ))}
+                                        </datalist>
                                         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                             <Search
                                                 className="h-5 w-5 text-gray-400"
