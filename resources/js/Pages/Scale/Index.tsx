@@ -195,14 +195,17 @@ export default function Index({
                 toast: true,
                 position: "top-end",
             });
-        }
-
-        // Check for view=table or view=pending in URL
+        // Check for view mode status
+        const viewParam = params.get("view");
         const hasRecords = pending_exit.data && pending_exit.data.length > 0;
         const hasSearchParams = params.has('search') || params.has('client_id') || params.has('product_id') || params.has('warehouse') || params.has('presentation') || params.has('page');
 
-        if (params.get("view") === "table" || params.get("view") === "pending" || hasSearchParams) {
+        if (viewParam === "menu") {
+            setViewMode("menu");
+        } else if (viewParam === "table" || viewParam === "pending" || hasSearchParams) {
             setViewMode("table");
+        } else {
+            setViewMode("menu");
         }
     }, [flash]);
 
@@ -381,7 +384,18 @@ export default function Index({
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => setViewMode("menu")}
+                                    onClick={() => {
+                                        setViewMode("menu");
+                                        import('@inertiajs/react').then(({ router }) => {
+                                            router.get(route(route().current() as string), {
+                                                view: 'menu',
+                                                scale_id: scaleId
+                                            }, {
+                                                preserveState: true,
+                                                replace: true
+                                            });
+                                        });
+                                    }}
                                     className="flex items-center text-gray-500 hover:text-indigo-600 transition-colors bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm text-sm font-medium"
                                 >
                                     <ArrowLeft className="w-4 h-4 mr-1" />
