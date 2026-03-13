@@ -884,7 +884,11 @@ class DocumentationController extends Controller
         $search = $request->input('search', '');
         $module = $request->input('module', 'documentation');
 
-        // Base query: OE not cancelled, historical (No date range)
+        // Operational Range Calculation: From 07:00 AM today to 06:59 AM tomorrow
+        $operativeDate = OperationalTimeHelper::getOperativeDate(now());
+        [$startRange, $endRange] = OperationalTimeHelper::getOperationalRange($operativeDate);
+
+        // Base query: OE not cancelled
         $baseQuery = ShipmentOrder::query()
             ->with([
                 'client',
@@ -893,7 +897,31 @@ class DocumentationController extends Controller
                 'weight_ticket',
                 'loadingOrders.weight_ticket',
             ])
-            ->whereNotIn('status', ['cancelled']);
+            ->whereNotIn('status', ['cancelled'])
+            ->where(function ($q) use ($startRange, $endRange) {
+                // CASE 1: PENDING (Always visible)
+                // Not 'completed' AND doesn't have a finished weigh-out
+                $q->where(function ($qPending) {
+                    $qPending->where('status', '!=', 'completed')
+                        ->whereDoesntHave('weight_ticket', fn($w) => $w->whereNotNull('weigh_out_at'))
+                        ->whereDoesntHave('loadingOrders.weight_ticket', fn($w) => $w->whereNotNull('weigh_out_at'));
+                })
+                // CASE 2: COMPLETED (Only current operational turno)
+                // Is 'completed' OR has a finished weigh-out
+                ->orWhere(function ($qCompleted) use ($startRange, $endRange) {
+                    $qCompleted->where(function ($qDone) {
+                        $qDone->where('status', 'completed')
+                            ->orWhereHas('weight_ticket', fn($w) => $w->whereNotNull('weigh_out_at'))
+                            ->orWhereHas('loadingOrders.weight_ticket', fn($w) => $w->whereNotNull('weigh_out_at'));
+                    })
+                    ->where(function ($qDate) use ($startRange, $endRange) {
+                        // Must have finished within the operational range
+                        $qDate->whereBetween('updated_at', [$startRange, $endRange])
+                            ->orWhereHas('weight_ticket', fn($w) => $w->whereBetween('weigh_out_at', [$startRange, $endRange]))
+                            ->orWhereHas('loadingOrders.weight_ticket', fn($w) => $w->whereBetween('weigh_out_at', [$startRange, $endRange]));
+                    });
+                });
+            });
 
         // Apply search filter
         if (!empty($search)) {
