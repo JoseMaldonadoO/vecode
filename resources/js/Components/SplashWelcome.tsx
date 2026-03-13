@@ -70,9 +70,9 @@ export const SplashWelcome = () => {
                     <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl animate-ping duration-[3000ms] opacity-20" />
                     <div className="relative p-1 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/10 shadow-2xl">
                         <img 
-                            src="/images/Proagro2.png" 
-                            alt="Proagro Logo" 
-                            className="h-28 md:h-40 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-transform duration-[4000ms] ease-out scale-100 group-hover:scale-110"
+                            src="/images/logovecode.png" 
+                            alt="VECODE Logo" 
+                            className="h-28 md:h-40 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-transform duration-[4000ms] ease-out scale-100"
                             style={{ transform: phase >= 1 ? 'scale(1)' : 'scale(0.8)' }}
                         />
                     </div>
