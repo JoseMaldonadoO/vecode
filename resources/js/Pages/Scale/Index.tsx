@@ -292,14 +292,6 @@ export default function Index({
             subtitle: "Gestión de Tickets"
         },
         {
-            name: "Órdenes de Embarque",
-            icon: FileText,
-            color: "bg-orange-50 text-orange-600",
-            hover: "hover:border-orange-500",
-            href: route("documentation.orders.index"),
-            subtitle: "Visualización y Reimpresión de OE"
-        },
-        {
             name: "Seguimiento de OE",
             icon: Clock,
             color: "bg-teal-50 text-teal-600",
