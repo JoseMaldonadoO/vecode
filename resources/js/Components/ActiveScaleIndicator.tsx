@@ -25,11 +25,7 @@ const ActiveScaleIndicator: React.FC<ActiveScaleIndicatorProps> = ({
             {/* Background animated pulse effect */}
             <div className="absolute inset-0 bg-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
-            <div className={`p-2 rounded-xl transition-all duration-300 relative z-10 ${
-                onClick 
-                ? "bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white" 
-                : "bg-indigo-600 text-white animate-pulse shadow-lg shadow-indigo-200"
-            }`}>
+            <div className={`p-2 rounded-xl transition-all duration-300 relative z-10 bg-indigo-600 text-white animate-pulse shadow-lg shadow-indigo-200`}>
                 <Scale className="w-5 h-5 transition-transform duration-500 group-hover:rotate-12" />
             </div>
 
@@ -44,20 +40,18 @@ const ActiveScaleIndicator: React.FC<ActiveScaleIndicatorProps> = ({
                 </div>
             </div>
 
-            {onClick && (
-                <div className="ml-auto p-1.5 bg-gray-50 rounded-lg text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all relative z-10">
-                    <Settings className="w-4 h-4" />
-                </div>
-            )}
-            
-            {!onClick && (
-                <div className="ml-auto relative z-10">
-                    <div className="flex h-3 w-3 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+            <div className="ml-auto flex items-center gap-3 relative z-10">
+                {onClick && (
+                    <div className="p-1.5 bg-gray-50 rounded-lg text-gray-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all border border-gray-100">
+                        <Settings className="w-4 h-4" />
                     </div>
+                )}
+                
+                <div className="flex h-3 w-3 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
                 </div>
-            )}
+            </div>
         </button>
     );
 };
