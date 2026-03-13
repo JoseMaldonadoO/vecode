@@ -41,7 +41,6 @@ const ActiveScaleIndicator: React.FC<ActiveScaleIndicatorProps> = ({
                 )}
                 <div className="text-sm font-black text-gray-700 leading-none flex items-center gap-2">
                     <span className="text-indigo-600 text-xl font-black">#{scaleId}</span>
-                    <span className="hidden sm:inline opacity-40 group-hover:opacity-100 transition-opacity">0{scaleId}</span>
                 </div>
             </div>
 
