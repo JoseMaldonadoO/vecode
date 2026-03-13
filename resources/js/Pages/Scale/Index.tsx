@@ -195,6 +195,8 @@ export default function Index({
                 toast: true,
                 position: "top-end",
             });
+        }
+
         // Check for view mode status
         const viewParam = params.get("view");
         const hasRecords = pending_exit.data && pending_exit.data.length > 0;
