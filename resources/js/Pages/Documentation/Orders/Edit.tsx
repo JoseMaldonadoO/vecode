@@ -284,6 +284,13 @@ export default function Edit({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        // Strict Block: Do not allow submission if there's a duplicate Carta Porte warning
+        if (cartaPorteWarning) {
+            alert("❌ Error: " + cartaPorteWarning + "\n\nDebe corregir la Carta Porte antes de guardar.");
+            return;
+        }
+
         put(route("documentation.update", order.id));
     };
 

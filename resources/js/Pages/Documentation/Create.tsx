@@ -300,6 +300,13 @@ export default function Create({
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        // Strict Block: Do not allow submission if there's a duplicate Carta Porte warning
+        if (cartaPorteWarning) {
+            alert("❌ Error: " + cartaPorteWarning + "\n\nDebe corregir la Carta Porte antes de guardar.");
+            return;
+        }
+
         post(route("documentation.store"));
     };
 

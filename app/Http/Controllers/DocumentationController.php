@@ -124,10 +124,10 @@ class DocumentationController extends Controller
         $toUpperFields = [
             'operator_name', 'tractor_plate', 'trailer_plate', 'unit_type', 
             'transport_company', 'consigned_to', 'destination', 
-            'economic_number', 'carta_porte', 'unit_number', 'state'
+            'economic_number', 'carta_porte', 'unit_number', 'state', 'product', 'observations'
         ];
         foreach ($toUpperFields as $field) {
-            if (isset($validated[$field])) {
+            if (isset($validated[$field]) && is_string($validated[$field])) {
                 $validated[$field] = strtoupper(trim($validated[$field]));
             }
         }
@@ -233,6 +233,14 @@ class DocumentationController extends Controller
             'transporter_line' => 'required|string',
             'brand_model' => 'nullable|string',
         ]);
+
+        // Normalize casing
+        $toUpperFields = ['operator_name', 'unit_type', 'economic_number', 'tractor_plate', 'trailer_plate', 'transporter_line', 'brand_model'];
+        foreach ($toUpperFields as $field) {
+            if (isset($validated[$field]) && is_string($validated[$field])) {
+                $validated[$field] = strtoupper(trim($validated[$field]));
+            }
+        }
 
         $query = VesselOperator::where('vessel_id', $validated['vessel_id'])
             ->where('operator_name', $validated['operator_name'])
@@ -369,6 +377,14 @@ class DocumentationController extends Controller
             'transporter_line' => 'required|string',
             'brand_model' => 'nullable|string',
         ]);
+
+        // Normalize casing
+        $toUpperFields = ['operator_name', 'unit_type', 'economic_number', 'tractor_plate', 'trailer_plate', 'transporter_line', 'brand_model'];
+        foreach ($toUpperFields as $field) {
+            if (isset($validated[$field]) && is_string($validated[$field])) {
+                $validated[$field] = strtoupper(trim($validated[$field]));
+            }
+        }
 
         $operator->update($validated);
 
@@ -671,10 +687,10 @@ class DocumentationController extends Controller
         $toUpperFields = [
             'operator_name', 'tractor_plate', 'trailer_plate', 'unit_type', 
             'transport_company', 'consigned_to', 'destination', 
-            'economic_number', 'carta_porte', 'unit_number', 'state'
+            'economic_number', 'carta_porte', 'unit_number', 'state', 'product', 'observations'
         ];
         foreach ($toUpperFields as $field) {
-            if (isset($validated[$field])) {
+            if (isset($validated[$field]) && is_string($validated[$field])) {
                 $validated[$field] = strtoupper(trim($validated[$field]));
             }
         }

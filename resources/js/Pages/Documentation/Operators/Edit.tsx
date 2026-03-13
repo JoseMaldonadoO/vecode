@@ -210,10 +210,10 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                             onChange={(e) =>
                                                 setData(
                                                     "operator_name",
-                                                    e.target.value,
+                                                    e.target.value.toUpperCase(),
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold"
                                             placeholder="Nombre Completo"
                                             required
                                         />
@@ -239,10 +239,10 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                             onChange={(e) =>
                                                 setData(
                                                     "transporter_line",
-                                                    e.target.value,
+                                                    e.target.value.toUpperCase(),
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold"
                                             placeholder="Empresa Transportista"
                                             required
                                         />
@@ -268,10 +268,10 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                             onChange={(e) =>
                                                 setData(
                                                     "economic_number",
-                                                    e.target.value,
+                                                    e.target.value.toUpperCase(),
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold"
                                             placeholder="Ej. 05, ECO-2024"
                                             required
                                         />
@@ -363,10 +363,10 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                             onChange={(e) =>
                                                 setData(
                                                     "brand_model",
-                                                    e.target.value,
+                                                    e.target.value.toUpperCase(),
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 uppercase font-bold"
                                             placeholder="Ej. Kenworth 2020"
                                         />
                                     </div>
@@ -386,10 +386,10 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "tractor_plate",
-                                                        e.target.value,
+                                                        e.target.value.toUpperCase(),
                                                     )
                                                 }
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-mono"
+                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold font-mono"
                                                 placeholder="ABC-123"
                                                 required
                                             />
@@ -414,13 +414,13 @@ export default function Edit({ auth, operator, vessels }: PageProps) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "trailer_plate",
-                                                        e.target.value,
+                                                        e.target.value.toUpperCase(),
                                                     )
                                                 }
                                                 disabled={
                                                     data.unit_type === "VOLTEO"
                                                 }
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-mono disabled:bg-gray-100 disabled:text-gray-400"
+                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold font-mono disabled:bg-gray-100 disabled:text-gray-400"
                                                 placeholder={
                                                     data.unit_type === "VOLTEO"
                                                         ? "N/A"
