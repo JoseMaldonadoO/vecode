@@ -179,7 +179,17 @@ class WeightTicketController extends Controller
                 }
 
                 $programmedWeight = $order->shipment_order?->programmed_tons ?? $order->programmed_tons ?? 'N/A';
+                $presentation = $order->shipment_order?->presentation ?? 'GRANEL';
                 $productName = $order->product?->name ?? $order->shipment_order?->product?->name ?? $order->shipment_order?->product ?? 'N/A';
+                
+                // If it's Envasado, ensure we show the bag size
+                if (strtoupper($presentation) === 'ENVASADO') {
+                    $sacksCount = $order->shipment_order?->sacks_count;
+                    // If productName doesn't contain the size but sacksCount looks like it has it (e.g. "25 KG")
+                    if (!preg_match('/\d+\s*KG/i', $productName) && $sacksCount && preg_match('/\d+\s*KG/i', $sacksCount)) {
+                        $productName .= " - " . $sacksCount;
+                    }
+                }
 
                 return [
                     'id' => $order->id,

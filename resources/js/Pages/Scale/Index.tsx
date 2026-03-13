@@ -496,7 +496,7 @@ export default function Index({
 
                         {/* Dynamic Legend for Presentation/Product (Only for Sale) */}
                         {operationType === 'sale' && selectedPresentation && (
-                            <div className="flex animate-fade-in">
+                            <div className="flex justify-center animate-fade-in">
                                 <div className="bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm">
                                     <div className="bg-indigo-600 p-1.5 rounded-lg">
                                         <Package className="w-4 h-4 text-white" />
