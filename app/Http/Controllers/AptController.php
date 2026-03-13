@@ -38,7 +38,7 @@ class AptController extends Controller
             'unit_type' => 'required|string',
             'economic_number' => 'required|string',
             'tractor_plate' => 'required|string',
-            'trailer_plate' => 'nullable|required_unless:unit_type,Volteo|string',
+            'trailer_plate' => 'nullable|required_unless:unit_type,VOLTEO,TORTON,CAMIONETA|string',
             'transporter_line' => 'required|string',
         ]);
 
