@@ -180,7 +180,7 @@ export default function Create({ auth }: { auth: any }) {
                                             onChange={(e) => setData("trailer_plate", e.target.value)}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase font-mono"
                                             placeholder="Placa Remolque"
-                                            disabled={data.unit_type === "VOLTEO"}
+                                            disabled={["VOLTEO", "TORTON", "CAMIONETA"].includes(data.unit_type)}
                                         />
                                         <CreditCard className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
                                     </div>

@@ -52,8 +52,15 @@ class ExitOperatorController extends Controller
             'validity' => 'required|date',
             'brand_model' => 'required|string|max:255',
             'tractor_plate' => 'required|string|max:255',
-            'trailer_plate' => 'nullable|string|max:255',
+            'trailer_plate' => 'nullable|required_unless:unit_type,VOLTEO,TORTON,CAMIONETA|string|max:255',
         ]);
+
+        // Normalize to uppercase (Multibyte safe)
+        foreach (['name', 'license', 'transport_line', 'economic_number', 'real_transport_line', 'policy', 'unit_type', 'brand_model', 'tractor_plate', 'trailer_plate'] as $field) {
+            if (isset($validated[$field])) {
+                $validated[$field] = mb_strtoupper(trim($validated[$field]), 'UTF-8');
+            }
+        }
 
         ExitOperator::create($validated);
 
@@ -94,8 +101,15 @@ class ExitOperatorController extends Controller
             'validity' => 'required|date',
             'brand_model' => 'required|string|max:255',
             'tractor_plate' => 'required|string|max:255',
-            'trailer_plate' => 'nullable|string|max:255',
+            'trailer_plate' => 'nullable|required_unless:unit_type,VOLTEO,TORTON,CAMIONETA|string|max:255',
         ]);
+
+        // Normalize to uppercase (Multibyte safe)
+        foreach (['name', 'license', 'transport_line', 'economic_number', 'real_transport_line', 'policy', 'unit_type', 'brand_model', 'tractor_plate', 'trailer_plate'] as $field) {
+            if (isset($validated[$field])) {
+                $validated[$field] = mb_strtoupper(trim($validated[$field]), 'UTF-8');
+            }
+        }
 
         $oldName = $operator->name;
         $operator->update($validated);
