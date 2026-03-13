@@ -28,7 +28,7 @@ export default function RegisterOperator({
         vessel_id: "",
         operator_name: "",
         transporter_line: "",
-        unit_type: "Volteo",
+        unit_type: "VOLTEO",
         brand_model: "",
         trailer_plate: "",
         economic_number: "",
@@ -36,7 +36,7 @@ export default function RegisterOperator({
     });
 
     useEffect(() => {
-        if (data.unit_type === "Volteo") {
+        if (data.unit_type === "VOLTEO") {
             setData("trailer_plate", "");
         }
     }, [data.unit_type]);
@@ -270,25 +270,25 @@ export default function RegisterOperator({
                                             }
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white"
                                         >
-                                            <option value="Volteo">Volteo</option>
-                                            <option value="Contenedor">Contenedor</option>
-                                            <option value="Camioneta">Camioneta</option>
-                                            <option value="Cisterna">Cisterna</option>
-                                            <option value="Full Caja Seca">Full Caja Seca</option>
-                                            <option value="Full Encortinado">Full Encortinado</option>
-                                            <option value="Full Gondola">Full Gondola</option>
-                                            <option value="Full Jaula">Full Jaula</option>
-                                            <option value="Full Pipa">Full Pipa</option>
-                                            <option value="Full Plataforma">Full Plataforma</option>
-                                            <option value="Full Tolva">Full Tolva</option>
-                                            <option value="Pipa">Pipa</option>
-                                            <option value="Sencillo Jaula">Sencillo Jaula</option>
-                                            <option value="Sencillo Caja Seca">Sencillo Caja Seca</option>
-                                            <option value="Sencillo Gondola">Sencillo Gondola</option>
-                                            <option value="Sencillo Pipa">Sencillo Pipa</option>
-                                            <option value="Sencillo Plataforma">Sencillo Plataforma</option>
-                                            <option value="Sencillo Tolva">Sencillo Tolva</option>
-                                            <option value="Torton">Torton</option>
+                                            <option value="VOLTEO">VOLTEO</option>
+                                            <option value="CONTENEDOR">CONTENEDOR</option>
+                                            <option value="CAMIONETA">CAMIONETA</option>
+                                            <option value="CISTERNA">CISTERNA</option>
+                                            <option value="FULL CAJA SECA">FULL CAJA SECA</option>
+                                            <option value="FULL ENCORTINADO">FULL ENCORTINADO</option>
+                                            <option value="FULL GONDOLA">FULL GONDOLA</option>
+                                            <option value="FULL JAULA">FULL JAULA</option>
+                                            <option value="FULL PIPA">FULL PIPA</option>
+                                            <option value="FULL PLATAFORMA">FULL PLATAFORMA</option>
+                                            <option value="FULL TOLVA">FULL TOLVA</option>
+                                            <option value="PIPA">PIPA</option>
+                                            <option value="SENCILLO JAULA">SENCILLO JAULA</option>
+                                            <option value="SENCILLO CAJA SECA">SENCILLO CAJA SECA</option>
+                                            <option value="SENCILLO GONDOLA">SENCILLO GONDOLA</option>
+                                            <option value="SENCILLO PIPA">SENCILLO PIPA</option>
+                                            <option value="SENCILLO PLATAFORMA">SENCILLO PLATAFORMA</option>
+                                            <option value="SENCILLO TOLVA">SENCILLO TOLVA</option>
+                                            <option value="TORTON">TORTON</option>
                                         </select>
                                         <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
@@ -381,11 +381,11 @@ export default function RegisterOperator({
                                                     )
                                                 }
                                                 disabled={
-                                                    data.unit_type === "Volteo"
+                                                    data.unit_type === "VOLTEO"
                                                 }
                                                 className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-mono disabled:bg-gray-100 disabled:text-gray-400"
                                                 placeholder={
-                                                    data.unit_type === "Volteo"
+                                                    data.unit_type === "VOLTEO"
                                                         ? "N/A"
                                                         : "XYZ-999"
                                                 }
