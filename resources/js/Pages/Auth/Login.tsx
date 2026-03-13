@@ -31,8 +31,11 @@ export default function Login({
         });
     };
 
-    // Show alert on login errors
+    // Show alert on login errors and reset splash flag
     useEffect(() => {
+        // Clear splash flag so it shows up after login
+        sessionStorage.removeItem('ve_splash_seen');
+
         if (errors && Object.keys(errors).length > 0) {
             Swal.fire({
                 icon: 'error',

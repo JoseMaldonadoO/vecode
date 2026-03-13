@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import ApplicationLogo from './ApplicationLogo';
 
 export const SplashWelcome = () => {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
+    const [phase, setPhase] = useState(0); // 0: Init, 1: Logo, 2: Text, 3: Shimmer
 
     useEffect(() => {
         const hasSeenSplash = sessionStorage.getItem('ve_splash_seen');
@@ -12,15 +12,20 @@ export const SplashWelcome = () => {
             setIsVisible(true);
             sessionStorage.setItem('ve_splash_seen', 'true');
             
-            // Start fade out after 3 seconds
+            // Animation sequence
+            setTimeout(() => setPhase(1), 100);
+            setTimeout(() => setPhase(2), 1200);
+            setTimeout(() => setPhase(3), 2000);
+            
+            // Start fade out after 4 seconds
             const fadeTimer = setTimeout(() => {
                 setIsVisible(false);
-            }, 3000);
+            }, 4000);
             
-            // Unmount after animation finishes (3.5s)
+            // Unmount after animation finishes (4.8s)
             const unmountTimer = setTimeout(() => {
                 setShouldRender(false);
-            }, 3500);
+            }, 4800);
             
             return () => {
                 clearTimeout(fadeTimer);
@@ -32,53 +37,82 @@ export const SplashWelcome = () => {
     if (!shouldRender) return null;
 
     return (
-        <div className={`fixed inset-0 z-[9999] flex items-center justify-center bg-[#0f172a] transition-all duration-700 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0 scale-110 pointer-events-none'}`}>
-            {/* Background animated elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" />
-                <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse delay-1000" />
+        <div className={`fixed inset-0 z-[9999] flex items-center justify-center bg-[#020617] overflow-hidden transition-all duration-1000 ease-in-out ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}>
+            
+            {/* Ambient Background Particles */}
+            <div className="absolute inset-0 z-0">
+                {[...Array(20)].map((_, i) => (
+                    <div 
+                        key={i}
+                        className="absolute rounded-full bg-blue-500/20 blur-[1px] animate-float"
+                        style={{
+                            width: `${Math.random() * 4 + 2}px`,
+                            height: `${Math.random() * 4 + 2}px`,
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDuration: `${Math.random() * 10 + 10}s`,
+                            animationDelay: `${Math.random() * 5}s`
+                        }}
+                    />
+                ))}
             </div>
 
-            <div className="relative flex flex-col items-center">
-                {/* Logo with scaling and glow effect */}
-                <div className="relative mb-10 group">
-                    <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-3xl scale-150 animate-pulse duration-[2000ms]" />
-                    <div className="relative z-10 p-6 bg-white/5 rounded-[2.5rem] backdrop-blur-md border border-white/10 shadow-2xl transform transition-transform duration-1000 animate-in zoom-in-50 slide-in-from-bottom-12">
-                        <ApplicationLogo className="w-24 h-24 md:w-32 md:h-32 text-white fill-current drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+            {/* Gradient Glows */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[150px] animate-pulse" />
+                <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-indigo-600/5 rounded-full blur-[120px] animate-pulse delay-700" />
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                
+                {/* Logo Container */}
+                <div className={`relative transition-all duration-1000 transform ${phase >= 1 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
+                    <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl animate-ping duration-[3000ms] opacity-20" />
+                    <div className="relative p-1 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/10 shadow-2xl">
+                        <img 
+                            src="/images/Proagro2.png" 
+                            alt="Proagro Logo" 
+                            className="h-28 md:h-40 w-auto object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-transform duration-[4000ms] ease-out scale-100 group-hover:scale-110"
+                            style={{ transform: phase >= 1 ? 'scale(1)' : 'scale(0.8)' }}
+                        />
                     </div>
                 </div>
 
-                {/* Text lines */}
-                <div className="text-center space-y-4">
-                    <div className="overflow-hidden">
-                        <h1 className="text-white text-5xl md:text-7xl font-black tracking-tighter italic animate-in slide-in-from-bottom-full duration-1000 delay-300 fill-mode-forwards">
+                {/* Welcome Text */}
+                <div className="mt-12 text-center overflow-hidden">
+                    <div className={`transition-all duration-1000 delay-300 transform ${phase >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+                        <h2 className="text-white text-lg md:text-xl font-medium tracking-[0.5em] uppercase opacity-60 mb-2">
+                            Bienvenido a
+                        </h2>
+                        <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-blue-300/50 tracking-tighter italic">
                             VECODE
                         </h1>
                     </div>
                     
-                    <div className="relative">
-                        <div className="h-[2px] w-0 bg-gradient-to-r from-transparent via-blue-400 to-transparent m-auto animate-[grow_1.5s_ease-in-out_forwards_delay-800]" />
+                    {/* Animated Line */}
+                    <div className="mt-8 relative h-px w-[300px] mx-auto overflow-hidden">
+                        <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-blue-400 to-transparent transition-all duration-[1500ms] ${phase >= 2 ? 'translate-x-0' : '-translate-x-full'}`} />
                     </div>
 
-                    <div className="overflow-hidden">
-                        <p className="text-blue-300 text-[10px] md:text-xs font-black uppercase tracking-[0.4em] animate-in slide-in-from-top-full duration-1000 delay-1200 fill-mode-forwards opacity-80">
-                            Pro-Agroindustria S.A. de C.V.
+                    {/* Slogan */}
+                    <div className={`mt-6 transition-all duration-1000 delay-1000 ${phase >= 3 ? 'opacity-100' : 'opacity-0'}`}>
+                        <p className="text-blue-200/50 text-xs font-bold uppercase tracking-[0.3em]">
+                            Sistema Integral de Operaciones Portuarias
                         </p>
                     </div>
                 </div>
             </div>
 
             <style dangerouslySetInnerHTML={{ __html: `
-                @keyframes grow {
-                    0% { width: 0; opacity: 0; }
-                    50% { opacity: 1; }
-                    100% { width: 280px; opacity: 1; }
+                @keyframes float {
+                    0% { transform: translateY(0) translateX(0); opacity: 0; }
+                    20% { opacity: 0.5; }
+                    80% { opacity: 0.5; }
+                    100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
                 }
-                .fill-mode-forwards {
-                    animation-fill-mode: forwards;
+                .animate-float {
+                    animation: float linear infinite;
                 }
-                .delay-1000 { animation-delay: 1000ms; }
-                .delay-1200 { animation-delay: 1200ms; }
             `}} />
         </div>
     );
