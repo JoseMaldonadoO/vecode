@@ -942,7 +942,17 @@ class DocumentationController extends Controller
             $presentation = strtoupper($order->presentation ?? '');
 
             if (strpos($presentation, 'ENVASADO') !== false && !empty($order->sacks_count)) {
-                return $productName . ' - ' . $order->sacks_count;
+                $sacksCount = strtoupper($order->sacks_count);
+                
+                // If it's a bag count (contains "SACO"), we ignore it for this column as per user request
+                if (strpos($sacksCount, 'SACO') !== false) {
+                    return $productName;
+                }
+
+                // If it's a weight (contains "KG") and it's NOT already in the product name, append it
+                if (strpos($sacksCount, 'KG') !== false && strpos(strtoupper($productName), $sacksCount) === false) {
+                    return $productName . ' - ' . $order->sacks_count;
+                }
             }
 
             return $productName;
