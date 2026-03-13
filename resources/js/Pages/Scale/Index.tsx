@@ -494,6 +494,27 @@ export default function Index({
                             </div>
                         </div>
 
+                        {/* Dynamic Legend for Presentation/Product (Only for Sale) */}
+                        {operationType === 'sale' && selectedPresentation && (
+                            <div className="flex animate-fade-in">
+                                <div className="bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+                                    <div className="bg-indigo-600 p-1.5 rounded-lg">
+                                        <Package className="w-4 h-4 text-white" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest leading-none">Filtrado por:</span>
+                                        <h3 className="text-lg font-black text-indigo-900 leading-tight">
+                                            {selectedPresentation}
+                                            {selectedProduct && products.find(p => p.id.toString() === selectedProduct.toString()) && (
+                                                <span className="text-indigo-400 mx-2">|</span>
+                                            )}
+                                            {selectedProduct && products.find(p => p.id.toString() === selectedProduct.toString())?.name}
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="hidden lg:block overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
