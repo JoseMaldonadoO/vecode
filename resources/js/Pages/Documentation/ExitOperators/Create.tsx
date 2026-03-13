@@ -24,7 +24,7 @@ export default function Create({ auth }: { auth: any }) {
         economic_number: "",
         real_transport_line: "",
         policy: "",
-        unit_type: "Volteo",
+        unit_type: "VOLTEO",
         validity: "",
         brand_model: "",
         tractor_plate: "",
@@ -129,25 +129,25 @@ export default function Create({ auth }: { auth: any }) {
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10"
                                             required
                                         >
-                                            <option value="Volteo">Volteo</option>
-                                            <option value="Contenedor">Contenedor</option>
-                                            <option value="Camioneta">Camioneta</option>
-                                            <option value="Cisterna">Cisterna</option>
-                                            <option value="Full Caja Seca">Full Caja Seca</option>
-                                            <option value="Full Encortinado">Full Encortinado</option>
-                                            <option value="Full Gondola">Full Gondola</option>
-                                            <option value="Full Jaula">Full Jaula</option>
-                                            <option value="Full Pipa">Full Pipa</option>
-                                            <option value="Full Plataforma">Full Plataforma</option>
-                                            <option value="Full Tolva">Full Tolva</option>
-                                            <option value="Pipa">Pipa</option>
-                                            <option value="Sencillo Jaula">Sencillo Jaula</option>
-                                            <option value="Sencillo Caja Seca">Sencillo Caja Seca</option>
-                                            <option value="Sencillo Gondola">Sencillo Gondola</option>
-                                            <option value="Sencillo Pipa">Sencillo Pipa</option>
-                                            <option value="Sencillo Plataforma">Sencillo Plataforma</option>
-                                            <option value="Sencillo Tolva">Sencillo Tolva</option>
-                                            <option value="Torton">Torton</option>
+                                            <option value="VOLTEO">VOLTEO</option>
+                                            <option value="CONTENEDOR">CONTENEDOR</option>
+                                            <option value="CAMIONETA">CAMIONETA</option>
+                                            <option value="CISTERNA">CISTERNA</option>
+                                            <option value="FULL CAJA SECA">FULL CAJA SECA</option>
+                                            <option value="FULL ENCORTINADO">FULL ENCORTINADO</option>
+                                            <option value="FULL GONDOLA">FULL GONDOLA</option>
+                                            <option value="FULL JAULA">FULL JAULA</option>
+                                            <option value="FULL PIPA">FULL PIPA</option>
+                                            <option value="FULL PLATAFORMA">FULL PLATAFORMA</option>
+                                            <option value="FULL TOLVA">FULL TOLVA</option>
+                                            <option value="PIPA">PIPA</option>
+                                            <option value="SENCILLO JAULA">SENCILLO JAULA</option>
+                                            <option value="SENCILLO CAJA SECA">SENCILLO CAJA SECA</option>
+                                            <option value="SENCILLO GONDOLA">SENCILLO GONDOLA</option>
+                                            <option value="SENCILLO PIPA">SENCILLO PIPA</option>
+                                            <option value="SENCILLO PLATAFORMA">SENCILLO PLATAFORMA</option>
+                                            <option value="SENCILLO TOLVA">SENCILLO TOLVA</option>
+                                            <option value="TORTON">TORTON</option>
                                         </select>
                                         <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
                                     </div>
@@ -180,7 +180,7 @@ export default function Create({ auth }: { auth: any }) {
                                             onChange={(e) => setData("trailer_plate", e.target.value)}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase font-mono"
                                             placeholder="Placa Remolque"
-                                            disabled={data.unit_type === "Volteo"}
+                                            disabled={data.unit_type === "VOLTEO"}
                                         />
                                         <CreditCard className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
                                     </div>
