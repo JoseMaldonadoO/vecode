@@ -94,6 +94,7 @@ const ScaleModal = ({
 
 const Timer = ({ entryAt }: { entryAt: string }) => {
     const [time, setTime] = useState("");
+    const [isAlert, setIsAlert] = useState(false);
 
     useEffect(() => {
         const updateTime = () => {
@@ -103,12 +104,15 @@ const Timer = ({ entryAt }: { entryAt: string }) => {
 
             if (diff < 0) {
                 setTime("0m");
+                setIsAlert(false);
                 return;
             }
 
             const diffMinutes = Math.floor(diff / (1000 * 60));
             const hours = Math.floor(diffMinutes / 60);
             const minutes = diffMinutes % 60;
+
+            setIsAlert(hours >= 7);
 
             if (hours > 0) {
                 setTime(`${hours}h ${minutes}m`);
@@ -124,7 +128,11 @@ const Timer = ({ entryAt }: { entryAt: string }) => {
     }, [entryAt]);
 
     return (
-        <span className="font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded inline-flex items-center gap-1">
+        <span className={`font-mono font-bold px-2 py-1 rounded inline-flex items-center gap-1 transition-colors duration-500 ${
+            isAlert 
+                ? "text-red-600 bg-red-50 border border-red-200 animate-pulse" 
+                : "text-indigo-600 bg-indigo-50"
+        }`}>
             <Activity className="w-3 h-3 animate-pulse" />
             {time}
         </span>
