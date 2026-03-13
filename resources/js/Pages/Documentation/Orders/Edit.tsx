@@ -690,75 +690,77 @@ export default function Edit({
                             </div>
 
                             {data.presentation === "ENVASADO" && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">
-                                            Tamaño de Saco
-                                        </label>
-                                        <select
-                                            value={data.sack_type}
-                                            onChange={(e) => {
-                                                const val = e.target.value;
-                                                let suggestion = "";
-                                                if (val && data.programmed_tons) {
-                                                    const tons = parseFloat(data.programmed_tons.toString());
-                                                    const size = parseInt(val);
-                                                    if (!isNaN(tons) && !isNaN(size) && size > 0) {
-                                                        suggestion = ((tons * 1000) / size).toFixed(0) + " SACOS";
-                                                    }
-                                                }
-                                                
-                                                setData(prev => ({
-                                                    ...prev,
-                                                    sack_type: val,
-                                                    sacks_count: suggestion
-                                                }));
-                                            }}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
-                                        >
-                                            <option value="">Mantener actual ({data.sacks_count})</option>
-                                            <option value="25">25 KG</option>
-                                            <option value="50">50 KG</option>
-                                            <option value="200">200 KG</option>
-                                            <option value="500">500 KG</option>
-                                            <option value="1000">1000 KG</option>
-                                        </select>
-                                    </div>
-                                    {data.sack_type && (
+                                <>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-bold text-gray-700 mb-1">
-                                                Número de Sacos (Manual)
+                                                Tamaño de Saco
+                                            </label>
+                                            <select
+                                                value={data.sack_type}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    let suggestion = "";
+                                                    if (val && data.programmed_tons) {
+                                                        const tons = parseFloat(data.programmed_tons.toString());
+                                                        const size = parseInt(val);
+                                                        if (!isNaN(tons) && !isNaN(size) && size > 0) {
+                                                            suggestion = ((tons * 1000) / size).toFixed(0) + " SACOS";
+                                                        }
+                                                    }
+
+                                                    setData(prev => ({
+                                                        ...prev,
+                                                        sack_type: val,
+                                                        sacks_count: suggestion
+                                                    }));
+                                                }}
+                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
+                                            >
+                                                <option value="">Mantener actual ({data.sacks_count})</option>
+                                                <option value="25">25 KG</option>
+                                                <option value="50">50 KG</option>
+                                                <option value="200">200 KG</option>
+                                                <option value="500">500 KG</option>
+                                                <option value="1000">1000 KG</option>
+                                            </select>
+                                        </div>
+                                        {data.sack_type && (
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                                    Número de Sacos (Manual)
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={data.sacks_count}
+                                                    onChange={(e) => setData("sacks_count", e.target.value.toUpperCase())}
+                                                    placeholder="Ej: 20 SACOS"
+                                                    className="w-full rounded-lg border-2 border-blue-400 shadow-sm focus:border-blue-600 focus:ring-blue-200 py-2.5 px-3 font-black text-blue-900 bg-blue-50"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {data.client_name?.toUpperCase().includes("AGROINDUSTRIAS DEL BALSAS") && (
+                                        <div className="md:col-span-2 bg-green-50 p-4 rounded-xl border-2 border-green-200">
+                                            <label className="block text-sm font-bold text-green-800 mb-1 flex items-center">
+                                                <Search className="w-4 h-4 mr-1" />
+                                                QR Fertinal (Opcional)
                                             </label>
                                             <input
                                                 type="text"
-                                                value={data.sacks_count}
-                                                onChange={(e) => setData("sacks_count", e.target.value.toUpperCase())}
-                                                placeholder="Ej: 20 SACOS"
-                                                className="w-full rounded-lg border-2 border-blue-400 shadow-sm focus:border-blue-600 focus:ring-blue-200 py-2.5 px-3 font-black text-blue-900 bg-blue-50"
+                                                value={data.qr_fertinal}
+                                                onChange={(e) => setData("qr_fertinal", e.target.value)}
+                                                placeholder="Ingrese Folio QR Fertinal..."
+                                                className="w-full rounded-lg border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 py-2.5 px-3 uppercase font-black text-green-900 bg-white"
                                             />
+                                            <p className="text-[10px] text-green-600 mt-1 italic">
+                                                * Este campo solo es visible para Fertinal en presentación Envasado.
+                                            </p>
                                         </div>
                                     )}
-                                </div>
-
-                                {data.presentation === "ENVASADO" && data.client_name?.toUpperCase().includes("AGROINDUSTRIAS DEL BALSAS") && (
-                                    <div className="md:col-span-2 bg-green-50 p-4 rounded-xl border-2 border-green-200">
-                                        <label className="block text-sm font-bold text-green-800 mb-1 flex items-center">
-                                            <Search className="w-4 h-4 mr-1" />
-                                            QR Fertinal (Opcional)
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={data.qr_fertinal}
-                                            onChange={(e) => setData("qr_fertinal", e.target.value)}
-                                            placeholder="Ingrese Folio QR Fertinal..."
-                                            className="w-full rounded-lg border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 py-2.5 px-3 uppercase font-black text-green-900 bg-white"
-                                        />
-                                        <p className="text-[10px] text-green-600 mt-1 italic">
-                                            * Este campo solo es visible para Fertinal en presentación Envasado.
-                                        </p>
-                                    </div>
-                                )}
-                            </>
+                                </>
+                            )}
 
                             <OriginDropdown
                                 value={data.origin_id}
