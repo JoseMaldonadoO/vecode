@@ -94,6 +94,7 @@ class DocumentationController extends Controller
             'unit_type' => 'nullable|string',
             'economic_number' => 'nullable|string',
             'qr_code' => 'nullable|string',
+            'qr_fertinal' => 'nullable|string',
             // Shipment
             'origin_id' => 'nullable|exists:shipment_origins,id',
             'destination' => 'nullable|string',

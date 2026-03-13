@@ -109,6 +109,7 @@ export default function Create({
         scale_name: "",
         scale_operator_id: "",
         economic_number: "",
+        qr_fertinal: "",
     });
 
     const [queryClient, setQueryClient] = useState("");
@@ -770,28 +771,47 @@ export default function Create({
                                 </select>
                             </div>
 
-                            {data.presentation === "ENVASADO" ? (
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                                        Tamaño de Saco
-                                    </label>
-                                    <select
-                                        value={data.sack_type}
-                                        onChange={(e) => setData("sack_type", e.target.value)}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
-                                    >
-                                        <option value="">Seleccione...</option>
-                                        <option value="25">25 KG</option>
-                                        <option value="50">50 KG</option>
-                                        <option value="200">200 KG</option>
-                                        <option value="500">500 KG</option>
-                                        <option value="1000">1000 KG</option>
-                                    </select>
-                                </div>
-                            ) : (
-                                <div>
-                                    {/* Empty placeholder to keep grid alignment if needed, or just nothing */}
-                                </div>
+                            {data.presentation === "ENVASADO" && (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">
+                                            Tamaño de Saco
+                                        </label>
+                                        <select
+                                            value={data.sack_type}
+                                            onChange={(e) => setData("sack_type", e.target.value)}
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 font-bold text-blue-800"
+                                        >
+                                            <option value="">Seleccione...</option>
+                                            <option value="25">25 KG</option>
+                                            <option value="50">50 KG</option>
+                                            <option value="200">200 KG</option>
+                                            <option value="500">500 KG</option>
+                                            <option value="1000">1000 KG</option>
+                                        </select>
+                                    </div>
+
+                                    {data.client_name?.toUpperCase().includes("AGROINDUSTRIAS DEL BALSAS") && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">
+                                                QR Fertinal (Opcional)
+                                            </label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={data.qr_fertinal}
+                                                    onChange={(e) => setData("qr_fertinal", e.target.value)}
+                                                    placeholder="Folio QR Fertinal..."
+                                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 uppercase font-bold text-green-700 placeholder:text-gray-300"
+                                                />
+                                                <Scan className="w-5 h-5 text-green-500 absolute left-3 top-2.5" />
+                                            </div>
+                                            <p className="text-[10px] text-gray-400 mt-1 italic">
+                                                * Campo específico para Fertinal (Envasado)
+                                            </p>
+                                        </div>
+                                    )}
+                                </>
                             )}
 
                             <OriginDropdown

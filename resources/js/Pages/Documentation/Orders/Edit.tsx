@@ -139,6 +139,7 @@ export default function Edit({
         observations: order.observations || "",
         documenter_name: order.documenter_name || auth.user.name,
         scale_operator_id: order.scale_operator_id?.toString() || "",
+        qr_fertinal: order.qr_fertinal || "",
         queryParams: queryParams || {},
     });
 
@@ -738,7 +739,26 @@ export default function Edit({
                                         </div>
                                     )}
                                 </div>
-                            )}
+
+                                {data.presentation === "ENVASADO" && data.client_name?.toUpperCase().includes("AGROINDUSTRIAS DEL BALSAS") && (
+                                    <div className="md:col-span-2 bg-green-50 p-4 rounded-xl border-2 border-green-200">
+                                        <label className="block text-sm font-bold text-green-800 mb-1 flex items-center">
+                                            <Search className="w-4 h-4 mr-1" />
+                                            QR Fertinal (Opcional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={data.qr_fertinal}
+                                            onChange={(e) => setData("qr_fertinal", e.target.value)}
+                                            placeholder="Ingrese Folio QR Fertinal..."
+                                            className="w-full rounded-lg border-green-300 shadow-sm focus:border-green-500 focus:ring-green-500 py-2.5 px-3 uppercase font-black text-green-900 bg-white"
+                                        />
+                                        <p className="text-[10px] text-green-600 mt-1 italic">
+                                            * Este campo solo es visible para Fertinal en presentación Envasado.
+                                        </p>
+                                    </div>
+                                )}
+                            </>
 
                             <OriginDropdown
                                 value={data.origin_id}
