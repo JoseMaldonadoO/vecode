@@ -162,6 +162,41 @@ class AptController extends Controller
             });
         }
 
+        // Clone query BEFORE pagination to get dynamic filter options
+        $all_pending = (clone $query)->get();
+
+        // Warehouses: ONLY those present in the current filtered list
+        $warehouses = $all_pending->pluck('warehouse')->unique()->filter()->values();
+
+        // Products: ONLY those present in the current filtered list
+        $productIds = $all_pending->flatMap(function ($order) {
+            $ids = [];
+            if ($order->product_id) $ids[] = $order->product_id;
+            if ($order->shipment_order?->product_id) $ids[] = $order->shipment_order->product_id;
+            if ($order->shipment_order?->sales_order?->product_id) $ids[] = $order->shipment_order->sales_order->product_id;
+            return $ids;
+        })->unique()->filter()->values();
+
+        $products = \App\Models\Product::whereIn('id', $productIds)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        // Clients: ONLY those present in the current filtered list
+        $clientIds = $all_pending->flatMap(function ($order) use ($activeTab) {
+            $ids = [];
+            if ($activeTab === 'sale') {
+                if ($order->shipment_order?->client_id) $ids[] = $order->shipment_order->client_id;
+            } else {
+                if ($order->client_id) $ids[] = $order->client_id;
+                if ($order->vessel?->client_id) $ids[] = $order->vessel->client_id;
+            }
+            return $ids;
+        })->unique()->filter()->values();
+
+        $clients = \App\Models\Client::whereIn('id', $clientIds)
+            ->orderBy('business_name')
+            ->get(['id', 'business_name']);
+
         $pendingUnits = $query->orderBy('entry_at', 'asc')
             ->paginate(15)
             ->withQueryString()
@@ -177,7 +212,17 @@ class AptController extends Controller
                     $trailerPlate = $order->shipment_order->trailer_plate ?? $trailerPlate;
                 }
 
+                $presentation = $order->shipment_order?->presentation ?? 'GRANEL';
                 $productName = $order->product?->name ?? $order->shipment_order?->product?->name ?? $order->shipment_order?->product ?? 'N/A';
+
+                // If it's Envasado, ensure we show the bag size
+                if (strtoupper($presentation) === 'ENVASADO') {
+                    $sacksCount = $order->shipment_order?->sacks_count;
+                    // If productName doesn't contain the size but sacksCount looks like it has it (e.g. "25 KG")
+                    if (!preg_match('/\d+\s*KG/i', $productName) && $sacksCount && preg_match('/\d+\s*KG/i', $sacksCount)) {
+                        $productName .= " - " . $sacksCount;
+                    }
+                }
 
                 return [
                     'id' => $order->id,
@@ -202,9 +247,9 @@ class AptController extends Controller
         return Inertia::render('APT/UnitStatus', [
             'pending_exit' => $pendingUnits,
             'filters' => $request->all(['tab', 'client_id', 'product_id', 'warehouse', 'presentation', 'search']),
-            'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']),
-            'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
-            'warehouses' => ['Almacén 1', 'Almacén 2', 'Almacén 3', 'Almacén 4', 'Almacén 5'],
+            'clients' => $clients,
+            'products' => $products,
+            'warehouses' => $warehouses,
         ]);
     }
 

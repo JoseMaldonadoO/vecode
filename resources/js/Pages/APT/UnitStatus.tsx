@@ -207,6 +207,26 @@ export default function UnitStatus({
                         </div>
                     </div>
 
+                    {/* Dynamic Legend for Presentation/Product (Only for Sale) */}
+                    {operationType === 'sale' && selectedPresentation && (
+                        <div className="flex justify-center animate-fade-in -mt-4">
+                            <div className="bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm">
+                                <div className="bg-indigo-600 p-1.5 rounded-lg">
+                                    <Activity className="w-4 h-4 text-white" />
+                                </div>
+                                <span className="text-indigo-900 font-bold tracking-tight">
+                                    {selectedPresentation}
+                                    {selectedProduct && products.find(p => String(p.id) === String(selectedProduct)) && (
+                                        <>
+                                            <span className="mx-2 text-indigo-300">|</span>
+                                            <span className="text-indigo-700">{products.find(p => String(p.id) === String(selectedProduct))?.name}</span>
+                                        </>
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                         <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full text-left border-collapse">
