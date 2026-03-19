@@ -215,14 +215,15 @@ export default function EntrySale({
             
             // Find companion folio for better observation
             const companion = pending_shipment_orders.find(oe => oe.id === data.companion_shipment_order_id);
-            const companionText = companion ? ` (COMPAÑERA: ${companion.folio})` : "";
+            const companionPartLabel = data.full_part === 'primera' ? 'SEGUNDA' : 'PRIMERA';
+            const companionText = companion ? ` (OE DE ${companionPartLabel} PARTE: ${companion.folio})` : "";
             
             const newFullText = `${unitType} ${partText} PARTE${companionText}`;
             const currentObs = data.observations;
 
-            // Regex to match existing Full info: "FULL (PRIMERA|SEGUNDA) PARTE( (COMPAÑERA: ...))?"
-            // and an optional trailing " - "
-            const fullPattern = new RegExp(`${unitType} (PRIMERA|SEGUNDA) PARTE( \\(COMPAÑERA: [^)]*\\))?(\\s*-\\s*)?`, "i");
+            // Regex to match existing Full info: "FULL (PRIMERA|SEGUNDA) PARTE( (OE DE (PRIMERA|SEGUNDA) PARTE: ...))?"
+            // or also match the old (COMPAÑERA: ...) for clean removal
+            const fullPattern = new RegExp(`${unitType} (PRIMERA|SEGUNDA) PARTE( \\((OE DE (PRIMERA|SEGUNDA) PARTE|COMPAÑERA): [^)]*\\))?(\\s*-\\s*)?`, "i");
             
             // If it already contains EXACTLY what we want, don't trigger update
             if (currentObs.includes(newFullText)) return;
@@ -647,7 +648,7 @@ export default function EntrySale({
                                                             disabled={lockedFull}
                                                             className={`w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold text-gray-700 ${lockedFull ? 'bg-gray-100' : 'bg-white'}`}
                                                         >
-                                                            <option value="">Seleccionar OE Compañera...</option>
+                                                            <option value="">Seleccionar OE de {data.full_part === 'primera' ? 'Segunda' : 'Primera'} Parte...</option>
                                                             {pending_shipment_orders
                                                                 .filter(oe => oe.id !== data.shipment_order_id && (
                                                                     oe.operator_name && data.driver && 
