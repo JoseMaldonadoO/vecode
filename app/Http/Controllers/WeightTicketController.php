@@ -600,7 +600,7 @@ class WeightTicketController extends Controller
         })
             ->where('status', '!=', 'cancelled')
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'folio']);
+            ->get(['id', 'folio', 'operator_name']);
 
         return Inertia::render('Scale/EntrySale', [
             'active_scale_id' => (int) $scaleId,
@@ -764,6 +764,11 @@ class WeightTicketController extends Controller
             'withdrawal_letter' => $order->sale_order_folio ?? '',
             'presentation' => $order->presentation ?? 'GRANEL', // Crucial for dynamic validation
             'programmed_weight' => $programmedWeight,
+            'unit_type' => $order->unit_type ?? 'N/A', // Unified for frontend
+            'linked_full_info' => \App\Models\WeightTicket::where('companion_shipment_order_id', $order->id)
+                ->where('weighing_status', '!=', 'cancelled')
+                ->latest()
+                ->first()?->only(['full_part', 'shipment_order_id']) ?? null,
         ]);
     }
 
@@ -930,6 +935,9 @@ class WeightTicketController extends Controller
             'scale_id' => 'nullable|integer',
             'exit_operator_id' => 'nullable|exists:exit_operators,id',
             'vessel_operator_id' => 'nullable|exists:vessel_operators,id',
+            // Full Support
+            'companion_shipment_order_id' => 'nullable|uuid',
+            'full_part' => 'nullable|string|in:primera,segunda',
         ]);
 
         try {
@@ -1015,6 +1023,9 @@ class WeightTicketController extends Controller
                     'container_type' => $validated['container_type'] ?? 'N/A',
                     'scale_id' => $scaleId,
                     'is_burreo' => $isBurreo,
+                    // Full Support
+                    'companion_shipment_order_id' => $validated['companion_shipment_order_id'] ?? null,
+                    'full_part' => $validated['full_part'] ?? null,
                 ]);
             });
 

@@ -32,7 +32,7 @@ export default function EntrySale({
 }: {
     auth: any;
     active_scale_id?: number;
-    pending_shipment_orders?: { id: string; folio: string }[];
+    pending_shipment_orders?: { id: string; folio: string; operator_name?: string }[];
 }) {
     const { weight, isConnected, connectScale, setManualWeight } = useScale();
     const [capturedWeight, setCapturedWeight] = useState<number | null>(null);
@@ -65,7 +65,14 @@ export default function EntrySale({
         programmed_weight: "",
         product_id: "",
         exit_operator_id: "",
+        // Full Support
+        unit_type: "",
+        companion_shipment_order_id: "",
+        full_part: "", // 'primera' | 'segunda'
     });
+ 
+    const [isFull, setIsFull] = useState(false);
+    const [lockedFull, setLockedFull] = useState(false);
 
     useEffect(() => {
         setData("scale_id", active_scale_id);
@@ -161,7 +168,17 @@ export default function EntrySale({
                 economic_number: res.economic_number,
                 product_id: res.product_id || "",
                 exit_operator_id: res.exit_operator_id || "",
+                unit_type: res.unit_type || "",
+                // Reset/Set Full info if found in backend
+                full_part: res.linked_full_info ? (res.linked_full_info.full_part === 'primera' ? 'segunda' : 'primera') : "",
+                companion_shipment_order_id: res.linked_full_info ? res.linked_full_info.shipment_order_id : "",
             }));
+
+            // Check if it is a Full unit
+            const unitType = (res.unit_type || "").toUpperCase();
+            const startsWithFull = unitType.includes("FULL");
+            setIsFull(startsWithFull);
+            setLockedFull(!!res.linked_full_info);
 
             Swal.fire({
                 icon: "success",
@@ -189,6 +206,26 @@ export default function EntrySale({
             setIsLoading(false);
         }
     };
+
+    // Automatic Observations for Full Units
+    useEffect(() => {
+        if (isFull && data.full_part && orderDetails) {
+            const partText = data.full_part.toUpperCase();
+            const unitType = (data.unit_type || "FULL").toUpperCase();
+            const baseText = `${unitType} ${partText} PARTE`;
+            
+            // Find companion folio for better observation
+            const companion = pending_shipment_orders.find(oe => oe.id === data.companion_shipment_order_id);
+            const companionText = companion ? ` (COMPAÑERA: ${companion.folio})` : "";
+            
+            const newObs = `${baseText}${companionText}`;
+            
+            // Only update if it doesn't already start with the baseText or is empty
+            if (!data.observations.includes(baseText)) {
+                setData("observations", newObs + (data.observations ? ` - ${data.observations}` : ""));
+            }
+        }
+    }, [isFull, data.full_part, data.companion_shipment_order_id, data.unit_type, orderDetails]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -520,6 +557,11 @@ export default function EntrySale({
                                         <h4 className="text-xs font-black text-indigo-500 uppercase tracking-[0.2em] mb-4 flex items-center">
                                             <Truck className="w-4 h-4 mr-2" />
                                             Transporte Asignado
+                                            {data.unit_type && (
+                                                <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md text-[10px]">
+                                                    {data.unit_type}
+                                                </span>
+                                            )}
                                         </h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 p-6 bg-amber-50 rounded-2xl border border-amber-100 shadow-inner">
                                             {/* Top Row: Line and Full Operator */}
@@ -548,6 +590,69 @@ export default function EntrySale({
                                                 </div>
                                             </div>
                                         </div>
+
+                                        {/* Full Unit Options Section */}
+                                        {isFull && (
+                                            <div className="mt-6 p-6 bg-indigo-50 rounded-2xl border border-indigo-100 shadow-inner animate-fade-in">
+                                                <h4 className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center">
+                                                    <LinkIcon className="w-4 h-4 mr-2" />
+                                                    Configuración de Unidad Full
+                                                    {lockedFull && (
+                                                        <span className="ml-auto text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                                                            Vínculo Detectado Automáticamente
+                                                        </span>
+                                                    )}
+                                                </h4>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {/* Part Selector */}
+                                                    <div className="space-y-2">
+                                                        <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Parte de la Unidad</span>
+                                                        <div className="flex gap-4">
+                                                            {['primera', 'segunda'].map((part) => (
+                                                                <label key={part} className={`flex-1 flex items-center justify-center p-3 rounded-xl border-2 transition-all cursor-pointer ${data.full_part === part ? 'border-indigo-600 bg-indigo-100 text-indigo-900 font-bold' : 'border-gray-200 bg-white text-gray-400 hover:border-indigo-200'} ${lockedFull ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                                    <input 
+                                                                        type="radio" 
+                                                                        name="full_part" 
+                                                                        value={part} 
+                                                                        checked={data.full_part === part}
+                                                                        onChange={(e) => !lockedFull && setData('full_part', e.target.value)}
+                                                                        disabled={lockedFull}
+                                                                        className="hidden" 
+                                                                    />
+                                                                    {part === 'primera' ? 'Primera Parte' : 'Segunda Parte'}
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Companion OE Selector */}
+                                                    <div className="space-y-2">
+                                                        <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider">OE Compañera (Doble Remolque)</span>
+                                                        <select
+                                                            value={data.companion_shipment_order_id || ""}
+                                                            onChange={(e) => !lockedFull && setData("companion_shipment_order_id", e.target.value)}
+                                                            disabled={lockedFull}
+                                                            className={`w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold text-gray-700 ${lockedFull ? 'bg-gray-100' : 'bg-white'}`}
+                                                        >
+                                                            <option value="">Seleccionar OE Compañera...</option>
+                                                            {pending_shipment_orders
+                                                                .filter(oe => oe.id !== data.shipment_order_id && (
+                                                                    oe.operator_name && data.driver && 
+                                                                    oe.operator_name.toUpperCase().includes(data.driver.split(' ')[0].toUpperCase())
+                                                                ))
+                                                                .map((oe) => (
+                                                                    <option key={oe.id} value={oe.id}>
+                                                                        OE: {oe.folio} - {oe.operator_name}
+                                                                    </option>
+                                                                ))
+                                                            }
+                                                        </select>
+                                                        <p className="text-[10px] text-gray-400 italic">Filtrado por nombre de operador</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}
