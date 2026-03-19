@@ -116,10 +116,20 @@ function TimerCell({ row }: { row: OeRow }) {
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ row }: { row: OeRow }) {
-    const label = row.is_pending ? "PENDIENTE" : "COMPLETADA";
-    const cls = row.is_pending
-        ? "bg-amber-100 text-amber-800 border border-amber-200"
-        : "bg-emerald-100 text-emerald-800 border border-emerald-200";
+    if (!row.is_pending) {
+        return (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                COMPLETADA
+            </span>
+        );
+    }
+
+    const hasTicket = row.ticket_status === 'checkmark';
+    const label = hasTicket ? "SÍ" : "NO";
+    const cls = hasTicket
+        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+        : "bg-red-100 text-red-800 border border-red-200";
+
     return (
         <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}`}
@@ -165,7 +175,7 @@ function OeTable({
                         )}
                         <th className="px-4 py-3 text-left font-bold uppercase tracking-wider text-xs">Producto</th>
                         <th className="px-4 py-3 text-right font-bold uppercase tracking-wider text-xs">Tons. Prog.</th>
-                        <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">Estatus</th>
+                        <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">En Planta</th>
                         <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">Cronómetro</th>
                         <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">Reimp.</th>
                     </tr>
