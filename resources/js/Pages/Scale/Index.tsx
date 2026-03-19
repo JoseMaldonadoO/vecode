@@ -536,7 +536,7 @@ export default function Index({
                                             {operationType === 'sale' && (
                                                 <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">OE</th>
                                             )}
-                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Cliente</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'T/Unidad' : 'Cliente'}</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Chofer</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Tracto</th>
                                             <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">{operationType === 'sale' ? 'Línea Real' : 'Línea de Transporte'}</th>
@@ -563,7 +563,9 @@ export default function Index({
                                                     )}
                                                     {/* Cliente */}
                                                     <td className="px-6 py-4">
-                                                        <div className="font-bold text-gray-800 text-xs leading-tight uppercase">{order.provider}</div>
+                                                        <div className="font-bold text-gray-800 text-xs leading-tight uppercase">
+                                                            {operationType === 'sale' ? order.unit_type : order.provider}
+                                                        </div>
                                                     </td>
                                                     {/* Chofer */}
                                                     <td className="px-6 py-4">
@@ -646,7 +648,7 @@ export default function Index({
                                                         {order.driver}
                                                     </p>
                                                     <p className="text-[10px] font-black text-indigo-600 uppercase mt-1 tracking-widest">
-                                                        {order.provider}
+                                                        {operationType === 'sale' ? order.unit_type : order.provider}
                                                     </p>
                                                 </div>
                                                 <div className="text-right">

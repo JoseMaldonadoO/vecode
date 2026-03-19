@@ -214,6 +214,9 @@ class WeightTicketController extends Controller
                         ? ($order->exit_operator->real_transport_line ?? (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('real_transport_line') ?? $order->transport_company))
                         : ($order->vessel_operator->transporter_line ?? (\App\Models\VesselOperator::where('operator_name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('transporter_line') ?? $order->transport_company)),
                     'vessel_name' => $order->vessel->name ?? 'N/A',
+                    'unit_type' => $order->shipment_order_id
+                        ? ($order->exit_operator->unit_type ?? (\App\Models\ExitOperator::where('name', $order->operator_name)->where('tractor_plate', $order->tractor_plate)->value('unit_type') ?? ($order->shipment_order->unit_type ?? 'N/A')))
+                        : 'N/A',
                 ];
             });
 
