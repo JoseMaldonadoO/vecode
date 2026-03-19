@@ -84,6 +84,8 @@ interface Order {
             weighing_status: string;
         }
     }>;
+    presentation?: string;
+    sacks_count?: string;
 }
 
 interface PageProps {
@@ -311,6 +313,9 @@ export default function Index({
                                         <Settings className="w-5 h-5 mx-auto opacity-50" />
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                                        Fecha
+                                    </th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
                                         Folio
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
@@ -326,10 +331,10 @@ export default function Index({
                                         Tons. Prog.
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                                        Estatus
+                                        Presentación
                                     </th>
                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                                        Fecha
+                                        Estatus
                                     </th>
                                 </tr>
                             </thead>
@@ -505,6 +510,13 @@ export default function Index({
                                                     </Transition>
                                                 </Menu>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {order.created_at
+                                                    ? new Date(
+                                                        order.created_at,
+                                                    ).toLocaleDateString()
+                                                    : "-"}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-bold text-indigo-700 uppercase">
                                                     {order.folio}
@@ -522,6 +534,11 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-bold">
                                                 {order.programmed_tons ? Number(order.programmed_tons).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} TM
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium uppercase">
+                                                {order.presentation === 'ENVASADO' 
+                                                    ? `${order.presentation} - ${order.sacks_count || ''}` 
+                                                    : (order.presentation || '-')}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === "active" || order.status === "created"
@@ -538,19 +555,12 @@ export default function Index({
                                                             : order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {order.created_at
-                                                    ? new Date(
-                                                        order.created_at,
-                                                    ).toLocaleDateString()
-                                                    : "-"}
-                                            </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan={8}
+                                            colSpan={9}
                                             className="px-6 py-12 text-center text-gray-500"
                                         >
                                             <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
