@@ -212,17 +212,29 @@ export default function EntrySale({
         if (isFull && data.full_part && orderDetails) {
             const partText = data.full_part.toUpperCase();
             const unitType = (data.unit_type || "FULL").toUpperCase();
-            const baseText = `${unitType} ${partText} PARTE`;
             
             // Find companion folio for better observation
             const companion = pending_shipment_orders.find(oe => oe.id === data.companion_shipment_order_id);
             const companionText = companion ? ` (COMPAÑERA: ${companion.folio})` : "";
             
-            const newObs = `${baseText}${companionText}`;
+            const newFullText = `${unitType} ${partText} PARTE${companionText}`;
+            const currentObs = data.observations;
+
+            // Regex to match existing Full info: "FULL (PRIMERA|SEGUNDA) PARTE( (COMPAÑERA: ...))?"
+            // and an optional trailing " - "
+            const fullPattern = new RegExp(`${unitType} (PRIMERA|SEGUNDA) PARTE( \\(COMPAÑERA: [^)]*\\))?(\\s*-\\s*)?`, "i");
             
-            // Only update if it doesn't already start with the baseText or is empty
-            if (!data.observations.includes(baseText)) {
-                setData("observations", newObs + (data.observations ? ` - ${data.observations}` : ""));
+            // If it already contains EXACTLY what we want, don't trigger update
+            if (currentObs.includes(newFullText)) return;
+
+            // Otherwise, replace existing pattern or prepend
+            if (fullPattern.test(currentObs)) {
+                // Remove existing pattern and leading/trailing spaces or dash
+                const cleanObs = currentObs.replace(fullPattern, "").trim();
+                setData("observations", cleanObs ? `${newFullText} - ${cleanObs}` : newFullText);
+            } else {
+                // Prepend to current observations
+                setData("observations", currentObs ? `${newFullText} - ${currentObs}` : newFullText);
             }
         }
     }, [isFull, data.full_part, data.companion_shipment_order_id, data.unit_type, orderDetails]);
@@ -628,7 +640,7 @@ export default function EntrySale({
 
                                                     {/* Companion OE Selector */}
                                                     <div className="space-y-2">
-                                                        <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider">OE Compañera (Doble Remolque)</span>
+                                                        <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider">OE de {data.full_part === 'primera' ? 'Segunda' : 'Primera'} Parte (Doble Remolque)</span>
                                                         <select
                                                             value={data.companion_shipment_order_id || ""}
                                                             onChange={(e) => !lockedFull && setData("companion_shipment_order_id", e.target.value)}
