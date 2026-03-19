@@ -940,6 +940,19 @@ class DocumentationController extends Controller
                 });
             });
 
+        $inPlant = $request->input('in_plant', 'all');
+
+        // Apply "En Planta" filter
+        if ($inPlant === 'si') {
+            $baseQuery->where(function ($q) {
+                $q->whereHas('weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'))
+                    ->orWhereHas('loadingOrders.weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'));
+            });
+        } elseif ($inPlant === 'no') {
+            $baseQuery->whereDoesntHave('weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'))
+                ->whereDoesntHave('loadingOrders.weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'));
+        }
+
         // Apply search filter
         if (!empty($search)) {
             $baseQuery->where(function ($q) use ($search) {
@@ -1111,6 +1124,7 @@ class DocumentationController extends Controller
             'filters'  => [
                 'search' => $search,
                 'module' => $module,
+                'in_plant' => $inPlant,
             ],
         ]);
     }

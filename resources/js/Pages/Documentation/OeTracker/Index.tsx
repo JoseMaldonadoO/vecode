@@ -47,6 +47,7 @@ interface PageProps {
     filters: {
         search: string;
         module?: string;
+        in_plant: string;
     };
 }
 
@@ -416,14 +417,16 @@ export default function OeTrackerIndex({
 }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("envasado");
     const [search, setSearch] = useState(filters.search || "");
+    const [inPlant, setInPlant] = useState(filters.in_plant || "all");
 
     const data: Record<TabKey, OeRow[]> = { envasado, granel, saderEnvasado, saderGranel };
 
-    const applyFilters = (newSearch?: string) => {
+    const applyFilters = (newSearch?: string, newInPlant?: string) => {
         router.get(
             "/documentation/oe-tracker",
             { 
                 search: newSearch ?? search, 
+                in_plant: newInPlant ?? inPlant,
                 module: filters.module 
             },
             { preserveState: true, replace: true }
@@ -485,6 +488,24 @@ export default function OeTrackerIndex({
                                 className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm w-56 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                         </div>
+
+                        {/* En Planta Filter */}
+                        <div className="relative">
+                            <select
+                                value={inPlant}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setInPlant(val);
+                                    applyFilters(search, val);
+                                }}
+                                className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-gray-700 h-[38px]"
+                            >
+                                <option value="all">Filtro: En Planta (Todos)</option>
+                                <option value="si">Solo: SÍ (En Planta)</option>
+                                <option value="no">Solo: NO (Sin Ticket)</option>
+                            </select>
+                        </div>
+
                         <button
                             onClick={() => applyFilters(search)}
                             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
