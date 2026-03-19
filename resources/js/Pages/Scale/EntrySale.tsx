@@ -213,16 +213,12 @@ export default function EntrySale({
             const partText = data.full_part.toUpperCase();
             const unitType = (data.unit_type || "FULL").toUpperCase();
             
-            // Find companion folio for better observation
-            const companion = pending_shipment_orders.find(oe => oe.id === data.companion_shipment_order_id);
-            const companionPartLabel = data.full_part === 'primera' ? 'SEGUNDA' : 'PRIMERA';
-            const companionText = companion ? ` (OE DE ${companionPartLabel} PARTE: ${companion.folio})` : "";
-            
-            const newFullText = `${unitType} ${partText} PARTE${companionText}`;
+            // Find companion folio for better observation (kept for label logic if needed elsewhere, 
+            // but removed from observations as requested)
+            const newFullText = `${unitType} ${partText} PARTE`;
             const currentObs = data.observations;
 
-            // Regex to match existing Full info: "FULL (PRIMERA|SEGUNDA) PARTE( (OE DE (PRIMERA|SEGUNDA) PARTE: ...))?"
-            // or also match the old (COMPAÑERA: ...) for clean removal
+            // Regex to match existing Full info: "FULL (PRIMERA|SEGUNDA) PARTE( (OE DE (PRIMERA|SEGUNDA) PARTE|COMPAÑERA): ...))?"
             const fullPattern = new RegExp(`${unitType} (PRIMERA|SEGUNDA) PARTE( \\((OE DE (PRIMERA|SEGUNDA) PARTE|COMPAÑERA): [^)]*\\))?(\\s*-\\s*)?`, "i");
             
             // If it already contains EXACTLY what we want, don't trigger update

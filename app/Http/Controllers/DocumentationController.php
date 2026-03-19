@@ -1041,13 +1041,19 @@ class DocumentationController extends Controller
                 $ticketStatus = ($ticket && $ticket->weighing_status !== 'cancelled') ? 'checkmark' : 'x';
             }
 
+            $unitType = $order->unit_type ?? 'N/A';
+            if ($ticket && !empty($ticket->full_part)) {
+                $partLabel = $ticket->full_part === 'primera' ? '1ra Parte' : '2da Parte';
+                $unitType .= " ({$partLabel})";
+            }
+
             return [
                 'id'                => $order->id,
                 'num'               => $index + 1,
                 'folio'             => $order->folio,
                 'tractor_plate'     => $order->tractor_plate ?? 'N/A',
                 'operator_name'     => $order->operator_name ?? 'N/A',
-                'unit_type'         => $order->unit_type ?? 'N/A',
+                'unit_type'         => $unitType,
                 'transport_company' => $order->transport_company ?? 'N/A',
                 'client'            => $order->client?->business_name ?? 'N/A',
                 'warehouse'         => $resolveWarehouse($order),
