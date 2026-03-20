@@ -279,7 +279,7 @@ function OeTable({
 function Section({ rows, label }: { rows: OeRow[]; label: string }) {
     const [subTab, setSubTab] = useState<"pending" | "completed">("pending");
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 10;
+    const pageSize = 15;
 
     const pending = rows.filter((r) => r.is_pending);
     const completed = rows.filter((r) => !r.is_pending);

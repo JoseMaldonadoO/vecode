@@ -1157,7 +1157,7 @@ class DocumentationController extends Controller
         };
 
         // Fetch all matching orders
-        $allOrders = (clone $baseQuery)->orderBy('created_at', 'asc')->get();
+        $allOrders = (clone $baseQuery)->orderBy('created_at', 'desc')->get();
 
         // --- Dynamic Filter Options ---
         $activeRefs = $dynamicBaseQuery->with(['client', 'items'])->get();
