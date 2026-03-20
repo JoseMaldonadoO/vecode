@@ -344,7 +344,7 @@ function Section({ rows, label, showPrint = true }: { rows: OeRow[]; label: stri
             </div>
 
             {/* Table */}
-            <OeTable rows={paginatedItems} showWarehouse={subTab === "completed"} />
+            <OeTable rows={paginatedItems} showWarehouse={subTab === "completed"} showPrint={showPrint} />
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
