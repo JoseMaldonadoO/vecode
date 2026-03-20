@@ -1196,7 +1196,7 @@ class DocumentationController extends Controller
                 'client_id' => $clientId,
                 'product_id' => $productId,
             ],
-            'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name', 'name']),
+            'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']),
             'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
         ]);
     }
