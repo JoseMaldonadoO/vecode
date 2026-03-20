@@ -194,7 +194,6 @@ export default function Index({
                         <h2 className="text-2xl font-bold leading-7 text-indigo-900 sm:text-3xl sm:truncate flex items-center">
                             <FileText className="mr-3 h-8 w-8 text-indigo-600" />
                             Órdenes de Embarque
-                            <span className="ml-2 text-[10px] font-normal text-gray-400">v20.03.20B</span>
                         </h2>
                     </div>
                     <div className="mt-4 flex flex-col sm:flex-row gap-2 md:mt-0 md:ml-4">

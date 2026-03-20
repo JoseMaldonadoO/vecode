@@ -351,7 +351,7 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                                     const pName = typeof order.product === 'string' ? order.product : (order.product?.name || '');
                                                     return pName.match(/\d+\s*KG/i)?.[0] || order.sacks_count || '';
                                                 })();
-                                                return `ENVASADO ${sackSize}`;
+                                                return `ENVASADO - ${sackSize}`;
                                             })()}
                                         </td>
                                         <td className="text-center font-bold">{calculateSacks()}</td>

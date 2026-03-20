@@ -517,10 +517,23 @@ class DocumentationController extends Controller
             $productCode = $order->product->code;
             $productText = $order->product->name;
         } elseif ($productText) {
-            $p = \App\Models\Product::where('name', $productText)->first();
+            // Regex to strip "- XX KG"
+            $cleanProductText = trim(preg_replace('/-\s*\d+\s*KG/i', '', $productText));
+            $p = \App\Models\Product::where('name', $productText)
+                ->orWhere('name', $cleanProductText)
+                ->first();
+            
             if ($p) {
                 $productCode = $p->code;
+                $productText = $p->name;
+            } else {
+                $productText = $cleanProductText;
             }
+        }
+
+        // UI Requirement: If ENVASADO, ensure the product description doesn't have the weight suffix
+        if ($order->presentation === 'ENVASADO') {
+            $productText = trim(preg_replace('/-\s*\d+\s*KG/i', '', $productText));
         }
 
         return Inertia::render('Documentation/Orders/Print', [
@@ -573,10 +586,23 @@ class DocumentationController extends Controller
             $productCode = $order->product->code;
             $productText = $order->product->name;
         } elseif ($productText) {
-            $p = \App\Models\Product::where('name', $productText)->first();
+            // Regex to strip "- XX KG"
+            $cleanProductText = trim(preg_replace('/-\s*\d+\s*KG/i', '', $productText));
+            $p = \App\Models\Product::where('name', $productText)
+                ->orWhere('name', $cleanProductText)
+                ->first();
+            
             if ($p) {
                 $productCode = $p->code;
+                $productText = $p->name;
+            } else {
+                $productText = $cleanProductText;
             }
+        }
+
+        // UI Requirement: If ENVASADO, ensure the product description doesn't have the weight suffix
+        if ($order->presentation === 'ENVASADO') {
+            $productText = trim(preg_replace('/-\s*\d+\s*KG/i', '', $productText));
         }
 
         return Inertia::render('Documentation/Orders/PrintInstruction', [
