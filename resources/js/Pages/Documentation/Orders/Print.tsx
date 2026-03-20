@@ -85,7 +85,8 @@ export default function Print({ order }: Props) {
             bagSize = parseInt(sizeFromSacks[1]);
         } else {
             // Check product name for "- XX KG"
-            const sizeFromProduct = order.product_text || order.product?.name || "";
+            const pName = typeof order.product === 'string' ? order.product : (order.product?.name || '');
+            const sizeFromProduct = order.product_text || pName;
             const matchProduct = sizeFromProduct.match(/(\d+)\s*KG/i);
             if (matchProduct) {
                 bagSize = parseInt(matchProduct[1]);
@@ -345,9 +346,11 @@ th, td { border: 1px solid #9ca3af; padding: 2px 4px; } /* #9ca3af is gray-400 *
                                         <td className="text-center font-bold uppercase">
                                             {(() => {
                                                 if (order.presentation !== 'ENVASADO') return 'GRANEL';
-                                                const sackSize = (order.sacks_count?.toUpperCase().includes('KG'))
-                                                    ? order.sacks_count
-                                                    : (order.product?.name?.match(/\d+\s*KG/i)?.[0] || order.sacks_count || '');
+                                                const sackSize = (() => {
+                                                    if (order.sacks_count?.toUpperCase().includes('KG')) return order.sacks_count;
+                                                    const pName = typeof order.product === 'string' ? order.product : (order.product?.name || '');
+                                                    return pName.match(/\d+\s*KG/i)?.[0] || order.sacks_count || '';
+                                                })();
                                                 return `ENVASADO ${sackSize}`;
                                             })()}
                                         </td>
