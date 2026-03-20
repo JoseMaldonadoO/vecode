@@ -575,20 +575,24 @@ export default function OeTrackerIndex({
                 </div>
 
                 {/* Dynamic Legend */}
-                {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && (
-                    <div className="mb-6 flex justify-center animate-fade-in">
-                        <div className="bg-indigo-50 border border-indigo-200 px-6 py-2.5 rounded-2xl flex items-center gap-3 shadow-sm border-b-4 border-b-indigo-200 active:scale-95 transition-transform cursor-default group">
-                            <div className="bg-indigo-600 p-2 rounded-xl transition-transform group-hover:rotate-12">
-                                <Package className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none">Filtrado por:</span>
-                                <div className="flex items-center gap-2">
-                                    <h3 className="text-lg font-black text-indigo-900 leading-tight">
-                                        {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && clients.find(c => c.id.toString() === selectedClient.toString())?.business_name}
-                                        {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && selectedProduct && <span className="text-indigo-300 mx-2">|</span>}
-                                        {selectedProduct && products.find(p => p.id.toString() === selectedProduct.toString())?.name}
-                                    </h3>
+                <div className="mb-6 flex justify-center animate-fade-in">
+                    <div className="bg-indigo-50 border border-indigo-200 px-6 py-2.5 rounded-2xl flex items-center gap-3 shadow-sm border-b-4 border-b-indigo-200 active:scale-95 transition-transform cursor-default group">
+                        <div className="bg-indigo-600 p-2 rounded-xl transition-transform group-hover:rotate-12">
+                            <Package className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none">
+                                {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) ? "Filtrado por:" : "Vista actual:"}
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-black text-indigo-900 leading-tight">
+                                    {TABS.find(t => t.key === activeTab)?.label}
+                                    {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && <span className="text-indigo-300 mx-2">|</span>}
+                                    {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && clients.find(c => c.id.toString() === selectedClient.toString())?.business_name}
+                                    {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && selectedProduct && <span className="text-indigo-300 mx-1">|</span>}
+                                    {selectedProduct && products.find(p => p.id.toString() === selectedProduct.toString())?.name}
+                                </h3>
+                                {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && (
                                     <button
                                         onClick={() => {
                                             setSelectedClient("");
@@ -600,11 +604,11 @@ export default function OeTrackerIndex({
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
 
                 {/* Presentation Tabs */}
                 <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
