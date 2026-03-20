@@ -576,16 +576,16 @@ export default function OeTrackerIndex({
 
                 {/* Dynamic Legend */}
                 <div className="mb-6 flex justify-center animate-fade-in">
-                    <div className="bg-indigo-50 border border-indigo-200 px-6 py-2.5 rounded-2xl flex items-center gap-3 shadow-sm border-b-4 border-b-indigo-200 active:scale-95 transition-transform cursor-default group">
-                        <div className="bg-indigo-600 p-2 rounded-xl transition-transform group-hover:rotate-12">
-                            <Package className="w-5 h-5 text-white" />
+                    <div className="bg-indigo-50 border border-indigo-200 px-8 py-3.5 rounded-2xl flex items-center gap-4 shadow-sm border-b-4 border-b-indigo-200 active:scale-95 transition-transform cursor-default group">
+                        <div className="bg-indigo-600 p-3 rounded-xl transition-transform group-hover:rotate-12 shadow-lg shadow-indigo-200">
+                            <Package className="w-7 h-7 text-white" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none">
+                            <span className="text-xs font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">
                                 {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) ? "Filtrado por:" : "Vista actual:"}
                             </span>
                             <div className="flex items-center gap-2">
-                                <h3 className="text-lg font-black text-indigo-900 leading-tight">
+                                <h3 className="text-2xl font-black text-indigo-900 leading-tight">
                                     {TABS.find(t => t.key === activeTab)?.label}
                                     {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && <span className="text-indigo-300 mx-2">|</span>}
                                     {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && clients.find(c => c.id.toString() === selectedClient.toString())?.business_name}
@@ -599,10 +599,10 @@ export default function OeTrackerIndex({
                                             setSelectedProduct("");
                                             applyFilters({ client_id: "", product_id: "" });
                                         }}
-                                        className="ml-2 p-1 hover:bg-red-100 rounded-full text-indigo-300 hover:text-red-600 transition-colors"
+                                        className="ml-3 p-1.5 hover:bg-red-100 rounded-full text-indigo-300 hover:text-red-600 transition-colors"
                                         title="Limpiar filtros"
                                     >
-                                        <X className="w-4 h-4" />
+                                        <X className="w-5 h-5" />
                                     </button>
                                 )}
                             </div>
