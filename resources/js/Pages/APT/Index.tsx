@@ -49,7 +49,7 @@ export default function Index({ auth }: { auth: any }) {
         {
             name: "Seguimiento de OE",
             icon: Search,
-            href: route("apt.oe-tracker"),
+            href: route("apt.oe-tracker", { module: "apt" }),
             description: "Listado global de órdenes y embarques.",
             color: "bg-amber-50 text-amber-600",
             hover: "hover:border-amber-500",

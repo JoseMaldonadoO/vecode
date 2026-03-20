@@ -927,7 +927,19 @@ class DocumentationController extends Controller
         $search = $request->input('search', '');
         $clientId = $request->input('client_id', '');
         $productId = $request->input('product_id', '');
-        $module = $request->input('module', 'documentation');
+        $module = $request->input('module');
+
+        // Auto-detect module from route name if not explicitly provided
+        if (!$module) {
+            $routeName = $request->route() ? $request->route()->getName() : '';
+            if (strpos($routeName, 'apt.') === 0) {
+                $module = 'apt';
+            } else if (strpos($routeName, 'scale.') === 0) {
+                $module = 'scale';
+            } else {
+                $module = 'documentation';
+            }
+        }
 
         // Operational Range Calculation: From 07:00 AM today to 06:59 AM tomorrow
         $operativeDate = OperationalTimeHelper::getOperativeDate(now());
