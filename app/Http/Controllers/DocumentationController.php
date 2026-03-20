@@ -972,11 +972,23 @@ class DocumentationController extends Controller
         if ($inPlant === 'si') {
             $baseQuery->where(function ($q) {
                 $q->whereHas('weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'))
-                    ->orWhereHas('loadingOrders.weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'));
+                    ->orWhereHas('loadingOrders.weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'))
+                    ->orWhereIn('id', function ($sub) {
+                        $sub->select('companion_shipment_order_id')
+                            ->from('weight_tickets')
+                            ->where('weighing_status', '!=', 'cancelled')
+                            ->whereNotNull('companion_shipment_order_id');
+                    });
             });
         } elseif ($inPlant === 'no') {
             $baseQuery->whereDoesntHave('weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'))
-                ->whereDoesntHave('loadingOrders.weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'));
+                ->whereDoesntHave('loadingOrders.weight_ticket', fn($w) => $w->where('weighing_status', '!=', 'cancelled'))
+                ->whereNotIn('id', function ($sub) {
+                    $sub->select('companion_shipment_order_id')
+                        ->from('weight_tickets')
+                        ->where('weighing_status', '!=', 'cancelled')
+                        ->whereNotNull('companion_shipment_order_id');
+                });
         }
 
         // Apply search filter
@@ -1068,7 +1080,7 @@ class DocumentationController extends Controller
         };
 
         // Map a single order to the row format
-        $mapOrder = function (ShipmentOrder $order, int $index) use (
+        $mapOrder = function (ShipmentOrder $order, int $index, $activeCompanions = []) use (
             $resolveProduct, $resolveTicket, $resolveWarehouse, $computeStatus
         ) {
             $timing = $computeStatus($order);
@@ -1078,6 +1090,15 @@ class DocumentationController extends Controller
             $ticketStatus = null;
             if ($timing['is_pending']) {
                 $ticketStatus = ($ticket && $ticket->weighing_status !== 'cancelled') ? 'checkmark' : 'x';
+            }
+
+            // EN PLANTA resolution:
+            // SÍ if it has a ticket OR if it is a companion of an active ticket
+            $inPlant = false;
+            if ($ticket && $ticket->weighing_status !== 'cancelled') {
+                $inPlant = true;
+            } elseif (in_array($order->id, $activeCompanions)) {
+                $inPlant = true;
             }
 
             $unitType = $order->unit_type ?? 'N/A';
@@ -1104,11 +1125,18 @@ class DocumentationController extends Controller
                 'completed_at'      => $timing['completed_at'],
                 'status'            => $order->status,
                 'ticket_status'     => $ticketStatus,
+                'in_plant'          => $inPlant,
             ];
         };
 
         // Fetch all matching orders
         $allOrders = (clone $baseQuery)->orderBy('created_at', 'asc')->get();
+
+        // Fetch ALL active companions for "In Plant" resolution
+        $activeCompanions = \App\Models\WeightTicket::where('weighing_status', '!=', 'cancelled')
+            ->whereNotNull('companion_shipment_order_id')
+            ->pluck('companion_shipment_order_id')
+            ->toArray();
 
         // Classification Logic
         $envasado = collect();
@@ -1137,8 +1165,8 @@ class DocumentationController extends Controller
         }
 
         // Pagination/Mapping helper
-        $prepareGroup = function ($collection) use ($mapOrder) {
-            return $collection->values()->map(fn($o, $i) => $mapOrder($o, $i));
+        $prepareGroup = function ($collection) use ($mapOrder, $activeCompanions) {
+            return $collection->values()->map(fn($o, $i) => $mapOrder($o, $i, $activeCompanions));
         };
 
         return Inertia::render('Documentation/OeTracker/Index', [

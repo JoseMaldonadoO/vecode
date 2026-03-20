@@ -35,6 +35,7 @@ interface OeRow {
     completed_at: string | null; // ISO8601 or null
     status: string;
     ticket_status: 'checkmark' | 'x' | null;
+    in_plant: boolean;
 }
 
 interface PageProps {
@@ -125,9 +126,9 @@ function StatusBadge({ row }: { row: OeRow }) {
         );
     }
 
-    const hasTicket = row.ticket_status === 'checkmark';
-    const label = hasTicket ? "SÍ" : "NO";
-    const cls = hasTicket
+    // "En Planta" logic: true if backend says in_plant
+    const label = row.in_plant ? "SÍ" : "NO";
+    const cls = row.in_plant
         ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
         : "bg-red-100 text-red-800 border border-red-200";
 
