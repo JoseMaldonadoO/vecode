@@ -39,7 +39,7 @@ export default function Index({ auth }: { auth: any }) {
         {
             name: "Órdenes de Venta",
             icon: ClipboardList,
-            href: route("sales.orders.index"),
+            href: route("sales.orders.index", { from: "documentation" }),
             description: "Consulta de órdenes de venta (Solo Lectura).",
             color: "bg-blue-50 text-blue-600",
             hover: "hover:border-blue-500",
