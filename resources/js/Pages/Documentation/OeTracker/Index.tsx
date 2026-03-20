@@ -150,9 +150,11 @@ function StatusBadge({ row }: { row: OeRow }) {
 function OeTable({
     rows,
     showWarehouse,
+    showPrint = true,
 }: {
     rows: OeRow[];
     showWarehouse: boolean;
+    showPrint?: boolean;
 }) {
     if (rows.length === 0) {
         return (
@@ -182,8 +184,8 @@ function OeTable({
                         <th className="px-4 py-3 text-left font-bold uppercase tracking-wider text-xs">Producto</th>
                         <th className="px-4 py-3 text-right font-bold uppercase tracking-wider text-xs">Tons. Prog.</th>
                         <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">En Planta</th>
-                        <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">Cronómetro</th>
-                        <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">Reimp.</th>
+                        <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs w-12">Cronómetro</th>
+                        {showPrint && <th className="px-4 py-3 text-center font-bold uppercase tracking-wider text-xs">Reimp.</th>}
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -255,17 +257,19 @@ function OeTable({
                             <td className="px-4 py-3 text-center">
                                 <TimerCell row={row} />
                             </td>
-                            <td className="px-4 py-3 text-center">
-                                <a
-                                    href={row.id ? `/documentation/shipment-orders/${row.id}/print` : "#"}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-100 transition-colors"
-                                    title="Reimprimir OE"
-                                >
-                                    <Printer className="w-4 h-4" />
-                                </a>
-                            </td>
+                            {showPrint && (
+                                <td className="px-4 py-3 text-center">
+                                    <a
+                                        href={row.id ? `/documentation/shipment-orders/${row.id}/print` : "#"}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-100 transition-colors"
+                                        title="Reimprimir OE"
+                                    >
+                                        <Printer className="w-4 h-4" />
+                                    </a>
+                                </td>
+                            )}
                         </tr>
                     ))}
                 </tbody>
@@ -276,7 +280,7 @@ function OeTable({
 
 // ─── Section ─────────────────────────────────────────────────────────────────
 
-function Section({ rows, label }: { rows: OeRow[]; label: string }) {
+function Section({ rows, label, showPrint = true }: { rows: OeRow[]; label: string, showPrint?: boolean }) {
     const [subTab, setSubTab] = useState<"pending" | "completed">("pending");
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 15;
@@ -476,11 +480,11 @@ export default function OeTrackerIndex({
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <Link
-                            href={filters.module === 'scale' ? "/scale" : "/documentation"}
+                            href={filters.module === 'scale' ? "/scale" : filters.module === 'apt' ? "/apt" : "/documentation"}
                             className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-medium transition-colors mb-2"
                         >
                             <ArrowLeft className="w-4 h-4 mr-1" />
-                            {filters.module === 'scale' ? "Volver a Báscula" : "Volver a Documentación"}
+                            {filters.module === 'scale' ? "Volver a Báscula" : filters.module === 'apt' ? "Volver a APT" : "Volver a Documentación"}
                         </Link>
                         <h2 className="text-2xl font-bold text-indigo-900 flex items-center">
                             <Clock className="mr-3 h-7 w-7 text-indigo-600" />
@@ -634,6 +638,7 @@ export default function OeTrackerIndex({
                 <Section
                     rows={data[activeTab]}
                     label={TABS.find((t) => t.key === activeTab)!.label}
+                    showPrint={filters.module !== 'apt'}
                 />
             </div>
         </DashboardLayout>

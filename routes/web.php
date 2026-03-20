@@ -187,6 +187,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/apt/operators/search', [\App\Http\Controllers\AptController::class , 'searchOperators'])->name('apt.operators.search');
         Route::get('/apt/operator', [\App\Http\Controllers\AptController::class , 'createOperator'])->name('apt.operators.create');
         Route::post('/apt/operator', [\App\Http\Controllers\AptController::class , 'storeOperator'])->name('apt.operators.store');
+        Route::get('/apt/oe-tracker', [\App\Http\Controllers\DocumentationController::class , 'oeTrackerIndex'])->name('apt.oe-tracker');
         // Admin Module
         Route::middleware(['role:Admin'])->prefix('admin')->name('admin.')->group(function () {
             Route::patch('users/{user}/toggle-block', [\App\Http\Controllers\Admin\AdminController::class , 'toggleBlock'])->name('users.toggle-block');

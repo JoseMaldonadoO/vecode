@@ -46,6 +46,14 @@ export default function Index({ auth }: { auth: any }) {
             color: "bg-blue-50 text-blue-600",
             hover: "hover:border-blue-500",
         },
+        {
+            name: "Seguimiento de OE",
+            icon: Search,
+            href: route("apt.oe-tracker"),
+            description: "Listado global de órdenes y embarques.",
+            color: "bg-amber-50 text-amber-600",
+            hover: "hover:border-amber-500",
+        },
     ];
 
     return (
