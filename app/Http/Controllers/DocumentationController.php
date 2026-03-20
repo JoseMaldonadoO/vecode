@@ -405,7 +405,7 @@ class DocumentationController extends Controller
     public function shipmentOrdersIndex(Request $request)
     {
         $query = ShipmentOrder::query()
-            ->with(['client', 'vessel', 'sales_order', 'driver', 'origin', 'weight_ticket', 'loadingOrders.weight_ticket'])
+            ->with(['client', 'vessel', 'sales_order', 'product', 'driver', 'origin', 'weight_ticket', 'loadingOrders.weight_ticket'])
             ->whereIn('operation_type', ['scale', 'burreo']);
 
         if ($request->has('search')) {

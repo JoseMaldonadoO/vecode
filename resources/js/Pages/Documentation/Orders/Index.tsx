@@ -84,6 +84,11 @@ interface Order {
             weighing_status: string;
         }
     }>;
+    product?: {
+        id: number;
+        name: string;
+        code: string;
+    };
     presentation?: string;
     sacks_count?: string;
 }
@@ -534,10 +539,17 @@ export default function Index({
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-bold">
                                                 {order.programmed_tons ? Number(order.programmed_tons).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} TM
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium uppercase">
-                                                {order.presentation === 'ENVASADO' 
-                                                    ? `${order.presentation} - ${order.sacks_count || ''}` 
-                                                    : (order.presentation || '-')}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {(() => {
+                                                    if (order.presentation !== 'ENVASADO') return 'GRANEL';
+                                                    
+                                                    // Robust extraction: find "XX KG" in sacks_count or product name
+                                                    const sackSize = (order.sacks_count?.toUpperCase().includes('KG'))
+                                                        ? order.sacks_count
+                                                        : (order.product?.name?.match(/\d+\s*KG/i)?.[0] || order.sacks_count || '');
+                                                    
+                                                    return `ENVASADO - ${sackSize}`;
+                                                })()}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
