@@ -925,6 +925,8 @@ class DocumentationController extends Controller
     public function oeTrackerIndex(Request $request)
     {
         $search = $request->input('search', '');
+        $clientId = $request->input('client_id', '');
+        $productId = $request->input('product_id', '');
         $module = $request->input('module', 'documentation');
 
         // Operational Range Calculation: From 07:00 AM today to 06:59 AM tomorrow
@@ -1001,6 +1003,18 @@ class DocumentationController extends Controller
                     ->orWhereHas('client', function ($q2) use ($search) {
                         $q2->where('business_name', 'like', "%{$search}%");
                     });
+            });
+        }
+
+        // Apply Client filter
+        if (!empty($clientId)) {
+            $baseQuery->where('client_id', $clientId);
+        }
+
+        // Apply Product filter
+        if (!empty($productId)) {
+            $baseQuery->whereHas('items', function ($q) use ($productId) {
+                $q->where('product_id', $productId);
             });
         }
 
@@ -1179,7 +1193,11 @@ class DocumentationController extends Controller
                 'search' => $search,
                 'module' => $module,
                 'in_plant' => $inPlant,
+                'client_id' => $clientId,
+                'product_id' => $productId,
             ],
+            'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name', 'name']),
+            'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
         ]);
     }
 }

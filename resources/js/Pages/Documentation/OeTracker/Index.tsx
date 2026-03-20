@@ -49,7 +49,11 @@ interface PageProps {
         search: string;
         module?: string;
         in_plant: string;
+        client_id?: string;
+        product_id?: string;
     };
+    clients: { id: number; business_name: string; name: string }[];
+    products: { id: number; name: string }[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -415,20 +419,31 @@ export default function OeTrackerIndex({
     saderEnvasado,
     saderGranel,
     filters,
+    clients,
+    products,
 }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("envasado");
     const [search, setSearch] = useState(filters.search || "");
     const [inPlant, setInPlant] = useState(filters.in_plant || "all");
+    const [selectedClient, setSelectedClient] = useState(filters.client_id || "");
+    const [selectedProduct, setSelectedProduct] = useState(filters.product_id || "");
 
     const data: Record<TabKey, OeRow[]> = { envasado, granel, saderEnvasado, saderGranel };
 
-    const applyFilters = (newSearch?: string, newInPlant?: string) => {
+    const applyFilters = (params: {
+        search?: string,
+        in_plant?: string,
+        client_id?: string,
+        product_id?: string
+    } = {}) => {
         router.get(
             "/documentation/oe-tracker",
-            { 
-                search: newSearch ?? search, 
-                in_plant: newInPlant ?? inPlant,
-                module: filters.module 
+            {
+                search: params.search !== undefined ? params.search : search,
+                in_plant: params.in_plant !== undefined ? params.in_plant : inPlant,
+                client_id: params.client_id !== undefined ? params.client_id : selectedClient,
+                product_id: params.product_id !== undefined ? params.product_id : selectedProduct,
+                module: filters.module
             },
             { preserveState: true, replace: true }
         );
@@ -490,6 +505,44 @@ export default function OeTrackerIndex({
                             />
                         </div>
 
+                        {/* Client Filter (Only for regular Envasado/Granel) */}
+                        {(activeTab === 'envasado' || activeTab === 'granel') && (
+                            <div className="relative">
+                                <select
+                                    value={selectedClient}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setSelectedClient(val);
+                                        applyFilters({ client_id: val });
+                                    }}
+                                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-gray-700 h-[38px] max-w-[200px]"
+                                >
+                                    <option value="">Todos los Clientes</option>
+                                    {clients.map((c) => (
+                                        <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {/* Product Filter */}
+                        <div className="relative">
+                            <select
+                                value={selectedProduct}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setSelectedProduct(val);
+                                    applyFilters({ product_id: val });
+                                }}
+                                className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-gray-700 h-[38px] max-w-[200px]"
+                            >
+                                <option value="">Todos los Productos</option>
+                                {products.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         {/* En Planta Filter */}
                         <div className="relative">
                             <select
@@ -497,7 +550,7 @@ export default function OeTrackerIndex({
                                 onChange={(e) => {
                                     const val = e.target.value;
                                     setInPlant(val);
-                                    applyFilters(search, val);
+                                    applyFilters({ in_plant: val });
                                 }}
                                 className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-gray-700 h-[38px]"
                             >
@@ -508,7 +561,7 @@ export default function OeTrackerIndex({
                         </div>
 
                         <button
-                            onClick={() => applyFilters(search)}
+                            onClick={() => applyFilters()}
                             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
                         >
                             <RefreshCw className="w-4 h-4" />
@@ -516,6 +569,38 @@ export default function OeTrackerIndex({
                         </button>
                     </div>
                 </div>
+
+                {/* Dynamic Legend */}
+                {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && (
+                    <div className="mb-6 flex justify-center animate-fade-in">
+                        <div className="bg-indigo-50 border border-indigo-200 px-6 py-2.5 rounded-2xl flex items-center gap-3 shadow-sm border-b-4 border-b-indigo-200 active:scale-95 transition-transform cursor-default group">
+                            <div className="bg-indigo-600 p-2 rounded-xl transition-transform group-hover:rotate-12">
+                                <Package className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none">Filtrado por:</span>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-lg font-black text-indigo-900 leading-tight">
+                                        {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && clients.find(c => c.id.toString() === selectedClient.toString())?.business_name}
+                                        {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && selectedProduct && <span className="text-indigo-300 mx-2">|</span>}
+                                        {selectedProduct && products.find(p => p.id.toString() === selectedProduct.toString())?.name}
+                                    </h3>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedClient("");
+                                            setSelectedProduct("");
+                                            applyFilters({ client_id: "", product_id: "" });
+                                        }}
+                                        className="ml-2 p-1 hover:bg-red-100 rounded-full text-indigo-300 hover:text-red-600 transition-colors"
+                                        title="Limpiar filtros"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Presentation Tabs */}
                 <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
