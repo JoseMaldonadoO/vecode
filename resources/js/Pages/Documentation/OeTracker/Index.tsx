@@ -450,7 +450,7 @@ export default function OeTrackerIndex({
     };
 
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") applyFilters(search);
+        if (e.key === "Enter") applyFilters({ search });
     };
 
     const tabColorMap: Record<string, string> = {
