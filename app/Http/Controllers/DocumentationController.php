@@ -993,6 +993,11 @@ class DocumentationController extends Controller
                 });
         }
 
+        // --- DYNAMIC FILTERS BASE ---
+        // We clone here to get the list of clients/products available AFTER "En Planta" filter
+        // but BEFORE the specific search/client/product filters are applied.
+        $dynamicBaseQuery = clone $baseQuery;
+
         // Apply search filter
         if (!empty($search)) {
             $baseQuery->where(function ($q) use ($search) {
@@ -1013,8 +1018,16 @@ class DocumentationController extends Controller
 
         // Apply Product filter
         if (!empty($productId)) {
-            $baseQuery->whereHas('items', function ($q) use ($productId) {
-                $q->where('product_id', $productId);
+            $pm = \App\Models\Product::find($productId);
+            $pmName = $pm?->name;
+
+            $baseQuery->where(function ($q) use ($productId, $pmName) {
+                $q->whereHas('items', function ($sq) use ($productId) {
+                    $sq->where('product_id', $productId);
+                });
+                if ($pmName) {
+                    $q->orWhere('product', 'like', "%{$pmName}%");
+                }
             });
         }
 
@@ -1146,6 +1159,23 @@ class DocumentationController extends Controller
         // Fetch all matching orders
         $allOrders = (clone $baseQuery)->orderBy('created_at', 'asc')->get();
 
+        // --- Dynamic Filter Options ---
+        $activeRefs = $dynamicBaseQuery->with(['client', 'items'])->get();
+        $activeClientIds = $activeRefs->pluck('client_id')->filter()->unique();
+        $activeClients = \App\Models\Client::whereIn('id', $activeClientIds)->orderBy('business_name')->get(['id', 'business_name']);
+
+        $activeProductIds = $activeRefs->flatMap(fn($o) => $o->items->pluck('product_id'))->filter()->unique();
+        $activeProductStrings = $activeRefs->pluck('product')->filter()->unique();
+        
+        $activeProducts = \App\Models\Product::orderBy('name')->get(['id', 'name'])
+            ->filter(function($p) use ($activeProductIds, $activeProductStrings) {
+                if ($activeProductIds->contains($p->id)) return true;
+                foreach ($activeProductStrings as $s) {
+                    if (strpos(strtoupper($s), strtoupper($p->name)) !== false) return true;
+                }
+                return false;
+            })->values();
+
         // Fetch ALL active companions for "In Plant" resolution
         $activeCompanions = \App\Models\WeightTicket::where('weighing_status', '!=', 'cancelled')
             ->whereNotNull('companion_shipment_order_id')
@@ -1196,8 +1226,8 @@ class DocumentationController extends Controller
                 'client_id' => $clientId,
                 'product_id' => $productId,
             ],
-            'clients' => \App\Models\Client::orderBy('business_name')->get(['id', 'business_name']),
-            'products' => \App\Models\Product::orderBy('name')->get(['id', 'name']),
+            'clients' => $activeClients,
+            'products' => $activeProducts,
         ]);
     }
 }
