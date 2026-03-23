@@ -61,11 +61,11 @@ class DashboardController extends Controller
 
         if ($dateStart && $dateEnd) {
             $baseQuery->whereBetween('weight_tickets.weigh_out_at', [
-                $dateStart . ' 07:00:00',
-                Carbon::parse($dateEnd)->addDay()->format('Y-m-d') . ' 06:59:59'
+                $dateStart . ' 00:00:00',
+                Carbon::parse($dateEnd)->format('Y-m-d') . ' 23:59:59'
             ]);
         } elseif ($request->filled('date')) {
-            $range = OperationalTimeHelper::getOperationalRange($request->date);
+            $range = OperationalTimeHelper::getStandardRange($request->date);
             $baseQuery->whereBetween('weight_tickets.weigh_out_at', $range);
         }
 
@@ -116,7 +116,7 @@ class DashboardController extends Controller
         // 5. Calculate Charts Data
         $dailyTonnage = (clone $baseQuery)
             ->select([
-                DB::raw(OperationalTimeHelper::getSqlDateOffset('weight_tickets.weigh_out_at') . ' as date'),
+                DB::raw(OperationalTimeHelper::getSqlDateStandard('weight_tickets.weigh_out_at') . ' as date'),
                 DB::raw('SUM(weight_tickets.net_weight) as total'),
                 DB::raw('SUM(CASE WHEN loading_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo'),
                 DB::raw('SUM(CASE WHEN loading_orders.operation_type != "burreo" OR loading_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale')
@@ -188,11 +188,11 @@ class DashboardController extends Controller
         // Apply filters
         if ($dateStart && $dateEnd) {
             $baseQuery->whereBetween('weight_tickets.weigh_out_at', [
-                $dateStart . ' 07:00:00',
-                Carbon::parse($dateEnd)->addDay()->format('Y-m-d') . ' 06:59:59'
+                $dateStart . ' 00:00:00',
+                Carbon::parse($dateEnd)->format('Y-m-d') . ' 23:59:59'
             ]);
         } elseif ($request->filled('date')) {
-            $range = OperationalTimeHelper::getOperationalRange($request->date);
+            $range = OperationalTimeHelper::getStandardRange($request->date);
             $baseQuery->whereBetween('weight_tickets.weigh_out_at', $range);
         }
 
@@ -289,7 +289,7 @@ class DashboardController extends Controller
                     ->orWhere('loading_orders.operation_type', 'burreo');
             })
             ->select([
-                DB::raw('COALESCE(' . OperationalTimeHelper::getSqlDateOffset('weight_tickets.weigh_out_at') . ', ' . OperationalTimeHelper::getSqlDateOffset('loading_orders.entry_at') . ') as date'),
+                DB::raw('COALESCE(' . OperationalTimeHelper::getSqlDateStandard('weight_tickets.weigh_out_at') . ', ' . OperationalTimeHelper::getSqlDateStandard('loading_orders.entry_at') . ') as date'),
                 DB::raw('SUM(weight_tickets.net_weight) as total'),
                 DB::raw('SUM(CASE WHEN loading_orders.operation_type = "burreo" THEN weight_tickets.net_weight ELSE 0 END) as burreo'),
                 DB::raw('SUM(CASE WHEN loading_orders.operation_type != "burreo" OR loading_orders.operation_type IS NULL THEN weight_tickets.net_weight ELSE 0 END) as scale')
@@ -379,7 +379,7 @@ class DashboardController extends Controller
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
             ->where('loading_orders.vessel_id', $vesselId)
             ->where(function ($q) use ($date) {
-                $range = OperationalTimeHelper::getOperationalRange($date);
+                $range = OperationalTimeHelper::getStandardRange($date);
                 $q->whereBetween('weight_tickets.weigh_out_at', $range)
                     ->orWhere(function ($sq) use ($range) {
                         $sq->whereNull('weight_tickets.weigh_out_at')
@@ -423,7 +423,7 @@ class DashboardController extends Controller
                 ->leftJoin('vehicles', 'loading_orders.vehicle_id', '=', 'vehicles.id')
                 ->where('loading_orders.vessel_id', $vesselId)
                 ->where(function ($q) use ($date) {
-                    $range = OperationalTimeHelper::getOperationalRange($date);
+                    $range = OperationalTimeHelper::getStandardRange($date);
                     $q->whereBetween('weight_tickets.weigh_out_at', $range)
                         ->orWhere(function ($sq) use ($range) {
                             $sq->whereNull('weight_tickets.weigh_out_at')
@@ -545,7 +545,7 @@ class DashboardController extends Controller
 
             // Date Filter (Global)
             if ($request->has('date') && $request->date) {
-                $range = OperationalTimeHelper::getOperationalRange($request->date);
+                $range = OperationalTimeHelper::getStandardRange($request->date);
                 $query->whereBetween('weight_tickets.weigh_out_at', $range);
             }
 
