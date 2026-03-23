@@ -1220,6 +1220,39 @@ class DocumentationController extends Controller
             }
         }
 
+        // --- Per-Tab Filter Options ---
+        $getFiltersFromGroup = function ($collection) {
+            if ($collection->isEmpty()) {
+                return ['clients' => [], 'products' => []];
+            }
+
+            // Extract unique clients
+            $clientIds = $collection->pluck('client_id')->filter()->unique();
+            $clients = \App\Models\Client::whereIn('id', $clientIds)
+                ->orderBy('business_name')
+                ->get(['id', 'business_name']);
+
+            // Extract unique products (matching global logic)
+            $productIds = $collection->flatMap(fn($o) => $o->items->pluck('product_id'))->filter()->unique();
+            $productStrings = $collection->pluck('product')->filter()->unique();
+
+            $products = \App\Models\Product::orderBy('name')->get(['id', 'name'])
+                ->filter(function ($p) use ($productIds, $productStrings) {
+                    if ($productIds->contains($p->id)) return true;
+                    foreach ($productStrings as $s) {
+                        if (strpos(strtoupper($s), strtoupper($p->name)) !== false) return true;
+                    }
+                    return false;
+                })->values();
+
+            return ['clients' => $clients, 'products' => $products];
+        };
+
+        $envasadoF = $getFiltersFromGroup($envasado);
+        $granelF = $getFiltersFromGroup($granel);
+        $saderEnvasadoF = $getFiltersFromGroup($saderEnvasado);
+        $saderGranelF = $getFiltersFromGroup($saderGranel);
+
         // Pagination/Mapping helper
         $prepareGroup = function ($collection) use ($mapOrder, $activeCompanions) {
             return $collection->values()->map(fn($o, $i) => $mapOrder($o, $i, $activeCompanions));
@@ -1238,8 +1271,15 @@ class DocumentationController extends Controller
                 'client_id' => $clientId,
                 'product_id' => $productId,
             ],
-            'clients' => $activeClients,
-            'products' => $activeProducts,
+            // Dynamic categorized lists
+            'envasadoClients'       => $envasadoF['clients'],
+            'envasadoProducts'      => $envasadoF['products'],
+            'granelClients'         => $granelF['clients'],
+            'granelProducts'        => $granelF['products'],
+            'saderEnvasadoProducts' => $saderEnvasadoF['products'],
+            'saderGranelProducts'   => $saderGranelF['products'],
+            'clients'               => [], // No longer used as primary
+            'products'              => [], // No longer used as primary
         ]);
     }
 }

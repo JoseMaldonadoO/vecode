@@ -54,6 +54,12 @@ interface PageProps {
     };
     clients: { id: number; business_name: string; name: string }[];
     products: { id: number; name: string }[];
+    envasadoClients: { id: number; business_name: string; name: string }[];
+    envasadoProducts: { id: number; name: string }[];
+    granelClients: { id: number; business_name: string; name: string }[];
+    granelProducts: { id: number; name: string }[];
+    saderEnvasadoProducts: { id: number; name: string }[];
+    saderGranelProducts: { id: number; name: string }[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -423,14 +429,26 @@ export default function OeTrackerIndex({
     saderEnvasado,
     saderGranel,
     filters,
-    clients,
-    products,
+    envasadoClients,
+    envasadoProducts,
+    granelClients,
+    granelProducts,
+    saderEnvasadoProducts,
+    saderGranelProducts,
 }: PageProps) {
     const [activeTab, setActiveTab] = useState<TabKey>("envasado");
     const [search, setSearch] = useState(filters.search || "");
     const [inPlant, setInPlant] = useState(filters.in_plant || "all");
     const [selectedClient, setSelectedClient] = useState(filters.client_id || "");
     const [selectedProduct, setSelectedProduct] = useState(filters.product_id || "");
+
+    const currentClients = activeTab === 'envasado' ? envasadoClients :
+        activeTab === 'granel' ? granelClients : [];
+
+    const currentProducts = activeTab === 'envasado' ? envasadoProducts :
+        activeTab === 'granel' ? granelProducts :
+            activeTab === 'saderEnvasado' ? saderEnvasadoProducts :
+                activeTab === 'saderGranel' ? saderGranelProducts : [];
 
     const data: Record<TabKey, OeRow[]> = { envasado, granel, saderEnvasado, saderGranel };
 
@@ -522,7 +540,7 @@ export default function OeTrackerIndex({
                                     className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-gray-700 h-[38px] max-w-[200px]"
                                 >
                                     <option value="">Todos los Clientes</option>
-                                    {clients.map((c) => (
+                                    {currentClients.map((c) => (
                                         <option key={c.id} value={c.id}>{c.business_name || c.name}</option>
                                     ))}
                                 </select>
@@ -541,7 +559,7 @@ export default function OeTrackerIndex({
                                 className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-gray-700 h-[38px] max-w-[200px]"
                             >
                                 <option value="">Todos los Productos</option>
-                                {products.map((p) => (
+                                {currentProducts.map((p) => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
                             </select>
@@ -588,9 +606,9 @@ export default function OeTrackerIndex({
                                 <h3 className="text-2xl font-black text-indigo-900 leading-tight">
                                     {TABS.find(t => t.key === activeTab)?.label}
                                     {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && <span className="text-indigo-300 mx-2">|</span>}
-                                    {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && clients.find(c => c.id.toString() === selectedClient.toString())?.business_name}
+                                    {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && currentClients.find(c => c.id.toString() === selectedClient.toString())?.business_name}
                                     {selectedClient && (activeTab === 'envasado' || activeTab === 'granel') && selectedProduct && <span className="text-indigo-300 mx-1">|</span>}
-                                    {selectedProduct && products.find(p => p.id.toString() === selectedProduct.toString())?.name}
+                                    {selectedProduct && currentProducts.find(p => p.id.toString() === selectedProduct.toString())?.name}
                                 </h3>
                                 {((selectedClient && (activeTab === 'envasado' || activeTab === 'granel')) || selectedProduct) && (
                                     <button
