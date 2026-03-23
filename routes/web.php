@@ -234,6 +234,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/mockup/dock-scanner', function () {
             return Inertia::render('Prototypes/DockScannerMockup');
         }
-        )->name('mockup.dock-scanner');    });
+        )->name('mockup.dock-scanner');
+
+        // Sandbox Environment
+        require __DIR__ . '/sandbox.php';
+
+    });
 
 require __DIR__ . '/auth.php';
