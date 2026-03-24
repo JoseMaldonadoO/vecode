@@ -107,6 +107,11 @@ class LoadingOrder extends Model
         return $this->sales_order?->sale_order ?? ($this->shipment_order?->sales_order?->sale_order ?? 'N/A');
     }
 
+    public function getFolioAttribute($value)
+    {
+        return ltrim($value, '_');
+    }
+
     protected $appends = ['client_name', 'sale_order_folio', 'customer_reference'];
 
     public function vessel_operator_trip()
