@@ -13,6 +13,7 @@ import {
     Box,
     CheckCircle,
 } from "lucide-react";
+import TransportLineDropdown from "@/Components/TransportLineDropdown";
 
 interface Operator {
     id: number;
@@ -100,36 +101,20 @@ export default function Edit({ auth, operator }: { auth: any; operator: Operator
                                 </div>
 
                                 {/* Linea transportista */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Linea transportista:</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={data.transport_line}
-                                            onChange={(e) => setData("transport_line", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
-                                            required
-                                        />
-                                        <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
-                                    </div>
-                                    {errors.transport_line && <p className="text-red-500 text-xs mt-1">{errors.transport_line}</p>}
-                                </div>
+                                <TransportLineDropdown
+                                    value={data.transport_line}
+                                    onChange={(val) => setData("transport_line", val)}
+                                    label="Linea transportista:"
+                                    error={errors.transport_line}
+                                />
 
                                 {/* Linea real */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Linea real:</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={data.real_transport_line}
-                                            onChange={(e) => setData("real_transport_line", e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-10 uppercase"
-                                            required
-                                        />
-                                        <Truck className="w-5 h-5 text-gray-400 absolute left-3 top-2" />
-                                    </div>
-                                    {errors.real_transport_line && <p className="text-red-500 text-xs mt-1">{errors.real_transport_line}</p>}
-                                </div>
+                                <TransportLineDropdown
+                                    value={data.real_transport_line}
+                                    onChange={(val) => setData("real_transport_line", val)}
+                                    label="Linea real:"
+                                    error={errors.real_transport_line}
+                                />
 
                                 {/* Tipo de unidad */}
                                 <div>

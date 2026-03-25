@@ -163,6 +163,12 @@ Route::middleware('auth')->group(function () {
 
         // New Shipment Orders Report Route
         Route::get('/documentation/shipment-orders', [\App\Http\Controllers\DocumentationController::class , 'shipmentOrdersIndex'])->name('documentation.orders.index');
+
+        // Transport Lines Catalogue
+        Route::get('/transport-lines', [\App\Http\Controllers\TransportLineController::class, 'index'])->name('transport-lines.index');
+        Route::post('/transport-lines', [\App\Http\Controllers\TransportLineController::class, 'store'])->name('transport-lines.store');
+        Route::put('/transport-lines/{transportLine}', [\App\Http\Controllers\TransportLineController::class, 'update'])->name('transport-lines.update');
+        Route::delete('/transport-lines/{transportLine}', [\App\Http\Controllers\TransportLineController::class, 'destroy'])->name('transport-lines.destroy');
         // Print Routes
         Route::get('/documentation/shipment-orders/{id}/print', [\App\Http\Controllers\DocumentationController::class , 'printOrder'])->name('documentation.orders.print');
         Route::get('/documentation/shipment-orders/{id}/print-instruction', [\App\Http\Controllers\DocumentationController::class , 'printInstruction'])->name('documentation.orders.print-instruction');

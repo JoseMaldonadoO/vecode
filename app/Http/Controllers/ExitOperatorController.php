@@ -62,6 +62,8 @@ class ExitOperatorController extends Controller
             }
         }
 
+        $this->ensureTransportLinesExist($validated['transport_line'], $validated['real_transport_line']);
+
         ExitOperator::create($validated);
 
         return redirect()->route('documentation.exit-operators.index')->with('success', '¡Operador registrado con éxito!');
@@ -111,6 +113,8 @@ class ExitOperatorController extends Controller
             }
         }
 
+        $this->ensureTransportLinesExist($validated['transport_line'], $validated['real_transport_line']);
+
         $oldName = $operator->name;
         $operator->update($validated);
 
@@ -118,15 +122,15 @@ class ExitOperatorController extends Controller
         \App\Models\ShipmentOrder::where('operator_name', $oldName)
             ->whereIn('status', ['created', 'authorized', 'weighing_in', 'loading'])
             ->update([
-                'operator_name' => $operator->name,
-                'transport_company' => $operator->transport_line,
-                'unit_type' => $operator->unit_type,
-                'tractor_plate' => $operator->tractor_plate,
-                'trailer_plate' => $operator->trailer_plate,
-                'economic_number' => $operator->economic_number,
-                'unit_number' => $operator->brand_model,
-                'license_number' => $operator->license,
-            ]);
+            'operator_name' => $operator->name,
+            'transport_company' => $operator->transport_line,
+            'unit_type' => $operator->unit_type,
+            'tractor_plate' => $operator->tractor_plate,
+            'trailer_plate' => $operator->trailer_plate,
+            'economic_number' => $operator->economic_number,
+            'unit_number' => $operator->brand_model,
+            'license_number' => $operator->license,
+        ]);
 
         return redirect()->route('documentation.exit-operators.index')->with('success', '¡Información actualizada con éxito!');
     }
@@ -161,5 +165,19 @@ class ExitOperatorController extends Controller
         $operator->delete();
 
         return redirect()->route('documentation.exit-operators.index')->with('success', 'Operador eliminado correctamente.');
+    }
+
+    /**
+     * Helper to ensure transport lines exist in the catalogue.
+     */
+    private function ensureTransportLinesExist(...$names)
+    {
+        foreach ($names as $name) {
+            if (empty($name)) continue;
+            
+            $normalized = mb_strtoupper(trim($name), 'UTF-8');
+            
+            \App\Models\TransportLine::firstOrCreate(['name' => $normalized]);
+        }
     }
 }
