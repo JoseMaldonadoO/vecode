@@ -39,6 +39,7 @@ export default function Create({
     auth,
     clients,
     products,
+    vessels,
     suggested_folios,
     default_folio,
 }: {

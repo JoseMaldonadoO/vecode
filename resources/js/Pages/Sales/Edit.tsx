@@ -40,6 +40,7 @@ export default function Edit({
     order,
     clients,
     products,
+    vessels,
     context_module,
 }: {
     auth: any;
