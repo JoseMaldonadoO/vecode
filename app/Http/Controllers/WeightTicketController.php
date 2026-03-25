@@ -969,18 +969,8 @@ class WeightTicketController extends Controller
                 }
 
                 $vesselOperatorTripId = null;
-                if ($vessel && $vessel->is_external_warehouse && $vesselOperatorId) {
-                    $pendingTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $vesselId)
-                        ->where('vessel_operator_id', $vesselOperatorId)
-                        ->whereDoesntHave('loading_order')
-                        ->where('status', '!=', 'cancelled')
-                        ->orderBy('created_at', 'asc')
-                        ->first();
-                    
-                    if ($pendingTrip) {
-                        $vesselOperatorTripId = $pendingTrip->id;
-                    }
-                }
+                // [MOD] In the MI -> Muelle -> MP sequence, the trip doesn't exist yet at MI entry time.
+                // Linking is now handled in DockTripController@store.
 
                 // UNIFIED LOGIC: ALWAYS CREATE LOADING ORDER
                 // Whether it came from a Vessel (Import) or ShipmentOrder (Export/Sales),
@@ -1079,13 +1069,17 @@ class WeightTicketController extends Controller
                 }
 
                 // Validate Warehouse assignment if needed (mostly for Imports)
-                // If it's linked to a ShipmentOrder (Export), maybe skip?
-                // For now, relax or check logic.
-                // Validate Warehouse assignment if needed (mostly for Imports)
                 if (!$order->shipment_order_id && empty($order->warehouse)) {
                     // Bypass for external warehouse vessels
                     if (!$order->vessel || !$order->vessel->is_external_warehouse) {
                         throw new \Exception("ALERTA: No se puede destarar sin haber asignado Almacén en el módulo APT.");
+                    }
+                }
+
+                // New Logic: Mandatory Dock Trip check for external vessels (MI -> Muelle -> MP)
+                if ($order->vessel && $order->vessel->is_external_warehouse) {
+                    if (!$order->vessel_operator_trip_id) {
+                        throw new \Exception("ALERTA: Operación Bloqueada. Esta unidad no ha registrado su vuelta en muelle (Chief Foreman).");
                     }
                 }
 

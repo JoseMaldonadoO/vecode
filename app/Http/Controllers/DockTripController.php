@@ -110,6 +110,19 @@ class DockTripController extends Controller
             'status' => $automaticWeight ? 'completed' : 'pending',
         ]);
 
+        // Link to existing LoadingOrder if it's an external warehouse vessel
+        if ($vessel->is_external_warehouse) {
+            $order = \App\Models\LoadingOrder::where('vessel_id', $vessel->id)
+                ->where('vessel_operator_id', $validated['vessel_operator_id'])
+                ->where('status', 'weighing_in')
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($order) {
+                $order->update(['vessel_operator_trip_id' => $trip->id]);
+            }
+        }
+
         return redirect()->back()->with('success', 'Viaje registrado correctamente.');
     }
 

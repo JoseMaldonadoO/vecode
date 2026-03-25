@@ -21,7 +21,7 @@ return new class extends Migration {
                 $table->enum('status', ['created', 'authorized', 'weighing_in', 'loading', 'weighing_out', 'completed', 'cancelled'])->default('created');
 
                 // Core Relations
-                $table->foreignId('vessel_id')->nullable()->constrained(); // Nullable just in case, but usually required for ops
+                $table->foreignUuid('vessel_id')->nullable()->constrained(); // Nullable just in case, but usually required for ops
                 $table->foreignId('client_id')->constrained();
                 $table->foreignId('product_id')->nullable()->constrained();
 
