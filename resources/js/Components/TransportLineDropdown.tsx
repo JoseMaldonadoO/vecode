@@ -18,8 +18,8 @@ interface TransportLine {
 }
 
 interface TransportLineDropdownProps {
-    value?: number | string;
-    onChange: (value: string) => void; // We keep string for backward compatibility with the database field
+    value?: string;
+    onChange: (value: string) => void;
     label?: string;
     error?: string;
     placeholder?: string;
@@ -110,7 +110,7 @@ export default function TransportLineDropdown({ value, onChange, label = "Línea
                 </label>
             )}
 
-            <Listbox value={value} onChange={onChange}>
+            <Listbox value={value || ""} onChange={onChange}>
                 <div className="relative mt-1">
                     <Listbox.Button className={`relative w-full cursor-default rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm transition-all uppercase ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
