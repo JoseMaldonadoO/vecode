@@ -91,7 +91,7 @@ class DockTripController extends Controller
         if ($vessel->is_external_warehouse) {
             $hasEntry = \App\Models\LoadingOrder::where('vessel_id', $vessel->id)
                 ->where('vessel_operator_id', $validated['vessel_operator_id'])
-                ->where('status', 'weighing_in')
+                ->where('status', 'loading')
                 ->exists();
 
             if (!$hasEntry) {

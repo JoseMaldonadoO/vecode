@@ -112,14 +112,7 @@ export default function CreateVessel({
         }
     }, [data.docking_date, data.eta, data.stay_days]);
 
-    // Auto-switch operation type based on dock arrival
-    useEffect(() => {
-        if (data.docking_date || data.docking_time) {
-            setData("apt_operation_type", "burreo");
-        } else if (data.external_dock_arrival_date || data.external_dock_arrival_time) {
-            setData("apt_operation_type", "scale");
-        }
-    }, [data.external_dock_arrival_date, data.external_dock_arrival_time, data.docking_date, data.docking_time]);
+
 
     // Vessel Holds Logic
     const handleHoldsCountChange = (count: number) => {
