@@ -87,7 +87,21 @@ class DockTripController extends Controller
             return back()->withErrors(['vessel_id' => 'ALERTA: Este barco no está configurado para registrar vueltas en muelle (Requiere Burreo o Almacén Externo).']);
         }
 
-        // STRICT CHECK 2: Prevent "Double Trip" without APT download
+        // STRICT CHECK 2: For external warehouse, ensure "Scale Entry" happened first
+        if ($vessel->is_external_warehouse) {
+            $hasEntry = \App\Models\LoadingOrder::where('vessel_id', $vessel->id)
+                ->where('vessel_operator_id', $validated['vessel_operator_id'])
+                ->where('status', 'weighing_in')
+                ->exists();
+
+            if (!$hasEntry) {
+                return back()->withErrors([
+                    'vessel_operator_id' => 'OPERACIÓN BLOQUEADA: Esta unidad no ha registrado su entrada en Báscula (Ticket MI). Debe pasar a Báscula primero.'
+                ]);
+            }
+        }
+
+        // STRICT CHECK 3: Prevent "Double Trip" without APT download
         $pendingTrip = VesselOperatorTrip::where('vessel_operator_id', $validated['vessel_operator_id'])
             ->where('vessel_id', $validated['vessel_id'])
             ->whereDoesntHave('loading_order')

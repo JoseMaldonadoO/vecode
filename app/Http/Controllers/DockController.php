@@ -77,6 +77,7 @@ class DockController extends Controller
             'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
             'holds' => 'nullable|array',
             'has_chief_foreman' => 'nullable|boolean',
+            'is_external_warehouse' => 'nullable|boolean',
         ];
 
         $messages = [
@@ -218,6 +219,7 @@ class DockController extends Controller
             'loading_port' => 'required_if:operation_type,Descarga,Carga|nullable|string|max:255',
             'holds' => 'nullable|array',
             'has_chief_foreman' => 'nullable|boolean',
+            'is_external_warehouse' => 'nullable|boolean',
         ];
 
         $messages = [

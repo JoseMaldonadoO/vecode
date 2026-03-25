@@ -969,6 +969,19 @@ class WeightTicketController extends Controller
                 }
 
                 $vesselOperatorTripId = null;
+
+                // [MOD] Preventive Check: Avoid duplicate entries for external warehouses
+                if ($vessel && $vessel->is_external_warehouse) {
+                    $existingOrder = LoadingOrder::where('vessel_id', $vesselId)
+                        ->where('vessel_operator_id', $vesselOperatorId)
+                        ->where('status', 'weighing_in')
+                        ->exists();
+
+                    if ($existingOrder) {
+                        return back()->withErrors(['error' => 'OPERACIÓN BLOQUEADA: Esta unidad ya tiene una entrada activa en Báscula. Debe completar su ciclo (Muelle/Salida).']);
+                    }
+                }
+
                 // [MOD] In the MI -> Muelle -> MP sequence, the trip doesn't exist yet at MI entry time.
                 // Linking is now handled in DockTripController@store.
 
