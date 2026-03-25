@@ -25,6 +25,7 @@ class Vessel extends Model
         'departure_date' => 'datetime',
         'is_anchored' => 'boolean',
         'has_chief_foreman' => 'boolean',
+        'is_external_warehouse' => 'boolean',
         'provisional_burreo_weight' => 'decimal:2',
         'draft_weight' => 'decimal:2',
         'holds' => 'array',

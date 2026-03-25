@@ -616,7 +616,7 @@ class WeightTicketController extends Controller
         $documenters = \App\Models\User::role('Documentador')->where('is_blocked', false)->orderBy('name')->get(['id', 'name']);
 
         if ($id) {
-            $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order'])
+            $order = LoadingOrder::with(['client', 'product', 'driver', 'vehicle', 'transporter', 'weight_ticket', 'shipment_order', 'vessel'])
                 ->findOrFail($id);
 
             $productName = 'N/A';
@@ -674,6 +674,7 @@ class WeightTicketController extends Controller
                 'programmed_tons' => $order->shipment_order->programmed_tons ?? 0,
                 'oe_folio' => $order->shipment_order?->folio ?? null,
                 'observations' => $order->observations ?? '',
+                'is_external_warehouse' => (bool) ($order->vessel?->is_external_warehouse ?? false),
             ];
         }
 
@@ -846,6 +847,7 @@ class WeightTicketController extends Controller
                             'force_burreo' => false,
                             'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
                             'has_chief_foreman' => (bool) ($operator->vessel->has_chief_foreman ?? false),
+                            'is_external_warehouse' => (bool) ($operator->vessel->is_external_warehouse ?? false),
                         ]);
                     }
 
@@ -891,6 +893,7 @@ class WeightTicketController extends Controller
                         'apt_operation_type' => $operator->vessel->apt_operation_type ?? 'scale',
                         'vessel_operator_id_val' => $operator->id, // Added this to be explicit
                         'has_chief_foreman' => (bool) ($operator->vessel->has_chief_foreman ?? false),
+                        'is_external_warehouse' => (bool) ($operator->vessel->is_external_warehouse ?? false),
                     ]);
                 }
             }
@@ -965,6 +968,20 @@ class WeightTicketController extends Controller
                     // Burreo Logic if needed
                 }
 
+                $vesselOperatorTripId = null;
+                if ($vessel && $vessel->is_external_warehouse && $vesselOperatorId) {
+                    $pendingTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $vesselId)
+                        ->where('vessel_operator_id', $vesselOperatorId)
+                        ->whereDoesntHave('loading_order')
+                        ->where('status', '!=', 'cancelled')
+                        ->orderBy('created_at', 'asc')
+                        ->first();
+                    
+                    if ($pendingTrip) {
+                        $vesselOperatorTripId = $pendingTrip->id;
+                    }
+                }
+
                 // UNIFIED LOGIC: ALWAYS CREATE LOADING ORDER
                 // Whether it came from a Vessel (Import) or ShipmentOrder (Export/Sales),
                 // we create a specific operational "Trip" record (LoadingOrder).
@@ -1005,6 +1022,8 @@ class WeightTicketController extends Controller
                     'origin' => $validated['origin'] ?? null,
                     'exit_operator_id' => $exitOperatorId,
                     'vessel_operator_id' => $vesselOperatorId,
+                    'vessel_operator_trip_id' => $vesselOperatorTripId,
+                    'warehouse' => ($vessel && $vessel->is_external_warehouse) ? 'ALMACÉN CLIENTE' : null,
                 ]);
 
                 $loadingOrderId = $order->id;
@@ -1062,9 +1081,12 @@ class WeightTicketController extends Controller
                 // Validate Warehouse assignment if needed (mostly for Imports)
                 // If it's linked to a ShipmentOrder (Export), maybe skip?
                 // For now, relax or check logic.
+                // Validate Warehouse assignment if needed (mostly for Imports)
                 if (!$order->shipment_order_id && empty($order->warehouse)) {
-                    // Only strictly enforce for Imports (no shipment_order_id)
-                    throw new \Exception("ALERTA: No se puede destarar sin haber asignado Almacén en el módulo APT.");
+                    // Bypass for external warehouse vessels
+                    if (!$order->vessel || !$order->vessel->is_external_warehouse) {
+                        throw new \Exception("ALERTA: No se puede destarar sin haber asignado Almacén en el módulo APT.");
+                    }
                 }
 
                 $firstWeight = $ticket->tare_weight;
@@ -1101,6 +1123,11 @@ class WeightTicketController extends Controller
                     'warehouse' => $finalWarehouse,
                     'observations' => $validated['observations'] ?? $order->observations,
                 ]);
+
+                // Mark linked trip as completed if applicable
+                if ($order->vessel_operator_trip_id) {
+                    \App\Models\VesselOperatorTrip::where('id', $order->vessel_operator_trip_id)->update(['status' => 'completed']);
+                }
 
                 // Sync Sales Order if linked
                 if ($order->sales_order_id) {

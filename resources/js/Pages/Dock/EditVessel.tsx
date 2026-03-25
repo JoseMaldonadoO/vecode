@@ -60,6 +60,7 @@ export default function EditVessel({
         apt_operation_type: vessel.apt_operation_type || "scale",
         holds: vessel.holds || [] as { hold_number: number; tonnage: string }[],
         has_chief_foreman: !!vessel.has_chief_foreman,
+        is_external_warehouse: !!vessel.is_external_warehouse,
     });
 
     // Reset product/tons if opertion type changes from Descarga or Carga
@@ -290,9 +291,7 @@ export default function EditVessel({
                                             {errors.vessel_type}
                                         </p>
                                     )}
-                                </div>
-
-                                {/* Chief Foreman Switch - Edit Mode */}
+                                                                {/* Mode Selectors */}
                                 <div className="md:col-span-1 flex items-end">
                                     <div className={`w-full p-4 rounded-xl border transition-all duration-500 flex items-center justify-between group ${data.has_chief_foreman
                                         ? "bg-gradient-to-br from-amber-50 to-orange-50 border-orange-200 shadow-md"
@@ -306,7 +305,7 @@ export default function EditVessel({
                                                 <p className={`text-xs font-black uppercase tracking-wider transition-colors duration-500 ${data.has_chief_foreman ? "text-orange-700" : "text-gray-400 group-hover:text-gray-600"}`}>
                                                     Chief Foreman
                                                 </p>
-                                                <p className="text-[10px] text-gray-400 leading-tight tracking-tight">Modo Manual</p>
+                                                <p className="text-[10px] text-gray-400 leading-tight">Control Muelle</p>
                                             </div>
                                         </div>
 
@@ -314,62 +313,68 @@ export default function EditVessel({
                                             type="button"
                                             onClick={() => {
                                                 const newValue = !data.has_chief_foreman;
-
                                                 if (newValue) {
                                                     Swal.fire({
-                                                        title: '<span class="text-indigo-600 font-black">ACTIVAR MODO FOREMAN</span>',
-                                                        html: `
-                                                            <div class="text-left space-y-4">
-                                                                <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                                                                    <p class="text-xs text-indigo-800 leading-relaxed font-medium">
-                                                                        Al activar este modo, el sistema <b>REQUERIRÁ</b> que las unidades pasen por muelle antes de descargar en APT.
-                                                                    </p>
-                                                                </div>
-                                                                <p class="text-[10px] text-gray-500 italic">Ideal para control estricto de muelle.</p>
-                                                            </div>
-                                                        `,
+                                                        title: '<span class="text-indigo-600 font-black">¿ACTIVAR MODO FOREMAN?</span>',
+                                                        html: `<div class="text-left space-y-4"><div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100"><p class="text-sm text-indigo-800 leading-relaxed">Al activar este modo, el sistema <b>REQUERIRÁ</b> que las unidades pasen por muelle antes de descargar en APT.</p></div></div>`,
                                                         icon: "info",
                                                         showCancelButton: true,
-                                                        confirmButtonText: "Activar Foreman",
-                                                        cancelButtonText: "Cancelar",
+                                                        confirmButtonText: "Activar",
+                                                        cancelButtonText: "No",
                                                         confirmButtonColor: "#4f46e5",
-                                                        customClass: {
-                                                            popup: 'rounded-3xl border-none shadow-2xl',
-                                                            confirmButton: 'rounded-xl font-bold px-6 py-3',
-                                                            cancelButton: 'rounded-xl font-bold px-6 py-3'
-                                                        }
-                                                    }).then((result: any) => {
-                                                        if (result.isConfirmed) setData("has_chief_foreman", true);
-                                                    });
+                                                    }).then((result: any) => { if (result.isConfirmed) setData("has_chief_foreman", true); });
                                                 } else {
-                                                    Swal.fire({
-                                                        title: '<span class="text-amber-600 font-black">ACTIVAR BYPASS</span>',
-                                                        text: "¿Permitir que las unidades salten el registro de muelle?",
-                                                        icon: "warning",
-                                                        showCancelButton: true,
-                                                        confirmButtonText: "Activar Bypass",
-                                                        cancelButtonText: "Cancelar",
-                                                        confirmButtonColor: "#f59e0b",
-                                                        customClass: {
-                                                            popup: 'rounded-3xl border-none shadow-2xl',
-                                                            confirmButton: 'rounded-xl font-bold px-6 py-3',
-                                                            cancelButton: 'rounded-xl font-bold px-6 py-3'
-                                                        }
-                                                    }).then((result: any) => {
-                                                        if (result.isConfirmed) setData("has_chief_foreman", false);
-                                                    });
+                                                    setData("has_chief_foreman", false);
                                                 }
                                             }}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-500 shadow-inner ${data.has_chief_foreman ? "bg-orange-500 ring-4 ring-orange-100" : "bg-gray-200"
-                                                }`}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-500 ${data.has_chief_foreman ? "bg-orange-500" : "bg-gray-200"}`}
                                         >
-                                            <span
-                                                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xl transition-transform duration-500 ${data.has_chief_foreman ? "translate-x-6" : "translate-x-1"
-                                                    }`}
-                                            />
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-500 ${data.has_chief_foreman ? "translate-x-6" : "translate-x-1"}`} />
                                         </button>
                                     </div>
                                 </div>
+
+                                <div className="md:col-span-1 flex items-end">
+                                    <div className={`w-full p-4 rounded-xl border transition-all duration-500 flex items-center justify-between group ${data.is_external_warehouse
+                                        ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-indigo-200 shadow-md"
+                                        : "bg-gray-50 border-gray-100 hover:border-gray-200"
+                                        }`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-lg transition-colors duration-500 ${data.is_external_warehouse ? "bg-indigo-600 text-white shadow-lg" : "bg-gray-200 text-gray-500"}`}>
+                                                <LayoutGrid className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className={`text-xs font-black uppercase tracking-wider transition-colors duration-500 ${data.is_external_warehouse ? "text-indigo-700" : "text-gray-400 group-hover:text-gray-600"}`}>
+                                                    Almacén Externo
+                                                </p>
+                                                <p className="text-[10px] text-gray-400 leading-tight">Cliente / Báscula</p>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newValue = !data.is_external_warehouse;
+                                                if (newValue) {
+                                                    Swal.fire({
+                                                        title: '<span class="text-indigo-600 font-black">¿ACTIVAR MODO EXTERNO?</span>',
+                                                        html: `<div class="text-left space-y-4"><div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100"><p class="text-sm text-indigo-800 leading-relaxed">Al activar este modo, el sistema <b>OMITIRÁ</b> el escaneo en APT. Se asignará automáticamente "ALMACÉN CLIENTE" al operador.</p></div></div>`,
+                                                        icon: "info",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Activar",
+                                                        cancelButtonText: "No",
+                                                        confirmButtonColor: "#4f46e5",
+                                                    }).then((result: any) => { if (result.isConfirmed) setData("is_external_warehouse", true); });
+                                                } else {
+                                                    setData("is_external_warehouse", false);
+                                                }
+                                            }}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-500 ${data.is_external_warehouse ? "bg-indigo-600" : "bg-gray-200"}`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-500 ${data.is_external_warehouse ? "translate-x-6" : "translate-x-1"}`} />
+                                        </button>
+                                    </div>
+                                </div>    </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-bold text-gray-700 mb-1">
                                         Nombre del Buque

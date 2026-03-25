@@ -493,7 +493,11 @@ class AptController extends Controller
             }
         } else {
             // Assume UUID or Folio
-            $order = \App\Models\LoadingOrder::with('weight_ticket')->where('id', $qr)->orWhere('folio', $qr)->first();
+            $order = \App\Models\LoadingOrder::with(['weight_ticket', 'vessel'])->where('id', $qr)->orWhere('folio', $qr)->first();
+        }
+
+        if ($order && $order->vessel && $order->vessel->is_external_warehouse) {
+            return back()->withErrors(['qr' => 'ALERTA: Este barco (' . $order->vessel->name . ') utiliza un ALMACÉN EXTERNO. No se requiere escaneo en APT.']);
         }
 
         if (!$order) {

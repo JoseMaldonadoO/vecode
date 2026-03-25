@@ -15,6 +15,7 @@ import {
     X,
     Printer,
     Activity,
+    LayoutGrid,
 } from "lucide-react";
 import PrimaryButton from "@/Components/PrimaryButton";
 import InputLabel from "@/Components/InputLabel";
@@ -52,7 +53,9 @@ export default function ExitMP({
         scale_id: active_scale_id, // Exit Scale
         lot_id: "",
         packaging_type: "N/A",
-        warehouse: order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : "",
+        warehouse: order?.is_external_warehouse 
+            ? (order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : "ALMACÉN CLIENTE")
+            : (order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : ""),
         observations: (order?.type === 'sale' ? (order?.observations || "") : ""),
         documenter_id: "",
     });
@@ -477,11 +480,17 @@ export default function ExitMP({
                                         </div>
                                     </div>
                                 </div>
-                                {order.warehouse === "N/A" && (
+                                {order.warehouse === "N/A" && !order.is_external_warehouse && (
                                     <div className="mt-4 flex items-center text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200 text-sm">
                                         <AlertCircle className="w-4 h-4 mr-2" />
                                         Advertencia: No se ha asignado almacén en
                                         APT. Verifique antes de dar salida.
+                                    </div>
+                                )}
+                                {order.is_external_warehouse && (
+                                    <div className="mt-4 flex items-center text-indigo-600 bg-indigo-50 p-3 rounded-lg border border-indigo-200 text-sm">
+                                        <LayoutGrid className="w-4 h-4 mr-2" />
+                                        Modo Almacén Externo: Se permite destare directo sin escaneo APT.
                                     </div>
                                 )}
                             </div>

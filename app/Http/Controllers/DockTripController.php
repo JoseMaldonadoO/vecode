@@ -81,9 +81,10 @@ class DockTripController extends Controller
 
         $vessel = Vessel::findOrFail($validated['vessel_id']);
 
-        // STRICT CHECK 1: Only allow dock trips for vessels in 'burreo' mode
-        if ($vessel->apt_operation_type !== 'burreo') {
-            return back()->withErrors(['vessel_id' => 'ALERTA: Este barco no está configurado para "Burreo". Los barcos de Báscula no deben registrar vueltas en este panel.']);
+        // STRICT CHECK 1: Only allow dock trips for vessels in 'burreo' mode 
+        // OR 'scale' mode if they are marked as 'is_external_warehouse'
+        if ($vessel->apt_operation_type !== 'burreo' && !$vessel->is_external_warehouse) {
+            return back()->withErrors(['vessel_id' => 'ALERTA: Este barco no está configurado para registrar vueltas en muelle (Requiere Burreo o Almacén Externo).']);
         }
 
         // STRICT CHECK 2: Prevent "Double Trip" without APT download
