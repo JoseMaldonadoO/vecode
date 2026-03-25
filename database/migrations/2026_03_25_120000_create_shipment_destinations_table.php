@@ -16,6 +16,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name')->unique();
             $table->timestamps();
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
         });
 
         // 2. Add destination_id to shipment_orders
