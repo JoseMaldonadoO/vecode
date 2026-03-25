@@ -1077,7 +1077,8 @@ class WeightTicketController extends Controller
                 }
 
                 // New Logic: Mandatory Dock Trip check for external vessels (MI -> Muelle -> MP)
-                if ($order->vessel && $order->vessel->is_external_warehouse) {
+                // ONLY if the vessel also has has_chief_foreman enabled.
+                if ($order->vessel && $order->vessel->is_external_warehouse && $order->vessel->has_chief_foreman) {
                     if (!$order->vessel_operator_trip_id) {
                         throw new \Exception("ALERTA: Operación Bloqueada. Esta unidad no ha registrado su vuelta en muelle (Chief Foreman).");
                     }
