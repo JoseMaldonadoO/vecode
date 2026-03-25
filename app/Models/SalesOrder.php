@@ -23,6 +23,11 @@ class SalesOrder extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function vessel()
+    {
+        return $this->belongsTo(Vessel::class);
+    }
+
     public function shipments()
     {
         return $this->hasMany(ShipmentOrder::class);

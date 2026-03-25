@@ -149,6 +149,7 @@ class SalesController extends Controller
         return Inertia::render('Sales/Create', [
             'clients' => \App\Models\Client::all(),
             'products' => \App\Models\Product::all(),
+            'vessels' => \App\Models\Vessel::active()->get(),
             'suggested_folios' => array_values($suggestedFolios),
             'default_folio' => ''
         ]);
@@ -164,6 +165,7 @@ class SalesController extends Controller
                 'delivery_conditions' => 'nullable|string',
                 'client_id' => 'required|exists:clients,id',
                 'product_id' => 'required|exists:products,id',
+                'vessel_id' => 'nullable|exists:vessels,id',
                 'quantity' => 'required|numeric|min:0.1',
                 'destination' => 'nullable|string',
             ]);
@@ -176,6 +178,7 @@ class SalesController extends Controller
                     'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                     'client_id' => $validated['client_id'],
                     'product_id' => $validated['product_id'],
+                    'vessel_id' => $validated['vessel_id'] ?? null,
                     'total_quantity' => $validated['quantity'],
                     'status' => 'created',
                     'destination' => $validated['destination'] ?? null,
@@ -225,6 +228,7 @@ class SalesController extends Controller
             'order' => $order,
             'clients' => \App\Models\Client::all(),
             'products' => \App\Models\Product::all(),
+            'vessels' => \App\Models\Vessel::active()->get(),
             'context_module' => $request->input('module', 'sales')
         ]);
     }
@@ -244,6 +248,7 @@ class SalesController extends Controller
             'delivery_conditions' => 'nullable|string',
             'client_id' => 'required|exists:clients,id',
             'product_id' => 'required|exists:products,id',
+            'vessel_id' => 'nullable|exists:vessels,id',
             'quantity' => 'required|numeric|min:0.1',
             'destination' => 'nullable|string',
         ]);
@@ -256,6 +261,7 @@ class SalesController extends Controller
                 'delivery_conditions' => $validated['delivery_conditions'] ?? null,
                 'client_id' => $validated['client_id'],
                 'product_id' => $validated['product_id'],
+                'vessel_id' => $validated['vessel_id'] ?? null,
                 'total_quantity' => $validated['quantity'],
                 'destination' => $validated['destination'] ?? null,
             ]);

@@ -12,6 +12,7 @@ import {
     Truck,
     ShoppingCart,
     AlertCircle,
+    Ship,
 } from "lucide-react";
 import { FormEventHandler, useState, Fragment } from "react";
 import { Combobox, Transition } from "@headlessui/react";
@@ -29,6 +30,10 @@ interface Product {
     name: string;
     code: string;
 }
+interface Vessel {
+    id: string;
+    name: string;
+}
 
 export default function Edit({
     auth,
@@ -41,6 +46,7 @@ export default function Edit({
     order: any;
     clients: Client[];
     products: Product[];
+    vessels: Vessel[];
     context_module?: string;
 }) {
     const isSalesReport = context_module === "sales_report";
@@ -56,6 +62,7 @@ export default function Edit({
         client_id: order.client_id?.toString() || "",
         product_id: order.product_id?.toString() || "",
         quantity: order.total_quantity || "",
+        vessel_id: order.vessel_id || "",
         destination: order.destination || "",
     });
 
@@ -442,11 +449,47 @@ export default function Edit({
                                                 </option>
                                             ))}
                                         </select>
-                                        <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    <Box className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
                                     </div>
                                     {errors.product_id && (
                                         <div className="text-red-500 text-xs mt-1">
                                             {errors.product_id}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-normal text-gray-700 mb-1">
+                                        Barco (Opcional)
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={data.vessel_id}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "vessel_id",
+                                                    e.target.value,
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 pl-10 appearance-none bg-white font-normal"
+                                        >
+                                            <option value="">
+                                                Seleccione barco...
+                                            </option>
+                                            {vessels.map((vessel) => (
+                                                <option
+                                                    key={vessel.id}
+                                                    value={vessel.id}
+                                                >
+                                                    {vessel.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <Ship className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                                    </div>
+                                    {errors.vessel_id && (
+                                        <div className="text-red-500 text-xs mt-1">
+                                            {errors.vessel_id}
                                         </div>
                                     )}
                                 </div>
