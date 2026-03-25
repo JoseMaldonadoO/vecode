@@ -62,7 +62,7 @@ class ExitOperatorController extends Controller
             }
         }
 
-        $this->ensureTransportLinesExist($validated['transport_line'], $validated['real_transport_line']);
+        $this->ensureTransportLinesExist($validated['transport_line']);
 
         ExitOperator::create($validated);
 
@@ -113,7 +113,7 @@ class ExitOperatorController extends Controller
             }
         }
 
-        $this->ensureTransportLinesExist($validated['transport_line'], $validated['real_transport_line']);
+        $this->ensureTransportLinesExist($validated['transport_line']);
 
         $oldName = $operator->name;
         $operator->update($validated);
