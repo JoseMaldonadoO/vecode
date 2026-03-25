@@ -1093,7 +1093,17 @@ class WeightTicketController extends Controller
                 // ONLY if the vessel also has has_chief_foreman enabled.
                 if ($order->vessel && $order->vessel->is_external_warehouse && $order->vessel->has_chief_foreman) {
                     if (!$order->vessel_operator_trip_id) {
-                        throw new \Exception("ALERTA: Operación Bloqueada. Esta unidad no ha registrado su vuelta en muelle (Chief Foreman).");
+                        // FALLBACK: If trip_id is missing (e.g. legacy data or linking issue), try finding the latest matching trip
+                        $latestTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $order->vessel_id)
+                            ->where('vessel_operator_id', $order->vessel_operator_id)
+                            ->orderBy('created_at', 'desc')
+                            ->first();
+
+                        if ($latestTrip) {
+                            $order->update(['vessel_operator_trip_id' => $latestTrip->id]);
+                        } else {
+                            throw new \Exception("ALERTA: Operación Bloqueada. Esta unidad no ha registrado su vuelta en muelle (Chief Foreman).");
+                        }
                     }
                 }
 
