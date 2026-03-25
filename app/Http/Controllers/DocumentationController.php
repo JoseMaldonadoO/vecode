@@ -43,7 +43,7 @@ class DocumentationController extends Controller
                 ];
             }),
             'products' => Product::all(),
-            'sales_orders' => SalesOrder::with(['client', 'product'])
+            'sales_orders' => SalesOrder::with(['client', 'product', 'vessel'])
                 ->whereIn('status', ['created', 'open'])
                 ->get(),
             'scale_operators' => User::role('Bascula')->where('is_blocked', false)->get()->map(function ($user) {

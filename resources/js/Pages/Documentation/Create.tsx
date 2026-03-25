@@ -35,6 +35,21 @@ interface Product {
     name: string;
     code: string;
 }
+interface Vessel {
+    id: string;
+    name: string;
+}
+interface SalesOrder {
+    id: number;
+    folio: string;
+    client_id: number;
+    client?: Client;
+    product_id: number;
+    product?: Product;
+    vessel_id?: string;
+    vessel?: Vessel;
+    balance?: number;
+}
 
 interface Operator {
     id: number;
@@ -59,7 +74,7 @@ export default function Create({
     auth: any;
     clients: Client[];
     products: Product[];
-    sales_orders: any[];
+    sales_orders: SalesOrder[];
     default_folio: string;
     scale_operators?: { id: number; name: string }[];
 }) {
@@ -274,6 +289,10 @@ export default function Create({
         const so = sales_orders.find((s) => s.id.toString() === soId);
 
         if (so) {
+            const updatedObservations = so.vessel
+                ? `PRODUCTO PROPIEDAD DE ${so.client?.business_name || ""}, PROVENIENTE DEL BUQUE "${so.vessel.name}".`
+                : "";
+
             setData((data) => ({
                 ...data,
                 sales_order_id: soId,
@@ -283,6 +302,7 @@ export default function Create({
                 address: so.client?.address || "",
                 product: so.product?.name || "",
                 balance: so.balance ? so.balance.toString() : "0",
+                observations: updatedObservations,
                 programmed_tons: "", // Manual as requested
             }));
         } else {
@@ -295,6 +315,7 @@ export default function Create({
                 address: "",
                 product: "",
                 balance: "",
+                observations: "",
                 programmed_tons: "",
             }));
         }
