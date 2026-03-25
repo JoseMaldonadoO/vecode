@@ -570,9 +570,10 @@ export default function ExitMP({
                                             <select
                                                 value={data.lot_id}
                                                 onChange={e => setData("lot_id", e.target.value)}
-                                                className="w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold"
+                                                disabled={order?.is_external_warehouse}
+                                                className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${order?.is_external_warehouse ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white'}`}
                                             >
-                                                <option value="">N/A</option>
+                                                <option value="">{order?.is_external_warehouse ? 'N/A (EXTERNO)' : 'N/A'}</option>
                                                 {active_lots.map((lot: any) => (
                                                     <option key={lot.id} value={lot.id}>{lot.folio}</option>
                                                 ))}
@@ -589,10 +590,10 @@ export default function ExitMP({
                                             <select
                                                 value={data.lot_id ? (active_lots.find(l => l.id === data.lot_id)?.warehouse || "") : data.warehouse}
                                                 onChange={e => setData("warehouse", e.target.value)}
-                                                disabled={!!data.lot_id}
-                                                className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${!!data.lot_id ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700'}`}
+                                                disabled={!!data.lot_id || order?.is_external_warehouse}
+                                                className={`w-full border-gray-300 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-bold ${(!!data.lot_id || order?.is_external_warehouse) ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700'}`}
                                             >
-                                                <option value="">Seleccionar Almacén...</option>
+                                                <option value="">{order?.is_external_warehouse ? 'ALMACÉN CLIENTE' : 'Seleccionar Almacén...'}</option>
                                                 <option value="Almacen 1">Almacen 1</option>
                                                 <option value="Almacen 2">Almacen 2</option>
                                                 <option value="Almacen 3">Almacen 3</option>
