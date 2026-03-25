@@ -20,6 +20,7 @@ import { FormEventHandler, useState, Fragment, useEffect } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import axios from "axios";
 import OriginDropdown from "@/Components/OriginDropdown";
+import DestinationDropdown from "@/Components/DestinationDropdown";
 
 interface Client {
     id: number;
@@ -133,6 +134,7 @@ export default function Edit({
         })(),
         programmed_tons: order.programmed_tons || "",
         balance: order.shortage_balance || "", // Using shortage_balance as 'snapshot balance' for display? OR fetch current? Review controller logic
+        destination_id: order.destination_id || "",
         destination: order.destination || "",
         state: order.state || "",
 
@@ -808,17 +810,11 @@ export default function Edit({
                                 )}
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">
-                                    Destino
-                                </label>
-                                <input
-                                    type="text"
-                                    value={data.destination}
-                                    onChange={(e) => setData("destination", e.target.value)}
-                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5 px-3 uppercase"
-                                />
-                            </div>
+                            <DestinationDropdown
+                                value={data.destination_id}
+                                onChange={(id) => setData("destination_id", id)}
+                                error={errors.destination_id}
+                            />
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">

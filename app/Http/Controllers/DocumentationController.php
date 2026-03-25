@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Vessel;
 use App\Models\VesselOperator;
 use App\Models\SalesOrder;
+use App\Models\ShipmentDestination;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -97,6 +98,7 @@ class DocumentationController extends Controller
             'qr_fertinal' => 'nullable|string',
             // Shipment
             'origin_id' => 'nullable|exists:shipment_origins,id',
+            'destination_id' => 'nullable|exists:shipment_destinations,id',
             'destination' => 'nullable|string',
             'product' => 'nullable|string', // Text snapshot or ID? Form implies text/select
             'presentation' => 'required|string',
@@ -164,11 +166,11 @@ class DocumentationController extends Controller
         unset($validated['sack_type']);
         unset($validated['balance']);
 
-        // Populate scale_name if scale_operator_id is provided
-        if (!empty($validated['scale_operator_id'])) {
-            $operator = User::find($validated['scale_operator_id']);
-            if ($operator) {
-                $validated['scale_name'] = $operator->name;
+        if (!empty($validated['destination'])) {
+            $this->ensureDestinationsExist($validated['destination']);
+            $destination = ShipmentDestination::where('name', strtoupper(trim($validated['destination'])))->first();
+            if ($destination) {
+                $validated['destination_id'] = $destination->id;
             }
         }
 
@@ -679,6 +681,7 @@ class DocumentationController extends Controller
             'unit_type' => 'nullable|string',
             'economic_number' => 'nullable|string',
             // Shipment
+            'destination_id' => 'nullable|exists:shipment_destinations,id',
             'destination' => 'nullable|string',
             'product' => 'nullable|string',
             'presentation' => 'required|string',
@@ -766,6 +769,14 @@ class DocumentationController extends Controller
             }
         }
         unset($validated['operator_id']); // Not a column in DB, used for UI search only
+
+        if (!empty($validated['destination'])) {
+            $this->ensureDestinationsExist($validated['destination']);
+            $destination = ShipmentDestination::where('name', strtoupper(trim($validated['destination'])))->first();
+            if ($destination) {
+                $validated['destination_id'] = $destination->id;
+            }
+        }
 
         $order->update($validated);
 
@@ -1281,5 +1292,19 @@ class DocumentationController extends Controller
             'clients'               => [], // No longer used as primary
             'products'              => [], // No longer used as primary
         ]);
+    }
+
+    /**
+     * Helper to ensure destinations exist in the catalogue.
+     */
+    private function ensureDestinationsExist(...$names)
+    {
+        foreach ($names as $name) {
+            if (empty($name)) continue;
+            
+            $normalized = strtoupper(trim($name));
+            
+            ShipmentDestination::firstOrCreate(['name' => $normalized]);
+        }
     }
 }

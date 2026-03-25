@@ -231,6 +231,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/shipment-origins/{origin}', [\App\Http\Controllers\ShipmentOriginController::class , 'update'])->name('shipment-origins.update');
         Route::delete('/shipment-origins/{origin}', [\App\Http\Controllers\ShipmentOriginController::class , 'destroy'])->name('shipment-origins.destroy');
 
+        // Shipment Destinations (Manageable Destinations)
+        Route::get('/shipment-destinations', [\App\Http\Controllers\ShipmentDestinationController::class , 'index'])->name('shipment-destinations.index');
+        Route::post('/shipment-destinations', [\App\Http\Controllers\ShipmentDestinationController::class , 'store'])->name('shipment-destinations.store');
+        Route::put('/shipment-destinations/{destination}', [\App\Http\Controllers\ShipmentDestinationController::class , 'update'])->name('shipment-destinations.update');
+        Route::delete('/shipment-destinations/{destination}', [\App\Http\Controllers\ShipmentDestinationController::class , 'destroy'])->name('shipment-destinations.destroy');
+
         Route::resource('apt', \App\Http\Controllers\AptController::class)->only(['index']);
 
         // System Maintenance (Temporary)
