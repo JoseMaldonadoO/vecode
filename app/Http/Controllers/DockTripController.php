@@ -89,14 +89,20 @@ class DockTripController extends Controller
 
         // STRICT CHECK 2: For external warehouse, ensure "Scale Entry" happened first
         if ($vessel->is_external_warehouse) {
-            $hasEntry = \App\Models\LoadingOrder::where('vessel_id', $vessel->id)
+            $order = \App\Models\LoadingOrder::where('vessel_id', $vessel->id)
                 ->where('vessel_operator_id', $validated['vessel_operator_id'])
                 ->where('status', 'loading')
-                ->exists();
+                ->first();
 
-            if (!$hasEntry) {
+            if (!$order) {
                 return back()->withErrors([
                     'vessel_operator_id' => 'OPERACIÓN BLOQUEADA: Esta unidad no ha registrado su entrada en Báscula (Ticket MI). Debe pasar a Báscula primero.'
+                ]);
+            }
+
+            if ($order->vessel_operator_trip_id) {
+                return back()->withErrors([
+                    'vessel_operator_id' => 'OPERACIÓN BLOQUEADA: Esta unidad ya tiene registrada su vuelta en muelle para esta entrada de báscula.'
                 ]);
             }
         }
