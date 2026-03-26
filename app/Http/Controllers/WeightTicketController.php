@@ -1089,21 +1089,10 @@ class WeightTicketController extends Controller
                     }
                 }
 
-                // New Logic: Mandatory Dock Trip check for external vessels (MI -> Muelle -> MP)
-                // ONLY if the vessel also has has_chief_foreman enabled.
-                if ($order->vessel && $order->vessel->is_external_warehouse && $order->vessel->has_chief_foreman) {
+                // Mandatory Dock Trip check for ANY vessel with Chief Foreman (MI -> Muelle -> MP)
+                if ($order->vessel && $order->vessel->has_chief_foreman) {
                     if (!$order->vessel_operator_trip_id) {
-                        // FALLBACK: If trip_id is missing (e.g. legacy data or linking issue), try finding the latest matching trip
-                        $latestTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $order->vessel_id)
-                            ->where('vessel_operator_id', $order->vessel_operator_id)
-                            ->orderBy('created_at', 'desc')
-                            ->first();
-
-                        if ($latestTrip) {
-                            $order->update(['vessel_operator_trip_id' => $latestTrip->id]);
-                        } else {
-                            throw new \Exception("ALERTA: Operación Bloqueada. Esta unidad no ha registrado su vuelta en muelle (Chief Foreman).");
-                        }
+                        throw new \Exception("ALERTA: Operación Bloqueada. Esta unidad no ha registrado su vuelta en muelle (Jefe de Cuadrilla).");
                     }
                 }
 
