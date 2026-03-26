@@ -142,6 +142,7 @@ const Timer = ({ entryAt }: { entryAt: string }) => {
 export default function Index({
     auth,
     pending_exit,
+    total_active_units = 0,
     flash,
     clients = [],
     products = [],
@@ -150,6 +151,7 @@ export default function Index({
 }: {
     auth: any;
     pending_exit: any;
+    total_active_units?: number;
     flash?: any;
     clients?: any[];
     products?: any[];
@@ -375,7 +377,7 @@ export default function Index({
                             <div className="text-[10px] font-bold text-green-600 uppercase tracking-widest mt-1">Unidades en Planta</div>
                             <p className="text-xs text-gray-400 mt-2 font-medium px-4 flex items-center gap-1 justify-center">
                                 <Activity className="w-3 h-3 text-green-500 animate-pulse" />
-                                {pending_exit.total ?? 0} unidades activas
+                                {total_active_units} unidades activas
                             </p>
                         </button>
                     </div>

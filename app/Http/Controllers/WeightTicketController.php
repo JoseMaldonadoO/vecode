@@ -80,19 +80,6 @@ class WeightTicketController extends Controller
             });
         }
 
-        if ($activeTab === 'sale') {
-            $query->whereNotNull('shipment_order_id');
-        } else {
-            $query->whereNull('shipment_order_id');
-        }
-
-        if ($request->filled('scale_id')) {
-            $scaleId = $request->scale_id;
-            $query->whereHas('weight_ticket', function ($q) use ($scaleId) {
-                $q->where('scale_id', $scaleId);
-            });
-        }
-
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -108,6 +95,25 @@ class WeightTicketController extends Controller
                     });
             });
         }
+
+        // NEW: Calculate Total Active Units across all tabs (sale + vessel)
+        // This ignores the 'tab' filter but respects all other filters (search, client, product, etc)
+        $total_active_units = (clone $query)->count();
+
+        if ($activeTab === 'sale') {
+            $query->whereNotNull('shipment_order_id');
+        } else {
+            $query->whereNull('shipment_order_id');
+        }
+
+        if ($request->filled('scale_id')) {
+            $scaleId = $request->scale_id;
+            $query->whereHas('weight_ticket', function ($q) use ($scaleId) {
+                $q->where('scale_id', $scaleId);
+            });
+        }
+
+
 
         // Clone query BEFORE pagination to get dynamic filter options
         $all_pending = (clone $query)->get();
@@ -223,6 +229,7 @@ class WeightTicketController extends Controller
         return Inertia::render('Scale/Index', [
             'pending_entry' => [], // Removed submodule mapping as requested
             'pending_exit' => $pending_exit_paginated,
+            'total_active_units' => $total_active_units, // Added specifically for the menu button count
             'clients' => $clients,
             'products' => $products,
             'warehouses' => $warehouses,
