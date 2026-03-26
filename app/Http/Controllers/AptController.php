@@ -497,7 +497,11 @@ class AptController extends Controller
         }
 
         if ($order && $order->vessel && $order->vessel->is_external_warehouse) {
-            return back()->withErrors(['qr' => 'ALERTA: Este barco (' . $order->vessel->name . ') utiliza un ALMACÉN EXTERNO. No se requiere escaneo en APT.']);
+            $msg = 'ALERTA: Este barco (' . $order->vessel->name . ') utiliza un ALMACÉN EXTERNO. ';
+            $msg .= $order->vessel->apt_operation_type === 'burreo' 
+                ? 'El registro se realiza automáticamente en MUELLE.' 
+                : 'No se requiere escaneo en APT, proceda directamente a BÁSCULA DE SALIDA.';
+            return back()->withErrors(['qr' => $msg]);
         }
 
         if (!$order) {
