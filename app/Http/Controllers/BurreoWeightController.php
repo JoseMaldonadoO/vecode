@@ -63,8 +63,20 @@ class BurreoWeightController extends Controller
                         ]);
 
                     // Update Muelle Trips (VesselOperatorTrip)
+                    // ONLY for Burreo operations or pending trips on Burreo vessels
                     VesselOperatorTrip::where('vessel_id', $vessel->id)
                         ->where('status', '!=', 'cancelled')
+                        ->where(function ($q) {
+                            $q->whereHas('loading_order', function ($sq) {
+                                $sq->where('operation_type', 'burreo');
+                            })
+                            ->orWhere(function ($sq) {
+                                $sq->whereDoesntHave('loading_order')
+                                   ->whereHas('vessel', function ($v) {
+                                       $v->where('apt_operation_type', 'burreo');
+                                   });
+                            });
+                        })
                         ->update([
                             'weight' => $validated['provisional_burreo_weight'],
                             'status' => 'completed'
@@ -123,6 +135,17 @@ class BurreoWeightController extends Controller
                     // Update Muelle Trips (VesselOperatorTrip)
                     VesselOperatorTrip::where('vessel_id', $vessel->id)
                         ->where('status', '!=', 'cancelled')
+                        ->where(function ($q) {
+                            $q->whereHas('loading_order', function ($sq) {
+                                $sq->where('operation_type', 'burreo');
+                            })
+                            ->orWhere(function ($sq) {
+                                $sq->whereDoesntHave('loading_order')
+                                   ->whereHas('vessel', function ($v) {
+                                       $v->where('apt_operation_type', 'burreo');
+                                   });
+                            });
+                        })
                         ->update([
                             'weight' => $validated['draft_weight'],
                             'status' => 'completed'
