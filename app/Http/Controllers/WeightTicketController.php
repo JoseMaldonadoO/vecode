@@ -39,6 +39,15 @@ class WeightTicketController extends Controller
             ->whereHas('weight_ticket', function ($q) {
                 $q->where('weighing_status', 'in_progress')
                     ->where('is_burreo', false);
+            })
+            // VALIDATION: Hide units for Vessels with Foreman + External Warehouse until they register Dock Trip
+            ->whereNot(function ($q) {
+                $q->whereNotNull('vessel_id')
+                    ->whereHas('vessel', function ($v) {
+                        $v->where('has_chief_foreman', true)
+                            ->where('is_external_warehouse', true);
+                    })
+                    ->whereNull('vessel_operator_trip_id');
             });
 
         if ($request->filled('client_id')) {
