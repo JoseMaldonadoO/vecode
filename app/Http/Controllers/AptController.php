@@ -463,29 +463,23 @@ class AptController extends Controller
             'operation_type' => 'required|in:scale,burreo',
         ]);
 
-        // Find Order logic similar to Scale search
-        $qr = $validated['qr'];
-        $order = null;
-
-        if (str_starts_with($qr, 'OP ') && $validated['operation_type'] !== 'burreo') {
-            // Find active order for this operator
+        // 1. Find Order logic
+        if (str_starts_with($qr, 'OP ')) {
+            // Find active order for this operator (Scale MI or previous scan)
             $parts = explode('|', substr($qr, 3));
             $operatorId = $parts[0] ?? null;
-            // Assuming the order exists and is in 'loading' status for this operator/vehicle
+            
             if ($operatorId) {
-                // We need to find the LATEST active order for this operator
-                // This is a bit loose, ideally we scan the Order Folio or Ticket.
-                // But if they use the same Badge (Operator QR):
-                $order = \App\Models\LoadingOrder::with('weight_ticket')->where('status', 'loading')
+                // Find LATEST active order for this operator/vehicle
+                // This covers BOTH 'scale' (MI) and 'burreo' (pending)
+                $order = \App\Models\LoadingOrder::with(['weight_ticket', 'vessel'])
+                    ->whereIn('status', ['loading', 'pending'])
                     ->where(function ($q) use ($operatorId) {
-                        // This assumes we stored Operator ID or can link back.
-                        // Our LoadingOrder has driver/vehicle snapshots.
-                        // We might need to look up VesselOperator and match?
-                        // For simplicity, let's assume we search by Order ID if possible,
-                        // or if they scan Operator QR, we find the order created today for this driver.
-                        $op = VesselOperator::find($operatorId);
+                        $q->where('vessel_operator_id', $operatorId);
+                        // Fallback by plates if ID is not linked in existing orders
+                        $op = \App\Models\VesselOperator::find($operatorId);
                         if ($op) {
-                            $q->where('tractor_plate', $op->tractor_plate);
+                            $q->orWhere('tractor_plate', $op->tractor_plate);
                         }
                     })
                     ->latest()
@@ -526,13 +520,16 @@ class AptController extends Controller
                         return back()->withErrors(['qr' => 'ALERTA: El operador aún no pasa por báscula y por ende no se le puede asignar un almacén.']);
                     }
 
-                    // PENDING PROCESS CHECK: Block burreo if operator has ANY active order
-                    $activeOrder = \App\Models\LoadingOrder::where('operator_name', $operator->operator_name)
-                        ->whereIn('status', ['loading', 'pending'])
-                        ->exists();
+                    // 0. ADOPT OR BLOCK: 
+                    // If the vessel is Burreo, we only block if there is a process from ANOTHER vessel or a different OE.
+                    $activeOrderQuery = \App\Models\LoadingOrder::where('operator_name', $operator->operator_name)
+                        ->whereIn('status', ['loading', 'pending']);
+                    
+                    // Allow if it's the SAME vessel (redundant check but safe)
+                    $activeOrder = $activeOrderQuery->where('vessel_id', '!=', $operator->vessel_id)->exists();
 
                     if ($activeOrder) {
-                        return back()->withErrors(['qr' => 'ALERTA: El operador tiene un proceso activo. Finalice el proceso previo antes de iniciar uno nuevo.']);
+                        return back()->withErrors(['qr' => 'ALERTA: El operador tiene un proceso activo en otro barco o venta. Finalice el proceso previo.']);
                     }
 
                     // 1. TRIP VALIDATION: FIFO (Muelle -> APT)
@@ -628,6 +625,80 @@ class AptController extends Controller
                     return back()->withErrors(['qr' => 'Operador o Barco no vinculados correctamente.']);
                 }
             } else {
+                // Case: Order ALREADY FOUND (Adopt existing order from Scale MI or previous scan)
+                if ($validated['operation_type'] === 'burreo' && $order) {
+                    
+                    // ARCHIVE CHECK: If vessel is inactive, block all scans
+                    if ($order->vessel && !$order->vessel->is_active) {
+                        return back()->withErrors(['qr' => 'ALERTA: El barco asociado a esta orden ya no está en operación.']);
+                    }
+
+                    // 1. TRIP VALIDATION: FIFO (Muelle -> APT)
+                    $pendingTrip = \App\Models\VesselOperatorTrip::where('vessel_id', $order->vessel_id)
+                        ->where('vessel_operator_id', $order->vessel_operator_id)
+                        ->where(function($q) use ($order) {
+                            $q->whereDoesntHave('loading_order')
+                              ->orWhere('id', $targetTripId = ($order->vessel_operator_trip_id));
+                        })
+                        ->where('status', '!=', 'cancelled')
+                        ->orderBy('created_at', 'asc')
+                        ->first();
+
+                    if (!$pendingTrip && $order->vessel?->has_chief_foreman) {
+                        return back()->withErrors(['qr' => 'ALERTA: No se encontró un registro de salida en Muelle para esta vuelta.']);
+                    }
+
+                    try {
+                        // 2. WEIGHT RESOLUTION
+                        $vessel = $order->vessel;
+                        $draft = (float) ($vessel->draft_weight ?? 0);
+                        $prov = (float) ($vessel->provisional_burreo_weight ?? 0);
+                        $finalWeightKg = ($draft > 0) ? $draft : $prov;
+
+                        // 3. ATOMIC TRANSACTION: Complete existing order
+                        \Illuminate\Support\Facades\DB::transaction(function () use ($order, $pendingTrip, $validated, $finalWeightKg) {
+                            $order->update([
+                                'status' => 'completed',
+                                'warehouse' => $validated['warehouse'],
+                                'cubicle' => $validated['cubicle'] ?? 'N/A',
+                                'vessel_operator_trip_id' => $pendingTrip->id ?? $order->vessel_operator_trip_id,
+                                'operation_type' => 'burreo', // Switch to burreo if it was scale
+                                'entry_at' => $order->entry_at ?? now(),
+                            ]);
+
+                            // Create Weight Ticket if missing (it should exist if it came from Scale MI)
+                            $ticket = \App\Models\WeightTicket::updateOrCreate(
+                                ['loading_order_id' => $order->id],
+                                [
+                                    'ticket_number' => $order->weight_ticket->ticket_number ?? ('B-' . $order->folio),
+                                    'weighing_status' => 'completed',
+                                    'is_burreo' => true,
+                                    'tare_weight' => $finalWeightKg,
+                                    'net_weight' => $finalWeightKg,
+                                    'weigh_out_at' => now(),
+                                ]
+                            );
+
+                            \App\Models\AptScan::create([
+                                'loading_order_id' => $order->id,
+                                'operator_id' => null,
+                                'warehouse' => (string) $validated['warehouse'],
+                                'cubicle' => (string) ($validated['cubicle'] ?? 'N/A'),
+                                'user_id' => auth()->id(),
+                            ]);
+
+                            if ($pendingTrip) {
+                                $pendingTrip->update(['status' => 'completed']);
+                            }
+                        });
+
+                        return redirect()->back()->with('success', "✅ Proceso de Burreo completado para la orden {$order->folio}.");
+
+                    } catch (\Exception $e) {
+                        return back()->withErrors(['qr' => 'Error al completar Burreo: ' . $e->getMessage()]);
+                    }
+                }
+
                 return back()->withErrors(['qr' => 'Orden de Báscula no encontrada o no activa.']);
             }
         }

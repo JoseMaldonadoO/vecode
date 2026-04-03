@@ -107,11 +107,27 @@ Este proceso cierra el ciclo operativo permitiendo el seguimiento detallado de c
 ### B. Proceso de Autorización
 - El ingreso requiere Checklist (Casco, Chaleco, etc.).
 - Las unidades autorizadas pasan a estado `in_plant` y son visibles en Documentación.
-- Al salir, se registra el tiempo final de estadía.
-### Proceso de Muelle Externo
-- Los buques pueden tener una estancia previa en un muelle externo antes de atracar en el puerto de Proagro.
-- Se registran la fecha/hora de llegada y salida del muelle externo.
-- **Cambio Automático de Operación**:
-    - Si se registra llegada al **Muelle Externo**, la operación en APT se establece como **"Báscula" (scale)**.
-    - Si se registra el atraque en el **Puerto de Proagro** (Fecha/Hora de Atraco), la operación en APT cambia a **"Burreo" (burreo)**.
-- El orden operativo es: Llegada Muelle Externo -> Salida Muelle Externo -> ETA -> Atraco Proagro -> Operación en Muelle.
+- **Automatización Burreo en Almacén Externo**: Si un barco tiene `apt_operation_type=burreo` y `is_external_warehouse=true`, cuando el Chief Foreman escanea la unidad en Muelle, el sistema genera de forma atómica: la Orden de Carga, asignación de almacén y el Ticket de Báscula (cerrando dinámicamente el ciclo). No pasan por APT.
+
+---
+
+## 8. Gestión de Almacenes e Inventarios (APT)
+
+- **Inventario Vivo**: Sincronizado en tiempo real con las salidas de báscula. El movimiento se refleja instantáneamente tras el pesaje final.
+- **Micro-trazabilidad**: Desglose por Almacén y Cubículo, permitiendo saber exactamente dónde se encuentra cada lote de producto.
+- **Control de Escaneo**: El personal de APT debe escanear el QR del operador o de la orden para autorizar la carga/descarga, asegurando la veracidad de la ubicación del inventario.
+
+---
+
+## 9. Seguridad, Auditoría y Transparencia
+
+- **Registro de Autoría (Logs de Usuario)**: Cada acción crítica (modificar pesos, autorizar accesos, crear órdenes) guarda el `user_id` del responsable para fines de auditoría.
+- **Control de Veto**: Sincronizado en todos los módulos (Vigilancia, Báscula, Almacén). Si un operador es vetado, el sistema bloquea su avance en cualquier etapa del flujo.
+- **Integridad Documental**: El sistema fuerza la unicidad de campos como la Carta Porte para evitar duplicidades documentales.
+- **Proceso de Muelle Externo**:
+    - Los buques pueden tener una estancia previa en un muelle externo antes de atracar en el puerto de Proagro.
+    - Se registran la fecha/hora de llegada y salida del muelle externo.
+    - **Cambio Automático de Operación**:
+        - Si se registra llegada al **Muelle Externo**, la operación en APT se establece como **"Báscula" (scale)**.
+        - Si se registra el atraque en el **Puerto de Proagro** (Fecha/Hora de Atraco), la operación en APT cambia a **"Burreo" (burreo)**.
+    - El orden operativo es: Llegada Muelle Externo -> Salida Muelle Externo -> ETA -> Atraco Proagro -> Operación en Muelle.
