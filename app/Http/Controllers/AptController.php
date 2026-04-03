@@ -464,6 +464,9 @@ class AptController extends Controller
         ]);
 
         // 1. Find Order logic
+        $qr = $validated['qr'];
+        $order = null;
+
         if (str_starts_with($qr, 'OP ')) {
             // Find active order for this operator (Scale MI or previous scan)
             $parts = explode('|', substr($qr, 3));
