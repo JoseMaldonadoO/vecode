@@ -23,12 +23,13 @@ class VesselDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle
     {
         return LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+            ->leftJoin('vessel_operator_trips', 'loading_orders.vessel_operator_trip_id', '=', 'vessel_operator_trips.id')
             ->where('loading_orders.vessel_id', $this->vesselId)
             ->where(function ($q) {
                 $q->where('loading_orders.status', 'completed')
                     ->orWhere('loading_orders.operation_type', 'burreo');
             })
-            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number')
+            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number', 'vessel_operator_trips.hold_number')
             ->orderBy('weight_tickets.weigh_out_at', 'asc');
     }
 
@@ -45,6 +46,7 @@ class VesselDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle
             'Producto',
             'Almacén',
             'Cubículo',
+            'Bodega',
             'Peso Neto (MT)',
             'Tipo Operación'
         ];
@@ -63,6 +65,7 @@ class VesselDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle
             $order->product_name ?? 'N/A',
             $order->warehouse ?? 'N/A',
             $order->cubicle ?? 'N/A',
+            $order->hold_number ?? '---',
             $order->net_weight / 1000,
             ucfirst($order->operation_type ?? 'Báscula')
         ];
