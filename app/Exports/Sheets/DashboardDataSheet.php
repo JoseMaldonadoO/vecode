@@ -33,7 +33,8 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
 
         $query = LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
-            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number');
+            ->leftJoin('vessel_operator_trips', 'loading_orders.vessel_operator_trip_id', '=', 'vessel_operator_trips.id')
+            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number', 'vessel_operator_trips.hold_number');
 
         if ($vesselId) {
             $query->where('loading_orders.vessel_id', $vesselId);
@@ -88,6 +89,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
             'Producto',
             'Almacén',
             'Cubículo',
+            'Bodega',
             'Peso Neto (TM)',
             'Tipo Op.',
             'Estatus'
@@ -106,6 +108,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
             $order->product_name,
             $order->warehouse,
             $order->cubicle,
+            $order->hold_number ?? '---',
             $order->net_weight / 1000,
             ucfirst($order->operation_type ?? 'Báscula'),
             ucfirst($order->status)
