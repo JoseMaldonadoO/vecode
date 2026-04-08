@@ -34,7 +34,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         $query = LoadingOrder::query()
             ->join('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
             ->leftJoin('vessel_operator_trips', 'loading_orders.vessel_operator_trip_id', '=', 'vessel_operator_trips.id')
-            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number', 'vessel_operator_trips.hold_number');
+            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number', 'vessel_operator_trips.hold_number', 'vessel_operator_trips.start_time');
 
         if ($vesselId) {
             $query->where('loading_orders.vessel_id', $vesselId);
@@ -82,7 +82,8 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         return [
             'ID Viaje',
             'Ticket',
-            'Fecha Salida',
+            'Escaneo Muelle',
+            'Escaneo Almacén',
             'Operador',
             'Económico',
             'Placas',
@@ -101,6 +102,7 @@ class DashboardDataSheet implements FromQuery, WithHeadings, WithMapping, WithTi
         return [
             $order->id,
             $order->ticket_number ?? '---',
+            $order->start_time ?? '---',
             $order->weigh_out_at,
             $order->operator_name,
             $order->economic_number ?? $order->unit_number ?? 'S/N',

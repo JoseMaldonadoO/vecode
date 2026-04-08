@@ -29,7 +29,7 @@ class VesselDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle
                 $q->where('loading_orders.status', 'completed')
                     ->orWhere('loading_orders.operation_type', 'burreo');
             })
-            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number', 'vessel_operator_trips.hold_number')
+            ->select('loading_orders.*', 'weight_tickets.net_weight', 'weight_tickets.weigh_out_at', 'weight_tickets.ticket_number', 'vessel_operator_trips.hold_number', 'vessel_operator_trips.start_time')
             ->orderBy('weight_tickets.weigh_out_at', 'asc');
     }
 
@@ -38,7 +38,8 @@ class VesselDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle
         return [
             'ID Viaje',
             'Ticket',
-            'Fecha/Hora Salida',
+            'Escaneo Muelle',
+            'Escaneo Almacén',
             'Operador',
             ' Económico',
             'Tractor Placa',
@@ -57,6 +58,7 @@ class VesselDataSheet implements FromQuery, WithHeadings, WithMapping, WithTitle
         return [
             $order->folio ?? $order->id,
             $order->ticket_number ?? '---',
+            $order->start_time ?? '---',
             $order->weigh_out_at,
             $order->operator_name,
             $order->economic_number ?? 'S/N',
