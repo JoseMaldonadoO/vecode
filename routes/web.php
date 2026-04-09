@@ -231,6 +231,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/shipment-origins/{origin}', [\App\Http\Controllers\ShipmentOriginController::class , 'update'])->name('shipment-origins.update');
         Route::delete('/shipment-origins/{origin}', [\App\Http\Controllers\ShipmentOriginController::class , 'destroy'])->name('shipment-origins.destroy');
 
+        // Loading Order References (Scale module references)
+        Route::get('/loading-order-references', [\App\Http\Controllers\LoadingOrderReferenceController::class , 'index'])->name('loading-order-references.index');
+        Route::post('/loading-order-references', [\App\Http\Controllers\LoadingOrderReferenceController::class , 'store'])->name('loading-order-references.store');
+        Route::put('/loading-order-references/{reference}', [\App\Http\Controllers\LoadingOrderReferenceController::class , 'update'])->name('loading-order-references.update');
+        Route::delete('/loading-order-references/{reference}', [\App\Http\Controllers\LoadingOrderReferenceController::class , 'destroy'])->name('loading-order-references.destroy');
+
         // Shipment Destinations (Manageable Destinations)
         Route::get('/shipment-destinations', [\App\Http\Controllers\ShipmentDestinationController::class , 'index'])->name('shipment-destinations.index');
         Route::post('/shipment-destinations', [\App\Http\Controllers\ShipmentDestinationController::class , 'store'])->name('shipment-destinations.store');

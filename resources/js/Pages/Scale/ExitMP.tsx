@@ -24,7 +24,7 @@ import { QrReader } from "react-qr-reader";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useScale } from "@/Contexts/ScaleContext";
-import OriginDropdown from "@/Components/OriginDropdown";
+import ReferenceDropdown from "@/Components/ReferenceDropdown";
 
 export default function ExitMP({
     auth,
@@ -536,13 +536,12 @@ export default function ExitMP({
                                     </div>
                                 </div>
                                 <div>
-                                    <InputLabel value="Referencia" />
                                     {isDynamicReference ? (
-                                        <OriginDropdown
+                                        <ReferenceDropdown
                                             value={selectedOriginId}
                                             label="Referencia"
                                             onChange={(id) => setSelectedOriginId(id)}
-                                            onSelect={(origin) => setData("reference", origin.name)}
+                                            onSelect={(ref) => setData("reference", ref.name)}
                                         />
                                     ) : (
                                         <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-600">
