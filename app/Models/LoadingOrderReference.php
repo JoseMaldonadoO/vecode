@@ -8,5 +8,5 @@ use App\Traits\HasAuditTrail;
 class LoadingOrderReference extends Model
 {
     use HasAuditTrail;
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'created_by', 'updated_by'];
 }

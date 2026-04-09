@@ -554,20 +554,22 @@ export default function EntryMP({
                                         placeholder=""
                                     />
                                 </div>
-                                {/* Force Origin if needed */}
-                                <div className="md:col-span-2">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Referencia
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.reference}
-                                        onChange={(e) =>
-                                            setData("reference", e.target.value)
-                                        }
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
-                                    />
-                                </div>
+                                {/* Conditionally hide reference for Special Vessels (Chief Foreman + External Warehouse) */}
+                                {!(orderDetails?.has_chief_foreman && orderDetails?.is_external_warehouse) && (
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Referencia
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={data.reference}
+                                            onChange={(e) =>
+                                                setData("reference", e.target.value)
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2.5"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
