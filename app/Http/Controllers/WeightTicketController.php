@@ -1142,13 +1142,21 @@ class WeightTicketController extends Controller
                 }
 
                 // Update Order Status and Warehouse
-                $order->update([
+                // Ensure reference is updated for Special Vessels
+                $updateData = [
                     'status' => 'completed',
                     'destare_status' => 'completed',
                     'warehouse' => $finalWarehouse,
-                    'reference' => $validated['reference'] ?? $order->reference,
                     'observations' => $validated['observations'] ?? $order->observations,
-                ]);
+                ];
+
+                // If reference is provided and is not 'N/A' (or if we have the special flags), update it
+                if (!empty($validated['reference'])) {
+                    $updateData['reference'] = $validated['reference'];
+                }
+
+                $order->update($updateData);
+
 
                 // Mark linked trip as completed if applicable
                 if ($order->vessel_operator_trip_id) {
@@ -1271,7 +1279,9 @@ class WeightTicketController extends Controller
                 : ($order->trailer_plate ?? 'N/A'),
             'economic_number' => $economicNumber,
 
-            'destination' => $isSpecialVesselWorkflow ? ($order->reference ?? 'N/A') : $destination,
+            // Special logic: The "Reference" captured during destare becomes the "Destination" on the ticket
+            'destination' => $isSpecialVesselWorkflow ? ($ticket->reference ?? ($order->reference ?? 'N/A')) : $destination,
+
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
             'consignee' => $order->consignee ?? 'N/A',
 

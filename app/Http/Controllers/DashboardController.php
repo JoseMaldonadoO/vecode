@@ -315,8 +315,8 @@ class DashboardController extends Controller
             })
             ->selectRaw('
                 CASE 
-                    WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 AND loading_orders.warehouse = "ALMACÉN CLIENTE"
-                    THEN COALESCE(NULLIF(loading_orders.reference, ""), "ALMACÉN CLIENTE - General")
+                    WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 
+                    THEN COALESCE(NULLIF(loading_orders.reference, "N/A"), COALESCE(loading_orders.warehouse, "ALMACÉN CLIENTE"))
                     ELSE CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General"))
                 END as label, 
                 weight_tickets.net_weight
@@ -411,7 +411,15 @@ class DashboardController extends Controller
             });
         }
 
-        $data = $query->selectRaw('COALESCE(loading_orders.warehouse, "S/A") as warehouse, SUM(weight_tickets.net_weight) as total')
+        $data = $query->join('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
+            ->selectRaw('
+                CASE 
+                    WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 
+                    THEN COALESCE(NULLIF(loading_orders.reference, "N/A"), COALESCE(loading_orders.warehouse, "ALMACÉN CLIENTE"))
+                    ELSE COALESCE(loading_orders.warehouse, "S/A")
+                END as warehouse, 
+                SUM(weight_tickets.net_weight) as total
+            ')
             ->groupBy('warehouse')
             ->orderByDesc('total')
             ->get();
@@ -451,8 +459,13 @@ class DashboardController extends Controller
                         ->orWhere('loading_orders.warehouse', 'S/A');
                 });
             } else {
-                $query->where('loading_orders.warehouse', $warehouse);
+                // If it's a special vessel, the 'warehouse' parameter might actually be a 'reference' name
+                $query->where(function ($q) use ($warehouse) {
+                    $q->where('loading_orders.warehouse', $warehouse)
+                        ->orWhere('loading_orders.reference', $warehouse);
+                });
             }
+
 
             if ($operationType === 'scale') {
                 $query->whereIn('loading_orders.operation_type', ['scale', null])
@@ -551,9 +564,14 @@ class DashboardController extends Controller
                             ->orWhere('loading_orders.warehouse', 'S/A');
                     });
                 } else {
-                    $query->where('loading_orders.warehouse', $warehouse);
+                    // Support both Warehouse and Reference for Special Vessels
+                    $query->where(function ($q) use ($warehouse) {
+                        $q->where('loading_orders.warehouse', $warehouse)
+                            ->orWhere('loading_orders.reference', $warehouse);
+                    });
                 }
             }
+
 
             // Date Filter (Global)
             if ($request->has('date') && $request->date) {
@@ -575,11 +593,19 @@ class DashboardController extends Controller
                 });
             }
 
-            $data = $query->select([
-                'loading_orders.id',
-                'loading_orders.folio',
-                'loading_orders.cubicle',
-                'weight_tickets.net_weight',
+            $data = $query->join('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
+                ->select([
+                    'loading_orders.id',
+                    'loading_orders.folio',
+                    DB::raw('
+                        CASE 
+                            WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 
+                            THEN COALESCE(NULLIF(loading_orders.reference, "N/A"), "ALMACÉN CLIENTE")
+                            ELSE loading_orders.cubicle
+                        END as cubicle
+                    '),
+                    'weight_tickets.net_weight',
+
                 'weight_tickets.weigh_out_at',
                 // Fallback to Vehicle Plate if Snapshot is NULL
                 \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate_number, \'---\') as tractor_plate'),
