@@ -88,7 +88,7 @@ class DashboardController extends Controller
         // Units in Circuit: Count unique units with activity in the last 4 hours (Resilient Fallback)
         $unitsInCircuit = LoadingOrder::where('vessel_id', $vesselId)
             ->where('created_at', '>', now()->subHours(4));
-            
+
         if ($operator) {
             $unitsInCircuit->where('operator_name', $operator);
         }
@@ -411,18 +411,23 @@ class DashboardController extends Controller
             });
         }
 
-        $data = $query->join('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
+        $subQuery = $query->leftJoin('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
             ->selectRaw('
                 CASE 
                     WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 
                     THEN COALESCE(NULLIF(loading_orders.reference, "N/A"), COALESCE(loading_orders.warehouse, "ALMACÉN CLIENTE"))
                     ELSE COALESCE(loading_orders.warehouse, "S/A")
-                END as warehouse, 
-                SUM(weight_tickets.net_weight) as total
-            ')
-            ->groupBy('warehouse')
+                END as warehouse_label, 
+                weight_tickets.net_weight
+            ');
+
+        $data = DB::table(DB::raw("({$subQuery->toSql()}) as nested"))
+            ->mergeBindings($subQuery->getQuery())
+            ->selectRaw('warehouse_label as warehouse, SUM(net_weight) as total')
+            ->groupBy('warehouse_label')
             ->orderByDesc('total')
             ->get();
+
 
         return response()->json($data);
     }
@@ -479,19 +484,39 @@ class DashboardController extends Controller
                 });
             }
 
-            // Agregate by Unit (Operator + Economic Number)
-            // Use Single Quotes for SQL compatibility
-            $data = $query->selectRaw("
+            // Aggregate by Unit (Operator + Economic Number)
+            // Use subquery to ensure the "warehouse" label is correctly filtered if it's a reference
+            $subQuery = $query->leftJoin('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
+                ->selectRaw("
                     loading_orders.operator_name,
                     COALESCE(NULLIF(loading_orders.economic_number, ''), 'S/N') as economic_number,
-                    COALESCE(MAX(loading_orders.tractor_plate), MAX(vehicles.plate_number), '---') as tractor_plate,
-                    MAX(loading_orders.cubicle) as cubicle,
-                    SUM(weight_tickets.net_weight) as total_net_weight,
+                    loading_orders.tractor_plate as snap_tractor_plate,
+                    vehicles.plate_number as veh_tractor_plate,
+                    loading_orders.cubicle as snap_cubicle,
+                    loading_orders.reference as snap_reference,
+                    vessels.has_chief_foreman,
+                    vessels.is_external_warehouse,
+                    weight_tickets.net_weight
+                ");
+
+            $data = DB::table(DB::raw("({$subQuery->toSql()}) as nested"))
+                ->mergeBindings($subQuery->getQuery())
+                ->selectRaw("
+                    operator_name,
+                    economic_number,
+                    COALESCE(snap_tractor_plate, veh_tractor_plate, '---') as tractor_plate,
+                    CASE 
+                        WHEN has_chief_foreman = 1 AND is_external_warehouse = 1 
+                        THEN COALESCE(NULLIF(snap_reference, 'N/A'), 'ALMACÉN CLIENTE')
+                        ELSE snap_cubicle
+                    END as cubicle,
+                    SUM(net_weight) as total_net_weight,
                     COUNT(*) as trip_count
                 ")
-                ->groupBy('loading_orders.operator_name', 'loading_orders.economic_number')
+                ->groupBy('operator_name', 'economic_number')
                 ->orderByDesc('total_net_weight')
                 ->get();
+
 
             // Manual Pagination
             $page = (int) $request->input('page', 1);
@@ -593,26 +618,40 @@ class DashboardController extends Controller
                 });
             }
 
-            $data = $query->join('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
+            $subQuery = $query->leftJoin('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
                 ->select([
                     'loading_orders.id',
                     'loading_orders.folio',
+                    'loading_orders.cubicle as snap_cubicle',
+                    'loading_orders.reference as snap_reference',
+                    'vessels.has_chief_foreman',
+                    'vessels.is_external_warehouse',
+                    'weight_tickets.net_weight',
+                    'weight_tickets.weigh_out_at',
+                    DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate_number, "---") as tractor_plate'),
+                    'loading_orders.trailer_plate'
+                ]);
+
+            $data = DB::table(DB::raw("({$subQuery->toSql()}) as nested"))
+                ->mergeBindings($subQuery->getQuery())
+                ->select([
+                    'id',
+                    'folio',
                     DB::raw('
                         CASE 
-                            WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 
-                            THEN COALESCE(NULLIF(loading_orders.reference, "N/A"), "ALMACÉN CLIENTE")
-                            ELSE loading_orders.cubicle
+                            WHEN has_chief_foreman = 1 AND is_external_warehouse = 1 
+                            THEN COALESCE(NULLIF(snap_reference, "N/A"), "ALMACÉN CLIENTE")
+                            ELSE snap_cubicle
                         END as cubicle
                     '),
-                    'weight_tickets.net_weight',
-
-                'weight_tickets.weigh_out_at',
-                // Fallback to Vehicle Plate if Snapshot is NULL
-                \Illuminate\Support\Facades\DB::raw('COALESCE(loading_orders.tractor_plate, vehicles.plate_number, \'---\') as tractor_plate'),
-                'loading_orders.trailer_plate'
-            ])
-                ->orderBy('weight_tickets.weigh_out_at', 'asc')
+                    'net_weight',
+                    'weigh_out_at',
+                    'tractor_plate',
+                    'trailer_plate'
+                ])
+                ->orderBy('weigh_out_at', 'asc')
                 ->get();
+
 
             return response()->json($data);
         } catch (Exception $e) {
