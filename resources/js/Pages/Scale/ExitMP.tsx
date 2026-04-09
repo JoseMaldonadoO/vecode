@@ -57,6 +57,7 @@ export default function ExitMP({
             ? (order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : "ALMACÉN CLIENTE")
             : (order?.warehouse && order.warehouse !== "N/A" ? order.warehouse : ""),
         observations: (order?.type === 'sale' ? (order?.observations || "") : ""),
+        reference: order?.reference || "",
         documenter_id: "",
     });
 
@@ -258,6 +259,8 @@ export default function ExitMP({
     const currentWeight = capturedWeight !== null ? capturedWeight : (weight > 0 ? weight : 0);
     const entryWeight = parseFloat(order.entry_weight) || 0;
     const netWeight = Math.abs(currentWeight - entryWeight);
+
+    const isDynamicReference = order?.is_external_warehouse && order?.has_chief_foreman;
 
     return (
         <DashboardLayout
@@ -532,9 +535,18 @@ export default function ExitMP({
                                 </div>
                                 <div>
                                     <InputLabel value="Referencia" />
-                                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-600">
-                                        {order.reference || "N/A"}
-                                    </div>
+                                    {isDynamicReference ? (
+                                        <TextInput
+                                            value={data.reference}
+                                            onChange={(e) => setData("reference", e.target.value)}
+                                            className="w-full mt-1 border-indigo-300 focus:border-indigo-500 font-bold text-indigo-700"
+                                            placeholder="Escriba la referencia aquí..."
+                                        />
+                                    ) : (
+                                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-600">
+                                            {order.reference || "N/A"}
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <InputLabel value="Consignado a" />

@@ -691,6 +691,7 @@ class WeightTicketController extends Controller
                 'oe_folio' => $order->shipment_order?->folio ?? null,
                 'observations' => $order->observations ?? '',
                 'is_external_warehouse' => (bool) ($order->vessel?->is_external_warehouse ?? false),
+                'has_chief_foreman' => (bool) ($order->vessel?->has_chief_foreman ?? false),
             ];
         }
 
@@ -1084,6 +1085,7 @@ class WeightTicketController extends Controller
             'packaging_type' => 'nullable|string',
             'warehouse' => 'nullable|string',
             'observations' => 'nullable|string|max:1000',
+            'reference' => 'nullable|string|max:255',
             'documenter_id' => 'required|exists:users,id',
         ]);
 
@@ -1144,6 +1146,7 @@ class WeightTicketController extends Controller
                     'status' => 'completed',
                     'destare_status' => 'completed',
                     'warehouse' => $finalWarehouse,
+                    'reference' => $validated['reference'] ?? $order->reference,
                     'observations' => $validated['observations'] ?? $order->observations,
                 ]);
 

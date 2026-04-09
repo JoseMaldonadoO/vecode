@@ -308,13 +308,27 @@ class DashboardController extends Controller
 
         // 2. Storage Breakdown (By Warehouse/Cubicle)
         $byCubicle = (clone $baseQuery)
+            ->leftJoin('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
             ->where(function ($q) {
                 $q->where('loading_orders.status', 'completed')
                     ->orWhere('loading_orders.operation_type', 'burreo');
             })
-            ->selectRaw('CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General")) as label, SUM(weight_tickets.net_weight) as total')
+            ->selectRaw('
+                CASE 
+                    WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 AND loading_orders.warehouse = "ALMACÉN CLIENTE"
+                    THEN COALESCE(NULLIF(loading_orders.reference, ""), "ALMACÉN CLIENTE - General")
+                    ELSE CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General"))
+                END as label, 
+                SUM(weight_tickets.net_weight) as total
+            ')
             ->whereNotNull('loading_orders.warehouse')
-            ->groupBy('loading_orders.warehouse', 'loading_orders.cubicle')
+            ->groupBy(DB::raw('
+                CASE 
+                    WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 AND loading_orders.warehouse = "ALMACÉN CLIENTE"
+                    THEN COALESCE(NULLIF(loading_orders.reference, ""), "ALMACÉN CLIENTE - General")
+                    ELSE CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General"))
+                END
+            '))
             ->orderByDesc('total')
             ->get();
 
