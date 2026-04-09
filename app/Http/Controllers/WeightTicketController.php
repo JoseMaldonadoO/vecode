@@ -1231,13 +1231,15 @@ class WeightTicketController extends Controller
             }
         }
 
+        $isSpecialVesselWorkflow = (!$isSale && $order->vessel && $order->vessel->has_chief_foreman && $order->vessel->is_external_warehouse);
+
         $data = [
             'folio' => $order->folio,
             'ticket_number' => $ticket->ticket_number,
             'date' => $exitDate->format('d/m/Y'),
             'time' => $exitDate->format('H:i:s'),
 
-            'reference' => $isSale ? ($order->shipment_order->folio ?? 'N/A') : ($order->reference ?? 'N/A'),
+            'reference' => $isSpecialVesselWorkflow ? 'N/A' : ($isSale ? ($order->shipment_order->folio ?? 'N/A') : ($order->reference ?? 'N/A')),
             'operation' => $isSale ? 'SALIDA' : 'DESCARGA',
             'scale_number' => $ticket->scale_id ?? 2,
             'product' => $productName,
@@ -1269,7 +1271,7 @@ class WeightTicketController extends Controller
                 : ($order->trailer_plate ?? 'N/A'),
             'economic_number' => $economicNumber,
 
-            'destination' => $destination,
+            'destination' => $isSpecialVesselWorkflow ? ($order->reference ?? 'N/A') : $destination,
             'transporter' => $order->transport_company ?? ($order->transporter->name ?? 'N/A'),
             'consignee' => $order->consignee ?? 'N/A',
 

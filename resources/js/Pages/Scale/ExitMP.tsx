@@ -24,6 +24,7 @@ import { QrReader } from "react-qr-reader";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useScale } from "@/Contexts/ScaleContext";
+import OriginDropdown from "@/Components/OriginDropdown";
 
 export default function ExitMP({
     auth,
@@ -42,6 +43,7 @@ export default function ExitMP({
     const [qrValue, setQrValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
+    const [selectedOriginId, setSelectedOriginId] = useState<number | string>("");
 
     // State for Weighing
     const { weight, isConnected, connectScale, setManualWeight } = useScale();
@@ -536,11 +538,11 @@ export default function ExitMP({
                                 <div>
                                     <InputLabel value="Referencia" />
                                     {isDynamicReference ? (
-                                        <TextInput
-                                            value={data.reference}
-                                            onChange={(e) => setData("reference", e.target.value)}
-                                            className="w-full mt-1 border-indigo-300 focus:border-indigo-500 font-bold text-indigo-700"
-                                            placeholder="Escriba la referencia aquí..."
+                                        <OriginDropdown
+                                            value={selectedOriginId}
+                                            label="Referencia"
+                                            onChange={(id) => setSelectedOriginId(id)}
+                                            onSelect={(origin) => setData("reference", origin.name)}
                                         />
                                     ) : (
                                         <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-600">

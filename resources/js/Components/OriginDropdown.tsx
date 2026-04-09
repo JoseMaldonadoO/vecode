@@ -20,11 +20,12 @@ interface Origin {
 interface OriginDropdownProps {
     value?: number | string;
     onChange: (id: number) => void;
+    onSelect?: (origin: Origin) => void;
     label?: string;
     error?: string;
 }
 
-export default function OriginDropdown({ value, onChange, label = "Origen", error }: OriginDropdownProps) {
+export default function OriginDropdown({ value, onChange, onSelect, label = "Origen", error }: OriginDropdownProps) {
     const [origins, setOrigins] = useState<Origin[]>([]);
     const [loading, setLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -114,7 +115,14 @@ export default function OriginDropdown({ value, onChange, label = "Origen", erro
                 </label>
             )}
 
-            <Listbox value={value} onChange={(val) => onChange(Number(val))}>
+            <Listbox value={value} onChange={(val) => {
+                const id = Number(val);
+                onChange(id);
+                if (onSelect) {
+                    const origin = origins.find(o => o.id === id);
+                    if (origin) onSelect(origin);
+                }
+            }}>
                 <div className="relative mt-1">
                     <Listbox.Button className={`relative w-full cursor-default rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-left shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm transition-all ${error ? 'border-red-500 ring-1 ring-red-500' : ''}`}>
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3">
