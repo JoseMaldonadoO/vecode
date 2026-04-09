@@ -307,7 +307,7 @@ class DashboardController extends Controller
             });
 
         // 2. Storage Breakdown (By Warehouse/Cubicle)
-        $byCubicle = (clone $baseQuery)
+        $subQuery = (clone $baseQuery)
             ->leftJoin('vessels', 'loading_orders.vessel_id', '=', 'vessels.id')
             ->where(function ($q) {
                 $q->where('loading_orders.status', 'completed')
@@ -319,16 +319,14 @@ class DashboardController extends Controller
                     THEN COALESCE(NULLIF(loading_orders.reference, ""), "ALMACÉN CLIENTE - General")
                     ELSE CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General"))
                 END as label, 
-                SUM(weight_tickets.net_weight) as total
+                weight_tickets.net_weight
             ')
-            ->whereNotNull('loading_orders.warehouse')
-            ->groupBy(DB::raw('
-                CASE 
-                    WHEN vessels.has_chief_foreman = 1 AND vessels.is_external_warehouse = 1 AND loading_orders.warehouse = "ALMACÉN CLIENTE"
-                    THEN COALESCE(NULLIF(loading_orders.reference, ""), "ALMACÉN CLIENTE - General")
-                    ELSE CONCAT(COALESCE(loading_orders.warehouse, "Almacén ??"), " - ", COALESCE(loading_orders.cubicle, "General"))
-                END
-            '))
+            ->whereNotNull('loading_orders.warehouse');
+
+        $byCubicle = DB::table(DB::raw("({$subQuery->toSql()}) as nested"))
+            ->mergeBindings($subQuery->getQuery())
+            ->selectRaw('label, SUM(net_weight) as total')
+            ->groupBy('label')
             ->orderByDesc('total')
             ->get();
 
