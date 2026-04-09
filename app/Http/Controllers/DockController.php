@@ -454,10 +454,16 @@ class DockController extends Controller
             $totalProcessedMt = (float) ($totalTonnageKg / 1000);
 
             // 2. Fetch Trip-based counts (source for hold breakdown and counts)
-            $tripStats = \App\Models\VesselOperatorTrip::where('vessel_id', $v->id)
-                ->where('status', '!=', 'cancelled')
-                ->selectRaw('SUM(weight) as total_mt, COUNT(*) as trip_count, hold_number')
-                ->groupBy('hold_number')
+            $tripStats = \App\Models\VesselOperatorTrip::where('vessel_operator_trips.vessel_id', $v->id)
+                ->leftJoin('loading_orders', 'vessel_operator_trips.id', '=', 'loading_orders.vessel_operator_trip_id')
+                ->leftJoin('weight_tickets', 'loading_orders.id', '=', 'weight_tickets.loading_order_id')
+                ->where('vessel_operator_trips.status', '!=', 'cancelled')
+                ->selectRaw('
+                    SUM(COALESCE(weight_tickets.net_weight / 1000, vessel_operator_trips.weight, 0)) as total_mt, 
+                    COUNT(DISTINCT vessel_operator_trips.id) as trip_count, 
+                    vessel_operator_trips.hold_number
+                ')
+                ->groupBy('vessel_operator_trips.hold_number')
                 ->get();
             $programmedMt = $v->programmed_tonnage ?: 0;
 
