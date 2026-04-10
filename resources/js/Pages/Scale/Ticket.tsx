@@ -92,11 +92,11 @@ const TicketCopy: React.FC<{
                 {/* Folio & Date */}
                 <div className={`${isVessel ? "w-[25%]" : "w-[25%]"} flex flex-col border border-black`}>
                     {/* Folio */}
-                    <div className={`flex-1 flex flex-col items-center justify-center ${isVessel ? "p-0.5" : "p-1"} border-b border-black`}>
+                    <div className={`flex-1 flex flex-col items-center justify-center ${isVessel ? "p-0" : "p-1"} border-b border-black`}>
                         <div className={`${isVessel ? "text-[9px]" : "text-[10px]"} font-bold uppercase`}>
                             FOLIO
                         </div>
-                        <div className={`border-[2px] border-black ${isVessel ? "px-2 py-0" : "px-3 py-0.5"} mt-0.5 flex items-center font-bold`}>
+                        <div className={`border-[2px] border-black ${isVessel ? "px-2 h-6" : "px-3 py-0.5 h-10"} mt-0.5 flex items-center justify-center font-bold`}>
                             <span className={`${isVessel ? "text-[18px]" : "text-[24px]"} text-red-600`}>
                                 {(ticket.folio || "").split("-").pop()}
                             </span>
