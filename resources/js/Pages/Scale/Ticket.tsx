@@ -103,17 +103,17 @@ const TicketCopy: React.FC<{
                         </div>
                     </div>
                     {/* Date */}
-                    <div className={`flex ${isVessel ? "text-[8px] h-6" : "text-[9px]"}`}>
-                        <div className="w-1/3 flex items-center justify-center font-bold bg-gray-700 text-white uppercase h-full border-r border-black">
+                    <div className={`flex ${isVessel ? "text-[8px] h-8" : "text-[10px]"}`}>
+                        <div className={`w-1/3 flex items-center justify-center font-bold bg-gray-700 text-white uppercase h-full border-r border-black ${isVessel ? "text-[7px]" : ""}`}>
                             Fecha:
                         </div>
                         <div className="flex-1 flex flex-col items-center justify-center font-mono">
-                            <div className="flex w-full justify-around border-b border-gray-100 px-1 font-bold text-[7px]">
+                            <div className={`flex w-full justify-around border-b border-black px-1 font-bold ${isVessel ? "text-[6px] bg-gray-50" : "text-[8px]"}`}>
                                 <span>DIA</span>
                                 <span>MES</span>
                                 <span>AÑO</span>
                             </div>
-                            <div className="flex w-full justify-around px-1 text-[10px] font-bold">
+                            <div className={`flex w-full justify-around px-1 font-bold ${isVessel ? "text-[11px] leading-tight" : "text-[12px]"}`}>
                                 <span>{ticket.date.split("/")[0]}</span>
                                 <span>{ticket.date.split("/")[1]}</span>
                                 <span>{ticket.date.split("/")[2]}</span>
