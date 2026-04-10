@@ -92,18 +92,18 @@ const TicketCopy: React.FC<{
                 {/* Folio & Date */}
                 <div className={`${isVessel ? "w-[25%]" : "w-[25%]"} flex flex-col border border-black`}>
                     {/* Folio */}
-                    <div className={`flex-1 flex flex-col items-center justify-center ${isVessel ? "p-0" : "p-1"} border-b border-black`}>
+                    <div className={`flex-1 flex flex-col items-center justify-center ${isVessel ? "p-1" : "p-1"} border-b border-black`}>
                         <div className={`${isVessel ? "text-[9px]" : "text-[10px]"} font-bold uppercase`}>
                             FOLIO
                         </div>
-                        <div className={`border-[2px] border-black ${isVessel ? "px-2 h-6" : "px-3 py-0.5 h-10"} mt-0.5 flex items-center justify-center font-bold`}>
+                        <div className={`border-[2px] border-black ${isVessel ? "px-2 h-6" : "px-3 py-0.5 h-10"} mt-0.5 flex items-center justify-center font-bold bg-white`}>
                             <span className={`${isVessel ? "text-[18px]" : "text-[24px]"} text-red-600`}>
                                 {(ticket.folio || "").split("-").pop()}
                             </span>
                         </div>
                     </div>
-                    {/* Date */}
-                    <div className={`flex ${isVessel ? "text-[8px] h-8" : "text-[10px]"}`}>
+                    {/* Date Row */}
+                    <div className={`flex border-t border-black ${isVessel ? "text-[8px] h-8" : "text-[10px]"}`}>
                         <div className={`w-1/3 flex items-center justify-center font-bold bg-gray-700 text-white uppercase h-full border-r border-black ${isVessel ? "text-[7px]" : ""}`}>
                             Fecha:
                         </div>
