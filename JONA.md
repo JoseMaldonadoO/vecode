@@ -23,7 +23,7 @@ Este archivo sirve como historial de las modificaciones realizadas en el sistema
 - **Dashboard de Buques (DoctorController)**: Se corrigió la lógica del panel de e-estatus de muelle. Ahora el tonelaje "Descargado" y "Pendiente" por bodega (B1, B2, B3) se lee directamente de los tickets de báscula, reflejando el peso real descargado.
 
 ### 5. Formato de Ticket Media Carta Horizontal
-- **Ajuste Final Barcos**: Se rediseñó el ticket para usar un formato de **Media Carta Horizontal** (como estaba anteriormente pero optimizado para el tamaño de papel 21.6cm x 14cm). Se corrigió la alineación de la fecha y se agregaron **líneas separadoras verticales** entre Día, Mes y Año para una mejor legibilidad.
+- **Ajuste Final Barcos**: Se rediseñó el ticket para usar un formato de **Media Carta Horizontal** (como estaba anteriormente pero optimizado para el tamaño de papel 21.6cm x 14cm). Se corrigió la alineación de la fecha, se agregaron líneas separadoras verticales y una **línea horizontal** para separar claramente el Folio de la Fecha.
 - **Layout Compacto**: Se restauró el diseño de dos columnas, comprimiendo los espacios verticales para asegurar que toda la información y firmas quepan en la altura limitada de la media carta sin desbordes.
 - **Configuración de Impresión**: Ajustado a `half-letter landscape`.
 
