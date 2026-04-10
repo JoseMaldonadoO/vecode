@@ -22,6 +22,11 @@ Este archivo sirve como historial de las modificaciones realizadas en el sistema
 - **Dashboard Almacén**: Las gráficas de almacenamiento ahora usan el nombre de la **Referencia** como etiqueta en lugar de "ALMACÉN CLIENTE" para barcos especiales. Se implementó un patrón de consulta anidada para garantizar que el desglose (drill-down) funcione sin errores.
 - **Dashboard de Buques (DoctorController)**: Se corrigió la lógica del panel de e-estatus de muelle. Ahora el tonelaje "Descargado" y "Pendiente" por bodega (B1, B2, B3) se lee directamente de los tickets de báscula, reflejando el peso real descargado.
 
+### 5. Formato de Ticket Media Carta Vertical
+- **Optimización Barcos**: Se implementó un nuevo diseño de ticket exclusivo para operaciones de buques, optimizado para impresión en **hojas media carta vertical**.
+- **Layout Inteligente**: El diseño es más estrecho (14cm) y organiza la información de manera vertical (apilada) para evitar encimamiento de textos.
+- **Configuración de Impresión**: Se configuró el estilo de impresión para detectar automáticamente el tamaño `half-letter portrait` cuando es un ticket de barco.
+
 ---
 
 > [!NOTE]
