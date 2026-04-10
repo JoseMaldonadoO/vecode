@@ -1294,6 +1294,7 @@ class WeightTicketController extends Controller
             'documenter' => $ticket->documenter?->name ?? ($isSale
                 ? ($order->shipment_order->creator->name ?? 'DOCUMENTACIÓN')
                 : ($order->vessel_operator->creator->name ?? 'DOCUMENTACIÓN')),
+            'is_vessel' => !$isSale,
         ];
 
         return Inertia::render('Scale/Ticket', [
