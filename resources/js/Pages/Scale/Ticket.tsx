@@ -108,15 +108,15 @@ const TicketCopy: React.FC<{
                             Fecha:
                         </div>
                         <div className="flex-1 flex flex-col items-center justify-center font-mono">
-                            <div className={`flex w-full justify-around border-b border-black px-1 font-bold ${isVessel ? "text-[6px] bg-gray-50" : "text-[8px]"}`}>
-                                <span>DIA</span>
-                                <span>MES</span>
-                                <span>AÑO</span>
+                            <div className={`flex w-full border-b border-black font-bold ${isVessel ? "text-[6px] bg-gray-50" : "text-[8px]"}`}>
+                                <span className="w-1/3 flex justify-center border-r border-black">DIA</span>
+                                <span className="w-1/3 flex justify-center border-r border-black">MES</span>
+                                <span className="w-1/3 flex justify-center">AÑO</span>
                             </div>
-                            <div className={`flex w-full justify-around px-1 font-bold ${isVessel ? "text-[11px] leading-tight" : "text-[12px]"}`}>
-                                <span>{ticket.date.split("/")[0]}</span>
-                                <span>{ticket.date.split("/")[1]}</span>
-                                <span>{ticket.date.split("/")[2]}</span>
+                            <div className={`flex w-full font-bold h-full ${isVessel ? "text-[11px] leading-tight" : "text-[12px]"}`}>
+                                <span className="w-1/3 flex justify-center border-r border-black items-center">{ticket.date.split("/")[0]}</span>
+                                <span className="w-1/3 flex justify-center border-r border-black items-center">{ticket.date.split("/")[1]}</span>
+                                <span className="w-1/3 flex justify-center items-center">{ticket.date.split("/")[2]}</span>
                             </div>
                         </div>
                     </div>
