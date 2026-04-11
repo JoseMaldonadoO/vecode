@@ -1011,8 +1011,8 @@ class WeightTicketController extends Controller
                     ->lockForUpdate()
                     ->max('folio');
 
-                $nextFolioNum = $lastFolio ? intval($lastFolio) + 1 : 1;
-                $folio = str_pad($nextFolioNum, 4, '0', STR_PAD_LEFT);
+                $nextFolioNum = max(intval($lastFolio) + 1, 20755);
+                $folio = str_pad($nextFolioNum, 5, '0', STR_PAD_LEFT);
 
                 $order = LoadingOrder::create([
                     'id' => (string) \Illuminate\Support\Str::uuid(),
@@ -1053,7 +1053,7 @@ class WeightTicketController extends Controller
                     'loading_order_id' => $loadingOrderId,
                     'shipment_order_id' => $shipmentOrderId, // Legacy redundancy, safe to keep or null
                     'weighmaster_id' => auth()->id(),
-                    'ticket_number' => 'TK-' . time(),
+                    'ticket_number' => 'TK-' . $folio,
                     'tare_weight' => $validated['tare_weight'], // First Weight
                     'gross_weight' => 0,
                     'net_weight' => 0,
